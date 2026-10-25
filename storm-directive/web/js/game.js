@@ -209,6 +209,8 @@ function forNear(x, y, r, fn) {
 }
 
 // ---------------------------------------------------------------- targeting
+// A def that shoots: the legacy shoot row, or a roster attack that is a Projectile, Spread or Beam (shooters10.js, lancer10.js have no shoot row).
+const defShoots = d => !!(d && (d.shoot || (d.atk && d.atk.some(a => a.type === 'proj' || a.type === 'spread' || a.type === 'beam'))));
 function targetScore(dir, e, d2) {
   if (dir.length > 9 && dir.includes('>')) return aimPair(dir, e, d2); // (a primary plus a tie-breaker: autorun.js)
   switch (dir) {
@@ -1277,7 +1279,7 @@ function spawnRandom() {
   let tot = 0;
   // Shooters become more common as the storm builds.
   // Shooters stay as common as they were before the swarms got denser: the extra bodies are melee and swarmers.
-  const wOf = d => d.w * (d.shoot ? 0.4 * (1 + t / 300) : 1);
+  const wOf = d => d.w * (defShoots(d) ? 0.4 * (1 + t / 300) : 1);
   for (const id in ENEMIES) { const d = ENEMIES[id]; if (d.w > 0 && d.from <= t && foeRoom(d)) { pool.push(d); tot += wOf(d); } } // (types at their cap roll another: foes2.js)
   if (!pool.length) return;
   let x = Math.random() * tot, def = pool[0];

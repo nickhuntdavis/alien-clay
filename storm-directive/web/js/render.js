@@ -2499,7 +2499,7 @@ function drawHud() {
   // Off-screen shooters: red chevrons on the screen edge, flashing just before they fire.
   const shooters = [];
   for (const e of G.enemies) {
-    if (e.dead || e.boss || e.charmed || e.rival || !e.def.shoot) continue;
+    if (e.dead || e.boss || e.charmed || e.rival || !defShoots(e.def)) continue;
     const d = Math.hypot(e.x - cam.x, e.y - cam.y);
     if (d < 1100) shooters.push([d, e]);
   }

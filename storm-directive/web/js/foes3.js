@@ -189,3 +189,5 @@ Object.assign(MICROBES, {
     }
   },
 });
+// v10: chem.js no longer calls foes3Chem; the Snot Bubble's Static pop (ENEMY_DESIGN 6.1) rides the proc event instead.
+hookOn('hit:late', 'f3popped', (e, dmg, src) => { if (e && src && !src.dot && src.elem === 'shock' && e.def === ENEMIES.snotbubble && !e.popped && !e.dead) foes3Chem(e, 'shock', dmg, src, src); });

@@ -27,7 +27,7 @@ function aimTough(e) {
   const cd = typeof fightCd === 'function' ? fightCd(e) : null;
   return e.maxHp + (cd ? cd.memMax + cd.layers * cd.layerHp : 0);
 }
-function aimShootTier(e) { return e.boss || e.def.shoot ? 3 : e.def.ai === 'medic' ? 2 : e.def.ai === 'summon' ? 1 : 0; }
+function aimShootTier(e) { return e.boss || defShoots(e.def) ? 3 : e.def.ai === 'medic' ? 2 : e.def.ai === 'summon' ? 1 : 0; }
 function aimEliteTier(e) { return e.boss ? 3 : e.rival ? 2 : e.elite ? 1 : 0; }
 const aimRel = v => Math.floor(Math.log(1 + Math.max(0, v)) / 0.04879); // 5% steps (ln 1.05)
 // A directive's value, rounded so that near-equal enemies tie (higher is better).

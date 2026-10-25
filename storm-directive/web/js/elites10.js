@@ -26,7 +26,8 @@ function el10Pick(e, force) {
   const roles = el10Roles(e);
   let key = force;
   if (!key) {
-    const specific = Object.keys(ROSTER_ELITE_MODS).filter(k => k !== 'smouldering' && ROSTER_ELITE_MODS[k].appliesTo.some(a => roles.includes(a)));
+    const giver = typeof FOEAURA !== 'undefined' && FOEAURA.givers.includes(fightId(e.def)); // (a Mucus Wall or Interferon already grants Membranes: no Gifting on top, foeaura10.js)
+    const specific = Object.keys(ROSTER_ELITE_MODS).filter(k => k !== 'smouldering' && !(giver && k === 'gift') && ROSTER_ELITE_MODS[k].appliesTo.some(a => roles.includes(a)));
     key = !specific.length || Math.random() < NF.smoulder.chance ? 'smouldering' : specific[Math.floor(Math.random() * specific.length)];
   }
   e.elMod = key; e.nfSm = key === 'smouldering'; // (newfoes.js reads nfSm; set before its own roll)

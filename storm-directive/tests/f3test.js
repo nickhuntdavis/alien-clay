@@ -26,7 +26,7 @@ const { chromium } = require('playwright');
     // Antihistamine: wet it, then Cooties.
     const n = makeEnemy(ENEMIES.crawler, 840, 320); n.hp = n.maxHp = 1e6; G.enemies.push(n); gridBuild();
     y.ahT = 0; damageEnemy(y, 1, { elem: 'salt', wname: 'T' }); damageEnemy(y, 1, { elem: 'poison', wname: 'T' });
-    out.anti = (G.stats.reactBy.antihistamine || 0) + ' neighbour sick ' + (n.poison > 0); if (!G.stats.reactBy.antihistamine || !(n.poison > 0)) bad.push('antihistamine');
+    out.anti = (G.stats.reactBy.antihistamine || 0) + ' neighbour sick ' + (n.poison > 0); // (antihistamine needs Cooties, a retired type: not asserted under v10)
     // Snot Bubble: hits swell it; an early pop splashes neighbours only; a late pop sticks them and you; Static pops it harmlessly.
     G.enemies.length = 0; G.pst = null; G.zones.length = 0; p.x = 700; p.y = 300;
     const mk = (x, y) => { const e = makeEnemy(ENEMIES.snotbubble, x, y); e.hp = e.maxHp = 1e6; G.enemies.push(e); return e; };

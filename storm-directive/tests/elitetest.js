@@ -12,9 +12,9 @@ const { chromium } = require('playwright');
     const foe = (id, dx, dy, elite, mod) => { const p = G.player, e = makeEnemy(ENEMIES[id], p.x + dx, p.y + (dy || 0), { elite: !!elite }); e.hp = e.maxHp = e.hp * 20; G.enemies.push(e); if (mod) el10Pick(e, mod); gridBuild(); return e; };
     const run = (n, fn) => { for (let i = 0; i < n; i++) { G.state = 'play'; update(1 / 60); if (fn) fn(i); } };
     // Picker: each role gets an affix it is allowed; roles with none get Smouldering.
-    const allow = { crawler: ['haste', 'smouldering'], charger: ['trail', 'smouldering'], spitter: ['fan', 'smouldering'], bulwark: ['gift', 'smouldering'], swarm: ['smouldering'] };
+    const allow = { crawler: ['haste', 'smouldering'], charger: ['trail', 'smouldering'], spitter: ['fan', 'smouldering'], shell: ['gift', 'smouldering'], swarm: ['smouldering'] };
     const seen = {};
-    for (const id of ['crawler', 'charger', 'spitter', 'bulwark']) {
+    for (const id of ['crawler', 'charger', 'spitter', 'shell']) {
       for (let i = 0; i < 40; i++) {
         fresh(); const e = foe(id, 500, 0, true); run(1);
         const ok = allow[id]; seen[id + ':' + e.elMod] = 1;
@@ -23,7 +23,7 @@ const { chromium } = require('playwright');
       }
     }
     out.seen = Object.keys(seen).join(' ');
-    for (const k of ['crawler:haste', 'charger:trail', 'spitter:fan', 'bulwark:gift']) if (!seen[k]) bad.push('never picked ' + k);
+    for (const k of ['crawler:haste', 'charger:trail', 'spitter:fan', 'shell:gift']) if (!seen[k]) bad.push('never picked ' + k);
     fresh(); { const e = foe('crawler', 500, 0, true, 'smouldering'); run(1); if (!e.nfSm) bad.push('forced Smouldering lost its flag'); }
     fresh(); { const e = foe('crawler', 500, 0, false); run(2); if (e.elMod != null) bad.push('a plain enemy got an affix'); }
     // Trailing: a charge leaves a Pool that hurts and expires
@@ -41,7 +41,7 @@ const { chromium } = require('playwright');
       if (bl.length !== 5) bad.push('fan fired ' + bl.length + ' bullets');
       else { const a0 = Math.atan2(bl[0].vy, bl[0].vx), as = bl.map(x => { let d = Math.atan2(x.vy, x.vx) - a0; return Math.atan2(Math.sin(d), Math.cos(d)); }).sort((a, c) => a - c); const arc = (as[4] - as[0]) * 180 / Math.PI; out.arc = Math.round(arc); if (Math.abs(arc - 60) > 4) bad.push('fan arc ' + arc); } }
     // Gifting: a nearby unshielded ally gets a 25% Membrane for 3 s, then loses it
-    fresh(); { const e = foe('bulwark', 300, 0, true, 'gift'), a = foe('crawler', 340, 0); a.speed = 0; e.speed = 0; e.elT = G.t;
+    fresh(); { const e = foe('shell', 300, 0, true, 'gift'), a = foe('crawler', 340, 0); a.speed = 0; e.speed = 0; e.elT = G.t;
       run(30); const c = a.cd; out.gift = c && c.def; if (!c || c.def !== 'membrane' || Math.abs(c.memMax - a.maxHp * 0.25) > 1) bad.push('ally has no 25% Membrane: ' + (c && c.def + ' ' + c.memMax));
       if (!e.elG) bad.push('no visible link state');
       run(200); if (a.cd.def === 'membrane' || a.cd.memMax) bad.push('Membrane did not expire'); }
@@ -50,7 +50,7 @@ const { chromium } = require('playwright');
       e.hp = e.maxHp * 0.29; run(2); out.hasteK = Math.round(e.speed / s0 * 100) / 100; if (Math.abs(e.speed / s0 - 1.5) > 0.01) bad.push('Hasty speed x' + e.speed / s0);
       run(5); if (Math.abs(e.speed / s0 - 1.5) > 0.01) bad.push('Hasty stacked'); }
     // draw pass with every affix
-    fresh(); for (const [id, m] of [['crawler', 'haste'], ['charger', 'trail'], ['spitter', 'fan'], ['bulwark', 'gift'], ['crawler', 'smouldering']]) foe(id, 100 + Math.random() * 50, 0, true, m);
+    fresh(); for (const [id, m] of [['crawler', 'haste'], ['charger', 'trail'], ['spitter', 'fan'], ['shell', 'gift'], ['crawler', 'smouldering']]) foe(id, 100 + Math.random() * 50, 0, true, m);
     try { run(60); render(); } catch (err) { bad.push('draw threw: ' + err.message); }
     return { bad, out };
   });
