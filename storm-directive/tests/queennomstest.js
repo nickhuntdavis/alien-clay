@@ -1,5 +1,5 @@
-// The Macrophage Queen's snack budget (bosssig10_t2.js sg2Noms): 6 snacks in the first pattern cycle, each later cycle
-// 60% of the last (6, 4, 2, 1, 1, then none), so her healing in one fight is bounded and a weak build still wins.
+// The Macrophage Queen's snack budget (bosssig10_t2.js sg2Noms): SG2.noms snacks in the first pattern cycle, each later
+// cycle SG2.nomsFall of the last until none, so her healing in one fight is bounded and a weak build still wins.
 const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 400, height: 860 } });
@@ -14,10 +14,12 @@ const { chromium } = require('playwright');
       for (let i = 0; i < 10; i++) { e.hp = 500; const h0 = e.hp; e.hp += per; sg2Noms(e, s, 'devour', 'devour', h0); healed += e.hp - h0; }
       got.push(Math.round(healed / per));
     }
-    if (got.join(',') !== '6,4,2,1,1,0,0,0') bad.push('budgets ' + got.join(','));
+    const want = got.map((_, c) => Math.min(10, Math.round(SG2.noms * Math.pow(SG2.nomsFall, c))));
+    if (got.join(',') !== want.join(',')) bad.push('budgets ' + got.join(',') + ' want ' + want.join(','));
+    if (!(want[want.length - 1] === 0)) bad.push('the budget never runs out');
     const f = { maxHp: 1000, hp: 500 }, t = {}; sg2Noms(f, t, 'summon', 'summon', 500); // (the fight's first cycle)
     let n = 0; for (let i = 0; i < 10; i++) { f.hp = 500; f.hp += per; sg2Noms(f, t, 'devour', 'devour', 500); n += f.hp > 500 ? 1 : 0; }
-    if (n !== 6) bad.push('first cycle ' + n);
+    if (n !== SG2.noms) bad.push('first cycle ' + n);
     return bad;
   });
   await b.close();

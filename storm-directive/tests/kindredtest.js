@@ -70,6 +70,7 @@ const { chromium } = require('playwright');
       if (how === 'pick') UI.pickLoot(0); else document.getElementById('dSkip').click();
       const el = document.getElementById('kinFuse');
       if (!el || el.style.display !== 'flex' || G.state !== 'loot' || !UI.kinFuse) { bad.push(how + ': no fusion ' + G.state); continue; }
+      { const n = G.weapons.filter(Boolean).length; UI.pickLoot(0); if (G.weapons.filter(Boolean).length !== n) bad.push(how + ': a pick during the fusion added a weapon'); } // (autorun's auto-pick used to stack weapons here)
       try { kinFuseDraw(el.querySelector('canvas'), UI.kinFuse, 0.5); kinFuseDraw(el.querySelector('canvas'), UI.kinFuse, 1.6); kinFuseDraw(el.querySelector('canvas'), UI.kinFuse, 3); } catch (e) { bad.push('fusion draw ' + e.message); }
       UI.kinFuse.t0 -= 3000; el.onpointerdown({ stopPropagation() {} });
       if (el.style.display !== 'none' || G.state !== 'play') bad.push(how + ': fusion did not close');

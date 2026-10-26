@@ -235,7 +235,7 @@ function acquire(dir, range, x, y, exclude) {
   if (dir.includes('ownmess')) dir = aimOwnSet(dir, x, y, range); // (MY OWN MESS: aimat.js)
   // Once the egg is yours to break, half of all target picks in range go to it, whatever the directive.
   const egg = G.eggE;
-  if (egg && !egg.dead && egg.woke && eggBreakable() && egg !== exclude && Math.random() < 0.5 && Math.hypot(egg.x - x, egg.y - y) < range + egg.r) return egg;
+  if (egg && !egg.dead && egg.woke && eggBreakable() && egg !== exclude && Math.random() < (typeof raceEggPick === 'function' ? raceEggPick(x, y) : 0.5) && Math.hypot(egg.x - x, egg.y - y) < range + egg.r) return egg; // (fewer while its bodyguards crowd you: race15.js)
   let best = null, bv = -Infinity;
   for (const e of G.enemies) {
     if (e.dead || e.charmed || e === exclude || (e.egg && !(e.woke && eggBreakable()))) continue;
@@ -1368,7 +1368,7 @@ function shootPattern(e, pat, a0) {
   if (G.nf && nfNoFire(e)) return; // (scratching, gagged or clogged: newfeats.js)
   const p = G.player, sh = e.def.shoot || {};
   const aim = (G.nf && nfAim(e)) ?? ((G.toy || G.decoy) && toyAim(e)) ?? Math.atan2(p.y - e.y, p.x - e.x); // (a decoy: newfeats.js)
-  const dm = dmgNow(), bd = (sh.dmg || e.def.dmg * 0.4 || 8) * dm;
+  const dm = dmgNow(), bd = (sh.dmg || e.def.dmg * 0.4 || 8) * dm * (e.campK || 1); // (campK: a race boss's RACE.bossHit, bosses.js; its bullets were missing it)
   switch (pat) {
     case 'aimed': {
       // Antibodies fan out as the run goes on, but a fan's bullets are lighter (late fans were the top killer).
@@ -2412,9 +2412,12 @@ function autoSteer() {
   // The race: head for the egg once it is yours to break, or to stop a rival breaking it.
   // Yours to break: swim straight into it, then circle it at shooting range (in its healing glow).
   const M = G.eggE && !G.eggE.dead ? G.eggE : null, race = !G.wave && !G.lvl && !G.debug;
+  let eggGo = false; // (the egg's pull uses the homing cap below, or the 1.5 cap cut it back under the dodging)
   if (race && mode !== 'hold' && eggBreakable()) {
-    if (!(M && M.woke)) goal(core.x, core.y, 1.8);
-    else if (cdist > CORE.sanctuary * 0.9) goal(core.x, core.y, 1.4);
+    eggGo = true; const ep = typeof RACE15 !== 'undefined' ? RACE15.eggPull : [1.8, 1.4]; // (race15.js: strong enough to beat the dodging)
+    if (!(M && M.woke)) goal(core.x, core.y, ep[0]);
+    else if (typeof raceEggSteer === 'function') raceEggSteer(p, cdist, goal, (x, y) => { gx += x; gy += y; }, ep[1]); // (hold shooting range round the egg: race15.js)
+    else if (cdist > CORE.sanctuary * 0.9) goal(core.x, core.y, ep[1]);
     else { gx += -(p.y - core.y) / (cdist || 1) * 0.6; gy += (p.x - core.x) / (cdist || 1) * 0.6; }
   } else if (race && M && mode !== 'hold') { const rv = G.enemies.find(e => e.rival && e.mode === 'egg' && !e.dead); if (rv) goal(rv.x, rv.y, 1.2); }
   // Stay inside the womb.
@@ -2430,7 +2433,7 @@ function autoSteer() {
   }
   if (G.lvl && G.lvl.L.school && mode !== 'hold') { const sg = schoolSteer(p); if (sg) goal(sg.x, sg.y, sg.w); } // (Level 0: autorun swims you on: school.js)
   const gl = Math.hypot(gx, gy);
-  const gcap = homing ? 4 : 1.5;
+  const gcap = homing || eggGo ? 4 : 1.5;
   if (gl > gcap) { gx = gx / gl * gcap; gy = gy / gl * gcap; }
   // Danger sampling.
   const bw = G.warp > 0 ? 0.3 : 1;
@@ -2620,7 +2623,7 @@ function eggTick() {
   if (G.state !== 'play' || !G.core || !eggBreakable()) return;
   if (G.eggE && G.eggE.woke) return;
   const p = me();
-  if (Math.hypot(p.x - G.core.x, p.y - G.core.y) < CORE.r + p.r + 14) openEgg();
+  if (Math.hypot(p.x - G.core.x, p.y - G.core.y) < CORE.r + p.r + (typeof RACE15 !== 'undefined' ? RACE15.touch : 14)) openEgg(); // (race15.js: a generous touch, autorun's dodging kept it circling just outside)
 }
 function eggAI(e, dt) {
   e.x = G.core.x; e.y = G.core.y; e.kx = e.ky = 0; e.frozen = 0;
@@ -2644,7 +2647,7 @@ function eggAI(e, dt) {
     const pool = [ENEMIES.brute, ENEMIES.spitter, ENEMIES.lancer, ENEMIES.bulwark, ENEMIES.warlock];
     for (let i = 0; i < EGG.buds && G.enemies.length < CAPS.enemies; i++) {
       const a = Math.random() * TAU;
-      G.enemies.push(makeEnemy(pick(pool), e.x + Math.cos(a) * (e.r + 30), e.y + Math.sin(a) * (e.r + 30), { elite: i === 0 }));
+      G.enemies.push(makeEnemy(pick(pool), e.x + Math.cos(a) * (e.r + 30), e.y + Math.sin(a) * (e.r + 30), { elite: i === 0 })); G.enemies[G.enemies.length - 1].eggBud = true; // (race15.js raceEggPick counts them)
     }
     ring(e.x, e.y, e.r + 30, '#ff8fb8', 0.5, 5);
   }

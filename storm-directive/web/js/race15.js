@@ -9,18 +9,37 @@
 //  - Rival track (Immersive mode): a thin line under the menu buttons with a dot for you and each rival, placed by
 //    level, the egg at the right end and a tick for the clock. Tap it: the full standings in a small overlay while
 //    the slide runs at RACE15.slow speed.
-// Hooks: game.js eggBreakable -> raceEggOpen, levelsAhead -> raceCurveT, PT and spawn rate -> racePace, gainXp -> raceXp,
+// Hooks: wraps game.js dmgMul (the Fever Pitch hold); game.js autoSteer -> raceEggSteer, acquire -> raceEggPick; game.js eggBreakable -> raceEggOpen, levelsAhead -> raceCurveT, PT and spawn rate -> racePace, gainXp -> raceXp,
 // canvas tap -> raceTap;
 // render.js drawHud -> raceHud, raceTrackH, behind-pace chip -> raceCurveT, drawTopBar -> raceClock;
 // rivals.js updateShowdown -> raceTick, rival egg mode -> raceRivalEgg; inspect.js inspectMul -> raceMul; meta.js runDna -> raceDnaBonus.
 
-const RACE15 = { len: 900, curveT: 690, early: 20, slow: 0.1, pace: 1.0, xp: 1.8, rivalFinish: 860, countTime: 810 };
+const RACE15 = { len: 900, curveT: 690, early: 20, slow: 0.1, pace: 1.0, xp: 1.8, rivalFinish: 860, countTime: 810, surgeLag: 180, touch: 80, eggPull: [4, 3.5], eggRange: 0.8, eggBand: 40, eggBuds: 2, budR: 260, budPick: 0.2 }; // (eggPull: autorun's pull to the egg once it is breakable, before and after it wakes, game.js autoSteer; was 1.8 and 1.4, which lost to dodging) // (touch: how close to the egg's edge counts as swimming into it, game.js eggTick)
+// Fever Pitch (game.js SURGE_T, 15:00) used to start the moment the egg opened, so every egg fight ran inside a damage
+// spiral (x1.3 a minute). In a race, enemy damage holds at its 15:00 level for RACE15.surgeLag seconds, then grows again.
+{ const dm0 = dmgMul; dmgMul = function (t) { return dm0(raceOn() && t > SURGE_T ? Math.max(SURGE_T, t - RACE15.surgeLag) : t); }; }
 // Race-only numbers (the Petri Dish, Endless and the levels keep theirs).
 { const F = RIVAL.finish, T = COUNT.time;
   Object.defineProperty(RIVAL, 'finish', { get: () => (raceOn() ? RACE15.rivalFinish : F) });
   Object.defineProperty(COUNT, 'time', { get: () => (raceOn() ? RACE15.countTime : T) }); }
 const racePace = () => (raceOn() ? RACE15.pace : PACE); // (game.js PT and the spawn rate)
 const raceXp = () => (raceOn() ? RACE15.xp : 1); // (game.js gainXp: fewer monsters on the slower clock, each worth more)
+// Autorun's egg fight (game.js autoSteer, once you have woken the egg): hold a ring at RACE15.eggRange of your weapons'
+// reach (inside its healing glow, CORE.sanctuary), circling it, instead of drifting off while dodging its rings.
+function raceEggSteer(p, cdist, goal, add, pull) {
+  const c = G.core, rs = ownedWeapons().map(w => w.s && w.s.range).filter(r => r > 0).sort((a, b) => a - b);
+  const R = clamp((rs.length ? rs[Math.floor(rs.length / 2)] : 300) * RACE15.eggRange, CORE.r + 70, CORE.sanctuary), ux = (p.x - c.x) / (cdist || 1), uy = (p.y - c.y) / (cdist || 1);
+  if (cdist > R + RACE15.eggBand) goal(c.x, c.y, pull);
+  else if (cdist < R - RACE15.eggBand) add(ux * 1.2, uy * 1.2);
+  add(-uy * 0.8, ux * 0.8);
+}
+// game.js acquire: the share of target picks that go to the egg (0.5), less while RACE15.eggBuds of its bodyguards are
+// within RACE15.budR of you, so autorun clears them first.
+function raceEggPick(x, y) {
+  if (!raceOn()) return 0.5;
+  let n = 0; for (const e of G.enemies) if (e.eggBud && !e.dead && Math.hypot(e.x - x, e.y - y) < RACE15.budR && ++n >= RACE15.eggBuds) return RACE15.budPick;
+  return 0.5;
+}
 // Rivals keep racing at Lv 60 but only head for the egg from 15:00 (rivals.js; user, 20 Oct).
 const raceRivalEgg = () => !raceOn() || G.t >= RACE15.len;
 

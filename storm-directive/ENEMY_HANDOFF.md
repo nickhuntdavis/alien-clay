@@ -259,6 +259,7 @@ Test: `./run.sh quick waves10test`; 2 sim runs, quote per-wave seconds in the fr
 
 ### D2 Race early threat (Opus, half a day, with the user)
 The Sprinter is the top hurt source in every bot Race and the bot dies at 3 to 5 minutes with one weapon. Decide whether that is the autorun bot or the pace; `node sim/race.js 4 mortal` with `RACE.hurt` and the Sprinter's `from`/`w` as variables.
+Result (26 Oct, ccr-b6a373a9-q8ofbd): neither. The sim ran with no sample, so no rescues and one weapon; with the Baseline sample and rescues the Sprinter drops out of the top hurt sources and the bot dies at 8 to 11 min to shooters instead (NOTES.md).
 
 ---
 

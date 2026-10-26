@@ -16,6 +16,7 @@ const N = +(process.argv[2] || 2), GOD = process.argv[3] !== 'mortal', TUNE = pr
       const ev = []; const once = {}; const mark = (k, s) => { if (!once[k]) { once[k] = 1; ev.push(s + ' t=' + Math.round(G.t) + ' lv' + G.level); } };
       let win = false;
       for (let f = 0; f < 30 * 1500 && G && G.state !== 'over' && G.state !== 'won'; f++) {
+        if (UI.kinFuse && !UI.kinFuse.done && $('kinFuse')) { UI.kinFuse.t0 -= 1e4; $('kinFuse').onpointerdown({ stopPropagation() {} }); } // (a tap closes a rescue's fusion: the sim's loop never yields to the frame that would)
         if (G.state === 'play') { let vb; if (G.lootQueue.length && (vb = v10Box(G.lootQueue[0])) !== 'wait') { const q = G.lootQueue.shift(); if (vb) UI.openLoot(q); } else update(1 / 30); } // (as game.js's main loop: the Reward Director holds, orders or drops boxes)
         else if (G.state === 'bossIntro') { updateBossIntro(1 / 30); if (G.bossIntro && G.bossIntro.t > 3) endBossIntro(); } else if (G.state === 'intro') updateIntro(1 / 30); else if (G.state === 'rewind') updateRewind(1 / 30);
         else if (G.state === 'finale') {

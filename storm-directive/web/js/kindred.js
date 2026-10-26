@@ -351,6 +351,7 @@ function kinCollect(p, goal) {
   const od = UI.openDraft, pk = UI.pickLoot;
   UI.openDraft = function (req) { od.call(UI, req); kinPic(req.kin || null); };
   UI.pickLoot = function (i, wuid) {
+    if (UI.kinFuse && !UI.kinFuse.done && UI.lootReq && UI.lootReq.kin) return; // (the fusion holds the loot state with the rescue's cards still loaded: autorun's auto-pick took another weapon every 0.7 s, past MAX_WEAPONS)
     const r = UI.lootReq; pk.call(UI, i, wuid);
     if (r && r.kin && G && G.state === 'play') kinFuse(r.kin);
   };
