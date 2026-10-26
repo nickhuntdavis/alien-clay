@@ -1,13 +1,14 @@
 // node bossprobe.js <bossId> [preJS]: god-mode wave run to that boss's wave; during the fight log reach, distance, boss dps.
 const { chromium } = require('playwright');
-// A third argument 'w15' puts a tier 2 boss in the wave 15 slot instead of wave 10 (the bigger fight).
-const ID = process.argv[2], W15 = process.argv[3] === 'w15', PRE = (/^w1[05]$/.test(process.argv[3] || '') ? process.argv[4] : process.argv[3]) || '';
+// A third argument 'w15' puts a tier 2 boss in the wave 15 slot instead of wave 10 (the bigger fight); 'w20' puts any boss in the wave 20 slot.
+const ID = process.argv[2], SLOT = process.argv[3], W15 = SLOT === 'w15', W20 = SLOT === 'w20', PRE = (/^w(10|15|20)$/.test(SLOT || '') ? process.argv[4] : process.argv[3]) || '';
 (async () => {
   const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 400, height: 860 } });
   const errors = []; page.on('pageerror', e => errors.push(e.message));
   await page.goto('file://' + require('path').resolve(__dirname, '../../web/index.html')); await page.evaluate(() => (window.TUT_OFF = 1, splashEnd())); await page.waitForTimeout(400);
   await page.evaluate(() => { META.seenSt = {}; for (const k in STATUS_INTRO) META.seenSt[k] = 1; for (const k in POWERUPS) META.seenSt[POWERUPS[k].name] = 1; META.seen = {}; for (const k in ENEMY_INTRO) META.seen[k] = 1; for (const R of RIVALS) META.seen['rival_' + R.id] = 1; });
   await page.evaluate(() => { RUNLOG.push({ n: 77, at: '2026-10-09 10:55', res: 'LOST', lvl: 44, seq: 'redtail+acid', w: ['wedding9[elemental]', 'orbit8', 'venom7'] }); }); // (a lost run to build the Failed Experiment from: --boss failed)
+  if (W20) await page.evaluate(() => { const r0 = bossTierRoster; bossTierRoster = function (f) { const o = r0(f); const i = f ? o.indexOf(f) : -1; if (i >= 0 && i !== 3) { const t = o[3]; o[3] = o[i]; o[i] = t; } return o; }; });
   if (W15) await page.evaluate(() => { const r0 = bossTierRoster; bossTierRoster = function (f) { const o = r0(f); if (f && o[1] === f) { const t = o[1]; o[1] = o[2]; o[2] = t; } return o; }; });
   if (PRE) await page.evaluate(PRE);
   const r = await page.evaluate(async (BOSS) => {
