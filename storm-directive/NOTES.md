@@ -1,7 +1,7 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
-- (ccr-4854173d-68nd5l, 26 Oct) Late-Race frame rate: quality step 5 (q0c in the log) thins the Race crowd to 55% when step 4 is still slow; steps 3 and 4 draw every common enemy plain and Membranes flat; pool gradients cached. Open: a played long Race on the phone to confirm (run 18 was 25 fps from minute 7 at step 4). The 150 to 300 ms frames in the log are GPU batch stalls, not one slow function.
+- Version v10.174 (versionCode 453): late-Race frame rate: quality step 5 (q0c in the log) thins the Race crowd to 55% when step 4 is still slow; steps 3 and 4 draw common enemies plain and Membranes flat; pool gradients cached, glowing pools in one additive pass. Open: a played long Race on the phone to confirm.
 - Version v10.173 (versionCode 452): opening draft = the sample's three (samplekit.js); newfeattest green (v10 statuses). Still red on main: statuptest Enzyme Sneeze, sivtest; pdeftest flaky.
 - Version v10.172 (versionCode 451): Puddle Jumper card line written (Claude-drafted at the user's request).
 - Version v10.171 (versionCode 450): every sample deals three weapons fitted to it (samplekit.js SAMPLE_KIT; Ordered Online gets the Laser, Redtail Hot Mess and Spark of Life, Not of This World Sister Cousin). Flaky or red on main: pdeftest (about 1 in 3), sivtest, statuptest Enzyme Sneeze.

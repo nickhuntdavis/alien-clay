@@ -3,6 +3,14 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.174 (versionCode 453): 2026-10-26 Late-Race frame rate: quality step 5 thins the crowd, fewer draw calls at the floor
+- Systems: render, quality (game.js QUAL), enemies (foemem)
+- Files: game.js, render.js, foemem.js
+- What: every long Race on the phone (runs 2, 3, 4, 18) fell to 25 to 45 fps from minute 6 with the lowest quality step already reached. A minute-8 frame held 100 enemies, 100 bullets, 100 particles and 50 to 90 puddles: about 1200 canvas calls, 50 gradient uploads and 70 to 100 composite switches a frame (each one flushes the GPU batch). Now: (1) quality step 5, the last resort outside wave mode, drops the crowd to 55% (CROWD.kLow; fewer, tougher enemies with the same XP a minute through the existing spawnK/toughK/crowdK path; the run log shows it as q0c); (2) at steps 3 and 4 every common enemy draws plain (halo and detail off), enemy Membranes draw as a flat skin and rim (two gradients a Membrane a frame gone), step 4 has 70 particles and no scorch marks; (3) at every step, pool gradients are built once per pool (unit radius, scaled under the path) and glowing pools draw in one additive pass. Headless minute-8 frame at step 4: paths 913 to 548, gradients 39 to 13, draw 11.7 to 9.5 ms; step 5 holds 60 to 75 enemies instead of 100.
+- Save data: none (sd_qual still restores at most step 4).
+- Hooks: none.
+- Risk: at step 5 the Race crowd is thinner and tougher per enemy (balance unchanged in total, as the 23 Oct CROWD.k cut); a phone that never slows never sees it. Yeast infection ruled out as a cause (a full colony costs the same as the enemies it replaces).
+
 ## v10.173 (versionCode 452): 2026-10-26 Opening draft deals the sample's three; newfeattest green
 - Systems: samples (start draft), tests
 - Files: samplekit.js (wraps s10Start; Acrobat kit added), tests/samplestest.js, tests/newfeattest.js
