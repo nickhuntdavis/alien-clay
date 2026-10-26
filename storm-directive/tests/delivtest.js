@@ -116,10 +116,18 @@ const { chromium } = require('playwright');
     const ot = dt => { modTick(dt); mwTick(dt); for (const tm of G.timers) { tm.t -= dt; if (tm.t <= 0 && !tm.done) { tm.done = true; tm.fn(); } } };
     const at = (e, d, an) => { const p = G.player; e.x = p.x + Math.cos(an || 0) * d; e.y = p.y + Math.sin(an || 0) * d; gridBuild(); return e; };
     const dist = e => Math.hypot(e.x - G.player.x, e.y - G.player.y);
-    // Homing: a body breaks off for an enemy 190 away (out of the ring's reach) and comes back
-    w = fresh('v_phys_proj', [['orbiting', 1], ['homing', 1]]); e = at(foe(0, 0), 190); let went = 0; tick(1.5, dt => { ot(dt); if (w.xdOb && w.xdOb.some(o => o.st)) went = 1; });
-    out.oHoming = [went, lost(e), w.xdOb.every(o => !o.st || o.st === 'back') ? 1 : 0]; if (!went || !(lost(e) > 0)) bad.push('orbit homing ' + out.oHoming);
-    w = fresh('v_phys_proj', [['orbiting', 1]]); e = at(foe(0, 0), 190); tick(1.5, ot); if (lost(e)) bad.push('orbit homing: hit without it ' + lost(e));
+    // Homing (magnet): the bodies bend off the ring towards an enemy 105 away (out of the ring's reach) and hit it
+    w = fresh('v_phys_proj', [['orbiting', 1], ['homing', 1]]); e = at(foe(0, 0), 105); e.r = 8; let bent = 0; tick(1.5, dt => { ot(dt); if (w.xdOb) bent = Math.max(bent, ...w.xdOb.map(o => Math.hypot(o.mx, o.my))); });
+    out.oHoming = [Math.round(bent), lost(e)]; if (!(bent > 10) || !(lost(e) > 0)) bad.push('orbit homing ' + out.oHoming);
+    w = fresh('v_phys_proj', [['orbiting', 1]]); e = at(foe(0, 0), 105); e.r = 8; tick(1.5, ot); if (lost(e)) bad.push('orbit homing: hit without it ' + lost(e));
+    // Extra Projectiles adds bodies; Rapid Fire spins the ring faster
+    w = fresh('v_phys_proj', [['orbiting', 1], ['extra', 1]]); tick(0.1, ot); out.oExtra = w.m10orb.length; if (out.oExtra !== 4) bad.push('orbit extra ' + out.oExtra);
+    const spin = mods => { const w = fresh('v_phys_proj', mods); tick(0.05, ot); const a0 = w.m10ang; tick(1, ot); return +(w.m10ang - a0).toFixed(2); };
+    out.oRapid = [spin([['orbiting', 1], ['extra', 1]]), spin([['orbiting', 1], ['rapid', 1]])]; if (!(out.oRapid[1] > out.oRapid[0] * 1.2)) bad.push('orbit rapid ' + out.oRapid);
+    // Charged: soft hits, then every body blasts (an enemy 30 outside the ring, out of a body's touch, is caught by the blast)
+    w = fresh('v_phys_proj', [['orbiting', 1], ['charged', 1]]); const ring8 = [...Array(8)].map((_, i) => { const o = at(foe(0, 0), 102, i / 8 * TAU); o.r = 8; return o; }); gridBuild();
+    const lost8 = () => ring8.reduce((t, o) => t + lost(o), 0); tick(3.8, ot); const oc0 = lost8(); tick(0.4, ot);
+    out.oCharged = [oc0, lost8()]; if (oc0 || !(lost8() > 0)) bad.push('orbit charged ' + out.oCharged);
     // Bounce: a body that hits an enemy on the ring goes on to one 70 behind it
     w = fresh('v_phys_proj', [['orbiting', 1], ['ricochet', 1]]); e = at(foe(0, 0), 72); fo = at(foe(0, 0), 142); fo.r = 8; tick(1.5, ot);
     out.oBounce = [lost(e), lost(fo)]; if (!(lost(e) > 0) || !(lost(fo) > 0)) bad.push('orbit bounce ' + out.oBounce);
