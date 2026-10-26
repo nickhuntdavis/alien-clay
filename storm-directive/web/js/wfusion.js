@@ -19,7 +19,15 @@
 //      pinclock  Little Prick + One of These Days: needles start a 3 s countdown; at zero every Bleed stack on the
 //                enemy goes off at once (plus 50% of b's damage a needle).
 //      snotfire  Nocturnal Emission + Hot Mess: the puddles burn too (b's damage, Fire, twice a second).
-//  Names and card text in WF_TEXT (Claude-drafted, 26 Oct). The fused weapon shows its fused name everywhere (wfName).
+//      (pairs 9 to 16; 13, There Is No Spoon + Blowing Bubbles, is a passive pairing at the end of this file: Spoon is a sperm passive)
+//      tapezap    Ewww, Gross + Unwanted Contact: a zap on a taped enemy arcs through its whole bundle (6 at most, 60%).
+//      wormsibs   Chest Burster + Sister Cousin: its risen allies spit homing siblings (every 1.2 s, 50%).
+//      redlaser   Laser + Red Flagship: the Laser's target throws Static arcs at 2 neighbours (60%).
+//      possessed  Rent Free + Panic Button: possessed enemies give off the pulse every 1.5 s, throwing their mates.
+//      gainsneeze Maximum Gains + Enzyme Sneeze: Maximum Gains hits within 140 of you also splash acid (35%).
+//      nervepanic Nervous Wreck + Panic Button: a snap ends in a pulse that throws the crowd outward (every 0.6 s).
+//      crossbeam  Red Flagship + Soulmate Signal: every twin also fires a Red Flagship beam at its nearest enemy.
+//  Names and card text in WF_TEXT (Claude-drafted, 26 Oct). Pairs 9 to 16 and the Spoon pairing: Claude-drafted at the user's request, 26 Oct. The fused weapon shows its fused name everywhere (wfName).
 // Hooks: none in shared files. hookOn tick 'wfTick' and proc 'wfProc'; wraps v10Loot, draftTitle, availableCombos,
 // wupForkCards, sbSlotMark (hides the absorbed weapon's HUD slot), modOk, bubblePop, peekFire,
 // detonateMine. Loads after combos10.js, fusion.js, sandbox.js, modmatrix.js and moddead.js (right after moddead.js).
@@ -33,6 +41,14 @@ const WF_LIST = [
   { id: 'lardmine', a: 's_mines', b: 's_lard' },
   { id: 'pinclock', a: 'v_arcane_proj', b: 's_duedate' },
   { id: 'snotfire', a: 'v_ice_pool', b: 'v_flame_pool' },
+  // pairs 9 to 16 of the chat table (user, 26 Oct); 13 (There Is No Spoon + Blowing Bubbles) is parked: Spoon is a sperm passive now
+  { id: 'tapezap', a: 's_redtape', b: 's_tesla' },
+  { id: 'wormsibs', a: 's_parasite', b: 's_seeker' },
+  { id: 'redlaser', a: 'v_flame_beam', b: 'v_shock_beam' },
+  { id: 'possessed', a: 'v_soul_proj', b: 'v_phys_burst' },
+  { id: 'gainsneeze', a: 'v_phys_spread', b: 'acro_spray' },
+  { id: 'nervepanic', a: 'v_phys_contact', b: 'v_phys_burst' },
+  { id: 'crossbeam', a: 'v_shock_beam', b: 's_twin' },
 ];
 const WF_BY = Object.fromEntries(WF_LIST.map(f => [f.id, f]));
 // The fused weapon's name and description.
@@ -45,6 +61,13 @@ const WF_TEXT = {
   lardmine: { name: 'Nappy Blowout', desc: 'Mine blasts launch enemies outward into each other.' },
   pinclock: { name: 'Biological Clock', desc: 'Needles start a 3-second countdown. At zero, every Bleed on the enemy goes off at once.' },
   snotfire: { name: 'Fever Dream', desc: 'Its sticky patches burn as well.' },
+  tapezap: { name: 'Chain of Custody', desc: 'Zap one taped enemy and the whole bundle gets it. Shared responsibility.' },
+  wormsibs: { name: 'Family Reunion', desc: 'Risen allies spit homing siblings at the living. Everyone is invited.' },
+  redlaser: { name: 'Red Alert', desc: 'Whatever the laser hits throws Static at the two nearest enemies.' },
+  possessed: { name: 'Night Terrors', desc: 'Possessed enemies go off like a panic button and throw their mates. Not their fault. Not ours either.' },
+  gainsneeze: { name: 'Gym Flu', desc: 'Shots up close come with a spray of acid. Cover your mouth.' },
+  nervepanic: { name: 'Fight or Flight', desc: 'Every snap ends in a pulse that throws the crowd outward. Both, then.' },
+  crossbeam: { name: 'Mixed Signals', desc: 'Your twin fires a Red Flagship of its own, so the beams cross the crowd from both sides.' },
 };
 const wfSlot = sid => (G && G.weapons.find(w => w && !w.isSpell && w.sid === sid)) || null;
 const wfFree = w => w && !w.wfIn && !w.wfWith;
@@ -109,9 +132,31 @@ function wfName(w, id) {
 }
 
 // ---------------------------------------------------------------- the fused powers
+// Pairs 9 to 16: a quick Force pulse round a point (Panic Button's throw), for possessed and nervepanic.
+function wfPulse(B, x, y, not) {
+  const src = wfSrc(B, { atk: 'burst', elem: 'phys' });
+  forNear(x, y, 90, o => { if (o !== not && wfLive(o) && Math.hypot(o.x - x, o.y - y) < 90 + o.r) { damageEnemy(o, B.s.dmg * 0.5, src); if (!o.dead && !o.boss) shove(o, x, y, 240); } });
+  ring(x, y, 90, B.def.color, 0.25, 4);
+}
 function wfProc(e, dmg, src) {
   const w = src && src.w; if (!w || !G || !G.wf || src.wupEcho) return;
   let F;
+  // tapezap: an Unwanted Contact hit on a taped enemy arcs through its whole bundle
+  if ((F = wfPair('tapezap')) && w === F.b && e.tape && e.tape.members && !(e.wfTapeT > G.t)) {
+    e.wfTapeT = G.t + 0.3; let n = 0;
+    for (const o of e.tape.members) if (o !== e && wfLive(o) && o.tape === e.tape && n < 6) { n++; bolt(e.x, e.y, o.x, o.y, F.b.def.color, 0.14); damageEnemy(o, F.b.s.dmg * 0.6, wfSrc(F.b, { elem: 'shock' })); }
+  }
+  // redlaser: the Laser's target throws Static arcs at two neighbours
+  if ((F = wfPair('redlaser')) && w === F.a && !(e.wfRedT > G.t)) {
+    e.wfRedT = G.t + 0.3; let n = 0;
+    forNear(e.x, e.y, 140, o => { if (n < 2 && o !== e && wfLive(o)) { n++; bolt(e.x, e.y, o.x, o.y, F.b.def.color, 0.12); damageEnemy(o, F.b.s.dmg * 0.6, wfSrc(F.b, { elem: 'shock' })); } });
+  }
+  // gainsneeze: Maximum Gains hits up close also splash acid
+  if ((F = wfPair('gainsneeze')) && w === F.a && !(e.wfSnzT > G.t) && Math.hypot(e.x - G.player.x, e.y - G.player.y) < 140) {
+    e.wfSnzT = G.t + 0.3; damageEnemy(e, F.b.s.dmg * 0.35, wfSrc(F.b, { elem: 'fire', atk: 'spread' }));
+  }
+  // nervepanic: every Nervous Wreck snap ends in a pulse that throws the crowd outward
+  if ((F = wfPair('nervepanic')) && w === F.a && !(G.wfNerveT > G.t)) { G.wfNerveT = G.t + 0.6; wfPulse(F.b, e.x, e.y, e); }
   if ((F = wfPair('acidmess')) && w === F.a && G.zones.filter(z => z.wfAcid).length < 6 && G.zones.length < 150) {
     const B = F.b, z = { x: e.x, y: e.y, r: 40, life: 2, max: 2, dps: B.s.dmg * 0.6, elem: 'flame', pull: 0, color: B.def.color, tick: 0, wfAcid: 1, src: wfSrc(B, { atk: 'pool', zoneHit: true, elem: 'flame' }) };
     G.zones.push(z);
@@ -134,6 +179,25 @@ function wfTick(dt) {
   if (!G.wf) return;
   for (const id in G.wf) { const F = G.wf[id]; if (F.b && F.a && F.b.lvl < F.a.lvl) setWeaponLevel(F.b, F.a.lvl, F.b.lvl); wfName(F.a, id); }
   let F;
+  // wormsibs: Chest Burster's risen allies spit homing siblings
+  if ((F = wfPair('wormsibs')) && !(G.wfWormT > G.t)) {
+    G.wfWormT = G.t + 1.2; const B = F.b;
+    for (const tu of G.turrets) if (tu.w === F.a && tu.life > 0) { const o = acquire('nearest', 300, tu.x, tu.y); if (!o) continue; const a = Math.atan2(o.y - tu.y, o.x - tu.x); spawnProj(B, tu.x, tu.y, a, wfSrc(B), { r: 4, speed: 330, vx: Math.cos(a) * 330, vy: Math.sin(a) * 330, life: 1.4, dmg: B.s.dmg * 0.5, pierce: 0, style: 'sperm', color: B.def.color, bounce: 0, homing: 6 }); }
+  }
+  // possessed: possessed enemies give off Panic Button's pulse, throwing their mates
+  if ((F = wfPair('possessed')) && !(G.wfPossT > G.t)) {
+    G.wfPossT = G.t + 1.5; let n = 0;
+    for (const e of G.enemies) if (!e.dead && e.charmed && n < 4) { n++; wfPulse(F.b, e.x, e.y, e); }
+  }
+  // crossbeam: Red Flagship also fires from every twin, so beams cross the crowd from both sides
+  if ((F = wfPair('crossbeam')) && !(G.wfCrossT > G.t) && F.b.twins && F.b.twins.length) {
+    G.wfCrossT = G.t + 0.3; const A = F.a;
+    for (const t of F.b.twins) {
+      const o = acquire('nearest', 320, t.x, t.y); if (!o) continue;
+      (G.v10fx || (G.v10fx = [])).push({ k: 'beam', x: t.x, y: t.y, x2: o.x, y2: o.y, w: 8, c: A.def.color, t: 'shock', life: 0.12, max: 0.12 });
+      for (const e of G.enemies) { if (!wfLive(e)) continue; const dx = o.x - t.x, dy = o.y - t.y, l2 = dx * dx + dy * dy || 1, k = clamp(((e.x - t.x) * dx + (e.y - t.y) * dy) / l2, 0, 1); if (Math.hypot(e.x - (t.x + dx * k), e.y - (t.y + dy * k)) < e.r + 8) damageEnemy(e, A.s.dmg * 0.6, wfSrc(A, { atk: 'beam', elem: 'shock' })); }
+    }
+  }
   if ((F = wfPair('hotcore')) && !(G.wfCoreT > G.t)) {
     G.wfCoreT = G.t + 0.3;
     for (const pr of G.proj) if (pr.style === 'void' && !pr.dead && pr.w === F.a) {
@@ -193,3 +257,24 @@ hookOn('proc', 'wfProc', (e, dmg, src) => wfProc(e, dmg, src));
   };
   if (typeof draftTitle === 'function') { const dt = draftTitle; draftTitle = function (req) { return req && req.kind === 'wfuse' ? ['WEAPON FUSION', 'Two weapons become one. A weapon slot opens.'] : dt.apply(this, arguments); }; }
 })();
+
+// ---------------------------------------------------------------- pair 13 as a passive pairing (user, 26 Oct)
+// There Is No Spoon is a sperm passive (spoon.js: a hidden slot, never in G.weapons), so it can't fuse. Held together with
+// Blowing Bubbles at HUD Lv WF.tier, it pairs instead (no merge, no mount): every bullet Spoon fires back traps what it
+// hits in a bubble (WF_SB.trap s of Snare; bosses and rivals are only slowed). The first time it switches on, a float
+// says so (WF_SB.text).
+const WF_SB = { trap: 1.5, text: 'PAIRED: SPOON + BUBBLES' };
+const wfSpoonBub = () => { const B = wfSlot('s_bubble'); return !!(G && G.spSpoon && G.spSpoon.w && typeof mr === 'function' && mr('sp_spoon') > 0 && B && wfTierOf(B) >= WF.tier); };
+hookOn('proc', 'wfSpoonProc', (e, dmg, src) => {
+  if (!src || !G || !G.spSpoon || src.w !== G.spSpoon.w || !wfSpoonBub() || e.dead) return;
+  if (typeof nfStick === 'function') nfStick(e, WF_SB.trap); else if (!e.boss) e.frozen = Math.max(e.frozen || 0, WF_SB.trap);
+  e.wfBubT = G.t + WF_SB.trap; fxParts('bubble', e.x, e.y, ELEMENTS.ice.color, 6, 80, 0.4, 3);
+});
+hookOn('tick', 'wfSpoonTick', () => { if (G && G.state === 'play' && !G.wfSbOn && wfSpoonBub()) { G.wfSbOn = true; const p = G.player; floatText(p.x, p.y - 40, WF_SB.text, ELEMENTS.ice.color, 12, 1.4); } });
+modDraw = (orig => function () {
+  orig.apply(this, arguments);
+  if (!G || !G.wfSbOn) return;
+  ctx.save(); ctx.strokeStyle = col('#cfeff6'); ctx.lineWidth = 2;
+  for (const e of G.enemies) if (!e.dead && e.wfBubT > G.t) { ctx.globalAlpha = 0.55; ctx.beginPath(); ctx.arc(sx(e.x), sy(e.y), (e.r + 8) * S, 0, TAU); ctx.stroke(); ctx.globalAlpha = 0.6; ctx.fillStyle = col('#ffffff'); ctx.beginPath(); ctx.arc(sx(e.x - e.r * 0.4), sy(e.y - e.r * 0.5), 2.5 * S, 0, TAU); ctx.fill(); }
+  ctx.restore();
+})(modDraw);

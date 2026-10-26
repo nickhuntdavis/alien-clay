@@ -56,8 +56,8 @@ const pfLoses = (w, via) => { const dead = ((typeof MOD_DEAD !== 'undefined' && 
 for (const a of Object.values(PF_AURAS)) {
   const base = { slot: 'pfeat', family: 'feat:' + a.type, type: a.type, rarity: 1, start: true, title: a.name, icon: a.icon, color: a.def.color, maxRank: 5 };
   const own = () => { const F = pfFeat(); return F && F.id === a.id ? F : null; };
-  draftRegister(Object.assign({ id: 'pf_' + a.id, kind: 'acquire', desc: PF_TEXT[a.id].desc, eligible: () => PF.on && pfFree(), apply: () => { if (pfFree()) { pfS().feat = { id: a.id, lvl: 1 }; pfS().pearls = []; } }, rank: () => 0 }, base));
-  draftRegister(Object.assign({ id: 'pf_' + a.id + '_up', kind: 'enhance', desc: PF_TEXT[a.id].up, eligible: () => { const F = own(); return !!F && F.lvl < 5; }, apply: () => { const F = own(); if (F && F.lvl < 5) F.lvl++; }, rank: () => { const F = own(); return F ? F.lvl : 0; } }, base));
+  draftRegister(Object.assign({ id: 'feat_pf_' + a.id, kind: 'acquire', desc: PF_TEXT[a.id].desc, eligible: () => PF.on && pfFree(), apply: () => { if (pfFree()) { pfS().feat = { id: a.id, lvl: 1 }; pfS().pearls = []; } }, rank: () => 0 }, base));
+  draftRegister(Object.assign({ id: 'feat_pf_' + a.id + '_up', kind: 'enhance', desc: PF_TEXT[a.id].up, eligible: () => { const F = own(); return !!F && F.lvl < 5; }, apply: () => { const F = own(); if (F && F.lvl < 5) F.lvl++; }, rank: () => { const F = own(); return F ? F.lvl : 0; } }, base));
 }
 
 // ---------------------------------------------------------------- aura Feats: each frame

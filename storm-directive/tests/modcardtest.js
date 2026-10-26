@@ -26,7 +26,7 @@ const { chromium } = require('playwright');
     if (!modCardOk(w, id) || modCard(w, id).tag !== 'MASTERY') bad.push('the mastery (a fourth rank) was not offered');
     G.mmM = ['test']; if (modCardOk(w, id)) bad.push('a second weapon mastery was offered'); G.mmM = [];
     // 2. One modifier per group, in the slots the weapon's level has opened (22 Oct, modmatrix.js).
-    for (let i = 0; i < 3; i++) for (const k of modsFor(w)) if (modCardOk(w, k) && !modHas(w, k)) modCard(w, k).apply();
+    for (let i = 0; i < 3; i++) for (const k of modsFor(w)) if (k !== 'melee' && k !== 'orbiting' && modCardOk(w, k) && !modHas(w, k)) modCard(w, k).apply(); // (Melee and Orbiting move a weapon into the Passive Feat slot: passivefeattest.js)
     out.kinds = modKinds(w); out.slots = mmSlots(w);
     if (mmHeld(w).size > mmSlots(w)) bad.push('more groups than open slots');
     if (mmHeld(w).size === mmSlots(w) && modsFor(w).some(k => !modHas(w, k) && modCardOk(w, k))) bad.push('a new group offered with every slot full');

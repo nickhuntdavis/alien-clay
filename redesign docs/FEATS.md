@@ -381,6 +381,13 @@ The best 15 of the 48 original Feats (`SPELLS` in `data.js`, forks in `spellfork
 - **Lv 3 fork:** two jumps per cooldown (the first leaves a 1.2 s wait), or a splash on landing that Snares for 1 s. **Lv 5:** 50% further, or a 30% shorter cooldown.
 - **Start stats:** 30 damage, 8 s cooldown, 14 stamina. Card text: `TODO_COPY:pj_*`.
 
+### F18. Material skin (`material_skin`, user, 26 Oct; built in `matskin.js`; name TODO_COPY)
+- **Is:** Force, Contact. For 4 s you turn to a hard material: 60% less damage taken, and no grip. You roll on momentum (speed builds slowly towards where you point, up to 1.7 times your speed, and carries on when you turn).
+- **Signature:** enemies you roll into are bowled over: Force damage scaled by your speed and a shove along your path. Level 4: enemies ahead of you are dragged into your path (the user's pull).
+- **Lv 3 fork:** Chitin (80% less damage instead) or Calcified (bowling hits and shoves twice as hard). **Lv 5 fork:** Enamel (enemy shots that reach you bounce back at the nearest enemy) or Latex (you bounce off bosses, elites and the arena edge, keeping your speed).
+- **Material ideas for later forks or variants:** Iron (from haemoglobin; magnetic, pulls Charged enemies), Keratin (fingernail; spikes, as Thorns).
+- **Start stats:** 30 damage at full speed, 14 s cooldown, 22 stamina.
+
 ### The Passive Feat slot and aura Feats (user, 26 Oct; built in `passivefeat.js`)
 - **The slot:** one extra key on the Feat row. It holds one aura: an aura Feat, or a weapon that took Melee or Orbiting.
 - **Melee / Orbiting:** taking either moves the weapon into the slot (it keeps firing as its Melee or Orbiting form and keeps its levels and the modifiers that still work there). Its weapon mount opens with a weapon draft. Modifiers that do nothing under that Delivery (the audit table, `moddead.js`) come off; the card's hold view says so first. Only dealt while the slot is free.

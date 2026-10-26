@@ -22,7 +22,7 @@ const { chromium } = require('playwright');
     if (mr('m_slip') !== 4 || mr('m_fingers') !== 3) bad.push('sperm mastery ' + out.sperm);
     // 3. Weapon mastery: Rank 4 on one modifier only; Extra Mastery opens one more.
     const w = G.weapons.find(Boolean); w.lvl = 9;
-    const ids = modsFor(w); const m1 = ids[0], m2 = ids.find(k => mmGroup(k) !== mmGroup(m1));
+    const ids = modsFor(w).filter(k => k !== 'melee' && k !== 'orbiting'); const m1 = ids[0], m2 = ids.find(k => mmGroup(k) !== mmGroup(m1)); // (Melee and Orbiting move a weapon into the Passive Feat slot)
     for (let i = 0; i < 4; i++) modAdd(w, m1);
     if (m2) for (let i = 0; i < 4; i++) modAdd(w, m2);
     out.weapon = [m1, modCount(w, m1), m2, m2 && modCount(w, m2)];
