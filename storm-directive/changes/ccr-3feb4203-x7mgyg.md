@@ -1,3 +1,11 @@
+## 2026-10-26 Weapon kill bars stop leaking kills (v10.177)
+- Systems: weapon levels
+- Files: wmods.js
+- What: kills keep banking while a weapon's level screen waits (wave mode holds it to the wave's end; up to one bar carries over), a kill with no weapon (burn or bleed ticks, reactions, arcs) goes in full to the last weapon that hit the enemy within 3 s, and Tapeworm turret kills count for their weapon. Probe: over half of some weapons' kills were being dropped while their screen waited.
+- Save data: none.
+- Hooks: none in shared files (wmods.js hookOn('hit:late', 'wmHit') replaces the 'proc' listener; hookOn('tick', 'wmTick') tags turret src.wmW).
+- Risk: weapons level faster mid-run (lead weapon Lv 6 to 7 by wave 10, was 4 to 6); wave20 mortal x6 bot wins 3/6 vs 1/6.
+
 ## 2026-10-26 Milder weapon level catch-up (v10.176)
 - Systems: weapon levels
 - Files: wmods.js

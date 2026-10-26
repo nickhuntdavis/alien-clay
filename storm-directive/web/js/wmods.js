@@ -13,33 +13,45 @@
 //  - THE STAGE: one drawn loop per modifier (WMV_SCENE), drawn with the weapon's own type colour and attack type
 //    (a projectile, a spread, a beam, a contact swipe, a burst or a puddle: wmvKit K.shot).
 //  Off in tests and sims (window.TUT_OFF) unless WM.force, and in the Sandbox.
-// Hooks: none in shared files. hookOn('kill', 'wmKill'), hookOn('proc', 'wmHit'). Wraps branchback.js xbrTick (off while this runs), draft.js
+// Hooks: none in shared files. hookOn('kill', 'wmKill'), hookOn('hit:late', 'wmHit'), hookOn('tick', 'wmTick'). Wraps branchback.js xbrTick (off while this runs), draft.js
 // forkCards, draftBox, sidemo.js sivDraftKind and sivDraftHead, sandbox.js sbDraftInfo (the details panel), preview.js
 // makePreview (the modifier loops), modmatrix.js modDraftCands and wupLevel, modcards.js modBoxCards, UI.openDraft and
 // UI.refreshHud. Loads last (after modpick.js and holdcopy.js).
 
 const WM = { on: true, force: false, k0: 16, kg: 0.42, assist: 0.3, assistT: 3, catchK: 0.35, cards: 3, skipRerolls: 2, statN: 2, statW: 1.1, statSteps: [1.5, 2, 3, 4, 6, 8, 10] };
 const wmOn = () => WM.on && !!G && !xbrTest(WM.force) && !(typeof sbOn === 'function' && sbOn());
-const wmNeed = w => Math.round(WM.k0 * (1 + WM.kg * (Math.min(MM.lvlCap, w.lvl || 1) - 1)));
+const wmNeedL = l => Math.round(WM.k0 * (1 + WM.kg * (Math.min(MM.lvlCap, l || 1) - 1)));
+const wmNeed = w => wmNeedL(w.lvl);
 const wmLive = w => !!w && !w.isSpell && !!w.def && G.weapons.includes(w);
 let wmIn = 0; // (inside a modifier screen's deal: modifier candidates allowed)
 
 // ---------------------------------------------------------------- the kill bar
 // Catch-up (user, 26 Oct: lower weapons could not catch up): every weapon that hit the enemy in the last WM.assistT s
 // gets WM.assist of a kill, and each level a weapon sits below your highest weapon adds WM.catchK to its credit.
+// Leaks closed (user, 26 Oct run log): kills keep banking while the weapon's screen waits (wave mode holds it to the
+// wave's end; wmDone carries the overflow, up to one bar), a kill with no weapon (a burn or bleed tick, a reaction, an
+// arc) goes in full to the last weapon that hit it within WM.assistT, and turrets count for their weapon (src.wmW).
+const wmW = src => src && (src.w || src.wmW);
 function wmCredit(w, n, top) {
-  if (!wmLive(w) || w.wmQ) return;
-  w.wmK = (w.wmK || 0) + n * (1 + WM.catchK * Math.max(0, top - (w.lvl || 1)));
-  if (w.wmK >= wmNeed(w)) wmQueue(w);
+  if (!wmLive(w)) return;
+  w.wmK = Math.min(2 * wmNeed(w), (w.wmK || 0) + n * (1 + WM.catchK * Math.max(0, top - (w.lvl || 1))));
+  if (!w.wmQ && w.wmK >= wmNeed(w)) wmQueue(w);
 }
 function wmKill(e, src) {
   if (!wmOn()) return;
-  const w = src && src.w, top = Math.max(1, ...G.weapons.map(x => x && !x.isSpell ? x.lvl || 1 : 1));
+  const top = Math.max(1, ...G.weapons.map(x => x && !x.isSpell ? x.lvl || 1 : 1));
+  let w = wmW(src);
+  if (!w && !(src && src.w) && e.wmHit) { let tb = -9; for (const [x, t] of e.wmHit) if (t > tb && G.t - t <= WM.assistT) { tb = t; w = x; } }
   if (wmLive(w)) wmCredit(w, 1, top);
   if (e.wmHit) for (const [x, t] of e.wmHit) if (x !== w && G.t - t <= WM.assistT) wmCredit(x, WM.assist, top);
 }
 hookOn('kill', 'wmKill', (e, src) => wmKill(e, src));
-hookOn('proc', 'wmHit', (e, dmg, src) => { if (wmOn() && src && src.w && !src.w.isSpell) (e.wmHit || (e.wmHit = new Map())).set(src.w, G.t); });
+hookOn('hit:late', 'wmHit', (e, d, src) => { const w = wmOn() && wmW(src); if (w && !w.isSpell) (e.wmHit || (e.wmHit = new Map())).set(w, G.t); });
+hookOn('tick', 'wmTick', () => {
+  if (!wmOn() || G.state !== 'play') return;
+  for (const tu of G.turrets || []) if (tu.w && tu.src && !tu.src.wmW) tu.src.wmW = tu.w; // (game.js turrets carry w, not src.w)
+  for (const w of G.weapons) if (wmLive(w) && !w.wmQ && (w.wmK || 0) >= wmNeed(w)) wmQueue(w); // (a carried-over full bar)
+});
 // The next screen for w: a branch screen if Lv+1 is a branch tier it still has cards for, else a modifier screen.
 function wmBranch(w) {
   const S = typeof WUP !== 'undefined' && WUP[w24Key(w)], to = (w.lvl || 1) + 1;
@@ -55,12 +67,13 @@ function wmQueue(w) {
   const lv = wmBranch(w);
   G.lootQueue.push(lv ? { kind: 'fork', v10ok: true, xbr: { w, lv }, wm: { w } } : { kind: 'fork', v10ok: true, wm: { w } });
 }
-// A screen closes: the bar empties, and a pick (l0: the level before it) leaves the weapon exactly one level up, to Lv 9.
+// A screen closes: the bar empties (less any overflow), and a pick (l0: the level before it) leaves the weapon exactly one level up, to Lv 9.
 // (Exactly: a branch card that grants a modifier, or a modifier that ranks up, would otherwise level it twice.)
 function wmDone(w, l0) {
-  w.wmK = 0; w.wmQ = false;
-  if (l0 == null) return;
+  w.wmQ = false;
+  if (l0 == null) { w.wmK = 0; return; } // (SKIP: the bar starts again)
   const to = l0 < MM.lvlCap ? l0 + 1 : l0;
+  w.wmK = Math.min(wmNeedL(to), Math.max(0, (w.wmK || 0) - wmNeedL(l0))); // (kills banked while the screen waited carry over)
   if (w.lvl !== to) { w.lvl = to; computeStats(w); recomputeAll(); }
 }
 const wmPicked = (w, ap) => (...a) => { const l0 = w.lvl || 1; ap(...a); wmDone(w, l0); };
