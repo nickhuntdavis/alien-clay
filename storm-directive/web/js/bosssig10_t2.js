@@ -11,7 +11,7 @@
 //   saccade   (Immune Eye)     A 60 degree sector is marked 0.8 s, then the glare sweeps it over 1.2 s. One a slot; the rest of the slot it closes in as usual.
 //   reflux    (Pepsinator)     One half of the arena is shaded 1 s, then acid pools roll out across it over 1 s.
 //   dinner    (Macrophage Queen) Her line is marked 0.9 s, her adds queue up on it and rush down it 1 s, then she devours the survivors.
-//                              Devour and both dinners share one snack budget a cycle (6 snacks, 18% of her health): past it she eats but does not heal.
+//                              Devour and both dinners share one snack budget a cycle (3 snacks, 9% of her health): past it she eats but does not heal.
 // State lives on the boss (e.sg2), nothing is saved. Wraps bossAI (bosstells10.js's wrapper, game.js) and nf10Draw.
 // Hooks: wraps bossAI, nf10Draw and updateRevive (bosses.js); data.js BOSSES / roster.js ROSTER_BOSSES patterns and campaign.js ENTOURAGE.twins.on are rewritten at load. Save data: none.
 
@@ -24,7 +24,7 @@ const SG2 = {
   fpCopies: 2, fpLen: 4, fpTell: 0.5, fpGap: 1.6, fpRing: 0.3, fpR: 220, // (falsepos)
   scHalf: Math.PI / 6, scTell: 0.8, scSweep: 1.2, scLen: 950, // (saccade: half angle = 30 degrees, so a 60 degree sector)
   rfTell: 1.0, rfWave: 1.0, rfRows: 4, rfCols: 4, rfR: 52, rfLife: 4, // (reflux)
-  dnTell: 0.9, dnRush: 1.0, dnSpeed: 360, dnGap: 46, noms: 6, // (dinner; noms: snacks that heal her per pattern cycle, devour and both dinners together, 3% each: with each feed healing 18% she healed back everything the bot dealt)
+  dnTell: 0.9, dnRush: 1.0, dnSpeed: 360, dnGap: 46, noms: 3, // (dinner; noms: snacks that heal her per pattern cycle, devour and both dinners together, 3% each. Six (18%) still healed back 95% of a 2k dps bot's damage at wave 20, where 18% of her health is 54k a cycle)
 };
 
 // The new patterns replace every generic spray slot (data.js BOSSES and roster.js ROSTER_BOSSES share one array).
