@@ -3,6 +3,14 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.147 (versionCode 426): 2026-10-26 Nine stale or broken tests fixed; Range and Up Close cards offered again
+- Systems: weapon modifiers (dead-card table), stat points, tests
+- Files: moddead.js, statup.js; tests modstest.js, celltest.js, laserbeamtest.js, lasershot.js, slicetest.js, spslicetest.js, sptest.js, statuptest.js, tools/moddead.js
+- What: the dead-card table (MOD_DEAD) had Range and Up Close back on about 50 weapon cells after a rebuild (b8daec1 had taken them off on purpose; v_phys_contact was refused Range though it widens reach 110 to 154); they are removed and the generator now skips both. Returning gets its stat ('range', what its cards already got by default). Tests updated to the intended game: MOD_DEAD filtering, the Laser's charge-up and held beam and its own forks, the two-best-weapons start draft; statuptest resets ids, kill counts, sightings and the damage-number average between weapons so results no longer depend on order; random crits off where a lucky one flipped a check.
+- Save data: none.
+- Hooks: none.
+- Risk: Range and Up Close cards show up again on many weapons (more card variety, slightly different offers). statuptest still fails on Enzyme Sneeze (dps ratio about 1.3 to 1.5, a balance call left open).
+
 ## v10.146 (versionCode 425): 2026-10-26 Merge of two v10.145 sessions: all open copy, modifier hold view, run log newest first
 - Merged: `ccr-0f6f9db5-704msv` (every open TODO_COPY written; holding a modifier card explains it on each weapon with real numbers) and `ccr-56c32e6b-e1zsrr` (run log newest first, Sandbox offer lists shortened) into main's v10.145 (boss Membrane refill). All three had shipped as v10.145; one build.
 
