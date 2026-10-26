@@ -1,6 +1,7 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
+- Version v10.149 (versionCode 428): Cramp and Sneeze keep the far close-in (over 380 px) during their beats; the Sneeze walks to within 420 px before winding up. Every boss probed (bossprobe.js); wave 20 fights run 110 to 200 s for the god bot at 345k to 437k health, no change made.
 - Version v10.148 (versionCode 427): moddead.js MOD_LIVE_WITH lets a dead card through when the weapon holds one that wakes it (Laser: Homing with Bounce or Piercing; Sandbox only, as all three are Flight).
 - Version v10.147 (versionCode 426): Range and Up Close cards offered again (MOD_DEAD rebuild had re-hidden them on about 50 weapon cells; tests/tools/moddead.js now skips both); Returning has its stat; nine stale tests updated. Open: statuptest fails on Enzyme Sneeze (stat-point dps ratio 1.3 to 1.5; user chose to leave it, a 32% dmgK cut on acro_spray would fix it).
 - Version v10.146 (versionCode 425): merge of `ccr-0f6f9db5-704msv` (all open copy written, modifier hold view shows what a card does on each weapon with before/after numbers; holdcopy.js) and `ccr-56c32e6b-e1zsrr` (run log newest first, Sandbox offers print "all N").

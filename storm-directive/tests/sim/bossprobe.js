@@ -7,6 +7,7 @@ const ID = process.argv[2], W15 = process.argv[3] === 'w15', PRE = (/^w1[05]$/.t
   const errors = []; page.on('pageerror', e => errors.push(e.message));
   await page.goto('file://' + require('path').resolve(__dirname, '../../web/index.html')); await page.evaluate(() => (window.TUT_OFF = 1, splashEnd())); await page.waitForTimeout(400);
   await page.evaluate(() => { META.seenSt = {}; for (const k in STATUS_INTRO) META.seenSt[k] = 1; for (const k in POWERUPS) META.seenSt[POWERUPS[k].name] = 1; META.seen = {}; for (const k in ENEMY_INTRO) META.seen[k] = 1; for (const R of RIVALS) META.seen['rival_' + R.id] = 1; });
+  await page.evaluate(() => { RUNLOG.push({ n: 77, at: '2026-10-09 10:55', res: 'LOST', lvl: 44, seq: 'redtail+acid', w: ['wedding9[elemental]', 'orbit8', 'venom7'] }); }); // (a lost run to build the Failed Experiment from: --boss failed)
   if (W15) await page.evaluate(() => { const r0 = bossTierRoster; bossTierRoster = function (f) { const o = r0(f); if (f && o[1] === f) { const t = o[1]; o[1] = o[2]; o[2] = t; } return o; }; });
   if (PRE) await page.evaluate(PRE);
   const r = await page.evaluate(async (BOSS) => {
@@ -14,7 +15,7 @@ const ID = process.argv[2], W15 = process.argv[3] === 'w15', PRE = (/^w1[05]$/.t
     SET.auto = true; SET.autoWaves = true; UI.sample = 's002'; UI.syncAuto(); newGame(); UI.show('hud'); if (G.state !== 'intro') G.state = 'play';
     const st = { frames: 0, inReach: 0, dist: 0, adds: 0, hp0: 0, t0: 0, tEnd: 0, bossMv: 0, hurt: 0, revives: 0, oneDown: 0, healed: 0, dealt: 0 }; let prevHp = -1; let done = false, lastHp = 0, hurt0 = 0, rev = false; const twin0 = []; const lastBoss = { id: null };
     const hs = () => Object.values(G.stats.hurt).reduce((a, b) => a + b, 0);
-    for (let f = 0; f < 30 * 2400 && G && G.state !== 'over' && G.state !== 'won' && !done; f++) {
+    for (let f = 0; f < 30 * 4800 && G && G.state !== 'over' && G.state !== 'won' && !done; f++) {
       if (G.state === 'play') { if (G.lootQueue.length && !waveHoldsLoot()) { const vb = typeof v10Box === 'function' ? v10Box(G.lootQueue[0]) : true; if (vb === 'wait') { G.lootQueue.push(G.lootQueue.shift()); update(1 / 30); } else if (!vb) G.lootQueue.shift(); else UI.openLoot(G.lootQueue.shift()); } else update(1 / 30); }
       else if (G.state === 'bossIntro') { updateBossIntro(1 / 30); if (G.bossIntro && G.bossIntro.t > 3) endBossIntro(); } else if (G.state === 'intro') updateIntro(1 / 30); else if (G.state === 'rewind') updateRewind(1 / 30);
       else if (G.state === 'finale') break;

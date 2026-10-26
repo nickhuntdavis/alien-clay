@@ -3,6 +3,14 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.149 (versionCode 428): 2026-10-26 Cramp and Sneeze close in when you are far; every boss probed; merged with main's v10.148
+- Systems: bosses (boss pack tier 1), tests
+- Files: bosspack.js, bosssig10_t1.js, tests/sim/bossprobe.js
+- What: Probe of the tier 1 and tier 3 bosses (god-mode bot, two runs each). The Cramp (grip at 0.3 speed, contraction at 0.3) and the Sneeze (still through the wind-up and the recovery) never closed on a kiting player: 420 to 570 px out, in reach 9 to 21% of the fight, fights 141 to 200 s. Now the usual far close-in (over 380 px) stands during the Cramp's grip and contraction and the Sneeze's cone, the Sneeze moves while it recovers from a sneeze, and it does not start a wind-up from more than 420 px (it walks in first). Probe after: Cramp 20, 41, 100 s (was 141, 159); Sneeze 15, 40, 140 s (was 89, 200). Litmus Strip 16 and 86 s and Mucus Plug 32 and 52 s untouched. Tier 3 at wave 20 (345k to 437k health): Chad 182 s, Colossus 198 s, Fever 113 s, Failed Experiment 114 s with the signature beats, against 257 to 326 s (Chad) and 207 s (Fever) with the old lists; the Colossus killed the god bot twice with the old lists. No tier 3 change. bossprobe.js seeds a lost run so `failed` can be probed, and runs to 4800 s so wave 20 fights fit.
+- Save data: none.
+- Hooks: none.
+- Risk: the Cramp and Sneeze reach a player who hangs back; a human who stands off now gets approached rather than ignored.
+
 ## v10.148 (versionCode 427): 2026-10-26 Sandbox Laser with Bounce or Piercing is offered Homing
 - Systems: weapon modifiers (dead-card table), tests
 - Files: moddead.js, tests/moddead.js
