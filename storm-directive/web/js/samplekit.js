@@ -4,9 +4,12 @@
 //  - Ordered Online (the nanobot) drops Hot Mess for the Laser; Redtail (touches everything, everyone's hot) takes Hot
 //    Mess and Spark of Life (shared with the Acrobat sample) in place of Sister Cousin and The Runs (a passive now);
 //    Not of This World takes Sister Cousin in place of There Is No Spoon (a passive now). The rest are unchanged.
-//  - Sets each sample's weapons (s10Start's starting draft, kindred.js rescue cards, the Field Guide profile) and the W24
-//    starter column (first listed sample) for weapons that belong to one sample.
-// Hooks: none in shared files. kindred.js kinCards reads S10_BY[...].weapons. Loads after pagesplit.js.
+//  - Sets each sample's weapons (kindred.js rescue cards, the Field Guide profile) and the W24 starter column (first
+//    listed sample) for weapons that belong to one sample.
+//  - THE OPENING DRAFT deals exactly those three, in a random order (user, 26 Oct: it dealt four, samplestart.js's two
+//    best fits plus two random).
+// Hooks: none in shared files. Wraps samplestart.js s10Start; kindred.js kinCards reads S10_BY[...].weapons. Loads after
+// pagesplit.js.
 const SAMPLE_KIT = {
   baseline: ['v_phys_proj', 'v_phys_burst', 'v_arcane_proj'],
   alpha: ['v_phys_spread', 'v_shock_beam', 's_lard'],
@@ -16,6 +19,7 @@ const SAMPLE_KIT = {
   redtail: ['s_tesla', 'v_flame_pool', 'acro_spark'],
   prawn: ['s_peekaboo', 's_toothfairy', 's_parasite'],
   alien: ['s_void', 's_twin', 's_seeker'],
+  acro: ['acro_cap', 'acro_spray', 'acro_spark'],
 };
 {
   const owner = {};
@@ -31,3 +35,7 @@ const SAMPLE_KIT = {
     if (W24_BY && W24_BY[r[0]]) W24_BY[r[0]].starter = r[4];
   }
 }
+s10Start = (orig => function () {
+  const r = orig(), s = typeof s10Of === 'function' && S10_BY[s10Of()], kit = s && SAMPLE_KIT[s.id] && s.weapons.filter(id => WEAPONS[id]);
+  return kit && kit.length ? shuffle(kit.slice()).map(id => optNewWeapon(id, 0)) : r;
+})(s10Start);

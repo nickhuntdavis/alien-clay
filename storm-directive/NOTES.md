@@ -1,6 +1,7 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
+- Version v10.173 (versionCode 452): opening draft = the sample's three (samplekit.js); newfeattest green (v10 statuses). Still red on main: statuptest Enzyme Sneeze, sivtest; pdeftest flaky.
 - Version v10.172 (versionCode 451): Puddle Jumper card line written (Claude-drafted at the user's request).
 - Version v10.171 (versionCode 450): every sample deals three weapons fitted to it (samplekit.js SAMPLE_KIT; Ordered Online gets the Laser, Redtail Hot Mess and Spark of Life, Not of This World Sister Cousin). Flaky or red on main: pdeftest (about 1 in 3), sivtest, statuptest Enzyme Sneeze.
 - Version v10.170 (versionCode 449): merge of `ccr-b96d97ce-vqktjz`: race rescues deal three weapon cards (kindred.js KIN.cards); the Tackle Box Loadout is weapons, targeting and Feats (modifier and Feat pips, weapon Next); the BUILD tab (sperm key) is Autorun in two columns, Genome, Upgrades, Stat bonuses and the non-weapon Next (pagesplit.js).

@@ -1,6 +1,8 @@
 // The v9.23 Feats (newfeats.js): each one is performed in the Lab Bench (s000) without errors, hits, applies its damage
 // type's status, and reaches both of its Lv 4 paths (a behaviour path is noted in G.nfPaths when it is read; a stat path
-// changes the Feat's stats). Plus: Bloody Show fires, bosses are not taken by Vanishing Twin, and Anhydrobiosis saves you.
+// changes the Feat's stats). Plus: bosses are not taken by Vanishing Twin, Anhydrobiosis saves you, and the ones with a v10
+// card and are unlocked turn up in drafts. Statuses are v10's (fight.js fightStatus): Acid fills the Corrosion bar, Static Charges, Blood
+// Bleeds, Mucus Snares; Force has none by design. Bloody Show (a v9 reaction) is gone since v10.136.
 const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 400, height: 860 } });
@@ -26,6 +28,9 @@ const { chromium } = require('playwright');
       return w;
     };
     const elemOf = id => SPELLS[id].elem;
+    const stOn = (e, el) => { const h = chemHas(e) || {}; if (h[el]) return true; const cd = e.cd || {}, B = cd.bars || {};
+      return el === 'fire' ? B.acid > 0 || (e.corrT || 0) > G.t : el === 'shock' ? (e.chargeT || 0) > G.t : el === 'arcane' ? !!(e.bleeds && e.bleeds.length)
+        : el === 'ice' ? (e.snareT || 0) > G.t : el === 'soul' ? B.soul > 0 || !!e.charmed : el === 'flame' ? B.fire > 0 || cd.burnPool > 0 : false; };
     for (const id of ids) {
       for (const fork of [null, 'a', 'b']) {
         const w = stage(id, fork), el = elemOf(id), name = SPELLS[id].name;
@@ -38,12 +43,12 @@ const { chromium } = require('playwright');
           if (id === 'brownfat' && f === 18) for (const e of G.enemies) if (!e.dead) damageEnemy(e, 1, { elem: 'salt', wname: 'Test water' }); // (Water on the slick: Don't Mix)
           if (id === 'anhydrobiosis' && f > 20) { /* rehydrates by itself */ }
           update(1 / 30); G.player.hp = Math.max(G.player.hp, id === 'fecaltransplant' ? 1 : G.P.maxHp * 0.6); if (G.stam) G.stam.cur = stamMax(); if (f % 15 === 7) render();
-          for (const e of G.enemies) { if (e.pre || e.dead) continue; const h = chemHas(e); if (el === 'phys' ? Object.values(h).some(Boolean) : h[el]) status = true; }
+          for (const e of G.enemies) { if (e.pre || e.dead) continue; if (stOn(e, el)) status = true; }
         }
         const dealt = Object.entries(G.stats.dmg).filter(([k]) => k.startsWith(name) || (id === 'tonic' && k === name)).reduce((a, [, v]) => a + v, 0);
         const tag = id + (fork || '');
         if (!(dealt > 0)) out.fails.push(tag + ':nohit casts ' + (G.stats.casts || 0) + ' alive ' + G.enemies.filter(e => !e.dead).length + ' near ' + Math.round(Math.min(...G.enemies.map(e => Math.hypot(e.x - G.player.x, e.y - G.player.y)))) + ' cd ' + w.cd.toFixed(1) + ' stam ' + Math.round(G.stam ? G.stam.cur : -1) + ' cilia ' + !!G.inCilia);
-        if (!status) out.fails.push(tag + ':nostatus');
+        if (!status && el !== 'phys') out.fails.push(tag + ':nostatus'); // (Force: untyped base damage, no status)
         if (fork) {
           const plain = makeSlot(id, true, 5); computeStats(plain);
           const statPath = JSON.stringify(plain.s) !== JSON.stringify(w.s);
@@ -52,15 +57,8 @@ const { chromium } = require('playwright');
         out[tag] = Math.round(dealt);
       }
     }
-    // Bloody Show: Mucus, Blood and Static on one enemy.
-    UI.sample = 's000'; newGame(); UI.show('hud'); G.state = 'play'; G.weapons = []; G.spells = [];
-    const p = G.player, e = makeEnemy(ENEMIES.brute, p.x + 120, p.y); e.hp = e.maxHp = 1e6; G.enemies.push(e);
-    const n = makeEnemy(ENEMIES.brute, p.x + 170, p.y); n.hp = n.maxHp = 1e6; G.enemies.push(n);
-    for (const k of ['ice', 'arcane', 'shock']) { e.reactCd = 0; applyElement(e, k, 20, { elem: k, wname: 'Test' }); }
-    const hp0 = e.hp;
-    for (let f = 0; f < 30 * 4; f++) update(1 / 30);
-    out.bloodyshow = (G.stats.reactBy.bloodyshow || 0) + ' hit ' + Math.round(hp0 - e.hp) + ' sprayed ' + (n.bloodT > 0 && n.chill > 0);
-    if (!G.stats.reactBy.bloodyshow || !(hp0 - e.hp > 0)) out.fails.push('bloodyshow');
+    // Bloody Show was a v9 reaction (Mucus, Blood and Static); v10.136 removed it with the rest of the v9 enemy chemistry.
+    out.bloodyshow = !!(typeof REACTIONS !== 'undefined' && REACTIONS.bloodyshow); if (out.bloodyshow) out.fails.push('bloodyshow back');
     // A boss is spooked and hit, never taken out of play.
     UI.sample = 's000'; newGame(); UI.show('hud'); G.state = 'play'; G.weapons = [];
     const wv = makeSlot('vanishingtwin', true, 1); computeStats(wv); G.spells = [wv];
@@ -80,15 +78,17 @@ const { chromium } = require('playwright');
     UI.sample = 's000'; newGame(); UI.show('hud'); G.state = 'play'; G.weapons = []; G.spells = [makeSlot('anhydrobiosis', true, 1)]; computeStats(G.spells[0]);
     G.spells[0].cd = 0; G.debug.god = false; G.player.hp = G.P.maxHp * 0.15; G.player.iframes = 0; const h0 = G.player.hp; hurtPlayer(G.P.maxHp * 0.1, 'Test');
     if (G.player.hp !== h0) out.fails.push('anhydro saved');
-    // Every new Feat can turn up in a Feat draft.
+    // The new Feats that kept a v10 card (feats10.js draftRegister) turn up in level-up drafts.
     UI.sample = 's001'; newGame(); const seen = new Set();
-    for (let i = 0; i < 1500; i++) { G.spells = [null, null]; const L = genLoot({ kind: 'level' }); for (const c of L) if (c && c.tag === 'NEW FEAT') seen.add(Object.keys(SPELLS).find(k => SPELLS[k] === c.def)); }
-    out.drafted = ids.filter(id => seen.has(id)).length;
-    if (out.drafted < ids.length * 0.8) out.fails.push('drafted ' + out.drafted);
+    G.spells = [null, null, null]; const carded = ids.filter(id => CARDS.some(c => c.slot === 'feat' && c.kind === 'acquire' && c.title === SPELLS[id].name && cardOk(c))); // (locked ones wait for their unlock)
+    for (let i = 0; i < 1500; i++) { G.spells = [null, null, null]; const L = genLoot({ kind: 'level' }); for (const c of L) if (c && c.tag === 'NEW FEAT') seen.add(c.title); }
+    out.carded = carded.length; out.drafted = carded.filter(id => seen.has(SPELLS[id].name)).length;
+    if (!carded.length || out.drafted < carded.length * 0.8) out.fails.push('drafted ' + out.drafted + ' of ' + carded.length);
     out.errs = Object.keys(ERRS.seen); if (out.errs.length) out.fails.push('caught: ' + out.errs.slice(0, 3).join(' | '));
     return out;
   });
   if (r.fails.length) console.log('FAIL', r.fails.join(', '));
+  else delete r.fails; // (run.sh reads any 'fail' in the output as a failure)
   console.log(JSON.stringify(r), 'ERRORS ' + JSON.stringify([...new Set(errors)].slice(0, 6)));
   await b.close();
 })();

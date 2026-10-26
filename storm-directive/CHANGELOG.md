@@ -3,6 +3,14 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.173 (versionCode 452): 2026-10-26 Opening draft deals the sample's three; newfeattest green
+- Systems: samples (start draft), tests
+- Files: samplekit.js (wraps s10Start; Acrobat kit added), tests/samplestest.js, tests/newfeattest.js
+- What: the opening Weapon Draft dealt four (samplestart.js: two best fits plus two random); it now deals the sample's own three (SAMPLE_KIT), in a random order, for all nine samples. newfeattest checks v10's statuses (Corrosion bar, Charge, Bleed, Snare; Force has none), drops the v9 Bloody Show reaction (gone since v10.136) and checks that the unlocked v9 Feats with a v10 card are drafted; its summary no longer prints an empty fails list (run.sh reads any 'fail').
+- Save data: none
+- Hooks: none in shared files.
+- Risk: S10_FIT (samplestart.js) no longer decides the opening offer.
+
 ## v10.172 (versionCode 451): 2026-10-26 Puddle Jumper card line
 - Systems: feats (copy)
 - Files: mobfeats.js

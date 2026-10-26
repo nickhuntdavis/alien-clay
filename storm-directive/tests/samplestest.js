@@ -1,7 +1,6 @@
 // The eight v10 samples (samples10.js): new ids and names, three starters each in the start draft, pool lean, passives, Ordered Online's built-in
 // Evasion, Not of This World shifts w.typeOver every 20 s without swapping weapons, shield flags, unlock rules.
-// Since 24 Oct (samplestart.js): the start draft is the sample's two best weapons (S10_FIT) and two random others from the
-// matrix's 27. Since 23 Oct: only Baseline is open on a fresh save, and an achievement unlocks the rest.
+// Since 26 Oct (samplekit.js): the start draft is the sample's own three weapons (SAMPLE_KIT), in a random order. Since 23 Oct: only Baseline is open on a fresh save, and an achievement unlocks the rest.
 const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 400, height: 860 } });
@@ -22,7 +21,8 @@ const { chromium } = require('playwright');
       const offer = genLoot({ kind: 'start' }), pool = s10Pool(), types = s.types.map(t => S10_TYPES[t]);
       const ids = offer.map(o => W24_IDS.find(k => WEAPONS[k] === o.def || WEAPONS[k] === Object.getPrototypeOf(o.def)));
       const fit = S10_FIT[s.id] || [];
-      if (offer.length !== 4 || new Set(ids).size !== 4 || !ids.every(id => pool.includes(id)) || fit.length !== 2 || !fit.every(id => ids.includes(id))) bad.push(s.id + ' start draft ' + offer.map(o => o.title));
+      const kit = S10_BY[s.id].weapons.filter(id => WEAPONS[id]); // (since 26 Oct: the sample's own three, samplekit.js)
+      if (offer.length !== 3 || new Set(ids).size !== 3 || !kit.every(id => ids.includes(id))) bad.push(s.id + ' start draft ' + offer.map(o => o.title));
       const k = ids.indexOf(fit[0]); offer[k >= 0 ? k : 0].apply(); const w = G.weapons.find(Boolean);
       if (!w || (w.sid || w.id) !== ids[k >= 0 ? k : 0]) bad.push(s.id + ' weapon ' + (w && w.id));
       if (!G.sampleTypes || G.sampleTypes.primary !== s.types[0]) bad.push(s.id + ' lean');
