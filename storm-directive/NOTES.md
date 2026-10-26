@@ -1,6 +1,7 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
+- Version v10.161 (versionCode 440): merge of `ccr-1ac49716-yz41yr` (fusion pairs 9 to 16 and the There Is No Spoon + Blowing Bubbles pairing, Little Jacob, the material skin Feat Petrified, The Runs rolling its damage type per card, all its open copy written by Claude at the user's request) and `ccr-b6a373a9-q8ofbd` (race egg fight: egg health x0.03, autorun holds range and pulls harder, touch from 80 px, Fever Pitch lag).
 - (ccr-b6a373a9-q8ofbd, 26 Oct) ENEMY_HANDOFF D2 (Race early threat): the Sprinter was a sim artefact. race.js ran with no sample, so no rescues and one weapon all race (30 of 30 runs). As the Baseline sample, 8 runs each: Kite 502 s mean survival (1 to 2 weapons, the bot rarely reaches a rescue), Collect 528 s, rescues brought to the bot 649 s (3 weapons), plus no Sprinter Evasion 681 s. Sprinters are no longer a top hurt source; deaths come at 8 to 11 min to shooters (Cytokine Caster, Antibody, Enzyme Spire bullets). Open: 0 of 32 bot Race wins, so late-Race pace is the next thread (RACE.hurt, the shooter mix after 8 min).
 - Version v10.157 (versionCode 436): loot card icons in ink, not colour (merge of `claude/eager-thompson-eie9mn`).
 - Version v10.156 (versionCode 435): Queen snack budget 6 falling by 0.6 a cycle (the v10.150 flat 3 and ccr-b6a373a9's falling 6 had stacked to 3, 2, 1, 1).

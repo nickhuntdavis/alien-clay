@@ -3,6 +3,100 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.161 (versionCode 440): 2026-10-26 Two session branches merged: weapon fusion pairs 9 to 16 and the Spoon pairing, Little Jacob, the material skin Feat, The Runs rolling its type, written copy; race egg fight fixes
+- Merged: `ccr-1ac49716-yz41yr` (clean), `ccr-b6a373a9-q8ofbd` (only the APK conflicted: rebuilt).
+- Systems: weapons (fusion, Sister Cousin), Feats, sperm passives, ui copy (ccr-1ac49716); race, autorun steering, targeting, egg, kindred rescues (ccr-b6a373a9).
+- Hooks: game.js autoSteer -> raceEggSteer, acquire -> raceEggPick, eggTick reads RACE15.touch, shootPattern x e.campK (ccr-b6a373a9); none in shared files from ccr-1ac49716.
+
+### Folded from ccr-1ac49716-yz41yr: 2026-10-26 Open copy written (v10.160)
+- Systems: ui (card copy): Feats, sperm passives, weapons (fusion), Little Jacob
+- Files: matskin.js (MS_TEXT), runstype.js (RUNS_TEXT), wfusion.js (WF_TEXT pairs 9 to 16, WF_SB.text), ljacob.js (LJ_TEXT), tests/runstypetest.js
+- What: at the user's request ("write the open copy yourself"), Claude wrote the 33 open strings: the material skin Feat (Petrified; forks Chitin, Kidney Stone, Enamel, Latex), The Runs' seven per-type card lines, fusions 9 to 16 (Chain of Custody, Family Reunion, Red Alert, Night Terrors, Gym Flu, Fight or Flight, Mixed Signals), the Spoon pairing float and Little Jacob's squeal. No TODO_COPY left in this branch's feature files.
+- Save data: none.
+- Hooks: none.
+- Risk: none (text only).
+
+### Folded from ccr-1ac49716-yz41yr: 2026-10-26 There Is No Spoon + Blowing Bubbles as a passive pairing (v10.159)
+- Systems: weapons (fusion), sperm passives (There Is No Spoon), tests
+- Files: wfusion.js (pair 13 at the end), tests/wfusiontest.js
+- What: holding the There Is No Spoon passive with Blowing Bubbles at HUD Lv 3 pairs them (no merge, no mount): every bullet Spoon fires back traps what it hits in a bubble (1.5 s Snare; bosses only slowed). A float says when it switches on (TODO_COPY:wf_spoonbub_on).
+- Save data: none.
+- Hooks: none in shared files (hookOn proc 'wfSpoonProc' and tick 'wfSpoonTick'; another modDraw wrap).
+- Risk: none beyond balance.
+
+### Folded from ccr-1ac49716-yz41yr: 2026-10-26 Fusion pairs 9 to 16 (v10.158)
+- Systems: weapons (fusion), tests
+- Files: wfusion.js, tests/wfusiontest.js (7 new checks; the lardmine check pauses both weapons, it was flaky)
+- What: seven more fusions: Ewww, Gross + Unwanted Contact (zaps arc through a taped bundle), Chest Burster + Sister Cousin (risen allies spit siblings), Laser + Red Flagship (the Laser's target arcs Static to 2 neighbours), Rent Free + Panic Button (possessed enemies pulse), Maximum Gains + Enzyme Sneeze (close hits splash acid), Nervous Wreck + Panic Button (snaps end in a pulse), Red Flagship + Soulmate Signal (twins fire Red Flagship beams). Pair 13 (There Is No Spoon + Blowing Bubbles) is parked: Spoon is a sperm passive now, never a weapon. Names and card text TODO_COPY.
+- Save data: none.
+- Hooks: none.
+- Risk: weapons in two pairs (Panic Button, Red Flagship, Unwanted Contact, Sister Cousin, Blowing Bubbles) fuse with whichever partner reaches Lv 3 first.
+
+### Folded from ccr-1ac49716-yz41yr: 2026-10-26 Little Jacob (v10.157)
+- Systems: weapons (Sister Cousin), modifier masteries, tests
+- Files: ljacob.js (new), index.html, tests/ljacobtest.js (new), MODIFIER_MATRIX.md (5.4b), ARCHITECTURE.md
+- What: Sister Cousin with both the Charged and Exploding Rounds masteries sends out Little Jacob every 8 s: a fat sibling that waddles to the crowd and explodes (Blood, radius 140, 8x Sister Cousin's damage, bosses half). Your other weapons' shots that touch him feed the blast (x1.25, capped at 4x base); shots near him bend in. Squeal text TODO_COPY:lj_squeal.
+- Save data: none.
+- Hooks: none in shared files (hookOn tick 'ljTick'; wraps f10Draw).
+- Risk: needs two weapon masteries (Extra Mastery), so it is rare; the blast is big by design and untested for balance.
+
+### Folded from ccr-1ac49716-yz41yr: 2026-10-26 The material skin Feat (v10.156)
+- Systems: Feats (v10), tests
+- Files: matskin.js (new), index.html, tests/matskintest.js (new), tests/featstest.js (starting pool 21, an entry for it), FEATS.md (F18), ARCHITECTURE.md
+- What: a new Feat in the starting pool: 4 s of 60% less damage, rolling on momentum instead of swimming, bowling enemies over by speed; level 4 drags enemies into your path; forks Chitin / Calcified and Enamel / Latex. Name and card text TODO_COPY (MS_TEXT).
+- Save data: none.
+- Hooks: none in shared files (hookOn tick 'msTick2' and hurtMul 'msHurtMul'; wraps nfSpeed and f10Draw).
+- Risk: the Feat starting pool grows to 21; autorun steering while rolling is sluggish by design.
+
+### Folded from ccr-1ac49716-yz41yr: 2026-10-26 The Runs rolls a damage type per card (v10.155)
+- Systems: sperm passives (The Runs), draft, tests
+- Files: runstype.js (new), spassives.js (spRunsSlot reads G.spRunsType), index.html, tests/runstypetest.js (new), SPERM_PASSIVES.md, ARCHITECTURE.md
+- What: each new The Runs card rolls one of the seven damage types (weighted towards your weapons' types and the sample's primary); picking it fixes the trail's type for the run and upgrade cards keep it. Extras: Force shoves enemies aside, Static arcs between trail pieces, Blood heals you while enemies stand in it, Parasite drags enemies along the trail away from you. Card text TODO_COPY:sp_runs_<type>_desc.
+- Save data: none (run state G.spRunsType).
+- Hooks: none in shared files (hookOn tick 'runsTick'; wraps cardOpt).
+- Tests: runstypetest, spslicetest, mutstest, drafttest pass; spfulltest fails the same way on main (sp_aim list, Chain Letter).
+- Risk: The Runs no longer follows the sample's type; balance of the four extras untested.
+
+### Folded from ccr-b6a373a9-q8ofbd: 2026-10-26 Race egg fight: egg health x0.03, autorun holds range and clears bodyguards
+- Systems: race (race15), autorun steering, targeting, egg
+- Files: race15.js, game.js (autoSteer, acquire, egg buds), boss10.js (V10_DIFF.egg)
+- What: the egg's health is V10_DIFF.egg 0.03 (was 0.5: about 3.8 million at 15:00, so no build could break it before a rival's fixed chip did). Once woken, autorun holds a ring at 80% of its weapons' reach inside the healing glow (raceEggSteer), the egg pull uses the homing goal cap (4, the 1.5 cap had cut it back under the dodging), and while 2+ of the egg's bodyguards are within 260 px only 20% of target picks go to the egg (raceEggPick).
+- Save data: none
+- Hooks: game.js autoSteer -> raceEggSteer, acquire -> raceEggPick; egg buds marked e.eggBud.
+- Risk: the egg breaks much faster for human players too (the 2.5%-a-second cap still holds it for at least 40 s).
+
+### Folded from ccr-b6a373a9-q8ofbd: 2026-10-26 Race: autorun pulls harder to the egg once it is breakable
+- Systems: race (race15), autorun steering
+- Files: race15.js, game.js (autoSteer egg goal weights)
+- What: autorun's pull to the egg is now RACE15.eggPull (4 before it wakes, 3.5 after; was 1.8 and 1.4), which beat the dodging that kept it 500 to 2,500 px away while a rival broke in. In a probe its damage to the egg rose from about 3k to 115k.
+- Save data: none
+- Hooks: game.js autoSteer reads RACE15.eggPull.
+- Risk: autorun players head into the egg's bullet rings more readily.
+
+### Folded from ccr-b6a373a9-q8ofbd: 2026-10-26 Race: swimming into the egg counts from 80 px of its edge
+- Systems: race (race15), egg
+- Files: race15.js, game.js (eggTick touch radius)
+- What: once the egg is breakable, coming within RACE15.touch (80 px, was 14) of its edge wakes it. Autorun circled it just outside the old radius while dodging its rings, so it never started its own egg fight and a rival always won.
+- Save data: none
+- Hooks: game.js eggTick reads RACE15.touch.
+- Risk: the egg fight starts a little earlier for human players too.
+
+### Folded from ccr-b6a373a9-q8ofbd: 2026-10-26 Race: Fever Pitch holds 3 min after the egg opens; race boss bullets take RACE.bossHit
+- Systems: race (race15), bosses, director (difficulty clock)
+- Files: race15.js, game.js (one line in shootPattern)
+- What: in a race, enemy damage now holds at its 15:00 level for RACE15.surgeLag (180 s) before Fever Pitch compounds, so the egg fight no longer starts inside the x1.3-a-minute spiral. Race bosses' bullets now take their RACE.bossHit softening (only their contact damage did).
+- Save data: none
+- Hooks: game.js shootPattern bullet damage x e.campK (set only on race bosses, bosses.js); race15.js wraps dmgMul.
+- Risk: the race egg phase and the first four race bosses are easier; Petri Dish, Endless and levels unchanged (raceOn and campK gate both).
+
+### Folded from ccr-b6a373a9-q8ofbd: 2026-10-26 Race: autorun no longer stacks weapons in a rescue's fusion; D2 Sprinter finding (v10.155)
+- Systems: race (kindred rescues), tests
+- Files: kindred.js, tests/kindredtest.js, tests/sim/race.js
+- What: while a rescue's fusion played, the loot state still held the rescue's cards, so autorun's auto-pick took another weapon every 0.7 s past MAX_WEAPONS (a sim got hundreds); picks on the rescue screen are ignored until the fusion closes. race.js now starts as the Baseline sample (no sample meant no rescues, so every past Race sim ran with one weapon) and closes a fusion like a tap.
+- Save data: none
+- Hooks: none (kindred.js's own UI.pickLoot wrap gains one guard line)
+- Risk: none expected; the guard only applies while UI.kinFuse is open on a rescue screen.
+
 ## v10.157 (versionCode 436): 2026-10-26 Loot card icons in ink
 - Merged: `claude/eager-thompson-eie9mn` (no conflicts).
 - Systems: ui, reward cards, pictomap. Files: style.css.
