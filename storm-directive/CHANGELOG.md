@@ -8,6 +8,14 @@ Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, 
 - Systems: ui (Tackle Box Loadout tab, pause BUILD tab).
 - Hooks: none in shared files (pagesplit.js replaces bpHtml, wraps loadoutHtml and UI.renderPause).
 
+### Rescue weapon draft: three cards (v10.170)
+- Systems: race (kindred rescues), draft
+- Files: kindred.js (KIN.cards), tests/kindredtest.js
+- What: a sperm rescue in the race dealt the rescued sample's three weapons plus one of your own sample's starters (four cards). It now deals three: one of your own sample's starters and two of the rescued sample's, picked at random (all three of theirs when none of yours is left).
+- Save data: none
+- Hooks: none
+- Risk: a rescue no longer always offers every weapon of the rescued sample.
+
 ### Folded from ccr-b96d97ce-vqktjz: 2026-10-26 Tackle Box and BUILD tab split by job (v10.170)
 - Systems: ui (Tackle Box Loadout tab, pause BUILD tab)
 - Files: pagesplit.js (new), index.html, ARCHITECTURE.md, tests/pagesplittest.js (new), tests/buildbtntest.js

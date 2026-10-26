@@ -24,7 +24,7 @@
 // Hooks: render.js drawHud -> kinPointers; sigweap.js v10Pool -> kinPool; game.js levelling -> kinSlotLv. Wraps v10Tick, v10Draw, draftBox, v10Loot,
 // UI.openLoot and samplelooks.js slDraw (loads last, after ui.js).
 
-const KIN = { grow: 0.15, remind: 20, pull: 3, at: [120, 300], every: 180, lastMark: 780, dist: 900, rim: 160, touch: 46, skip: ['acro'], extras: ['prawn'], slots: [] };
+const KIN = { cards: 3, grow: 0.15, remind: 20, pull: 3, at: [120, 300], every: 180, lastMark: 780, dist: 900, rim: 160, touch: 46, skip: ['acro'], extras: ['prawn'], slots: [] };
 // (at: the rescues every race gets; then a mark every KIN.every seconds up to KIN.lastMark brings one only while a
 // weapon mount is empty: a skipped rescue or a Recycled weapon. slots: no level-up weapon drafts in a race.)
 const kinFull = () => G.weapons.filter(Boolean).length >= MAX_WEAPONS;
@@ -132,7 +132,8 @@ function kinAbsorb(id) {
 function kinCards(req) {
   if (kinFull()) return [];
   const sm = S10_BY[req.id], own = G.s10 && w24Starters(G.s10.id).filter(id => WEAPONS[id] && !G.weapons.some(w => w && (w.sid || w.id) === id));
-  const ids = sm.weapons.filter(id => WEAPONS[id]).concat(own && own.length ? [pick(own)] : []);
+  const mine = own && own.length ? [pick(own)] : []; // (three weapons at most, user 26 Oct: one of your own sample's, the rest the rescued sample's)
+  const ids = shuffle(sm.weapons.filter(id => WEAPONS[id])).slice(0, KIN.cards - mine.length).concat(mine);
   return ids.map(id => {
     const o = optNewWeapon(id, 0), eq = o.apply;
     o.apply = () => { if (!G.weapons.some(w => !w)) G.weapons.push(null); eq(); };

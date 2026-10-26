@@ -38,7 +38,7 @@ const { chromium } = require('playwright');
     const q = G.lootQueue[0];
     if (!q || q.kind !== 'kindred' || draftBox(q) !== true) bad.push('no kindred screen ' + JSON.stringify(q));
     const cards = genLoot({ kind: 'slot', kin: q.id });
-    if (cards.slice(0, 3).map(c => c.title).join() !== w24Starters('alpha').map(id => WEAPONS[id].name).join() || cards.length !== 4 || cards[3].title !== WEAPONS[w24Starters('baseline')[2]].name) bad.push('cards ' + cards.map(c => c.title)); // (its three, then your own unpicked starter)
+    { const al = w24Starters('alpha').map(id => WEAPONS[id].name), mine = WEAPONS[w24Starters('baseline')[2]].name; if (cards.length !== 3 || cards[2].title !== mine || !cards.slice(0, 2).every(c => al.includes(c.title))) bad.push('cards ' + cards.map(c => c.title)); } // (three at most, user 26 Oct: two of its weapons, then one of your own sample's)
     // Alpha's passive now runs: moving speeds up every weapon.
     G.player.vx = 100; s10Tick(0.016); if (!(G.weapons[0].rateK > 1)) bad.push('alpha passive off');
     const n0 = G.weapons.filter(Boolean).length; cards[0].apply();
@@ -46,7 +46,7 @@ const { chromium } = require('playwright');
     // Open the real screen once.
     G.weapons[2] = null; G.lootQueue = [q]; UI.openLoot(G.lootQueue.shift());
     out.screen = document.getElementById('dTitle').textContent; out.kick = document.getElementById('dKick').textContent;
-    if (out.screen !== 'CHOOSE YOUR DIFFERENCE' || !UI.draft || UI.lootOpts.length !== 4) bad.push('not the weapon draft screen: ' + out.screen);
+    if (out.screen !== 'CHOOSE YOUR DIFFERENCE' || !UI.draft || UI.lootOpts.length !== 3) bad.push('not the weapon draft screen: ' + out.screen);
     // Grafts: your tail is drawn in lengths, yours then Alpha's.
     { const seen = []; const keep = SL_TAIL.alpha; SL_TAIL.alpha = (t, ...r) => { seen.push(t.length); return keep(t, ...r); };
       UI.show('game'); G.state = 'play'; try { drawShip ? render() : 0; } catch (e) { bad.push('render ' + e.message); }
