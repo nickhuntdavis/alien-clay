@@ -3,6 +3,25 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.146 (versionCode 425): 2026-10-26 Merge of two v10.145 sessions: all open copy, modifier hold view, run log newest first
+- Merged: `ccr-0f6f9db5-704msv` (every open TODO_COPY written; holding a modifier card explains it on each weapon with real numbers) and `ccr-56c32e6b-e1zsrr` (run log newest first, Sandbox offer lists shortened) into main's v10.144. Both had shipped as v10.145; one build.
+
+### Folded from ccr-0f6f9db5-704msv: 2026-10-25 All open copy written; modifier hold view explains the instance (v10.145)
+- Systems: ui (loot cards, glossary), weapons (modifier cards), relics, bosses, tutorials, Switched at Birth, health cards
+- Files: holdcopy.js (new), index.html, style.css, glossary.js, rewardui.js, data.js, rrelics.js, levels.js, foes3.js, bosspack.js, rackgrid.js, spoils.js, dnadrop.js; tests cell4test.js, sabtierstest.js, dnadroptest.js
+- What: every remaining TODO_COPY is written (11 relics, 15 boss signature lines, 6 health and Membrane cards, Switched at Birth levels and fork, 25 water-balloon cells, Tartar Colony, Hocker tip, Toughest targeting, Trophy Hide, DNA drop label, notes and tutorial, random sample tag, the pick-a-weapon fit line). Holding a modifier card now shows, for each weapon it can go on, what it does on that weapon at that rank (cell or Delivery text where one exists, else a line in the weapon's own words with the rank's real numbers), what this rank adds, and the weapon's numbers before and after including the card's stat point. glossFor no longer matches "The shakes" on every "the".
+- Save data: none.
+- Hooks: none in shared files (holdcopy.js wraps cardGlossary and sabCard; glossary.js glossFor one-line fix).
+- Risk: copy only, plus a read-only stat preview (computeStats with the modifier added, then restored). celltest's "nappy dealt" failure is pre-existing on main.
+
+### Folded from ccr-56c32e6b-e1zsrr: 2026-10-25 Run log newest first, Sandbox offers shortened (v10.145)
+- Systems: meta (run log), weapon telemetry
+- Files: meta.js, wstats.js
+- What: the copied run log lists the newest run first, so a paste that gets cut off loses the oldest runs, not the one that crashed; a draft offering more than 8 cards (Sandbox, the whole pool) prints "all N" instead of every name.
+- Save data: none
+- Hooks: none
+- Risk: none (text only)
+
 ## v10.144 (versionCode 423): 2026-10-25 Matron and Queen fights end: round healing capped per add, one healing snack budget a cycle
 - Systems: bosses, tests
 - Files: bosssig10_t2.js, tests/sim/bossprobe.js
