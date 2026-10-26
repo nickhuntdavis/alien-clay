@@ -3,6 +3,14 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.172 (versionCode 451): 2026-10-26 Puddle Jumper card line
+- Systems: feats (copy)
+- Files: mobfeats.js
+- What: the Puddle Jumper card's description (was TODO_COPY:feat_puddle_jumper_does), Claude-drafted at the user's request: "Your puddles are connected. Nobody asked how. Swim into one and you come out of your furthest; tap to go at once. You leave a Mucus splash and a fresh puddle behind."
+- Save data: none
+- Hooks: none
+- Risk: none (text only).
+
 ## v10.171 (versionCode 450): 2026-10-26 Three weapons per sample, fitted to the character
 - Systems: samples, race (kindred rescues), stats
 - Files: samplekit.js (new), kindred.js, xpgems.js, index.html, ARCHITECTURE.md, tests/weapons24test.js

@@ -95,7 +95,7 @@
     m.pjT = G.t + PJ.gap; m.pjWas = pjPools().filter(z => pjIn(z, p)); // (standing in the one you came out of is not entering it)
   }
   feat({ id: 'puddle_jumper', name: 'Puddle Jumper', icon: 'PJ', ico: 'bubble', type: 'mucus', atk: 'burst', start: 1, rar: 1, stam: 14,
-    does: 'TODO_COPY:feat_puddle_jumper_does',
+    does: 'Your puddles are connected. Nobody asked how. Swim into one and you come out of your furthest; tap to go at once. You leave a Mucus splash and a fresh puddle behind.', // (Claude-drafted at the user's request, 26 Oct)
     base: { dmg: 30, cd: 8, range: 300, area: 80 },
     stat: (w, s) => { if (f10Fk(w, 'far')) s.range *= 1.5; if (f10Fk(w, 'quick')) s.cd *= 0.7; },
     when: w => {
