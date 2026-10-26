@@ -465,6 +465,7 @@ function lvTick(dt, maxAlive, hostile) {
   if (V.won) return;
   G.ev.next = 1e12;
   schoolTick(); // (Level 0, the tutorial: school.js)
+  if (L.course) courseTick(dt); // (the race course: course.js)
   // Route maps: yours whenever you change cell (and twice a second anyway).
   V.plT -= dt;
   if (V.plT <= 0 || lvIdx(p.x, p.y) !== V.plCell) { V.plT = 0.5; lvRoutePlayer(); }
@@ -650,6 +651,7 @@ function lvWin(at) {
   const V = G.lvl;
   if (V.won) return;
   if (V.L.school) return schoolWin(at);
+  if (V.L.course) return courseWin(at); // (course.js)
   V.won = true;
   META.lvUnlocked = Math.max(META.lvUnlocked || 1, V.n + 2);
   META.lvBest = META.lvBest || {};
@@ -756,7 +758,8 @@ function drawLevel() {
     ctx.globalAlpha = 0.6 + 0.4 * Math.sin(G.realT * 4); ctx.fillStyle = PAL.reward; ctx.beginPath(); ctx.arc(X + 6 * S, Y - 4 * S, 4 * S, 0, TAU); ctx.fill(); ctx.globalAlpha = 1;
   }
   const ex = lvExitPos();
-  if (ex && !V.won) {
+  if (L.course) courseFloor(); // (the finish line and pads: course.js)
+  else if (ex && !V.won) {
     // It looks like the egg: a pale glowing ball in a warm halo. (It is not the egg.)
     const X = sx(ex.x), Y = sy(ex.y), r = LV_C * 0.75 * S;
     ctx.globalCompositeOperation = 'lighter'; glow(X, Y, r * 3, '#ffd6e8', 0.35 + 0.1 * br); ctx.globalCompositeOperation = 'source-over';
@@ -800,11 +803,13 @@ function drawLevelOver() {
       ctx.save(); ctx.translate(X, Y); ctx.rotate(a); ctx.beginPath(); ctx.moveTo(9 * S, 0); ctx.lineTo(-5 * S, 7 * S); ctx.lineTo(-2 * S, 0); ctx.lineTo(-5 * S, -7 * S); ctx.closePath(); ctx.fill(); ctx.restore();
     }
   }
+  if (V.L.course) { ctx.globalAlpha = 1; courseDraw(); } // (sweepers and rivals: course.js)
   ctx.globalAlpha = 1; RAW_COL = raw;
 }
 // The HUD's top line: where you are, and what is in the way.
 function drawLevelHud(mid, by) {
   const V = G.lvl, R = V.arena;
+  if (V.L.course) return courseHud(mid, by); // (course.js)
   const pct = Math.round(lvProgress() * 100);
   let sub = V.zone ? V.zone.name : lvName(V.L);
   if (R) sub = `${R.A.name}: ${Math.max(0, R.A.quota - R.killed)} TO GO`;
@@ -828,6 +833,7 @@ function drawLevelMap(mx, my, R) {
     ctx.fillRect(mx + (x * LV_C - p.x) * k, my + (y * LV_C - p.y) * k, s, s);
   }
   ctx.globalAlpha = 1;
+  if (V.L.course) courseMap(mx, my, k); // (course.js)
   for (const e of G.enemies) if (e.boss && !e.dead) { ctx.fillStyle = PAL.danger; ctx.fillRect(mx + (e.x - p.x) * k - 3, my + (e.y - p.y) * k - 3, 6, 6); }
   ctx.fillStyle = '#ffffff'; ctx.fillRect(mx - 2, my - 2, 4, 4);
   ctx.restore(); RAW_COL = raw;

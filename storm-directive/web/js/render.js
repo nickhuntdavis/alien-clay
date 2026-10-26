@@ -2389,6 +2389,7 @@ function drawHud() {
   const m = Math.floor(G.t / 60), s = Math.floor(G.t % 60);
   if (!imm) drawTopBar(top, m, s);
   if (typeof raceHud === 'function') raceHud(top); // (the rival track in Immersive mode: race15.js)
+  if (G.lvl && G.lvl.L.course) courseTrack(top); // (the race course's track: course.js)
   if (typeof rwHud === 'function') rwHud(top); // (rewards waiting: rewardui.js)
   // Status chips.
   const chips = [];
