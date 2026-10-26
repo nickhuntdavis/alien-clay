@@ -2,7 +2,7 @@
 
 ## Current design direction (17 Oct 2026)
 
-**Status: working proposal; validate in playtests before treating values or effects as locked.** The canonical damage types are **Force, Acid, Static, Mucus, Blood, Alien and Fire**. Cooties, Oil and Water are out of scope and must not appear as active types in this matrix. Every open question from the reconciliation pass is settled in section 10; formulas and starting values are in section 11.
+**Status: working proposal; validate in playtests before treating values or effects as locked.** The canonical damage types are **Force, Acid, Static, Mucus, Blood, Parasite and Fire**. Cooties, Oil and Water are out of scope and must not appear as active types in this matrix. Every open question from the reconciliation pass is settled in section 10; formulas and starting values are in section 11.
 
 **This is the only place combat rules and statuses live.** `DAMAGE_TYPES.md`, `DEFENCE_TYPES.md` and `ATTACK_TYPES.md` hold identity only (what each thing is for, how it looks, what it is good and bad at) and point here for every rule. Other docs (`ENEMY_DESIGN.md`, `BASE_WEAPONS.md`, `MODIFIERS.md`, `UPGRADES.md`, `SAMPLES.md`) cite sections here rather than restating them. The CSVs in `tables/` are generated from this file (section 14); never edit them by hand. If anything elsewhere disagrees with this file, this file wins and the other doc is fixed.
 
@@ -46,29 +46,29 @@ All effects below are **proposed**. Numbers, durations, radii and caps remain fo
 | Force + Static | **Shocking Impact** | Dual-type weapon | A dual-type Force/Static weapon lands a hit | A short local electrical burst around the impact | Area (small) | Only from a dual-type weapon, never from two separate hits; local burst, no chain |
 | Force + Mucus | **Snot Rocket** | State + hit | A Force hit lands on a Snared enemy | Launches it in the hit direction; it leaves one small sticky patch where it lands | Single target | One launch and one patch; no extra stun or bonus damage |
 | Force + Blood | **Blood Pressure** | State + hit | A heavy Force hit (the same threshold that knocks off a Shell layer) lands on a bleeding target | The wound bursts for one small area hit | Area (small) | One burst; no new Bleed stack and no large pool |
-| Force + Alien | **Out-of-Body Experience** | State + hit | A Force hit lands on a Possessed enemy | It is launched and damages the first mate it collides with | Single target | One collision; Possessed carries on as normal |
+| Force + Parasite | **Out-of-Body Experience** | State + hit | A Force hit lands on a Possessed enemy | It is launched and damages the first mate it collides with | Single target | One collision; Possessed carries on as normal |
 | Force + Fire | **Flashover** | State + hit | A Force hit lands on a burning target | A tongue of flame jumps to one nearby enemy and adds to its Burn bar | Single target | One jump; no chain |
 | Acid + Static | **Conductive Pool** | World object + hit | A Static hit lands in an Acid Pool | One electrical pulse travels across that pool | Area (pool) | Stays inside the visible pool edge; one pulse per pool |
 | Acid + Mucus | **Slick Move** | World object + hit | An Acid hit lands on a Mucus patch | The patch is replaced by a short-lived Acid Pool | Area (patch) | Replaces the patch rather than layering two hazards; clear expiry |
 | Acid + Blood | **Caustic Breach** | State + hit | An Acid hit lands on a bleeding target | Strips one Shell layer at once | Single target | Defence erosion only: no damage over time, no new wound; does nothing to a target without Shell; once per Bleed |
-| Acid + Alien | **Alien Erosion** | State + hit | An Acid hit lands on a Possessed enemy | When Possessed ends, it bursts in a small Acid splash that adds Corrosion to nearby mates | Area (small) | One splash per Possession; compare with Corrosive Splash in playtest |
+| Acid + Parasite | **Parasite Erosion** | State + hit | An Acid hit lands on a Possessed enemy | When Possessed ends, it bursts in a small Acid splash that adds Corrosion to nearby mates | Area (small) | One splash per Possession; compare with Corrosive Splash in playtest |
 | Acid + Fire | **Premature Evaporation** | State + hit | A Fire hit lands on a Corroded target | Consumes the Corrosion in a modest close-range burst | Area (burst) | Never from an Acid Pool by itself; one burst; the Corrosion build-up resets |
 | Static + Mucus | **Snot Socket** | World object + hit | A Static hit charges a Mucus patch | The next enemy entering it is briefly shocked | Single target | One trigger per patch; obvious charge cue; no stun loop |
 | Static + Blood | **Blood Circuit** | World object + hit | A Static hit lands in a blood pool | One arc hits the nearest enemy standing in or beside the pool | Single target | One target; no pulse across the pool and no onward chain (unlike Conductive Pool) |
-| Static + Alien | **Interference Pattern** | State + hit | A Static hit lands on a Possessed enemy | Possessed lasts a fixed time longer | Single target | Once per Possession |
+| Static + Parasite | **Interference Pattern** | State + hit | A Static hit lands on a Possessed enemy | Possessed lasts a fixed time longer | Single target | Once per Possession |
 | Static + Fire | **Arc Flash** | State + hit | A Static hit lands on a burning target | One short arc jumps to the nearest other enemy | Single target | One jump; no extra Burn, stun or chain |
 | Mucus + Blood | **Caught in the Clot** | World object + hit | A Mucus hit lands on a blood pool | The pool thickens: the first enemy to cross it is Snared, then the pool is gone | Single target | One catch, then the pool is gone |
-| Mucus + Alien | **Held in Suspension** | State + hit | A Mucus hit lands on a Possessed enemy | It is pinned in place for a moment | Single target | Short pin; no extra damage or status |
+| Mucus + Parasite | **Held in Suspension** | State + hit | A Mucus hit lands on a Possessed enemy | It is pinned in place for a moment | Single target | Short pin; no extra damage or status |
 | Mucus + Fire | **Flammable Mucus** | World object + hit | A Fire hit lands on a Mucus patch | The patch flares once: everything standing in it ignites (full Burn bar), then the patch is gone | Area (burst) | One flare; no Mucus slow left behind; the fire cannot relight itself |
-| Blood + Alien | **Blood Donor** | State + hit | A Blood hit lands on a Possessed enemy | You heal a small fixed amount | Single target | Once per Possession; no new resource meter |
+| Blood + Parasite | **Blood Donor** | State + hit | A Blood hit lands on a Possessed enemy | You heal a small fixed amount | Single target | Once per Possession; no new resource meter |
 | Blood + Fire | **Cauterise** | State + hit | A Fire hit lands on a bleeding target | Consumes the Bleed for one immediate burst | Area (burst) | The burst must make up for ending the Bleed; no fresh Burn by default |
-| Alien + Fire | **Spectral Combustion** | Pairing | The Alien/Fire Pairing (two weapons you own, both Lv 5+) hits a burning, Possessed enemy | It ignites at once (full Burn bar) and Possessed ends | Single target | Rare by design; the first time it fires, the Scientist gets his Tier 3 line (VOICE_GUIDE.md) |
+| Parasite + Fire | **Spectral Combustion** | Pairing | The Parasite/Fire Pairing (two weapons you own, both Lv 5+) hits a burning, Possessed enemy | It ignites at once (full Burn bar) and Possessed ends | Single target | Rare by design; the first time it fires, the Scientist gets his Tier 3 line (VOICE_GUIDE.md) |
 
 ### Reaction quality decisions
 
 - **No redundant damage over time:** Caustic Breach strips a Shell layer; it does not add a corrosive wound.
 - **No extra sub-systems:** Out-of-Body Experience launches an enemy rather than spawning a fragment; Blood Donor is a small capped heal, not a resource.
-- **Alien pairs use Possessed:** all six Alien reactions trigger on a Possessed enemy. The Alien Mark is retired.
+- **Parasite pairs use Possessed:** all six Parasite reactions trigger on a Possessed enemy. The Parasite Mark is retired.
 - **Separated similar world reactions:** Conductive Pool pulses across an Acid Pool; Blood Circuit arcs from a blood pool to one enemy.
 - **Controlled Fire interactions:** three Fire pairs consume a setup for a burst (Corrosion, a Mucus patch, a Bleed); three hit a single target. Fire does not make every surface explode.
 - **No reaction retriggers itself.** A reaction-created patch, arc, burst or splash cannot immediately set off the same reaction again. Limit chain jumps, patch triggers and repeat healing (Blood Donor and Interference Pattern are once per Possession).
@@ -82,7 +82,7 @@ All effects below are **proposed**. Numbers, durations, radii and caps remain fo
 | **Static** | Chain pressure and action disruption | Charge, bounded arcs, conditional interruption | Force: network and charge effects, not physical knockback |
 | **Mucus** | Movement control and setup | Snared, Conjoined, patches; smothers Fire (Snared clears a Burn bar) | No damage over time; avoid stacking slow, root and snare variants |
 | **Blood** | Wounds and extraction | Bleed, wound thresholds, blood pools, limited sustain | Acid: wound economy, not corrosion |
-| **Alien** | Mind control | Alien build-up to Possessed (the enemy fights its mates for a few seconds); all Alien reactions use Possessed | No defence bypass; Fear is a separate status, not a synonym for Alien |
+| **Parasite** | Mind control | Parasite build-up to Possessed (the enemy fights its mates for a few seconds); all Parasite reactions use Possessed | No defence bypass; Fear is a separate status, not a synonym for Parasite |
 | **Fire** | Ignition and consuming setups | Burn bar build-up with a short damage over time; at full, one Ignition flare on that target; consuming compatible setups | Not a universal explosion trigger; no automatic spread |
 
 Each type has one primary verb, one recognisable visual and sound cue (`DAMAGE_TYPES.md` visual language), and a clear non-goal. Use shape and motion as well as colour so effects stay readable on a phone screen.
@@ -96,7 +96,7 @@ What each type does beyond its statuses (section 4) and its defence interactions
 - **Static:** Static hits make the target Charged; Charged enemies pass arcs on (bounded, 11.5). Explicitly conductive world objects carry one pulse or one arc (Conductive Pool, Blood Circuit, Snot Socket). Static interrupts only through Poise, and only when an attack is tagged for it. Static recharges Membrane, so it is a poor choice against Membrane enemies (a risk the player can see).
 - **Mucus:** Snares, Conjoins, leaves patches and smothers Fire. No damage over time. Does not cushion Force.
 - **Blood:** applies Bleed; a reaction may consume a Bleed for one payoff (Blood Pressure, Cauterise) without adding a new stack. Extraction heals a little on kills of bleeding enemies. Blood pools come from section 4's sources only. Blood never maximises sustained damage, burst, healing and resource gain at once.
-- **Alien:** build-up to Possessed is its only control. No defence bypass of any kind (the essence and resource ideas are retired). Fear is a separate status with its own sources.
+- **Parasite:** build-up to Possessed is its only control. No defence bypass of any kind (the essence and resource ideas are retired). Fear is a separate status with its own sources.
 - **Fire:** fills the Burn bar (direct hits and Fire Pool footprints); Ignition at full; no automatic spread. Fire's Pool attacks are attack footprints, not world objects that reactions use (decision 27). Becoming Snared puts it out.
 
 ## 3. Defensive layer matrix
@@ -105,7 +105,7 @@ What each type does beyond its statuses (section 4) and its defence interactions
 
 | Defence | Core rule | Strength / identity | Limits and counterplay |
 | --- | --- | --- | --- |
-| **Squishy / Absorption** | Proportionally reduces blunt physical impact (Force); may also reduce impulse, knockback and collision. | Soft tissue yields under impact. Big hits still hurt, but are softened. | Blunt only: cuts (such as a Blood slash) go through normally. Does not resist Acid, Static, Mucus control, Blood effects, Alien or Fire. |
+| **Squishy / Absorption** | Proportionally reduces blunt physical impact (Force); may also reduce impulse, knockback and collision. | Soft tissue yields under impact. Big hits still hurt, but are softened. | Blunt only: cuts (such as a Blood slash) go through normally. Does not resist Acid, Static, Mucus control, Blood effects, Parasite or Fire. |
 | **Membrane** | A separate Membrane pool absorbs eligible incoming damage before health. It regenerates after a brief period without Membrane damage. | Temporary protection that rewards breaking contact. Force is poor at getting through it. | Sustained pressure delays recovery. State and recharge clearly visible (blue; on the player, the existing armour bubble). Does not block already-applied statuses or hazards. |
 | **Shell** | Finite layers, each subtracting a fixed amount from qualifying physical hits. Each layer has a small amount of its own health. Lost layers are gone for the encounter. | Rigid protection against repeated small physical hits. One brown ring per layer. | Ordinary hits wear a layer down slowly; Acid's Corrosion strips one much faster; a heavy Force hit knocks one off at once. Layer loss is always visible. |
 | **Thorns** | Returns damage once when a qualifying Contact hit connects. Does not mitigate the hit. | Makes close-range attacks costly while the attacker keeps its full payoff. | Contact only; ranged attacks and hazards never trigger it. An Evasion miss means no contact and no retaliation. Damage returned is bounded and readable. |
@@ -146,7 +146,7 @@ What each type does beyond its statuses (section 4) and its defence interactions
 | Squishy absorbs blunt impact | Accepted (verify) | Proportional; blunt only; no status resistance. |
 | Thorns retaliate once on contact | Accepted (verify) | Once per qualifying Contact hit. |
 | Evasion misses eligible hits | Accepted (verify) | Miss chance on Contact, Projectile and Spread only; a miss prevents the hit and its attached effects. |
-| Membrane and Alien effects | Accepted (verify) | Alien damage is absorbed normally; no bypass. Build-up applies only if the hit isn't blocked. |
+| Membrane and Parasite effects | Accepted (verify) | Parasite damage is absorbed normally; no bypass. Build-up applies only if the hit isn't blocked. |
 | Snared slows movement | Testing | Snared weakens autorun's dodging (movement); it does not change Evasion's miss chance. |
 | Mucus smothers Fire | Proposed | Becoming Snared clears the Burn bar. A Mucus patch hit by Fire still burns (Flammable Mucus). Water is not a damage type. |
 | Force drives targets into hazards | Proposed | Knockback into a wall or a world object pays off only on an actual collision (a wall: 40% of the hit, 11.5). No bonus in open space. |
@@ -165,8 +165,8 @@ Statuses live on creatures. World objects (Acid Pool, Mucus patch, blood pool, w
 | Conjoined | Mucus | Two Snared creatures touch, or one Mucus attack's area covers several at once | Stuck together in one shared green membrane: none can move, and they may hit each other | Capped group size; short | Distinct from Snared: it needs two or more creatures | Proposed |
 | Bleed | Blood | A qualifying Blood hit | Damage over time; a reaction may consume it for one payoff | Stack cap and decay. A creature that dies while bleeding leaves a small blood pool | Wounds are distinct from Acid erosion | Proposed |
 | Extraction | Blood | An enemy dies while bleeding | Heals you a little | 1% of max health per kill, max 6 health per second; never on every Blood tick | Separate from ordinary damage and healing | Proposed |
-| Possessed | Alien | The Alien bar fills (11.2) | The enemy fights its own mates for a few seconds | Clear duration and tell; cooldown before it can repeat; elites shorter; bosses reduced, never fully controlled; the player is exempt | The only control Alien owns; not Fear | Accepted |
-| Fear | Peekaboo's BOO; a future Feat ("Jump Scare") | An attack explicitly tagged with Fear | Enemies flee for 2 s | Duration cap; no enemy applies Fear | Fear is a status, not the Alien type itself | Proposed |
+| Possessed | Parasite | The Parasite bar fills (11.2) | The enemy fights its own mates for a few seconds | Clear duration and tell; cooldown before it can repeat; elites shorter; bosses reduced, never fully controlled; the player is exempt | The only control Parasite owns; not Fear | Accepted |
+| Fear | Peekaboo's BOO; a future Feat ("Jump Scare") | An attack explicitly tagged with Fear | Enemies flee for 2 s | Duration cap; no enemy applies Fear | Fear is a status, not the Parasite type itself | Proposed |
 | Burning | Fire | Fire hits, or standing in a Fire Pool footprint | A visible Burn bar (11.2); while it holds Burn the target takes a short damage over time; at full, Ignition: one flare on that target, then the bar resets | No spread except through reactions; Snared puts it out | Do not add extra effects to every Fire hit | Accepted |
 
 ### World objects
@@ -191,9 +191,9 @@ Enemies teach positioning, target priority or build choices; none requires a spe
 | Sprinter | Closes distance fast | Prioritise it before contact (FASTEST) | Mucus Snare, Force knockback, Static interrupts | An instant hit with no tell |
 | Tank | High effective health and slow pressure | Strip defence, flank, avoid commitment | Acid erosion, Force displacement (TOUGHEST picks it) | Mandatory Acid in every build |
 | Shooter | Projectiles while you move | Break line, close distance (SHOOTERS FIRST) | Movement, Force displacement, Mucus control | Off-screen unavoidable damage |
-| Swarm | Surrounding and body-blocking | Move, clear a lane, use area damage | Static chains, Burst, Pool, Mucus (Conjoined), Alien (Possessed has mates to fight) | Unavoidable contact damage |
+| Swarm | Surrounding and body-blocking | Move, clear a lane, use area damage | Static chains, Burst, Pool, Mucus (Conjoined), Parasite (Possessed has mates to fight) | Unavoidable contact damage |
 | Charger | Telegraphs a heavy hit or collision | Leave the lane, bait, interrupt | Force Poise pressure, Mucus setup, movement | A raw-damage check |
-| Support | Heals, buffs or grants Membrane | Focus, interrupt, isolate | Acid erosion, Static tagged interruption, Alien (turn a mate on it) | Mandatory hard-counter checks |
+| Support | Heals, buffs or grants Membrane | Focus, interrupt, isolate | Acid erosion, Static tagged interruption, Parasite (turn a mate on it) | Mandatory hard-counter checks |
 | Summoner | Adds enemies | Prioritise the summoner | Area damage for the adds; SHOOTERS FIRST picks summoners | Endless spawns |
 | Controller | Sticky zones, lane denial, persistent hazards | Route round, read the edge, remove the source | Movement, Force displacement, Acid, Mucus and Fire where the hazard supports them | Removing every safe route; invisible damage |
 | Carrier | Leaves, carries or releases a reaction ingredient | Recognise its state and exploit it | The reaction that uses its ingredient | A mandatory combo |
@@ -230,7 +230,7 @@ Read each cell by **damage component**, not damage-type name alone: direct hit, 
 | Static | No effect on Charge or interruption unless there is an impulse component | Recharged: +25% capacity, once per 5 s | Not reduced unless the component is physical | Not triggered by arcs or remote effects | As Force; an active arc follows its own rule |
 | Mucus | No effect on Snared or Conjoined | May absorb the carrier hit; does not erase a patch already placed | Does not reduce Snared or movement control | Not triggered by patches | As Force; a patch still Snares whatever enters it |
 | Blood | Cuts go through (blunt only); Bleed and Extraction not reduced | May absorb the carrier hit; an existing wound is not removed | Reduces the physical component; Bleed ticks not reduced | Not triggered by Bleed ticks | As Force; does not undo an applied wound or a pool |
-| Alien | No effect on build-up or Possessed unless there is an impulse component | Absorbs eligible direct Alien damage; no bypass; build-up applies only if the hit isn't blocked | Reduces physical components; no bypass | Not triggered by ranged Alien attacks | As Force; does not end Possessed |
+| Parasite | No effect on build-up or Possessed unless there is an impulse component | Absorbs eligible direct Parasite damage; no bypass; build-up applies only if the hit isn't blocked | Reduces physical components; no bypass | Not triggered by ranged Parasite attacks | As Force; does not end Possessed |
 | Fire | No effect on heat or Burn unless there is an impulse component | May absorb a covered hit; Burn applies only if the hit applies it; no protection from a Fire Pool entered later | Reduces the physical component only; Shell and Burn are separate | Not triggered by Burn or Pools | As Force; leaving a Fire Pool limits exposure but does not empty the Burn bar |
 
 Do not infer blanket type immunities from this table.
@@ -240,7 +240,7 @@ Do not infer blanket type immunities from this table.
 | Priority | Issue | Decision / test |
 | --- | --- | --- |
 | P0 | All 21 pairs need distinct, legible reactions | Playtest whether each payoff is noticed and understood at mobile speed |
-| P0 | Similar reactions risk feeling interchangeable | Compare Conductive Pool vs Blood Circuit, Premature Evaporation vs Corrosive Splash, and Alien Erosion vs Corrosive Splash; tune shape and trigger as well as damage |
+| P0 | Similar reactions risk feeling interchangeable | Compare Conductive Pool vs Blood Circuit, Premature Evaporation vs Corrosive Splash, and Parasite Erosion vs Corrosive Splash; tune shape and trigger as well as damage |
 | P1 | Too many conditions can hide reactions | Only the five trigger kinds; no requirements that depend on obscure enemy variants |
 | P1 | Control and interruption can lock enemies down | One catch per patch, short control windows, Poise thresholds, Possessed cooldown, no retrigger loops |
 | P1 | Reaction damage can multiply excessively | Set a primary power budget; do not stack burst, damage over time, vulnerability and chain without justification |
@@ -250,7 +250,7 @@ Do not infer blanket type immunities from this table.
 
 Definition of done:
 
-- [ ]  Seven canonical types only: Force, Acid, Static, Mucus, Blood, Alien, Fire.
+- [ ]  Seven canonical types only: Force, Acid, Static, Mucus, Blood, Parasite, Fire.
 - [ ]  All 21 pairs have one of the first four trigger kinds and one clear payoff (the Feat kind only borrows them).
 - [ ]  Every reaction has limits on duration, range, consumption and retriggering.
 - [ ]  Five defences (Squishy, Membrane, Shell, Thorns, Evasion) stay distinct and create no blanket type immunities.
@@ -259,7 +259,7 @@ Definition of done:
 - [ ]  Proposed mechanics are validated in fast mobile playtests before being marked Accepted.
 - [ ]  Proposed / Testing / Accepted labels in sections 3 and 4 match what was actually approved.
 - [ ]  Damage type, attack type, modifier and source are separate fields in code and data.
-- [x]  The low-confidence Alien reactions are decided (rebuilt around Possessed, decision 6).
+- [x]  The low-confidence Parasite reactions are decided (rebuilt around Possessed, decision 6).
 
 ## 9. Remaining updates (merged)
 
@@ -276,7 +276,7 @@ Settled one by one after a cross-doc review (27 to 32 added later on 17 Oct). Ev
 | 3 | Acid and Shell | Corrosion builds to permanent layer loss; no timer or stacks |
 | 4 | Fire ignition | Burn bar build-up; at full, one Ignition flare on that target, then reset; no automatic spread |
 | 5 | Squishy and cuts | Blunt only; cuts go through |
-| 6 | Shaky Alien reactions | All five Alien reactions rebuilt around Possessed; Alien Mark retired |
+| 6 | Shaky Parasite reactions | All five Parasite reactions rebuilt around Possessed; Parasite Mark retired |
 | 7 | One attack type per attack? | Yes, plus an optional leftover hazard (patch, pool, trail) |
 | 8 | Trapped Wind | Squishy, not Dodge; Fire lights it; feeds Arc Flash and Flashover |
 | 9 | Role lists | `ENEMY_DESIGN.md`'s 15 roles are the master |
@@ -299,7 +299,7 @@ Settled one by one after a cross-doc review (27 to 32 added later on 17 Oct). Ev
 | 26 | Birthday Candle wax | Keeps wax Pools: wax hardens into a temporary wall (a justified exception) |
 | 27 | Ground objects | Only the shipped ones (terrain, Acid Pools, Mucus patches, blood pools, Skid Mark's trail, Tooth Fairy's teeth, shipped names; in the redesign The Runs' trail and Eggs' eggs) plus wax. Burn zones, corrosive slicks, clot patches and Heartburn's reflux puddles are cut. Fire's Pool attacks (Burning Ground, Pub Crawl's trail, Matchstick's trail) are attack footprints that fill Burn bars, not reaction ingredients |
 | 28 | Acid colour | Shocking pink stands, even beside the pink campaign levels |
-| 29 | Soul Purpose name clash | The Force + Alien reaction is renamed **Out-of-Body Experience**; the Alien Burst weapon (M34) keeps Soul Purpose |
+| 29 | Soul Purpose name clash | The Force + Parasite reaction is renamed **Out-of-Body Experience**; the Parasite Burst weapon (M34) keeps Soul Purpose |
 | 30 | First Contact | Not of This World's Feat is a fifth trigger kind (Feat): it counts as a hit of the old and new type for reactions only, capped at 8 per use |
 | 31 | Player defence sources | Upgrade cards (sperm passive slots since decision 52; were Genome slots), or built into some samples, weapons and Feats (no slot). Assimilation is dropped |
 | 32 | Built-in defences | Rare, at most one per source: Ordered Online has 20% Evasion, Thorny Onesie gives Thorns; no sample Feat has one |
@@ -312,7 +312,7 @@ Settled one by one after a cross-doc review (27 to 32 added later on 17 Oct). Ev
 | 39 | Consciousness per sample (20 Oct) | Each sample has its own consciousness persona (`CONSCIOUSNESS.md`); every consciousness line, shared Feat gift lines included, is written per sample |
 | 40 | What the consciousness knows (20 Oct) | Nothing of the lab or the Scientist: it believes it is where it is supposed to be |
 | 41 | Souls across runs (20 Oct) | A new soul every run; only Prawn Again's remembers earlier runs |
-| 42 | Not of This World's voice (20 Oct) | Three registers, one per active damage type (Fire ardent, Static clipped, Alien serene); every one of its consciousness lines is written three times (`CONSCIOUSNESS.md` 8) |
+| 42 | Not of This World's voice (20 Oct) | Three registers, one per active damage type (Fire ardent, Static clipped, Parasite serene); every one of its consciousness lines is written three times (`CONSCIOUSNESS.md` 8) |
 | 43 | Ordered Online (20 Oct) | The sample is a synthetic nanobot (voice, look and story); kit, passive, Feat and rules unchanged (`SAMPLES.md` 5, `CONSCIOUSNESS.md` 5) |
 | 44 | Alpha's voice (20 Oct) | Problematic on purpose: manosphere slang and talking about the egg like women, with the joke always on him; no slurs or named real people (`CONSCIOUSNESS.md` 2) |
 | 45 | Feat names, docs or game (20 Oct) | The docs win: G3 is **More!** and G11 is **COME BACK HERE** in the game too (they were Comfort Eating and Clean Plate in feats10.js) |
@@ -333,7 +333,7 @@ Settled one by one after a cross-doc review (27 to 32 added later on 17 Oct). Ev
 | 58 | Advanced Targeting (22 Oct) | A sperm passive, not a weapon modifier: it sets targeting rules for every weapon |
 | 59 | Switched at Birth (22 Oct) | One fixed alternate per weapon (its starter sample's other type); N/A wherever switching would spoil the attack (the mechanic is the damage type) |
 | 60 | Turncoat (22 Oct) | On kill only: killed enemies rise as temporary allies, own cap of 6 per weapon, separate from pets (12.3); elites and bosses never rise |
-| 61 | Damage-type passives (22 Oct) | Each boosts what its type does best (`DAMAGE_TYPES.md`): Force knockback and collisions, Acid ground denial, Static chains, Mucus Snare, Blood wounds and Extraction, Alien possession, Fire spreading Burn |
+| 61 | Damage-type passives (22 Oct) | Each boosts what its type does best (`DAMAGE_TYPES.md`): Force knockback and collisions, Acid ground denial, Static chains, Mucus Snare, Blood wounds and Extraction, Parasite possession, Fire spreading Burn |
 | 62 | Named exceptions (22 Oct) | Melee × Nappy Mines (suicide vest) hurts the player; Ranged × Enzyme Headbutt lunges 200 (past 160); Planetary system (combo mastery) ignores the gravity well's 45° bend limit; Static net's arc cap grows with the Static passive (bounded at 36) |
 | 63 | Pools as water balloons (24 Oct) | Pool weapons (Nocturnal Emission, Hot Mess) are thrown like a water balloon at one enemy: it bursts on the face, splashes its neighbours and leaves the puddle round it. Every one of the 26 modifiers applies to them, including those N/A on pools before (`MODIFIER_MATRIX.md` 5.10) |
 | 64 | Tags (25 Oct) | Every weapon carries tags from a fixed vocabulary (`WEAPON_TAGS.md`); N/A rows, pair bonuses and combo masteries are written against tags, never weapon names, and modifiers add tags while equipped. Why: new weapons join combos without a cell each (15.1) |
@@ -356,21 +356,21 @@ Starting points for the first build, chosen against today's code (player 120 hea
 6. **Crit** multiplies what is left (5% chance, ×1.6 today). Crits do not fill bars or make a hit heavy.
 7. Health takes the result; then status bars fill, Thorns retaliates, reactions check their triggers.
 
-### 11.2 Build-up bars (Corrosion, Burn, Alien, Poise)
+### 11.2 Build-up bars (Corrosion, Burn, Parasite, Poise)
 
 - `fill += raw damage of that type ÷ (bar size × target max health)`. A bar is full at 1.
-- **Bar sizes:** Corrosion 0.25 (per Shell layer), Burn 0.4, Poise 0.3, Alien 0.6. Elites ×1.5, bosses ×3.
+- **Bar sizes:** Corrosion 0.25 (per Shell layer), Burn 0.4, Poise 0.3, Parasite 0.6. Elites ×1.5, bosses ×3.
 - **Drain:** no qualifying hit for 2 s, then the bar empties over 2 s.
-- **Payoffs:** Corrosion strips a layer; Burn triggers Ignition; Poise staggers; Alien Possesses. Each bar resets after its payoff.
+- **Payoffs:** Corrosion strips a layer; Burn triggers Ignition; Poise staggers; Parasite Possesses. Each bar resets after its payoff.
 - Charge is not a bar (11.4).
 
 ### 11.3 Thresholds and reactions
 
 - **Heavy Force hit:** one Force hit whose raw damage is at least 15% of the target's max health (elites 10%, bosses 5%). Spread pellets are judged one by one. It knocks off a Shell layer and triggers Blood Pressure.
-- **Reaction damage (decision 33):** only reactions whose payoff is a burst or a hit deal damage. The three big bursts (Premature Evaporation, Flammable Mucus, Cauterise) deal 150% of the triggering hit's raw damage as area (Cauterise also adds the Bleed's remaining damage). Corrosive Splash, Shocking Impact, Blood Pressure, Out-of-Body Experience (the collision), Flashover, Conductive Pool, Blood Circuit, Arc Flash and Alien Erosion deal 60%. Snot Rocket, Slick Move, Caustic Breach, Snot Socket (the shock is a short stun, no damage), Interference Pattern, Caught in the Clot, Held in Suspension, Blood Donor and Spectral Combustion deal none beyond what their payoff states.
+- **Reaction damage (decision 33):** only reactions whose payoff is a burst or a hit deal damage. The three big bursts (Premature Evaporation, Flammable Mucus, Cauterise) deal 150% of the triggering hit's raw damage as area (Cauterise also adds the Bleed's remaining damage). Corrosive Splash, Shocking Impact, Blood Pressure, Out-of-Body Experience (the collision), Flashover, Conductive Pool, Blood Circuit, Arc Flash and Parasite Erosion deal 60%. Snot Rocket, Slick Move, Caustic Breach, Snot Socket (the shock is a short stun, no damage), Interference Pattern, Caught in the Clot, Held in Suspension, Blood Donor and Spectral Combustion deal none beyond what their payoff states.
 - **Reaction lockout:** each reaction has a 1.5 s lockout per target (bosses 3 s). Anything a reaction creates cannot set off that same reaction.
 - **Dual-type weapon:** shots alternate Force, Static, Force, Static. Shocking Impact fires on each Static shot that lands after a Force shot.
-- **Spectral Combustion Pairing:** Alien Beam + Fire Pool (Burning Ground), both Lv 5+. A secret, like today's Pairings.
+- **Spectral Combustion Pairing:** Parasite Beam + Fire Pool (Burning Ground), both Lv 5+. A secret, like today's Pairings.
 - **First Contact (Feat trigger):** when Not of This World performs First Contact, it shifts type, then counts as a hit of **both** the type it left and the type it entered on every enemy on screen, for reactions only (no damage, no bar fill, no Thorns). Each enemy fires the state + hit reactions those two hits would set off (e.g. leaving Static for Fire: Arc Flash on burning enemies, Interference Pattern on Possessed ones, Premature Evaporation on Corroded ones, Cauterise on bleeding ones). At most one reaction per enemy and 8 per use, nearest first; normal lockouts and reaction damage apply. Spectral Combustion stays Pairing-only. Blood Pressure still needs a heavy hit, so it never fires from the Feat.
 - **Discovery:** the first time a reaction fires, a 2 s toast "Unstable reaction: <name>" near the top (no pause), and its Field Guide entry unlocks. Save key `META.rxSeen` (list of reaction ids). Later triggers show a small name pop over the target.
 
@@ -417,7 +417,7 @@ At most 40 world objects at once (phones). Where two overlap, the newest wins, e
 - **Crits** come last (11.1).
 - **Feats** carry a damage type and an attack type, like weapons, and follow every rule here. Stamina is unchanged. A utility Feat (no attack: a shield, a pickup, a trail) has neither and costs no stamina (`FEATS.md` 1).
 - **Autoaim:** TOUGHEST scores effective health (health + Membrane + Shell layers × layer health, ×1.35 if Squishy). HIGHEST ARMOUR is replaced by two directives: **SHELLED** (most Shell layers left) and **MEMBRANED** (most Membrane left).
-- **Enemy damage types:** see `ENEMY_DESIGN.md` 5.1. Force is most common and Alien least; some enemies have two types.
+- **Enemy damage types:** see `ENEMY_DESIGN.md` 5.1. Force is most common and Parasite least; some enemies have two types.
 - **Name clash fixed:** v10's Mucus Pool weapon is renamed **Snot Trap** (renamed again on 18 Oct to **Nocturnal Emission**) ("Leaves a patch that sticks enemies crossing it. Watch your step; they won't."). On 18 Oct the Static + Mucus reaction was renamed **Snot Socket**, so the signature weapon (Red Tape) can take the name **Sticky Situation** (renamed again on 18 Oct to **Ewww, Gross**).
 
 ## 12. Signature weapon rules (17 Oct 2026)

@@ -795,7 +795,7 @@ function after(t, fn) { G.timers.push({ t, fn }); }
 
 // ---------------------------------------------------------------- damage & reactions
 function damageEnemy(e, dmg, src) {
-  if (e.dead) return 0; // (v10: a phased Ghost Swimmer stays hittable at its Evasion cap, phasers10.js; autoaim skips a Possessed enemy, but area hits still land and set off Alien reactions)
+  if (e.dead) return 0; // (v10: a phased Ghost Swimmer stays hittable at its Evasion cap, phasers10.js; autoaim skips a Possessed enemy, but area hits still land and set off Parasite reactions)
   if (e.bubT > G.t && !src.dot && bubbleHit(e, src, dmg)) return 0; // Bubble Wand: the bubble takes the hit and pops
   const P = G.P, syn = G.synergy;
   if (e.def.spongy) e.sorryT = G.t; // (amoebas only knit back together when left alone: arsenal.js engulfAI)
@@ -2102,7 +2102,7 @@ function updateProjectiles(dt) {
       continue;
     }
     typeShotFx(pr, dt); // (a trail in its damage type's look: typefx.js)
-    if (!(pr.orbitT > 0) && !pr.back && !soulShot(pr) && terrainShot(pr, false, dt)) continue; // (Alien passes through walls: chem.js)
+    if (!(pr.orbitT > 0) && !pr.back && !soulShot(pr) && terrainShot(pr, false, dt)) continue; // (Parasite passes through walls: chem.js)
     // Aura projectiles (void orb): periodic area damage and pull.
     if (pr.aura) {
       pr.tick -= dt;

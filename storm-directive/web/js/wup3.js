@@ -54,7 +54,7 @@ function w3BarFrac(e, k, frac, w, src, raw) {
 // Switched types (fitcheck.js lets Switched at Birth pick these): the weapon's own hits keep filling its home bar, and
 // the full bar pays off as the new type. Hot Mess in Blood is a Crime Scene: a full Burn bar is a SPIN-OUT (the enemy
 // slips, spins across the floor, cannot attack for 1 s and takes a hit), counted as an Ignite by the Ignite cards.
-// Rent Free in Force is a Poltergeist: every 4th hit on one enemy, or a full Alien bar from a card (Mass Possession: half
+// Rent Free in Force is a Poltergeist: every 4th hit on one enemy, or a full Parasite bar from a card (Mass Possession: half
 // a bar a hit), picks the enemy up and THROWS it at the nearest enemy (both take a collision hit when it lands).
 const w3Scene = w => !!(w && w.def && w.def.elem === 'arcane' && w24Key(w) === 'v_flame_pool');
 const w3Polter = w => !!(w && w.def && w.def.elem === 'phys' && w24Key(w) === 'v_soul_proj');
@@ -173,7 +173,7 @@ function w3PetAdd(w, x, y, life) {
 }
 const w3Near = (x, y, R, pred) => { let b = null, bd = R * R; for (const e of G.enemies) { if (!w3Foe(e) || (pred && !pred(e))) continue; const d2 = (e.x - x) ** 2 + (e.y - y) ** 2; if (d2 < bd) { bd = d2; b = e; } } return b; };
 
-// ================================================================ Rent Free (Alien, Projectile)
+// ================================================================ Rent Free (Parasite, Projectile)
 // Each shot gets a small record (pr.w3) on first sight: where it started, its damage before any card changed it, how many
 // enemies it has hit (q.n) and how many this frame (q.d), and the furthest point it reached.
 function w3RfScan(w) {
@@ -279,7 +279,7 @@ function rfMark(w, e, depth) {
   e.w3hm = G.t + 3; e.w3hd = depth || 0;
   if (!M.includes(e) && M.length < 60) M.push(e);
 }
-function rfSpirit(w, e) { // a marked enemy died: its spirit bursts out (radius 70, 60% damage, Alien build-up)
+function rfSpirit(w, e) { // a marked enemy died: its spirit bursts out (radius 70, 60% damage, Parasite build-up)
   const st = w3S(w), s = w.s, U = w.up || {}, d = e.w3hd || 0;
   if (st.pet && (e.elite || e.boss || e.r >= 24)) { w3PetAdd(w, e.x, e.y, 4) && floatText(e.x, e.y - 16, 'FRIENDLY GHOST', w.def.color, 11, 0.9); return; }
   floatText(e.x, e.y - e.r - 4, 'UNFINISHED', w.def.color, 11, 0.7); fxParts('smoke', e.x, e.y, '#e8e0ff', 8, 70, 0.9, 6);
@@ -350,7 +350,7 @@ wupReg('v_soul_proj', {
   A: { name: 'Ghost Through', tag: 'pass through the crowd', costs: '-15% damage to the first target.', shows: 'The ghost passes through bodies, leaving a faint wisp in each.', modes: 'KITE lines pursuers up',
     lv3: { desc: 'The ghost passes through up to 4 enemies, a little weaker after each one. First hit 15% weaker.', apply(w) { w3TypeFeed(w); w3On(w, 'stats', (w, s) => { s.pierce = Math.max(s.pierce || 0, 3); }); w3On(w, 'tick', rfGhost); } },
     lv6: [
-      { name: 'Cold Spot', desc: 'Every enemy the ghost passes through also gains Alien build-up, so a long line fills several bars at once.', apply(w) { w3On(w, 'tick', rfColdSpot); } },
+      { name: 'Cold Spot', desc: 'Every enemy the ghost passes through also gains Parasite build-up, so a long line fills several bars at once.', apply(w) { w3On(w, 'tick', rfColdSpot); } },
       { name: 'Second Sighting', desc: 'At full range the ghost fades and re-forms where it started, then flies the same line again.', apply(w) { w3On(w, 'tick', rfSecond); } }],
     wild: { name: 'Nine-Tenths of the Law', desc: 'A Possessed enemy fires your ghost shots at its own mates.', apply(w) { w3On(w, 'tick', rfNineTenths); } } },
   B: { name: 'Revolving Door', tag: 'twice the haunting', costs: 'The shot is 30% slower.', shows: 'A translucent ghost reversing along its trail.', modes: 'ORBIT keeps enemies on both legs of the path',
@@ -371,7 +371,7 @@ wupReg('v_soul_proj', {
       { name: 'Friendly Ghost', desc: 'The spirit of an elite or big enemy fights for you for a few seconds instead of bursting.', apply(w) { w3S(w).pet = true; w3On(w, 'tick', (w, dt) => w3PetTick(w, dt, (q, t) => { w3Hit(t, w.s.dmg * 0.9, w, { atk: 'contact' }); ring(t.x, t.y, t.r + 4, w.def.color, 0.25, 3); })); } }],
     wild: { name: 'Seance', desc: 'Every few seconds your last few kills flicker back as ghosts that draw enemy fire.', apply(w) { w3On(w, 'tick', rfSeance); } } },
   lv10: [
-    { name: 'Mass Possession', best: 'AC', desc: 'Every hit fills half an Alien bar, and Possession lasts twice as long.', apply(w) { w3On(w, 'hit', (w, e, res, src) => { if (!src.wupEcho) w3BarFrac(e, 'soul', 0.5, w); }); w3On(w, 'tick', rfMassPossession); } },
+    { name: 'Mass Possession', best: 'AC', desc: 'Every hit fills half a Parasite bar, and Possession lasts twice as long.', apply(w) { w3On(w, 'hit', (w, e, res, src) => { if (!src.wupEcho) w3BarFrac(e, 'soul', 0.5, w); }); w3On(w, 'tick', rfMassPossession); } },
     { name: 'Poltergeist', best: 'AB', desc: 'Ghosts never stop at a target: they wander for a while, hitting up to 6 things they touch.', apply(w) { w3On(w, 'tick', rfPoltergeist); } },
     { name: 'Ghost Army', best: 'C', desc: 'Each kill raises a ghost that fires ghost shots for a few seconds.', apply(w) { w3On(w, 'kill', (w, e) => { const q = w3PetAdd(w, e.x, e.y, 5); if (q) floatText(e.x, e.y - 14, 'RECRUITED', w.def.color, 11, 0.8); }); w3On(w, 'tick', rfGhostArmy); } }],
 });

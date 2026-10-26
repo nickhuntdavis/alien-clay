@@ -35,7 +35,7 @@ const { chromium } = require('playwright');
     out.starts = starts;
     if (starts.length !== 8) bad.push('starting pool size ' + starts.length);
     // 2. Ineligible cards say why
-    fresh(); G.weapons = [makeSlot('v_phys_proj', false, 1), null, null, null]; recomputeAll(); // (a known non-Alien weapon: the random start made this flaky)
+    fresh(); G.weapons = [makeSlot('v_phys_proj', false, 1), null, null, null]; recomputeAll(); // (a known non-Parasite weapon: the random start made this flaky)
     for (const id of ['t_soul', 'r_group', 'r_mess', 'cat_splash', 'conc_soul']) {
       const c = card(id);
       if (c.eligible(G) || !c.why(G)) bad.push(id + ' should be ineligible with a reason: ' + c.why(G));

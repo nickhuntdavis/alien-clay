@@ -36,7 +36,7 @@ Design proposals for the v10 combat rework of Spawn Prawn. **Not shipped behavio
 - **After changing a matrix table** (sections 1, 3, 4, 11.4 to 11.6), run `python3 "redesign docs/tables/export.py"` and commit the CSVs with it.
 - **Section numbers are stable.** Other docs cite them. Don't renumber; append new sections (old section 9 is kept as a stub for this reason).
 - **Hard limits the user set** (check the matrix before adding anything):
-  - 7 damage types only: Force, Acid, Static, Mucus, Blood, Alien, Fire. Cooties, Oil and Water are retired.
+  - 7 damage types only: Force, Acid, Static, Mucus, Blood, Parasite, Fire. Cooties, Oil and Water are retired.
   - 5 defences only: Squishy, Membrane, Shell, Thorns, Evasion. No extra traits.
   - 6 attack types only: Contact, Projectile, Spread, Burst, Beam, Pool. Everything else is a modifier.
   - Reactions fire only through the five trigger kinds (matrix reaction rules).

@@ -1,7 +1,7 @@
 'use strict';
 // Spawn Prawn - v10 combat resolution core (spec: ../redesign docs/COMBAT_MATRIX.md, 1, 3, 4, 7, 10, 11, 13).
 // Owns: one-hit resolution in matrix 11.1 order (Evasion, Membrane, Shell, Squishy, crit, health), build-up bars
-// (11.2: Corrosion, Burn, Poise, Alien), heavy Force hits (11.3), Thorns, echo damage (12.1), and the per-frame
+// (11.2: Corrosion, Burn, Poise, Parasite), heavy Force hits (11.3), Thorns, echo damage (12.1), and the per-frame
 // defence tick (Membrane recharge, bar drain). Every number is in COMBAT so tuning lives in one place.
 // Pure: no G, ctx, DOM or game globals. Callers own the target state (makeDefence) and the dice (rng, crit).
 // Canonical ids only: damage force/acid/static/mucus/blood/soul/fire; attack contact/proj/spread/burst/beam/pool;

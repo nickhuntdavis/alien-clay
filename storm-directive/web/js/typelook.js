@@ -4,10 +4,10 @@
 // swings, lashes and pools; Switched at Birth and type shifts follow src.elem):
 //   Static crackles and snaps short arcs to nearby enemies, like a plasma ball (reaching into empty water when none is near).
 //   Acid drips pink goo that splats and fades fast. Mucus strings out and sags, and strands snap. Blood spurts and
-//   spatters. Alien drifts: after-images and wisps. Fire flickers: tongues and embers. Force stays plain.
+//   spatters. Parasite drifts: after-images and wisps. Fire flickers: tongues and embers. Force stays plain.
 // Beams are drawn per type instead of a line: Static a continuous jagged bolt with forks (redrawn every frame),
 // Acid a sagging dribbling stream, Mucus a stretched braided rope of snot, Blood an arterial spurt in pulses,
-// Alien a twisting ghost ribbon, Fire a flamethrower plume.
+// Parasite a twisting ghost ribbon, Fire a flamethrower plume.
 // Hooks: v10.js v10Tick -> tlTick, v10Draw -> tlBeam (per beam); render.js after your shots -> tlShots,
 // after drawTypeFx -> tlDraw; toys.js Twin Telepathy beam -> tlSeg.
 

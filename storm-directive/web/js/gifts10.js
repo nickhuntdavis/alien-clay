@@ -88,7 +88,7 @@
     stat: (w, s) => { s.n = f10Fk(w, 'connections') ? 4 : 3; s.orb = f10Fk(w, 'wide') ? 52 : 36; s.lives = f10Fk(w, 'sturdy') ? 2 : 1; },
     when: () => (D().friends && D().friends.length ? null : {}),
     fire: w => { const d = D(); d.friends = []; for (let i = 0; i < w.s.n; i++) d.friends.push({ a: i / w.s.n * TAU, lives: w.s.lives, hitT: 0, w, end: G.t + 12 }); },
-    forks: { 3: [fk('plusones', 'Plus Ones', 'Friends also swat enemies they touch, building Alien.'), fk('connections', 'Connections', 'Four friends instead of three.')],
+    forks: { 3: [fk('plusones', 'Plus Ones', 'Friends also swat enemies they touch, building Parasite.'), fk('connections', 'Connections', 'Four friends instead of three.')],
       5: [fk('wide', 'Wider Circle', 'Friends circle farther out and catch more.'), fk('sturdy', 'Old Money', 'Each friend swallows two shots before it pops.')] } }, 'private'));
 
   // ================================================================ X5. Where'd You Go (Ordered Online)
@@ -281,7 +281,7 @@
 
   // F13. Wandering Womb
   feat({ id: 'wandering_womb', name: 'Wandering Womb', icon: 'WO', ico: 'spiral', type: 'soul', atk: 'proj', rar: 2, stam: 20,
-    does: 'A ghostly womb drifts slowly across the screen, through walls, building Alien on everything it passes and dragging enemies into its path.',
+    does: 'A ghostly womb drifts slowly across the screen, through walls, building Parasite on everything it passes and dragging enemies into its path.',
     base: { dmg: 14, cd: 8, range: 450 },
     stat: (w, s) => { if (f10Fk(w, 'heavy')) s.dmg *= 1.5; if (f10Fk(w, 'quick')) s.cd *= 0.7; },
     when: w => { const p = me(), t = acquire('cluster', w.s.range, p.x, p.y); return t ? { a: Math.atan2(t.y - p.y, t.x - p.x) } : null; },

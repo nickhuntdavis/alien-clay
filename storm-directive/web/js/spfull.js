@@ -15,14 +15,14 @@
 //      lose no damage per jump.
 //    BLEEDING HEART (Blood): Bleeds deal 25/50/75% more; Extraction heals 50/100/150% more. Mastery (Bad Blood): pools from
 //      bleeding deaths are 50% bigger, and enemies standing in them Bleed.
-//    PEER PRESSURE (Alien): Possessed lasts 30/60/90% longer; possessed enemies hit their mates 20/40/60% harder.
+//    PEER PRESSURE (Parasite): Possessed lasts 30/60/90% longer; possessed enemies hit their mates 20/40/60% harder.
 //      Mastery: a possessed enemy that kills a mate possesses that mate's nearest neighbour for 1 s.
 //    LEAVE A LITTLE SOMETHING: every pool you make (weapons, Feats, reactions) lasts 50/75/100% longer and gives one
 //      last tick at double damage as it ends. Mastery: triple.
 //  - PAIRS (automatic while both are held; no card, no slot): COME CLOSER (Stickier + Pile-Up): Snared enemies take +25%
 //    Force damage, and a Force hit on one pulls the other Snared enemies within 80 towards it. DEATH IS RECYCLING (Peer
 //    Pressure + Crossed Wires): an enemy you kill while it is Possessed lets out a wisp that fills 25% of the nearest
-//    enemy's Alien bar (mutations.js st.fly). Holding one half makes the draft offer the other 50% more often.
+//    enemy's Parasite bar (mutations.js st.fly). Holding one half makes the draft offer the other 50% more often.
 //  - THE RUNS mastery: close a loop of trail and everything inside takes one hit of its damage type (spfLoopTick).
 // Not built: the doc's other masteries (for now one step further on the numbers).
 // Hooks: none in shared files. Wraps fight.js fightStatus, fightDeath, fightArc; chem.js curseFoe; mutations.js mutHit;
@@ -41,7 +41,7 @@ mutCard({ id: 'sp_chain', title: 'Chain Letter', icon: 'CL', type: 'static', fam
   flavour: 'More jumps.', desc: 'Static arcs and chains jump to more enemies, from further away.' });
 mutCard({ id: 'sp_bleed', title: 'Bleeding Heart', icon: 'BH', type: 'blood', family: MUT_TF('blood'), color: MUT_COL.blood, rarity: 1, maxRank: 3, why: needType('blood', 'Blood'),
   flavour: 'Bleed more, heal more.', desc: 'Bleeds hurt more, and killing a bleeding enemy heals you more.' });
-mutCard({ id: 'sp_peer', title: 'Peer Pressure', icon: 'PP', type: 'soul', family: MUT_TF('soul'), color: MUT_COL.soul, rarity: 2, maxRank: 3, why: needType('soul', 'Alien'),
+mutCard({ id: 'sp_peer', title: 'Peer Pressure', icon: 'PP', type: 'soul', family: MUT_TF('soul'), color: MUT_COL.soul, rarity: 2, maxRank: 3, why: needType('soul', 'Parasite'),
   flavour: 'Longer possession.', desc: 'Possessed lasts longer, and possessed enemies hit their mates harder.' });
 mutCard({ id: 'sp_leave', title: 'Leave a Little Something', icon: 'LS', rarity: 1, maxRank: 3,
   flavour: 'Pools last longer.', desc: 'Every pool you make lasts longer and hits twice as hard as it dries up.' });

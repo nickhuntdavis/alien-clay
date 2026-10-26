@@ -551,8 +551,8 @@ wupReg('v_shock_beam', {
 // The traps of this slot, oldest first.
 const w2Traps = w => G.zones.filter(z => z.life > 0 && z.src && z.src.w === w);
 const w2Snare = e => { fightStatus(e, 'ice', 0, {}); };
-// Switched to Alien (fitcheck.js lets Switched at Birth pick it): Ectoplasm. Pale ghost hands rise out of each puddle and
-// grip whatever is in it (held at 50% speed: the Snare's stand-in, since Alien damage Snares nothing); strands and bogeys
+// Switched to Parasite (fitcheck.js lets Switched at Birth pick it): Ectoplasm. Pale ghost hands rise out of each puddle and
+// grip whatever is in it (held at 50% speed: the Snare's stand-in, since Parasite damage Snares nothing); strands and bogeys
 // grip the same way; stuck enemies are PULLED UNDER (two hands hold them down as they sink).
 const W2_ECTO = '#e6e0ff', w2Ecto = w => !!(w && w.def && w.def.elem === 'soul' && w24Key(w) === 'v_ice_pool');
 const w2NocCol = w => (w2Ecto(w) ? W2_ECTO : W2_GRN);
@@ -736,7 +736,7 @@ wupReg('v_ice_pool', {
 
 // ================================================================ 8. LITTLE PRICK (Blood, Projectile)
 const W2_BLEED_BY = 'Little Prick';
-// Little Prick switched to Alien (fitcheck.js lets Switched at Birth pick it): voodoo pins. Bleed stacks stay, drawn as
+// Little Prick switched to Parasite (fitcheck.js lets Switched at Birth pick it): voodoo pins. Bleed stacks stay, drawn as
 // pale pins; a full pincushion is Possessed; Open Wound's pool makes crossers flinch; Sutures yanks crossers back;
 // Reef Knot Possesses the knot; Terminal Clause's spirit slams the nearest enemy; Exsanguinate's Possessed burst in pins.
 const W2_PIN = '#e6e0ff', w2Voodoo = w => !!(w && w.def && w.def.elem === 'soul');
@@ -753,11 +753,11 @@ const w2Stacks = e => (e.bleeds ? e.bleeds.length : 0) + (e.w2 && e.w2.bx ? e.w2
 function w2BleedHit(w, e, res, src, extra, cap) {
   if (!res.statusOk || src.noStatus || e.dead) return;
   const dps = res.raw * 0.3 / 3, b = e.bleeds || (e.bleeds = []), E = w2E(e), bx = E.bx || (E.bx = []);
-  for (let i = 0; i < extra + (w2Voodoo(w) ? 1 : 0); i++) w2BleedAdd(e, dps, cap); // (Alien: the engine adds no Bleed of its own, so the pin is added here)
+  for (let i = 0; i < extra + (w2Voodoo(w) ? 1 : 0); i++) w2BleedAdd(e, dps, cap); // (Parasite: the engine adds no Bleed of its own, so the pin is added here)
   if (b.length >= 3 && b.length + bx.length < cap) bx.push(b[0]);
   const S = w2s(w); S.bled.add(e); if (S.bled.size > 80) S.bled.delete(S.bled.values().next().value);
 }
-// Alien stands in for Blood's own Bleed on the promises that do not add stacks themselves (Needlework, Final Prick):
+// Parasite stands in for Blood's own Bleed on the promises that do not add stacks themselves (Needlework, Final Prick):
 // each hit leaves a pin (cap 3), checked at hit time so a later switch counts too.
 function w2PinBase(w) {
   const S = w2BleedOn(w, 3); if (S.pinBase) return; S.pinBase = 1;
@@ -832,7 +832,7 @@ function w2Needlework(w) { // threads, knots and the red line behind a piercing 
         const cx = es.reduce((a, e) => a + e.x, 0) / es.length, cy = es.reduce((a, e) => a + e.y, 0) / es.length;
         S.knots.push({ es, cx, cy, t: 0.45 }); w2Cap(S.knots, 4);
         const vd = w2Voodoo(w);
-        for (const e of es) { w2BleedAdd(e, w.s.dmg * 0.1, S.cap); S.bled.add(e); w2Line(e.x, e.y, cx, cy, 2.5, vd ? W2_PIN : W2_RED, 0.4); if (vd) w2Possess(w, e); } // (Alien: the knot is a ragdoll on your side)
+        for (const e of es) { w2BleedAdd(e, w.s.dmg * 0.1, S.cap); S.bled.add(e); w2Line(e.x, e.y, cx, cy, 2.5, vd ? W2_PIN : W2_RED, 0.4); if (vd) w2Possess(w, e); } // (Parasite: the knot is a ragdoll on your side)
         ring(cx, cy, 24, vd ? W2_PIN : W2_RED, 0.5, 4); floatText(cx, cy - 16, vd ? 'RAGDOLL' : 'KNOT', vd ? W2_PIN : W2_RED, 12, 0.7); w2Mark(w, 'knot');
       }
     }
