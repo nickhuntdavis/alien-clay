@@ -1,0 +1,7 @@
+## 2026-10-25 All open copy written; modifier hold view explains the instance (v10.145)
+- Systems: ui (loot cards, glossary), weapons (modifier cards), relics, bosses, tutorials, Switched at Birth, health cards
+- Files: holdcopy.js (new), index.html, style.css, glossary.js, rewardui.js, data.js, rrelics.js, levels.js, foes3.js, bosspack.js, rackgrid.js, spoils.js, dnadrop.js; tests cell4test.js, sabtierstest.js, dnadroptest.js
+- What: every remaining TODO_COPY is written (11 relics, 15 boss signature lines, 6 health and Membrane cards, Switched at Birth levels and fork, 25 water-balloon cells, Tartar Colony, Hocker tip, Toughest targeting, Trophy Hide, DNA drop label, notes and tutorial, random sample tag, the pick-a-weapon fit line). Holding a modifier card now shows, for each weapon it can go on, what it does on that weapon at that rank (cell or Delivery text where one exists, else a line in the weapon's own words with the rank's real numbers), what this rank adds, and the weapon's numbers before and after including the card's stat point. glossFor no longer matches "The shakes" on every "the".
+- Save data: none.
+- Hooks: none in shared files (holdcopy.js wraps cardGlossary and sabCard; glossary.js glossFor one-line fix).
+- Risk: copy only, plus a read-only stat preview (computeStats with the modifier added, then restored). celltest's "nappy dealt" failure is pre-existing on main.

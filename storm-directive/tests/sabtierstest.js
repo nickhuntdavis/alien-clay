@@ -54,7 +54,7 @@ const ONLY = process.argv[2] || '';
     UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.weapons.length = 0; G.weapons.push(null);
     optNewWeapon('v_phys_proj', 0).apply(); const w = G.weapons.find(x => x);
     let card = null; for (let i = 0; i < 30 && !card; i++) card = sabCard();
-    if (!card || card.desc !== 'TODO_COPY:sab_l1_desc') bad.push('l1 card ' + JSON.stringify(card && card.desc));
+    if (!card || card.desc !== SLICE_COPY.sab_l1_desc) bad.push('l1 card ' + JSON.stringify(card && card.desc));
     card.apply(); if (!w.sab || w.sab.lv !== 1) bad.push('no level 1');
     for (let i = 0; i < 60 && w.sab.lv < 2; i++) { const k = sabCard(); if (k && /Level 1 > 2/.test(k.sub)) k.apply(); }
     if (w.sab.lv !== 2) bad.push('no rank 2');
