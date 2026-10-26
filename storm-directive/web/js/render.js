@@ -505,7 +505,7 @@ function scorchSprite() {
 }
 function drawDecals(vis) {
   const spr = scorchSprite();
-  for (const d of G.decals) {
+  if (QUAL.lv < 4) for (const d of G.decals) { // (the lowest step keeps the specks only)
     if (!vis(d)) continue;
     const a = Math.min(1, d.life / 4), x = sx(d.x), y = sy(d.y), r = d.r * S;
     ctx.globalAlpha = a * 0.22;
@@ -619,11 +619,17 @@ function drawPool(z, x, y, r, a) {
   const hx = v => Math.round(Math.max(0, Math.min(1, v)) * 255).toString(16).padStart(2, '0');
   blobPath(x, y, r * 1.08, z, t * 0.7, 0.08);
   if (c) {
-    const g = ctx.createRadialGradient(x, y, 0, x, y, r * 1.1);
-    if (df) { g.addColorStop(0, c + hx(0.08)); g.addColorStop(0.72, c + hx(0.2)); g.addColorStop(0.9, c + hx(0.12)); }
-    else { g.addColorStop(0, c + hx(0.3)); g.addColorStop(0.65, c + hx(0.24)); g.addColorStop(0.9, c + hx(0.1)); }
-    g.addColorStop(1, c + '00');
-    ctx.globalAlpha = a; ctx.fillStyle = g; ctx.fill();
+    // (The gradient is built once per pool at the origin and slid under the path: a gradient a pool a frame was
+    // 50 shader uploads a frame late in a Race. Rebuilt when the zoom, the colour or the view changes.)
+    const key = c + (df ? 'd' : '') + (RAW_COL ? 'r' : '');
+    if (z.grKey !== key) {
+      const g = ctx.createRadialGradient(0, 0, 0, 0, 0, 1.1); // (unit radius: scaled to the pool below, so a growing or fading pool keeps its gradient)
+      if (df) { g.addColorStop(0, c + hx(0.08)); g.addColorStop(0.72, c + hx(0.2)); g.addColorStop(0.9, c + hx(0.12)); }
+      else { g.addColorStop(0, c + hx(0.3)); g.addColorStop(0.65, c + hx(0.24)); g.addColorStop(0.9, c + hx(0.1)); }
+      g.addColorStop(1, c + '00');
+      z.gr = g; z.grKey = key;
+    }
+    ctx.save(); ctx.translate(x, y); ctx.scale(r, r); ctx.globalAlpha = a; ctx.fillStyle = z.gr; ctx.fill(); ctx.restore();
   } else { ctx.globalAlpha = a * 0.15; ctx.fillStyle = z.color; ctx.fill(); }
   if (FX.k < 0.5) { ctx.globalAlpha = 1; return; } // (busy screen: just the stain)
   const el = z.elem || (z.src && z.src.elem), n = Math.min(10, 3 + Math.round(z.r / 14));
@@ -1411,11 +1417,14 @@ function render() {
   // Zones (yours: faded when busy).
   fxDim(true);
   drawTrails();
+  // (Glowing pools (wells, Acid, Static, Blood) in one additive pass: a composite switch per pool flushes the GPU batch.)
+  ctx.globalCompositeOperation = 'lighter';
+  for (const z of G.zones) if (!z.trail && vis(z) && (z.pull || (z.src && emits(z.src.elem)))) glow(sx(z.x), sy(z.y), z.r * S * 1.1, z.color, 0.35 * Math.min(1, z.life / 0.4));
+  ctx.globalCompositeOperation = 'source-over';
   for (const z of G.zones) {
     if (z.trail || !vis(z)) continue;
     const a = Math.min(1, z.life / 0.4);
     const x = sx(z.x), y = sy(z.y), r = z.r * S;
-    if (z.pull || (z.src && emits(z.src.elem))) { ctx.globalCompositeOperation = 'lighter'; glow(x, y, r * 1.1, z.color, 0.35 * a); ctx.globalCompositeOperation = 'source-over'; }
     ctx.globalAlpha = a * 0.6; ctx.strokeStyle = z.color; ctx.lineWidth = 2;
     if (z.pull) {
       for (let k = 0; k < 4; k++) { const rr = ((G.realT * 0.9 + k / 4) % 1) * z.r; ctx.beginPath(); ctx.arc(x, y, (z.r - rr) * S, 0, TAU); ctx.stroke(); }
@@ -1647,7 +1656,7 @@ function render() {
   ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
   // Enemies. (Lower quality with a crowd: common enemies skip their halo and surface detail.)
   // (A crowd: common enemies drop their halo and surface detail, and status effects draw as a single tint.)
-  const lod = (QUAL.lv >= 1 && G.enemies.length > 60) || G.enemies.length > 80;
+  const lod = (QUAL.lv >= 1 && G.enemies.length > 60) || G.enemies.length > 80 || QUAL.lv >= 3;
   STATUS_LOD = lod;
   RING_DEFER = true; // (enemy rings wait until the effects are drawn: ringtop.js)
   for (const e of G.enemies) if (vis(e) && !e.egg) { if (e.ghost) { typeGhostUnder(e); const ga = ctx.globalAlpha; ctx.globalAlpha = ga * (0.45 + 0.1 * Math.sin(G.realT * 5 + e.id)); drawEnemy(e, lod); ctx.globalAlpha = ga; } else drawEnemy(e, lod); } // (Parasite ghosts are see-through: chem.js)
