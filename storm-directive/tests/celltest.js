@@ -19,8 +19,12 @@ const { chromium } = require('playwright');
     const run = s => { for (let i = 0; i < s * 60; i++) { G.state = 'play'; G.lootQueue.length = 0; update(1 / 60); G.player.hp = 1e6; if (G.enemies.filter(e => !e.dead && !e.charmed).length < 6) crowd(); } };
     // 1. Card rules
     let w = fresh('s_mines');
-    out.nmOk = ['rapid', 'sticky', 'ricochet', 'connecting', 'extra', 'orbiting', 'range', 'piercing', 'mines'].map(id => modOk(w, id));
-    if (out.nmOk.join() !== 'true,true,true,true,true,true,false,false,false') bad.push('nappy dealt ' + out.nmOk);
+    const nmIds = ['rapid', 'sticky', 'ricochet', 'connecting', 'extra', 'orbiting', 'range', 'piercing', 'mines'];
+    out.nmOk = nmIds.map(id => modOk(w, id));
+    // (Range, Piercing and Mines are N/A on Nappy Mines; anything moddead.js's audit table marks dead on the bare weapon,
+    // Connecting since 7cc1182, is not dealt either)
+    const nmDead = (MOD_DEAD.s_mines || {})[''] || [], nmWant = [true, true, true, true, true, true, false, false, false].map((v, i) => v && !nmDead.includes(nmIds[i]));
+    if (out.nmOk.join() !== nmWant.join() || !nmWant.slice(0, 6).filter(Boolean).length) bad.push('nappy dealt ' + out.nmOk + ' want ' + nmWant);
     w = fresh('s_bubble'); out.bbOk = ['ranged', 'piercing', 'mines', 'melee'].map(id => modOk(w, id));
     if (out.bbOk.join() !== 'false,true,true,true') bad.push('bubble dealt ' + out.bbOk);
     w = fresh('s_mines'); SET.noLimits = true; modAdd(w, 'pull'); modAdd(w, 'pull'); SET.noLimits = false;

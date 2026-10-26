@@ -46,10 +46,12 @@ const { chromium } = require('playwright');
     out.noLimits = [spSlots() > 20, nm]; if (!(spSlots() > 20) || nm < 6) bad.push('no limits ' + out.noLimits);
     SET.noLimits = false;
     // 6. The Laser draws as a laser.
-    fresh(); const lw = G.weapons.find(Boolean); G.weapons[0] = makeSlot('v_flame_beam', false, 1); computeStats(G.weapons[0]);
-    const tgt = makeEnemy(ENEMIES.brute, p.x + 120, p.y, {}); G.enemies.push(tgt); v10Fire(G.weapons[0], tgt, weaponSrc(G.weapons[0]));
-    const fx = G.v10fx && G.v10fx[G.v10fx.length - 1]; out.laser = fx && [fx.t, fx.c];
-    if (!fx || fx.t !== 'laser') bad.push('laser fx ' + JSON.stringify(out.laser));
+    fresh(); const lw = G.weapons[0] = makeSlot('v_flame_beam', false, 1); computeStats(lw);
+    // (since v10.79 the Laser is a held beam it draws itself from w.lzSegs, laserbeam.js lzDraw, not a v10.js beam fx;
+    // lzFireT: the beam is already on, so it skips the charge-up)
+    const tgt = makeEnemy(ENEMIES.brute, G.player.x + 120, G.player.y, {}); G.enemies.push(tgt); G.v10fx = []; lw.lzFireT = G.t; v10Fire(lw, tgt, weaponSrc(lw));
+    out.laser = [(lw.lzSegs || []).length, G.v10fx.map(f => f.t)];
+    if (!(lw.lzSegs || []).length || G.v10fx.some(f => f.k === 'beam' && f.t !== 'laser')) bad.push('laser beam ' + JSON.stringify(out.laser));
     return { bad, out };
   });
   console.log(JSON.stringify(r.out));

@@ -24,7 +24,7 @@ const SG2 = {
   fpCopies: 2, fpLen: 4, fpTell: 0.5, fpGap: 1.6, fpRing: 0.3, fpR: 220, // (falsepos)
   scHalf: Math.PI / 6, scTell: 0.8, scSweep: 1.2, scLen: 950, // (saccade: half angle = 30 degrees, so a 60 degree sector)
   rfTell: 1.0, rfWave: 1.0, rfRows: 4, rfCols: 4, rfR: 52, rfLife: 4, // (reflux)
-  dnTell: 0.9, dnRush: 1.0, dnSpeed: 360, dnGap: 46, noms: 6, // (dinner; noms: snacks that heal her per pattern cycle, devour and both dinners together, 3% each: with each feed healing 18% she healed back everything the bot dealt)
+  dnTell: 0.9, dnRush: 1.0, dnSpeed: 360, dnGap: 46, noms: 6, nomsFall: 0.6, // (dinner; noms: snacks that heal her in the first pattern cycle, devour and both dinners together, 3% each: with each feed healing 18% she healed back everything the bot dealt; nomsFall: each later cycle's budget is 60% of the last (6, 4, 2, 1, 1, then none), so she heals at most 42% in a fight and a weak build still wins)
 };
 
 // The new patterns replace every generic spray slot (data.js BOSSES and roster.js ROSTER_BOSSES share one array).
@@ -270,11 +270,11 @@ function sg2Reflux(e, s, dt, bd, p) {
 }
 
 // ---------------------------------------------------------------- The Macrophage Queen: dinner bell
-// One snack budget a pattern cycle (SG2.noms, 3% of her health each) shared by devour and both dinners. She still eats past it
+// One snack budget a pattern cycle (SG2.noms, 3% of her health each, shrinking by SG2.nomsFall each cycle) shared by devour and both dinners. She still eats past it
 // (the adds go), it just stops healing her. Counted from her health rising while she feeds: devour's own code is untouched.
 function sg2Noms(e, s, pat, pat0, hp0) {
-  if (pat === 'summon' && pat0 !== 'summon') s.noms = SG2.noms; // (the cycle starts with the summon)
-  if (s.noms == null) s.noms = SG2.noms;
+  if (pat === 'summon' && pat0 !== 'summon') { s.nomCyc = (s.nomCyc || 0) + 1; s.noms = Math.round(SG2.noms * Math.pow(SG2.nomsFall, s.nomCyc - 1)); } // (the cycle starts with the summon; each one feeds her less)
+  if (s.noms == null) { s.nomCyc = 1; s.noms = SG2.noms; }
   if (!(e.hp > hp0) || (pat !== 'devour' && pat !== 'dinner')) return;
   const per = e.maxHp * 0.03, ate = Math.max(1, Math.round((e.hp - hp0) / per)), ok = Math.max(0, Math.min(ate, s.noms));
   s.noms -= ok;

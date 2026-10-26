@@ -112,7 +112,7 @@ bossAI = function (e, dt, dist, ux, uy) {
       break;
     }
     case 'contract': {
-      e.mvs *= 0.3;
+      if (dist < 380) e.mvs *= 0.3; // (far off, the usual fast close-in stands)
       const k = clamp((t - T.conTell) / T.conClose, 0, 1), Rend = e.r + T.conEnd;
       s.R = T.conR0 + (Rend - T.conR0) * k;
       if (k > 0 && k < 1) {

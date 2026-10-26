@@ -1,7 +1,11 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
+- (ccr-b6a373a9-q8ofbd, 26 Oct) Forced-card sim (each card at top rank from 2 s, the other new cards out of the pool, bot, mortal, Petri Dish; mean wave reached / wins): baseline 13.4 / 4 of 24, with a Membrane 16.7 / 6 of 24. Strongest: vt_rally 19.3 / 9 of 18, vt_drip 18.2 / 8 of 18, vt_feed 18.1 / 6 of 18 (vs Membrane). No effect or worse: pk_hex 10.5 / 0 of 18, pk_streak 14.1 / 2 of 18. 6-run reads: vt_leech 18.8, pk_slayer 17.8, pk_edge 17.2, vt_regrow 19.3 and vt_shrap 18.2 (vs Shell 16.8), vt_osmo 19.2; pk_shrug 13.8, pk_burst 14.0, pk_trail 14.8, vt_pop 15.4. The autorun bot does not sprint, so the sprint cards are untested. Race cards do nothing for the bot: it dies at 3 to 4 min, before reaching the egg. Unchanged numbers so far.
 - (ccr-b6a373a9-q8ofbd, 26 Oct) Balance sim of the 23 vitals.js/perks.js cards, bot, mortal, paired with them removed: Petri Dish wins 3/10 (2/10 without), mean wave reached 14.1 (11.8); Race 0/6 both, mean survival 330 s (218 s). The bot took 0 to 3 of the new cards a run, so the gap is inside run-to-run noise. Open: two Macrophage Queen fights at wave 10 ran 1000+ s (one run with no new cards, one with only pk_dud), against 38 s in the baseline.
+- Version v10.149 (versionCode 428): Cramp and Sneeze keep the far close-in (over 380 px) during their beats; the Sneeze walks to within 420 px before winding up. Every boss probed (bossprobe.js); wave 20 fights run 110 to 200 s for the god bot at 345k to 437k health, no change made.
+- Version v10.148 (versionCode 427): moddead.js MOD_LIVE_WITH lets a dead card through when the weapon holds one that wakes it (Laser: Homing with Bounce or Piercing; Sandbox only, as all three are Flight).
+- Version v10.147 (versionCode 426): Range and Up Close cards offered again (MOD_DEAD rebuild had re-hidden them on about 50 weapon cells; tests/tools/moddead.js now skips both); Returning has its stat; nine stale tests updated. Open: statuptest fails on Enzyme Sneeze (stat-point dps ratio 1.3 to 1.5; user chose to leave it, a 32% dmgK cut on acro_spray would fix it).
 - Version v10.146 (versionCode 425): merge of `ccr-0f6f9db5-704msv` (all open copy written, modifier hold view shows what a card does on each weapon with before/after numbers; holdcopy.js) and `ccr-56c32e6b-e1zsrr` (run log newest first, Sandbox offers print "all N").
 - Version v10.145 (versionCode 424): boss-rank Membranes refill in 10 s (BOSS10_MEM_FILL, boss10.js), 2 s quiet unchanged. The Johnny's bar was not moving for weak builds.
 - Version v10.144 (versionCode 423): Queen heals from at most 6 snacks a pattern cycle (18%) across devour and both dinners; Matron rounds heal an add at most 6 ticks in its life, bed walk 240 px/s. Probe: bossprobe.js <id> w15 for the wave 15 slot.
@@ -89,6 +93,8 @@ Tone: Dungeon Crawler Carl. Dry, deadpan, nerdy, not self-aware; bodies, sex, co
 - Saves: full wipe on v10 (new META key, old `sd_meta` ignored).
 
 ## Recent changes (newest first)
+- v10.148: Sandbox Laser with Bounce or Piercing is offered Homing. Details in CHANGELOG.md v10.148.
+- v10.147: Range and Up Close cards back on about 50 weapons; nine stale tests fixed. Details in CHANGELOG.md v10.147.
 - v10.146: merged `ccr-0f6f9db5-704msv` (all open copy, modifier hold view) and `ccr-56c32e6b-e1zsrr` (run log order). Details in CHANGELOG.md v10.146.
 - v10.124: merged `claude/serene-mayer-hzufbe` (rings on top, branch screens, two best weapons per sample). Details in CHANGELOG.md v10.124.
 - v10.122: merged `claude/serene-mayer-hzufbe` (v9 sample bodies, v9 samples back on the rack). Details in CHANGELOG.md v10.122.

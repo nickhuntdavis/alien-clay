@@ -1,4 +1,12 @@
-## 2026-10-26 Fourteen more draft cards: trade-offs, streaks, sprint, decoy, bosses, curse, race (v10.147)
+## 2026-10-26 Macrophage Queen heals less each cycle; forced-card balance sim (v10.150)
+- Systems: bosses (tier 2 signatures), tests
+- Files: bosssig10_t2.js, tests/queennomstest.js (new), tests/sim/wave20.js, tests/sim/race.js; merge of main v10.149
+- What: the Queen's snack budget shrinks each pattern cycle (SG2.nomsFall 0.6: 6, 4, 2, 1, 1, then none), so she heals at most 42% of her health in a fight; before, 18% every 22 s cycle outhealed any build under about 140 damage a second (two bot fights ran 1000+ s). bossprobe: strong builds unchanged (36 to 72 s); a forced weak build went from a full-health stall to a kill in 245 s.
+- Save data: none
+- Hooks: none
+- Risk: the Queen is easier for weak builds after about 90 s of fighting; fast fights are unchanged.
+
+## 2026-10-26 Fourteen more draft cards: trade-offs, streaks, sprint, decoy, bosses, curse, race (v10.147 on this branch; main later used v10.147 too)
 - Systems: draft cards, defences (pdef), healing, stamina (sprint), weapons (fire rate), enemy targeting (decoy)
 - Files: perks.js (new), index.html, ARCHITECTURE.md, tests/perkstest.js (new); merge of main v10.146
 - What: Big Heart (+40% max HP, 10% slower), Bubble Wrap (Membrane x2, mends half as fast), damage up as health drops, your statuses 25% shorter a rank, a Membrane that cuts the damage type that has hurt you most, kill streaks give +40% fire rate for 4 s, sprinting leaves a slippery trail, starting a sprint shoves and damages, a dud-sperm decoy every 30/24/18 s, +12% damage to bosses, boss hits 10% weaker, Hex (take 15% more, one more draft card), and two race-only cards near the egg (faster, tougher).

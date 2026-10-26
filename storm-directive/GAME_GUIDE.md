@@ -838,6 +838,7 @@ Every modifier card you take (each rank, and Switched at Birth) also adds a smal
 | Switched at Birth | +5% XP Bonus |
 | pull | +5% Traction |
 | Ricochet | +6% Acceleration |
+| Return to Sender | +5% Bullet Range |
 
 ## Upgrades that do not fit
 
