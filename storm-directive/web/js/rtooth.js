@@ -33,7 +33,7 @@ function rtTeeth(e, w, k) {
   e.rtTeeth = (e.rtTeeth || 0) + (k || 1); e.rtW = w;
   const need = RT.need - (modCount(w, 'homing') >= 3 ? 1 : 0);
   if (!e.boss && !e.rival && !(e.rtEnd > G.t) && e.rtTeeth >= need && rtBleeding(e) && G.enemies.filter(o => o.rtEnd > G.t && !o.dead).length < RT.cap) {
-    e.rtEnd = G.t + RT.dur; e.rtTurn = 0; floatText(e.x, e.y - e.r - 12, 'TODO_COPY:rt_float', '#ff758f', 11, 0.8);
+    e.rtEnd = G.t + RT.dur; e.rtTurn = 0; floatText(e.x, e.y - e.r - 12, 'TEETHING', '#ff758f', 11, 0.8);
   }
 }
 function rtProc(e, dmg, src) { // (one tooth counts once: a hit can be announced twice with a copy of its src)

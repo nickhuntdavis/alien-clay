@@ -13,7 +13,7 @@
 //  - vt_pop      a Membrane knocked to zero pops: damage and a shove round you. Once per 6 s.
 //  - vt_osmo     while the Membrane is full, regenerate 0.5% of max HP per second per rank.
 //  - vt_feed     each kill refills 3% of the Membrane per rank.
-// All copy is TODO_COPY:vt_<id>_title / _desc.
+// Copy in VT_TEXT.
 // Hooks: hookOn('tick', 'vtTick'), hookOn('kill', 'vtKill'), hookOn('proc', 'vtProc'), hookOn('hurt', 'vtHurt').
 // Loads after membrane.js.
 
@@ -28,6 +28,17 @@ const VTC = {
   vt_osmo:   { rarity: 1, max: 3, icon: 'OS', color: '#9fd8ff', needs: 'mem' },
   vt_feed:   { rarity: 1, max: 3, icon: 'FE', color: '#9fd8ff', needs: 'mem' },
 };
+const VT_TEXT = { // [title, card text] (Claude-drafted, 26 Oct)
+  vt_drip: ['IV Drip', 'Regenerate 0.2% of your max HP every second per rank, at any health.'],
+  vt_leech: ['Leech', 'Weapon hits heal 3% of the damage they deal per rank. It counts towards your lifesteal limit.'],
+  vt_plasma: ['Fresh Plasma', 'All healing +20% per rank.'],
+  vt_rally: ['Payback', 'After you take a hit, kills in the next 3 seconds win back 10% of it per rank, up to half.'],
+  vt_regrow: ['Regrowth', 'A lost Shell layer grows back every 24 seconds. 16 seconds at rank 2, 10 at rank 3.'],
+  vt_shrap: ['Shrapnel', 'A Shell layer that breaks bursts outward, dealing Force damage around you. More damage per rank.'],
+  vt_pop: ['Waters Breaking', 'When your Membrane is knocked to zero it bursts, damaging and shoving enemies around you. Once every 6 seconds. More damage per rank.'],
+  vt_osmo: ['Osmosis', 'While your Membrane is full, regenerate 0.5% of your max HP every second per rank.'],
+  vt_feed: ['Top-Up', 'Every kill refills 3% of your Membrane per rank.'],
+};
 const VT = { drip: 0.002, leech: 0.03, plasma: 0.2, rallyT: 3, rally: 0.10, rallyCap: 0.5, regrow: [24, 16, 10], shrapR: 120, shrap: 14, popR: 150, pop: 10, popShove: 420, popCd: 6, osmo: 0.005, feed: 0.03 };
 const vtr = id => (G && G.vtc && G.vtc[id]) || 0;
 const vtMem = () => typeof pdHasShield === 'function' && pdHasShield(pdef());
@@ -37,7 +48,7 @@ const vtShell = () => typeof pdef === 'function' && vtShellCap(pdef()) > 0;
 for (const id in VTC) {
   const V = VTC[id];
   const c = { id, kind: 'enhance', slot: null, family: 'up:' + id, type: null, rarity: V.rarity, start: true,
-    title: 'TODO_COPY:' + id + '_title', desc: 'TODO_COPY:' + id + '_desc', icon: V.icon, color: V.color, maxRank: V.max,
+    title: VT_TEXT[id][0], desc: VT_TEXT[id][1], icon: V.icon, color: V.color, maxRank: V.max,
     eligible: G => !V.needs || (V.needs === 'mem' ? vtMem() : vtShell()), rank: () => vtr(id),
     apply: G => {
       (G.vtc || (G.vtc = {}))[id] = vtr(id) + 1;

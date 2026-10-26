@@ -1,7 +1,7 @@
 'use strict';
 // Spawn Prawn - more slotless draft cards (ccr-b6a373a9-q8ofbd): trade-offs, low health, statuses, a damage type the
 // Membrane learns, kill streaks, sprinting, a decoy, bosses, a curse and the race to the egg. Fourteen 'up:' cards
-// (draft.js group 'up'), ranks in G.pkc[id]. All copy is TODO_COPY:pk_<id>_title / _desc.
+// (draft.js group 'up'), ranks in G.pkc[id]. Copy in PK_TEXT.
 //  - pk_heart    (trade-off, 1 rank) max HP +40%, swim 10% slower.
 //  - pk_bubble   (trade-off, needs a Membrane, 1 rank) Membrane twice the size, mends half as fast.
 //  - pk_edge     up to +25% damage per rank as your health drops (full at 0 HP, nothing at full health).
@@ -36,6 +36,22 @@ const PKC = {
   pk_homing: { rarity: 1, max: 3, icon: 'HO', color: '#ffd6e8', needs: 'race' },
   pk_last:   { rarity: 1, max: 3, icon: 'LS', color: '#ffd6e8', needs: 'race' },
 };
+const PK_TEXT = { // [title, card text] (Claude-drafted, 26 Oct)
+  pk_heart: ['Enlarged Heart', '+40% max HP. You swim 10% slower.'],
+  pk_bubble: ['Bubble Wrap', 'Your Membrane is twice the size and mends half as fast.'],
+  pk_edge: ['Desperate Measures', 'Up to +25% damage per rank as your health drops. Nothing at full health, all of it near zero.'],
+  pk_shrug: ['Shrug It Off', 'Statuses on you (Snotty, Bleeding, Melting) are 25% shorter and weaker per rank.'],
+  pk_learn: ['Acquired Immunity', 'While your Membrane is up, the damage type that has hurt you most this run deals 35% less per rank.'],
+  pk_streak: ['On a Roll', '10 kills within 5 seconds: +40% fire rate for 4 seconds. Each rank needs 2 fewer kills.'],
+  pk_trail: ['Snail Trail', 'Sprinting leaves a slime trail for 2 seconds. Enemies on it slip. They slip for longer per rank.'],
+  pk_burst: ['False Start', 'Starting a sprint shoves nearby enemies away and deals Force damage. Once every 3 seconds. More damage per rank.'],
+  pk_dud: ['Firing Blanks', 'Every 30 seconds you leave a dud sperm behind. For 5 seconds, enemies chase and shoot it instead of you. 6 seconds sooner per rank.'],
+  pk_slayer: ['Big Game', '+12% damage to bosses per rank.'],
+  pk_brace: ['Brace for Impact', 'Boss hits deal 10% less damage per rank.'],
+  pk_hex: ['Side Effects', 'Every draft deals one more card, up to four. You take 10% more damage.'],
+  pk_homing: ['Homing Instinct', 'Close to the egg, you swim 6% faster per rank.'],
+  pk_last: ['Final Stretch', 'Close to the egg, you take 10% less damage per rank.'],
+};
 const PK = { heartHp: 0.4, heartSpd: 0.9, edge: 0.25, shrug: 0.25, learn: 0.35, streakN: [10, 8, 6], streakT: 5, streakDur: 4, streakRate: 1.4,
   trailEvery: 0.08, trailLife: 2, trailR: 30, burstR: 140, burst: 8, burstShove: 380, burstCd: 3, dudEvery: [30, 24, 18], dudDur: 5,
   slayer: 0.12, brace: 0.1, hexHurt: 1.10, eggR: 900, homing: 0.06, last: 0.1 };
@@ -48,7 +64,7 @@ const pkS = () => G.pkS || (G.pkS = { kills: [], hasteT: -9, trail: [], trailT: 
 for (const id in PKC) {
   const K = PKC[id];
   const c = { id, kind: 'enhance', slot: null, family: 'up:' + id, type: null, rarity: K.rarity, start: true,
-    title: 'TODO_COPY:' + id + '_title', desc: 'TODO_COPY:' + id + '_desc', icon: K.icon, color: K.color, maxRank: K.max,
+    title: PK_TEXT[id][0], desc: PK_TEXT[id][1], icon: K.icon, color: K.color, maxRank: K.max,
     eligible: G => !K.needs || (K.needs === 'mem' ? pkMem() : pkRace()), rank: () => pkr(id),
     apply: G => {
       (G.pkc || (G.pkc = {}))[id] = pkr(id) + 1;
