@@ -3,6 +3,15 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.171 (versionCode 450): 2026-10-26 Three weapons per sample, fitted to the character
+- Systems: samples, race (kindred rescues), stats
+- Files: samplekit.js (new), kindred.js, xpgems.js, index.html, ARCHITECTURE.md, tests/weapons24test.js
+- What: one table (SAMPLE_KIT) gives every sample exactly three weapons. Ordered Online: Blowing Bubbles, Nappy Mines, Laser (Hot Mess out; it had four). Redtail: Unwanted Contact, Hot Mess, Spark of Life (shared with the Acrobat), in place of Sister Cousin and The Runs (a passive now; it had two). Not of This World: Family Ties, Soulmate Signal, Sister Cousin, in place of There Is No Spoon (a passive now). The others are unchanged. Rescue cards read the same list. Gravity Well and Trail modifier cards now bank Pickup Range and Gem Drift (statuptest: every stat has a modifier way in).
+- Save data: none
+- Hooks: none in shared files (kindred.js kinCards reads S10_BY[...].weapons).
+- Risk: Redtail and Not of This World start differently; Hot Mess is no longer an Ordered Online start.
+- Tests after the v10.170 merge: full suite 135 of 139; statuptest (Enzyme Sneeze, known), sivtest (red on main before), pdeftest (flaky on main before, about 1 in 3), wup6test (passed on rerun).
+
 ## v10.170 (versionCode 449): 2026-10-26 One session branch merged: the Tackle Box (weapons, targeting, Feats) split from the BUILD tab (autorun, Genome, upgrades, stats)
 - Merged: `ccr-b96d97ce-vqktjz` into main at v10.169 (only the APK conflicted: rebuilt; both sides had shipped a v10.169, so this build is v10.170).
 - Systems: ui (Tackle Box Loadout tab, pause BUILD tab).

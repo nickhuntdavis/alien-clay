@@ -131,7 +131,7 @@ function kinAbsorb(id) {
 // pick goes in an empty mount, or a new one (up to MAX_WEAPONS). With every mount full: no cards (the screen is skipped).
 function kinCards(req) {
   if (kinFull()) return [];
-  const sm = S10_BY[req.id], own = G.s10 && w24Starters(G.s10.id).filter(id => WEAPONS[id] && !G.weapons.some(w => w && (w.sid || w.id) === id));
+  const sm = S10_BY[req.id], own = G.s10 && (S10_BY[G.s10.id] ? S10_BY[G.s10.id].weapons : w24Starters(G.s10.id)).filter(id => WEAPONS[id] && !G.weapons.some(w => w && (w.sid || w.id) === id));
   const mine = own && own.length ? [pick(own)] : []; // (three weapons at most, user 26 Oct: one of your own sample's, the rest the rescued sample's)
   const ids = shuffle(sm.weapons.filter(id => WEAPONS[id])).slice(0, KIN.cards - mine.length).concat(mine);
   return ids.map(id => {
