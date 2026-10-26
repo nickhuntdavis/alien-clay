@@ -1,6 +1,6 @@
 'use strict';
 // Spawn Prawn - weapon levels from the weapon's own kills, and modifier screens between the branch tiers (user, 26 Oct).
-//  - KILL BAR: each weapon fills its own bar with its own kills (src.w on the kill hook). A full bar opens that weapon's
+//  - KILL BAR: each weapon fills its own bar with its own kills (src.w on the kill hook), plus assists and catch-up (wmCredit). A full bar opens that weapon's
 //    next level screen (WM.need: kills from Lv L to L+1). Shown as a thin bar under the slot's ammo bar on the HUD.
 //  - SCREENS, in the Weapon Draft layout (tabs, details, stage): Lv 3, 6 and 9 are the branch screens (branchback.js:
 //    promise, branch, mastery; one weapon mastery a run). Every other level (2, 4, 5, 7, 8) is a MODIFIER SCREEN:
@@ -13,25 +13,33 @@
 //  - THE STAGE: one drawn loop per modifier (WMV_SCENE), drawn with the weapon's own type colour and attack type
 //    (a projectile, a spread, a beam, a contact swipe, a burst or a puddle: wmvKit K.shot).
 //  Off in tests and sims (window.TUT_OFF) unless WM.force, and in the Sandbox.
-// Hooks: none in shared files. hookOn('kill', 'wmKill'). Wraps branchback.js xbrTick (off while this runs), draft.js
+// Hooks: none in shared files. hookOn('kill', 'wmKill'), hookOn('proc', 'wmHit'). Wraps branchback.js xbrTick (off while this runs), draft.js
 // forkCards, draftBox, sidemo.js sivDraftKind and sivDraftHead, sandbox.js sbDraftInfo (the details panel), preview.js
 // makePreview (the modifier loops), modmatrix.js modDraftCands and wupLevel, modcards.js modBoxCards, UI.openDraft and
 // UI.refreshHud. Loads last (after modpick.js and holdcopy.js).
 
-const WM = { on: true, force: false, k0: 16, kg: 0.5, cards: 3, skipRerolls: 2, statN: 2, statW: 1.1, statSteps: [1.5, 2, 3, 4, 6, 8, 10] };
+const WM = { on: true, force: false, k0: 16, kg: 0.35, assist: 0.5, assistT: 3, catchK: 0.5, cards: 3, skipRerolls: 2, statN: 2, statW: 1.1, statSteps: [1.5, 2, 3, 4, 6, 8, 10] };
 const wmOn = () => WM.on && !!G && !xbrTest(WM.force) && !(typeof sbOn === 'function' && sbOn());
 const wmNeed = w => Math.round(WM.k0 * (1 + WM.kg * (Math.min(MM.lvlCap, w.lvl || 1) - 1)));
 const wmLive = w => !!w && !w.isSpell && !!w.def && G.weapons.includes(w);
 let wmIn = 0; // (inside a modifier screen's deal: modifier candidates allowed)
 
 // ---------------------------------------------------------------- the kill bar
-function wmKill(e, src) {
-  const w = src && src.w;
-  if (!wmOn() || !wmLive(w) || w.wmQ) return;
-  w.wmK = (w.wmK || 0) + 1;
+// Catch-up (user, 26 Oct: lower weapons could not catch up): every weapon that hit the enemy in the last WM.assistT s
+// gets WM.assist of a kill, and each level a weapon sits below your highest weapon adds WM.catchK to its credit.
+function wmCredit(w, n, top) {
+  if (!wmLive(w) || w.wmQ) return;
+  w.wmK = (w.wmK || 0) + n * (1 + WM.catchK * Math.max(0, top - (w.lvl || 1)));
   if (w.wmK >= wmNeed(w)) wmQueue(w);
 }
+function wmKill(e, src) {
+  if (!wmOn()) return;
+  const w = src && src.w, top = Math.max(1, ...G.weapons.map(x => x && !x.isSpell ? x.lvl || 1 : 1));
+  if (wmLive(w)) wmCredit(w, 1, top);
+  if (e.wmHit) for (const [x, t] of e.wmHit) if (x !== w && G.t - t <= WM.assistT) wmCredit(x, WM.assist, top);
+}
 hookOn('kill', 'wmKill', (e, src) => wmKill(e, src));
+hookOn('proc', 'wmHit', (e, dmg, src) => { if (wmOn() && src && src.w && !src.w.isSpell) (e.wmHit || (e.wmHit = new Map())).set(src.w, G.t); });
 // The next screen for w: a branch screen if Lv+1 is a branch tier it still has cards for, else a modifier screen.
 function wmBranch(w) {
   const S = typeof WUP !== 'undefined' && WUP[w24Key(w)], to = (w.lvl || 1) + 1;

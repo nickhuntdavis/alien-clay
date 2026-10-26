@@ -82,6 +82,7 @@
 
 - (`claude/fervent-mendel-3f1ud8`, v10.123) Pool weapons are water balloons (`balloon.js`, MODIFIER_MATRIX.md 5.10, decision 63): the throw is built, the 26 modifier cells for pools are not (Hot Mess still runs the 5.7 cells in `cellmods2.js`). Pools now land on their target every time: not simmed. The 26 pool cells are built too (`cellmods4.js`, 25 `TODO_COPY:cell_bl_*` card texts open); damage per cell is in `cell4test` output. `wup2test` fails on main too (Little Prick: Final Prick, Terminal Clause).
 
+- (`ccr-3feb4203-x7mgyg`, v10.175) Weapon level catch-up (wmods.js): assists WM.assist 0.5 within WM.assistT 3 s, catch-up WM.catchK 0.5 per level below the top weapon, WM.kg 0.35. wave20 mortal x8 (WM.force, XBR.force): catch-up off 6/8 wins, on 5/8, on + kg 0.35 6/8. Bot wins sit above the 20 to 50% target either way.
 - (`ccr-c2f81cd0-9wox5o`, v10.147) Weapon levels from kills (wmods.js): WM.k0 16, kg 0.5 (kills Lv L>L+1 = 16 x (1 + 0.5 x (L-1)), 352 to Lv 9). wave20 mortal 2 of 4 wins vs 1 of 4 on the old rules. The kill bar is off in tests and sims unless `WM.force` (and branch screens need `XBR.force`): sims use --pre 'WM.force = true; XBR.force = true'. statuptest already fails on main (dps ratios, 'mod without stat returning').
 
 ## Copy sheet
