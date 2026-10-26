@@ -3,6 +3,11 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.156 (versionCode 435): 2026-10-26 Queen snack budget starts at 6 and falls (two sessions' cuts no longer stack)
+- Systems: bosses. Files: bosssig10_t2.js.
+- What: main's v10.154 merge carried both this session's flat cut (3 snacks a cycle) and ccr-b6a373a9's falling budget (6, 4, 2, 1, 1, then none), which stacked to 3, 2, 1, 1, 0 and failed queennomstest. The falling budget from 6 stands on its own (42% of her health over a whole fight, 18% in the first cycle).
+- Save data: none. Hooks: none. Risk: the Queen heals a little more in her first two cycles than v10.154 did; the same over a long fight.
+
 ## v10.155 (versionCode 434): 2026-10-26 All open copy written; stat cards show before → after
 - Merged: `claude/keen-euler-cl2st0` (fast-forward, no conflicts).
 
