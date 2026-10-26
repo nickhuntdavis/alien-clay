@@ -2499,7 +2499,7 @@ function autoSteer() {
 function updatePickups(dt) {
   const p = G.player, P = G.P;
   // The race swims on, so XP left behind follows you further and faster there (most of it was being stranded).
-  const race = !G.wave, magR = 105 * P.magnet * (race ? 1.5 : 1), driftR = race ? 1600 : 650, driftV = race ? 190 : 85;
+  const race = !G.wave, magR = 105 * P.magnet * (race ? 1.5 : 1), [driftR, driftV] = typeof xpDrift === 'function' ? xpDrift(race) : (race ? [1600, 190] : [650, 85]); // (xpgems.js)
   for (const g of G.gems) {
     if (g.dead) continue;
     const dx = p.x - g.x, dy = p.y - g.y, d = Math.hypot(dx, dy) || 1;
