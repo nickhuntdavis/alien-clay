@@ -133,13 +133,13 @@ const { chromium } = require('playwright');
       'Pin Cushion': { sc: { hp: 1e5 }, keys: ['volley'], chk: w => w.w2.maxProj >= 6 || 'needles ' + w.w2.maxProj },
       'Coup de Grace': { sc: { hp: 20, maxHp: 100, refill: 1, n: 14 }, keys: ['coup'] },
     };
-    // ---- run every card (pass 1: Little Prick switched to Alien, voodoo pins, with these extra counters)
+    // ---- run every card (pass 1: Little Prick switched to Parasite, voodoo pins, with these extra counters)
     const VOO = { 'Bleeding Heart': ['voodoo'], 'Sutures': ['yank'], 'Terminal Clause': ['spirit'] };
-    // (Alien Possesses enemies by itself, so the Final Prick scene sees few low-health hits; Voodoo Doll trades the healing for pin bursts)
+    // (Parasite Possesses enemies by itself, so the Final Prick scene sees few low-health hits; Voodoo Doll trades the healing for pin bursts)
     const VOO_KEYS = { 'Final Prick': ['ding'], 'Exsanguinate': ['voodoo', 'pinburst'] };
     // Pass 2: Acid Spit switched to Mucus (Snowball). Cards fitcheck.js hides for it are skipped.
     const SNOW = { 'Spit Take': ['snowball'], 'Battery Acid': ['battery', 'snowball'] }, SNOW_SKIP = ['Stripped Bare', 'Projectile Vomit'];
-    // Pass 3: Nocturnal Emission switched to Alien (Ectoplasm).
+    // Pass 3: Nocturnal Emission switched to Parasite (Ectoplasm).
     const ECTO = { 'Extra Strength Snot': ['grip'], 'Bogged Down': ['grip'] };
     const PASS = [null, ['v_arcane_proj', 'soul'], ['v_fire_proj', 'ice'], ['v_ice_pool', 'soul']];
     for (const pass of [0, 1, 2, 3]) for (const id of pass ? [PASS[pass][0]] : IDS) {

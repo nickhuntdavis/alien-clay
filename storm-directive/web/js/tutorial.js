@@ -134,7 +134,7 @@ const TUT_EL = {
   oxi:    { c: 'amber, like oil', what: 'Oil does little on its own, but it is highly reactive. Lubricated enemies slide much further when knocked, and every reaction on them is 50% stronger.', terms: 'Lubricated: no grip at all.' },
   salt:   { c: 'deep blue', what: 'Water pushes enemies around: every hit shoves them away. Soaking-wet enemies carry Static twice as well.', terms: 'Soaking wet: dripping, and a great conductor.' },
   arcane: { c: 'blood red', what: 'Blood makes enemies bleed: damage over time, but only while they move. Five deep, it clots them together, and bleeding kills can leave a pool that heals you.', terms: 'Bleeding: losing blood with every move.' },
-  soul:   { c: 'ghostly pale blue', what: 'Alien passes straight through walls, shields and armour. Cursed enemies sometimes turn on their mates, and when one dies its ghost fights for you.', terms: 'Cursed: haunted for a few seconds. Spooked: a boss slowed by fright.' },
+  soul:   { c: 'ghostly pale blue', what: 'Parasite passes straight through walls, shields and armour. Cursed enemies sometimes turn on their mates, and when one dies its ghost fights for you.', terms: 'Cursed: haunted for a few seconds. Spooked: a boss slowed by fright.' },
 };
 // Saves from before the damage type rework (v9.10): the reworked types get their cards again.
 if (typeof META !== 'undefined' && META && !META.rxV2) {

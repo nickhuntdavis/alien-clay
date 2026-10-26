@@ -1,11 +1,11 @@
 'use strict';
-// Spawn Prawn - chemistry. Force (phys) is plain untyped damage. Under v10 Acid, Mucus, Static, Blood, Alien and Fire
+// Spawn Prawn - chemistry. Force (phys) is plain untyped damage. Under v10 Acid, Mucus, Static, Blood, Parasite and Fire
 // statuses on enemies live in fight.js (fightStatus); what is left here is the v9 statuses a few weapons and Feats still
 // leave (internal keys in brackets):
 //   Cooties (poison) - Sick: stacking damage over time (e.poison, e.poisonStacks); it sneezes it onto its mates and hits you softer.
 //   Oil (oxi)        - Lubricated (e.fizz): no grip, so knockback sends it much further, and reactions on it are 50% stronger.
 //   Water (salt)     - Soaking wet (e.pickle): each hit shoves it away.
-//   Alien (soul)     - Cursed (e.curse, set by Feats): a cursed kill leaves a ghost that fights for you.
+//   Parasite (soul)     - Cursed (e.curse, set by Feats): a cursed kill leaves a ghost that fights for you.
 // The pair reactions (reactDo) mostly fire from combo twists and Feats (RX_PAIR in inspect.js, REACTIONS in data.js).
 // Combos have chemistry too: fuse two weapons whose damage types are not their usual ones (Switched at Birth)
 // and the combo picks up a TWIST from the pair it is made of.
@@ -110,7 +110,7 @@ function reactDo(id, e, dmg, src, rsrc) {
       if (G.zones.length < 200) G.zones.push({ x: e.x, y: e.y, r: 75, life: 3, max: 3, dps: (dmg * 0.9 + 6) * rm, elem: 'fire', pull: 0, color: c, tick: 0, src: rsrc, flame: true });
       fxParts('ember', e.x, e.y, '#ff9e00', 10, 160, 0.8, 3);
       break;
-    case 'holywater': // Water + Alien: the curse is boiled out
+    case 'holywater': // Water + Parasite: the curse is boiled out
       e.curse = 0;
       damageEnemy(e, (dmg * 2.5 + 10) * rm * (e.boss ? 2 : 1), rsrc);
       fxParts('smoke', e.x, e.y, '#ffffff', 5, 60, 0.9, 6, -Math.PI / 2, 0.6);
@@ -121,7 +121,7 @@ function reactDo(id, e, dmg, src, rsrc) {
       damageEnemy(e, d, rsrc);
       break;
     }
-    case 'soulrot': // Acid + Alien: the ghost comes out spitting acid
+    case 'soulrot': // Acid + Parasite: the ghost comes out spitting acid
       hitN(neighbours(e, 160, 3), n => addBurn(n, dmg * 0.5 * rm, rsrc.wname));
       break;
     case 'bloodclot': // Blood + Oil: everything nearby congeals into one slow lump
@@ -135,7 +135,7 @@ function reactDo(id, e, dmg, src, rsrc) {
     case 'publicpool': // Water + Cooties: everything wet catches it
       for (const n of G.enemies) if (!n.dead && n !== e && n.pickle > 0 && Math.hypot(n.x - e.x, n.y - e.y) < 320) addSick(n, 1, e.poisonDps || dmg * 0.14, rsrc.wname);
       break;
-    case 'ectoplasm': // Mucus + Alien: ghost slime on everything nearby
+    case 'ectoplasm': // Mucus + Parasite: ghost slime on everything nearby
       forNear(e.x, e.y, 130, o => { o.chill = 2.5; o.chillAmt = Math.min(0.6, o.chillAmt + 0.3); });
       break;
     case 'cardiac': { // Blood + Static: a stun, then all the bleeding at once
@@ -145,7 +145,7 @@ function reactDo(id, e, dmg, src, rsrc) {
       damageEnemy(e, d, rsrc);
       break;
     }
-    case 'lastrites': // Alien + Oil: anointed
+    case 'lastrites': // Parasite + Oil: anointed
       if (plainFoe(e)) curseFoe(e, 5); else damageEnemy(e, dmg * 2 * rm, rsrc);
       break;
     case 'snotrocket': // Mucus + Cooties: the sneeze carries twice as far
@@ -160,7 +160,7 @@ function reactDo(id, e, dmg, src, rsrc) {
     case 'scab': // Blood + Mucus: it crusts over, then the scab gets picked
       stun(e, 1.5); e.scabT = G.t + 4;
       break;
-    case 'bloodpact': // Blood + Alien: the ghost drains it and feeds you
+    case 'bloodpact': // Blood + Parasite: the ghost drains it and feeds you
       damageEnemy(e, dmg * 1.2 * rm, rsrc);
       if (!(G.saltT > G.t)) { G.saltT = G.t + CHEM.healGap; healPlayer(P.maxHp * 0.01, true); }
       break;
@@ -196,14 +196,14 @@ function reactDo(id, e, dmg, src, rsrc) {
       if (e.frozen > 0) e.frozen = Math.min(e.boss ? 1 : 3, e.frozen * 2 + 0.5); else stun(e, 0.8);
       aoe(e.x, e.y, 55, dmg * 0.6 * rm, rsrc, c);
       break;
-    case 'poltergeist': // Static + Alien: the ghost throws arcs
+    case 'poltergeist': // Static + Parasite: the ghost throws arcs
       hitN(neighbours(e, 180, 4), n => damageEnemy(n, dmg * 0.6 * rm, Object.assign({}, rsrc, { elem: 'shock' })));
       break;
     case 'shakes': // Static + Cooties: a shivering stun that spreads
       stun(e, 0.7);
       forNear(e.x, e.y, 120, o => { if (o !== e && sick(o)) stun(o, 0.5); });
       break;
-    case 'patientzero': // Alien + Cooties: it runs into its mates, full of it
+    case 'patientzero': // Parasite + Cooties: it runs into its mates, full of it
       addSick(e, G.P.poisonCap, e.poisonDps || dmg * 0.14, rsrc.wname);
       curseFoe(e, 3);
       break;
@@ -221,7 +221,7 @@ function chemForce(e, dmg, src) { chemStick(e, dmg, src); }
 function chemStick(e, dmg, src) { if (e.chill > 0 && !src.dot && !src.noStatus && dmg > 0) e.snot = Math.min(e.maxHp * 0.5, (e.snot || 0) + dmg * 0.15); }
 // A Blood pool (left by a bleeding kill) heals you while you're in it.
 function chemPool(z) { const q = me(); if (G.poolHealT > G.t) return; if (Math.hypot(q.x - z.x, q.y - z.y) < z.r + (q.r || 12)) { G.poolHealT = G.t + 0.24; healPlayer(G.P.maxHp * z.heal, true); if (!(G.saytopup > G.t)) { G.saytopup = G.t + 6; floatText(q.x, q.y - 30, 'TOP-UP', REACTIONS.topup.color, 12, 0.8); G.stats.reactBy.topup = (G.stats.reactBy.topup || 0) + 1; inspectSeeRx('topup'); typeRxFx(q.x, q.y, q.r, 'topup'); } } } // (pools don't stack)
-// Alien shots pass through walls, shields, mirrors and dodges.
+// Parasite shots pass through walls, shields, mirrors and dodges.
 const soulShot = pr => !!(pr.src && pr.src.elem === 'soul');
 // Per enemy per frame (status upkeep): melting eats armour; batteries zap; the sick sneeze; bleeders bleed as they move.
 function chemTick(e, dt) {

@@ -1,6 +1,6 @@
 'use strict';
 // Spawn Prawn - previews and branch scenes for the Acid and Static weapons, plus the shared status look for every
-// typed preview (xs*: Corrosion, Burn and Alien bars; Charged, Snared, Ignited, Possessed), on the sidemo.js engine with
+// typed preview (xs*: Corrosion, Burn and Parasite bars; Charged, Snared, Ignited, Possessed), on the sidemo.js engine with
 // bldemo.js and fbdemo.js helpers.
 //  - Acid Spit (v_fire_proj): a pink glob (16) at the nearest cell in reach (440), 8 a magazine; hits fill Corrosion,
 //    and a full bar strips a Shell layer.
@@ -12,7 +12,7 @@
 
 // ================================================================ statuses (shared by asdemo, mfdemo, aldemo)
 const XS = { cor: '#ff2fa8', chg: '#ffe94a', snr: '#7fd04a', burn: '#ff6a2a', alien: '#b06cff' };
-// Bars: Corrosion ('cor'), Burn ('burn') and Alien ('alien') fill 0..1; full returns true and fires the status.
+// Bars: Corrosion ('cor'), Burn ('burn') and Parasite ('alien') fill 0..1; full returns true and fires the status.
 function xsAdd(pv, e, k, a) {
   if (!e || e.hp <= 0 || e.dying) return false;
   const B = e.xs || (e.xs = {});

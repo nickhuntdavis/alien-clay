@@ -7,7 +7,7 @@
 //    (Heartburn, Premature Evangelation, Flagellum Flail, Thorny Onesie, Upchuck, Nose Goblins, Blood Blister, Leeches)
 //    are switched back on.
 //  - Every other old weapon gets a signature copy here (sigReg: one damage type, one attack type, old firing code). The
-//    retired damage types are re-typed: Cooties -> Alien, Oil -> Fire, Water -> Mucus (V9_RETYPE). Attack types: V9_ATK.
+//    retired damage types are re-typed: Cooties -> Parasite, Oil -> Fire, Water -> Mucus (V9_RETYPE). Attack types: V9_ATK.
 //  - Upgrades: none of their own (no WUP spec), so their forks at Lv 3 / 6 / 10 are v10 modifier cards (draft.js
 //    forkCards falls back to two fitting modifiers).
 //  - V9_START: which v9 sample each weapon started (samples9.js uses it for the W24 starter column).

@@ -115,7 +115,7 @@ const { chromium } = require('playwright');
         l6: {
           A: [c => (c.max.near ? '' : 'undead did not follow'), c => (C(c).kept ? '' : 'elite not kept'), c => (C(c).fetch ? '' : 'no gem fetched')],
           B: [c => (C(c).keep ? '' : 'infection not kept') , c => (C(c).casket ? '' : 'no spread'), c => (C(c).latch ? '' : 'nothing latched')],
-          C: [c => (C(c).soulbar ? '' : 'no Alien build-up'), c => (C(c).rush ? '' : 'no rush'), c => (C(c).gut ? '' : 'no warning flash')],
+          C: [c => (C(c).soulbar ? '' : 'no Parasite build-up'), c => (C(c).rush ? '' : 'no rush'), c => (C(c).gut ? '' : 'no warning flash')],
         },
         lv10: [c => (c.max.alive > 4 && c.max.alive <= 12 ? '' : 'cap ' + c.max.alive), c => (C(c).adopted && c.max.ally ? '' : 'no adopted ally'), c => (c.w.w6.worms && c.w.w6.worms.length === 3 && C(c).bite && c.w.w6.wormK > 0 ? '' : 'no worms/bonus ' + C(c).bite + ' ' + c.w.w6.wormK)],
         setup: (c, key, kind, i) => {

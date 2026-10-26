@@ -155,6 +155,7 @@ Playstyle is from the user (18 Oct 2026). Mechanics are carried over from the ar
 - **Start stats:** 24 damage, 1.6 s cooldown, 3 per load.
 
 ### 16. Unwanted Contact (`tesla`)
+- **Zip-zap (user, 26 Oct; built in `zapper.js`):** the base is now one quick spark to one target (no jumps of its own); Ricochet forks it, Piercing runs a line, Homing spreads Charge, Area splashes, Charged Charges in one hit. Jumps from the Chain Letter passive or promise cards still chain. The lines below describe the old chain.
 - **Playstyle:** Chain reactions and weapon-to-weapon synergy. Chains electricity through enemies and lets other weapons exploit Charged targets.
 - **Is:** Static, Projectile with the chaining modifier (3 jumps, range 140).
 - **Signature:** every enemy it hits is Charged. Your **other** weapons' hits on a Charged enemy arc too (the old "powers every other weapon"), within the usual 3-jump limit.
@@ -198,6 +199,7 @@ Playstyle is from the user (18 Oct 2026). Mechanics are carried over from the ar
 - **Start stats:** 20 damage, 5.5 s cooldown, hidden 1.8 s.
 
 ### 22. Eggs (`toothfairy`)
+- **Reverse Tooth Fairy (user, 26 Oct; built in `rtooth.js`):** Switched at Birth to Blood, Eggs can take Homing. With both, it fires 1 + Homing rank homing teeth that embed and Bleed; a bleeding enemy holding 3 teeth (2 at Homing Rank 3) thrashes for 3 s, lurching at random and biting its mates (60%, Blood, Contact); bosses never thrash; Homing mastery makes bites plant teeth.
 - **Playstyle:** Prediction, baiting and delayed payoff. Baits enemies with spectral eggs and punishes them when they approach.
 - **Is:** Alien, Burst (the smite).
 - **Signature:** drops spectral eggs near the crowd. Greedy enemies within 230 swim off to grab one; the egg smites whoever takes it, harder the longer it waited (Lv 3, promise C).

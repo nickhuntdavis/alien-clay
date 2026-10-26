@@ -71,7 +71,7 @@ Object.assign(SLICE_COPY, {
   // ---- Eggs
   cell_eg_rapid: 'Eggs come faster but smaller, and two enemies that reach the same egg are both smitten. Higher ranks: faster again. Mastery: an egg nobody grabs hatches into a small smite when it expires.',
   cell_eg_catalyst: 'The smite curses its target and its reactions hit harder. Ranks 2 and 3: stronger. Mastery: stronger again.',
-  cell_eg_kinship: 'Your other Alien weapons deal +25% to an enemy on its way to an egg. Mastery: eggs lure from 50% further.',
+  cell_eg_kinship: 'Your other Parasite weapons deal +25% to an enemy on its way to an egg. Mastery: eggs lure from 50% further.',
   cell_eg_knock: 'The smite flings the grabber into its mates (50). Whatever it hits takes 30%. Higher ranks: further. Mastery: the grabber is flung towards the next egg, and grabs it.',
   cell_eg_pull: 'Eggs lure enemies from further away (+30 on a base of 230). Higher ranks: further still. Mastery: lured enemies rush to the egg 50% faster.',
   cell_eg_sticky: 'The smite splatters yolk: enemies within 60 are slowed 40% for 2 s. Higher ranks: stronger and longer. Mastery: grabbers are Snared until the smite.',

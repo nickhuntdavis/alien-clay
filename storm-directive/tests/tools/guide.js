@@ -75,7 +75,7 @@ const W24 = vm.runInNewContext('(' + w24src.match(/const W24 = (\[[\s\S]*?\n\]);
 const W24_DESC = vm.runInNewContext('(' + w24src.match(/const W24_DESC = (\{[\s\S]*?\n\});/)[1] + ')');
 const s10src = fs.readFileSync(J + 'samples10.js', 'utf8');
 const SAMPLE_NAME = Object.fromEntries([...s10src.matchAll(/\{ id: '(\w+)', name: '([^']+)'/g)].map(m => [m[1], m[2]]));
-const TYPE_NAME = { phys: 'Force', fire: 'Acid', shock: 'Static', ice: 'Mucus', arcane: 'Blood', soul: 'Alien', flame: 'Fire' };
+const TYPE_NAME = { phys: 'Force', fire: 'Acid', shock: 'Static', ice: 'Mucus', arcane: 'Blood', soul: 'Parasite', flame: 'Fire' };
 const ATK_NAME = { proj: 'Projectile', spread: 'Spread', contact: 'Contact', burst: 'Burst', beam: 'Beam', pool: 'Pool' };
 const oldId = id => id.startsWith('s_') ? id.slice(2) : id; // (combos and pairings use the old id of a signature weapon)
 const W24NAME = Object.fromEntries(W24.map(r => [oldId(r[0]), r[1]]));
@@ -208,11 +208,11 @@ p('');
 p('**Switched at Birth** changes most weapons to any other damage type. Seven weapons have branches built on their own damage type, so each switches only to the one type its branch has a version for, and its cards change to say so:'); p('');
 p('| Weapon | Switches to | What changes |'); p('|---|---|---|');
 [['The Runs', 'Static', 'The trail is a live wire: a bolt from the trail jolts (staggers) what crosses it, waves are running sparks, and closing a loop is CIRCUIT CLOSED (the loop lights up and one bolt jolts everything inside).'],
- ['Little Prick', 'Alien', 'Voodoo pins: Bleed stacks show as pins in the enemy, a full pincushion (6) is Possessed, Sutures yanks crossers back along a ghost thread, Reef Knot stitches the knot into a Possessed ragdoll, Terminal Clause\'s spirit slams the nearest enemy, Exsanguinate becomes Voodoo Doll (Possessed enemies burst in pins, in place of the healing).'],
+ ['Little Prick', 'Parasite', 'Voodoo pins: Bleed stacks show as pins in the enemy, a full pincushion (6) is Possessed, Sutures yanks crossers back along a ghost thread, Reef Knot stitches the knot into a Possessed ragdoll, Terminal Clause\'s spirit slams the nearest enemy, Exsanguinate becomes Voodoo Doll (Possessed enemies burst in pins, in place of the healing).'],
  ['Acid Spit', 'Mucus', 'Snowball: each glob thickens a snot coat; a full coat snowballs the enemy (stuck fast for 1.5 s) and its sneeze Snares everything near. Acid Pools become snot puddles. Stripped Bare and Projectile Vomit are not offered.'],
- ['Nocturnal Emission', 'Alien', 'Ectoplasm: ghost hands rise from each puddle and grip what is in it; strands and bogeys grip too; Bogged Down pulls enemies under, held down by two hands.'],
+ ['Nocturnal Emission', 'Parasite', 'Ectoplasm: ghost hands rise from each puddle and grip what is in it; strands and bogeys grip too; Bogged Down pulls enemies under, held down by two hands.'],
  ['Hot Mess', 'Blood', 'Crime Scene: a full Burn bar is a SPIN-OUT (the enemy slips, spins across the floor, cannot attack for 1 s and takes a hit), and the Ignite cards count slips; anything that walks out leaves bloody footprints.'],
- ['Rent Free', 'Force', 'Poltergeist: every 4th hit on one enemy (or a full Alien bar from a card) picks it up and THROWS it at the nearest enemy. Nine-Tenths of the Law and Hitching a Ride are not offered.'],
+ ['Rent Free', 'Force', 'Poltergeist: every 4th hit on one enemy (or a full Parasite bar from a card) picks it up and THROWS it at the nearest enemy. Nine-Tenths of the Law and Hitching a Ride are not offered.'],
  ['Unwanted Contact', 'Fire', 'Wildfire: the chain is a flame that leaps enemy to enemy (Fire hits, so they Burn and Ignite); each one it catches is kindling, which the Charged cards read. Brainstorm becomes a wildfire to every piece of kindling.']].forEach(r => p(`| **${r[0]}** | ${r[1]} | ${r[2]} |`));
 p('');
 p('Switched to another type, Nappy Mines leaves patches of that type, and only Flare Up (which needs an Ignite) is not offered.'); p('');

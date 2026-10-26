@@ -33,7 +33,7 @@ const { chromium } = require('playwright');
     const typesSeen = new Set(ids.filter(i => F10[i].start).map(i => F10[i].type).filter(Boolean));
     for (const t of TYPES) if (!typesSeen.has(t)) bad.push('starting pool lacks ' + t);
     out.start = ids.filter(i => F10[i].start).length;
-    if (out.start !== 18) bad.push('starting pool is ' + out.start); // (FEATS.md 5: 15, plus Van de Graaff added 20 Oct, plus main's Hagfish and Running With Scissors)
+    if (out.start !== 20) bad.push('starting pool is ' + out.start); // (FEATS.md 5: 15, plus Van de Graaff added 20 Oct, plus main's Hagfish and Running With Scissors, plus Brave Phase and Puddle Jumper 26 Oct)
 
     // ---- harness
     const fresh = () => { UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100; G.nextBoss = 1e9; G.ev.next = 1e9; G.enemies.length = 0; G.zones.length = 0; G.ebul.length = 0; G.P.maxHp = G.player.hp = 1e6; G.player.iframes = 0; G.terrain.list.length = 0; G.terrain.grid = terrainGrid(G.terrain.list); G.stats.dmg = {}; G.manual = { x: 0, y: 0 }; if (!G.stam) stamInit(); G.stam.cur = stamMax(); };
@@ -46,6 +46,8 @@ const { chromium } = require('playwright');
     // per Feat: set the scene (after the Feat is held), act, and a check for utility effects. All attack Feats must also deal damage.
     const T = {
       little_bubble: { pre: () => { G.P.maxHp = G.player.hp = 1000; ring(6, 85); }, act: () => { hurt(300); return G.player.hp; }, sec: 0.3, ok: hp => hp === 1000 || 'hit not absorbed' },
+      brave_phase: { pre: () => { for (const d of [60, 120, 180]) foe(d, 0); }, act: () => {}, sec: 0.8, ok: () => G.enemies.filter(e => e.hp < e.maxHp).length >= 3 || 'did not pass through the line' },
+      puddle_jumper: { pre: () => ring(6, 80), act: () => {}, sec: 0.3, ok: () => G.zones.some(z => z.elem === 'ice') || 'no puddle left behind' },
       oopsie: { pre: () => { ring(8, 100); }, act: () => {}, sec: 0.5, ok: () => (G.peek && G.peek.t > G.t) || 'did not hide' },
       anhydrobiosis: { pre: () => { G.P.maxHp = G.player.hp = 1000; ring(5, 130); }, act: () => { hurt(1150); return G.player.hp; }, sec: 3.2, ok: hp => hp === 1000 || 'hit not missed' },
       big_feelings: { pre: () => ring(6, 70), act: () => {}, sec: 0.5 },

@@ -1,7 +1,7 @@
 'use strict';
 // Spawn Prawn - how the damage types look (Pass 5 of the damage type rework; STYLE.md). One motion per type:
 // Acid drips, Mucus stretches, Static jitters, Cooties pulse (rash), Oil gleams, Water ripples, Blood bleeds,
-// Alien drifts. Each status is drawn in the enemy's body, so it reads with no colour at all (Lab view); Arcade
+// Parasite drifts. Each status is drawn in the enemy's body, so it reads with no colour at all (Lab view); Arcade
 // view adds coloured rings that drain to show the time left (drawEnemy, render.js).
 // Lab view is the real microscope: nothing on the slide has colour (labGrey, after the world is drawn), with a
 // round eyepiece edge and dust on the glass (labEyepiece).
@@ -190,7 +190,7 @@ function typeStatusFx(e, x, y, r) {
   }
   ctx.globalAlpha = a0;
 }
-// Ghost allies (Alien): a soft glow and a feathered wisp trailing under the see-through body (render.js).
+// Ghost allies (Parasite): a soft glow and a feathered wisp trailing under the see-through body (render.js).
 function typeGhostUnder(e) {
   const x = sx(e.x), y = sy(e.y), r = (e.r || 12) * S, t = G.realT, C = ELEMENTS.soul.color, mv = Math.hypot(e.svx || 0, e.svy || 0), bx = mv > 1 ? -(e.svx || 0) / mv : 0, by = mv > 1 ? -(e.svy || 0) / mv : 1;
   const n = G.enemies.length > 60 || QUAL.lv >= 2 ? 2 : 4;

@@ -4,7 +4,7 @@
 // registered through feats10.js feat() like every v10 Feat (cards, forks at levels 3 and 5, stamina, slot UI):
 //  - Capacitation (Force, Contact, lunge), Bombardier Beetle (Acid, Spread, recoil lunge), Van de Graaff (Static,
 //    Projectile, a dome that swallows enemy bullets), Spinnbarkeit (Mucus, Projectile, strings that Conjoin pairs),
-//    Wandering Womb (Alien, slow piercing Projectile with a gravity well), Ear Candling (Fire, Pool, a lure).
+//    Wandering Womb (Parasite, slow piercing Projectile with a gravity well), Ear Candling (Fire, Pool, a lure).
 // Level 5 forks are built here (FEATS.md only lists level 3); their text, and each Feat's `does`, are written (the Feats themselves now live in feats10.js and gifts10.js). Run state: G.f9 (domes, wombs, candles, strings).
 // Hooks: v10.js v10Tick -> f9Tick, v10Draw -> f9Draw.
 

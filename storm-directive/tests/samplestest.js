@@ -46,7 +46,7 @@ const { chromium } = require('playwright');
     if (G.weapons[1].typeOver !== 'soul') bad.push('second held weapon not shifted');
     { const e0 = makeEnemy(ENEMIES.crawler, G.player.x + 90, G.player.y); e0.hp = e0.maxHp = 1e6; G.enemies.push(e0); fightCd(e0); gridBuild();
       damageEnemy(e0, 20, { elem: 'phys', atk: 'proj', noCrit: true, wname: 't', w: w2 });
-      if (!(e0.cd.bars.soul > 0)) bad.push('typeOver hit did not build Alien'); }
+      if (!(e0.cd.bars.soul > 0)) bad.push('typeOver hit did not build Parasite'); }
     G.s10.shiftT = 0.01; s10Tick(0.02); G.s10.shiftT = 0.01; s10Tick(0.02);
     if (w2.typeOver !== 'flame') bad.push('shift cycle did not return to Fire ' + w2.typeOver);
     run('redtail'); const e = makeEnemy(ENEMIES.crawler, G.player.x + 90, G.player.y); e.hp = e.maxHp = 1000; G.enemies.push(e);
