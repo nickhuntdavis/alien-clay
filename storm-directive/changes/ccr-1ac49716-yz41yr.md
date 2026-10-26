@@ -1,5 +1,13 @@
 # ccr-1ac49716-yz41yr (after main's v10.154 fold)
 
+## 2026-10-26 Little Jacob (v10.157)
+- Systems: weapons (Sister Cousin), modifier masteries, tests
+- Files: ljacob.js (new), index.html, tests/ljacobtest.js (new), MODIFIER_MATRIX.md (5.4b), ARCHITECTURE.md
+- What: Sister Cousin with both the Charged and Exploding Rounds masteries sends out Little Jacob every 8 s: a fat sibling that waddles to the crowd and explodes (Blood, radius 140, 8x Sister Cousin's damage, bosses half). Your other weapons' shots that touch him feed the blast (x1.25, capped at 4x base); shots near him bend in. Squeal text TODO_COPY:lj_squeal.
+- Save data: none.
+- Hooks: none in shared files (hookOn tick 'ljTick'; wraps f10Draw).
+- Risk: needs two weapon masteries (Extra Mastery), so it is rare; the blast is big by design and untested for balance.
+
 ## 2026-10-26 The material skin Feat (v10.156)
 - Systems: Feats (v10), tests
 - Files: matskin.js (new), index.html, tests/matskintest.js (new), tests/featstest.js (starting pool 21, an entry for it), FEATS.md (F18), ARCHITECTURE.md
