@@ -36,7 +36,7 @@ const { chromium } = require('playwright');
     out.wide = [Math.round(r0), Math.round(r1), d0, defsHeld()]; if (!(r1 > r0 * 1.5) || defsHeld() !== d0) bad.push('Bigger Membrane ' + out.wide);
     // 4. Chain reaction: Connecting + Ricochet sends the bounce down a link
     fresh(); const w = G.weapons[0]; modAdd(w, 'connecting'); modAdd(w, 'ricochet'); computeStats(w);
-    const a = foe(150), c = foe(150, 200); msLinkAdd(w, a, c, 5); const hc = c.hp; v10Fire(w, a, weaponSrc(w));
+    const a = foe(150), c = foe(150, 200); msLinkAdd(w, a, c, 5); const hc = c.hp; w.lzFireT = G.t; v10Fire(w, a, weaponSrc(w)); // (lzFireT: the beam is already on, so it skips the charge-up, laserbeam.js v10.90)
     out.chain = Math.round(hc - c.hp); if (!(c.hp < hc)) bad.push('Chain reaction');
     // 5. Pair weight: holding Connecting makes Ricochet 50% likelier
     fresh(); const w2 = G.weapons[0]; const base = modDraftCands('level').find(x => x.fam === 'mod:ricochet'); const w0 = base && base.w;

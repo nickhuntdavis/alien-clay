@@ -1,6 +1,8 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
+- Version v10.148 (versionCode 427): moddead.js MOD_LIVE_WITH lets a dead card through when the weapon holds one that wakes it (Laser: Homing with Bounce or Piercing; Sandbox only, as all three are Flight).
+- Version v10.147 (versionCode 426): Range and Up Close cards offered again (MOD_DEAD rebuild had re-hidden them on about 50 weapon cells; tests/tools/moddead.js now skips both); Returning has its stat; nine stale tests updated. Open: statuptest fails on Enzyme Sneeze (stat-point dps ratio 1.3 to 1.5; user chose to leave it, a 32% dmgK cut on acro_spray would fix it).
 - Version v10.146 (versionCode 425): merge of `ccr-0f6f9db5-704msv` (all open copy written, modifier hold view shows what a card does on each weapon with before/after numbers; holdcopy.js) and `ccr-56c32e6b-e1zsrr` (run log newest first, Sandbox offers print "all N").
 - Version v10.145 (versionCode 424): boss-rank Membranes refill in 10 s (BOSS10_MEM_FILL, boss10.js), 2 s quiet unchanged. The Johnny's bar was not moving for weak builds.
 - Version v10.144 (versionCode 423): Queen heals from at most 6 snacks a pattern cycle (18%) across devour and both dinners; Matron rounds heal an add at most 6 ticks in its life, bed walk 240 px/s. Probe: bossprobe.js <id> w15 for the wave 15 slot.
@@ -88,6 +90,8 @@ Tone: Dungeon Crawler Carl. Dry, deadpan, nerdy, not self-aware; bodies, sex, co
 - Saves: full wipe on v10 (new META key, old `sd_meta` ignored).
 
 ## Recent changes (newest first)
+- v10.148: Sandbox Laser with Bounce or Piercing is offered Homing. Details in CHANGELOG.md v10.148.
+- v10.147: Range and Up Close cards back on about 50 weapons; nine stale tests fixed. Details in CHANGELOG.md v10.147.
 - v10.146: merged `ccr-0f6f9db5-704msv` (all open copy, modifier hold view) and `ccr-56c32e6b-e1zsrr` (run log order). Details in CHANGELOG.md v10.146.
 - v10.124: merged `claude/serene-mayer-hzufbe` (rings on top, branch screens, two best weapons per sample). Details in CHANGELOG.md v10.124.
 - v10.122: merged `claude/serene-mayer-hzufbe` (v9 sample bodies, v9 samples back on the rack). Details in CHANGELOG.md v10.122.

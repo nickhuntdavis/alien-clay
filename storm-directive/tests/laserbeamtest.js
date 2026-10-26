@@ -47,8 +47,8 @@ const { chromium } = require('playwright');
     const past = segs().filter(q => q.x1 > edge.x); out.pierceEdge = past.map(q => [Math.round(q.x2 - q.x1), +q.k.toFixed(2)]);
     if (!past.length || !(past[0].x2 - past[0].x1 > 100) || !(past[0].k < 0.4)) bad.push('pierce past an edge target ' + JSON.stringify(out.pierceEdge));
     // 3. Piercing + Bounce: through and off, both weaker
-    w = fresh(); modAdd(w, 'piercing'); computeStats(w); let c1 = foe(120, 6), c2 = foe(220, 6); fire(w, c1, 0); const solo = hurt(c2);
-    w = fresh(); SET.noLimits = true; modAdd(w, 'piercing'); modAdd(w, 'ricochet'); SET.noLimits = false; computeStats(w); c1 = foe(120, 6); c2 = foe(220, 6); G.v10fx = []; fire(w, c1, 0);
+    w = fresh(); modAdd(w, 'piercing'); computeStats(w); w.s.crit = 0; G.P.crit = 0; /* (no crits: a lucky one evens the split) */ let c1 = foe(120, 6), c2 = foe(220, 6); fire(w, c1, 0); const solo = hurt(c2);
+    w = fresh(); SET.noLimits = true; modAdd(w, 'piercing'); modAdd(w, 'ricochet'); SET.noLimits = false; computeStats(w); w.s.crit = 0; c1 = foe(120, 6); c2 = foe(220, 6); G.v10fx = []; fire(w, c1, 0);
     out.split = [solo, hurt(c2), segs().length]; if (!(solo > 0) || !(hurt(c2) > 0) || !(hurt(c2) < solo) || segs().length < 3) bad.push('pierce + bounce ' + out.split);
     // 4. Internal Ricochet: membrane up, the beam stays in the bubble; down, it leaves
     w = fresh(); CARDS.find(c => c.id === 'sp_iric') && (G.muts = Object.assign(G.muts || {}, { sp_iric: 1 })); pdefCard('latex').apply(); G.pd.mem.mem = G.pd.mem.memMax = 100;
@@ -57,7 +57,7 @@ const { chromium } = require('playwright');
     out.iric = [Math.round(R), segs().length, outside, hurt(far)]; if (!(R > 0) || segs().length < 6 || outside || hurt(far) > 0) bad.push('internal ricochet ' + out.iric);
     G.pd.mem.mem = 0; G.v10fx = []; fire(w, far, 0); out.iricDown = hurt(far); if (!(hurt(far) > 0)) bad.push('membrane down: the beam stayed in');
     // 5. Ramp: weak at first, stronger after a while on one target; Focused Intensity ramps faster and higher
-    const ramp = focus => { const ww = fresh(); if (focus) { for (let i = 0; i < 3; i++) modAdd(ww, 'focus'); computeStats(ww); } const e = foe(150, 0); const k = []; for (let i = 0; i <= 12; i++) { const h = e.hp; fire(ww, e, 0); k.push(Math.round(h - e.hp)); G.t += 0.25; } return k; };
+    const ramp = focus => { const ww = fresh(); if (focus) { for (let i = 0; i < 3; i++) modAdd(ww, 'focus'); computeStats(ww); } ww.s.crit = 0; G.P.crit = 0; /* (no crits: a lucky one reads as ramp) */ const e = foe(150, 0); const k = []; for (let i = 0; i <= 12; i++) { const h = e.hp; fire(ww, e, 0); k.push(Math.round(h - e.hp)); G.t += 0.25; } return k; };
     const k0 = ramp(false), k1 = ramp(true);
     out.ramp = [k0[0], k0[6], k0[12], k1[0], k1[6], k1[12]];
     if (!(k0[12] > k0[0] * 2)) bad.push('no ramp ' + k0);
@@ -113,7 +113,7 @@ const { chromium } = require('playwright');
     if (!(dbl.heat > xsolo.heat * 1.2)) bad.push('extra beams heat faster ' + out.extra.heat);
     // 15. The Laser's own Strike from Above, sword, mines, Sticky, Empowered pulse, Rapid Fire branches, retired options
     const runT = t => { const px = p().x, py = p().y; for (let f = 0; f < t * 60; f++) { G.state = 'play'; G.lootQueue = []; p().x = px; p().y = py; update(1 / 60); } };
-    w = fresh(); modAdd(w, 'dfa'); computeStats(w); const o1 = foe(160, 0); runT(0.5); const early = hurt(o1); w.lzDfaT = G.t; runT(0.1); const orbN = lzS().orb.length; // (Strike from Above is an extra: the beam keeps firing)
+    w = fresh(); modAdd(w, 'dfa'); computeStats(w); const o1 = foe(160, 0); runT(1.2); const early = hurt(o1); w.lzDfaT = G.t; runT(0.1); const orbN = lzS().orb.length; // (Strike from Above is an extra: the beam keeps firing; 1.2 s covers the 0.6 s charge-up since v10.91)
     out.orbital = [early, orbN]; if (!(early > 0) || !orbN) bad.push('orbital strike ' + out.orbital);
     w = fresh(); modAdd(w, 'melee'); computeStats(w); const sNear = foe(70, 0), sFar = foe(0, 200); runT(1.5);
     out.sword = [hurt(sNear), hurt(sFar), !!w.lzSword]; if (!(hurt(sNear) > 0) || hurt(sFar) > 0 || !w.lzSword) bad.push('laser sword ' + out.sword);
@@ -130,7 +130,7 @@ const { chromium } = require('playwright');
     w = fresh(); out.retired = [modOk(w, 'turncoat'), modOk(w, 'growing')]; if (out.retired.some(Boolean)) bad.push('retired modifiers offered on the Laser ' + out.retired);
     w = fresh(); G.lootQueue = []; modAdd(w, 'charged'); modAdd(w, 'charged'); if (G.lootQueue.some(q => q.ms)) bad.push('Charge-Up fork on the Laser');
     // 16. Homing: a bounce curves onto an enemy just off its line
-    const homeHit = hr => { const ww = fresh(); SET.noLimits = true; modAdd(ww, 'ricochet'); for (let i = 0; i < hr; i++) modAdd(ww, 'homing'); SET.noLimits = false; computeStats(ww); ww.s.dmg = 2000; p().hd = 0.5;
+    const homeHit = hr => { const ww = fresh(); SET.noLimits = true; modAdd(ww, 'ricochet'); for (let i = 0; i < hr; i++) (ww.m10 || (ww.m10 = [])).push('homing'); SET.noLimits = false; /* (pushed: moddead.js keeps Homing out of the bare Laser's draft, since the audit runs it without Bounce) */ computeStats(ww); ww.s.dmg = 2000; p().hd = 0.5;
       const A0 = foe(150, 0); const ra = lzBounceDir(1, 0, angDiff(0.5, 0)) + 0.45; const cxp = A0.x - A0.r, B0 = foe(cxp - p().x + Math.cos(ra) * 160, Math.sin(ra) * 160); fire(ww, A0, 0); return hurt(B0); };
     out.homing = [homeHit(0), homeHit(3)]; if (out.homing[0] > 0 || !(out.homing[1] > 0)) bad.push('laser homing ' + out.homing);
     // 17. Crossfire: the rear beam curves round onto the main target from behind; +30% while both hold it

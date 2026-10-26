@@ -114,6 +114,7 @@
     for (const g of m.ghosts) forNear(g.x, g.y, 60, e => { if (f10Live(e) && !g.hit.has(e) && Math.hypot(e.x - g.x, e.y - g.y) < e.r + 14) { g.hit.add(e); f10Hit(g.w, e, g.w.s.dmg * 0.4, 'contact'); } });
     m.ghosts = m.ghosts.filter(g => g.end > G.t);
   }
+  window.mobTick = mobTick; // (hook names are globals: hookstest)
   hookOn('tick', 'mobTick', dt => mobTick(dt));
   const _speed = nfSpeed;
   nfSpeed = function () { const k = _speed(); return G && G.f10 && G.f10.mob && G.f10.mob.bp ? 0 : k; }; // (Brave Phase moves you itself)

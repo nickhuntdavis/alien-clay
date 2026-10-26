@@ -8,8 +8,9 @@ const { chromium } = require('playwright');
   await page.evaluate(() => { window.TUT_OFF = 1; splashEnd(); META.seen = {}; for (const k in ENEMY_INTRO) META.seen[k] = 1; META.seenSt = {}; for (const k in STATUS_INTRO) META.seenSt[k] = 1; voiceLine = () => null; }); await page.waitForTimeout(300); // (no first-sighting cards or narrator lines: a line fired in one run and not its twin spends the seeded dice differently)
   const r = await page.evaluate(() => {
     const bad = [], out = { dps: [] }, def = Object.values(ENEMIES).find(d => d.ai === 'chase') || Object.values(ENEMIES)[0];
-    const R0 = Math.random; let seed = 1;
+    const R0 = Math.random; let seed = 1; const meta0 = JSON.stringify({ prof: META.prof, seen: META.seen });
     const run = id => {
+      uidSeq = 1; Object.assign(META, JSON.parse(meta0)); Object.assign(DMGNUM, { log: null, bigT: -9, bigD: 0, busyT: 0, busyN: 0 }); // (same start every run: enemy ids, profile kills, first sightings and the damage-number average carried over from the last run changed the dice, so results depended on weapon order)
       Math.random = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; // (same dice both sides)
       UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100; G.nextBoss = 1e9; G.ev.next = 1e9;
       G.terrain.list.length = 0; G.terrain.grid = terrainGrid(G.terrain.list);

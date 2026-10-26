@@ -2,10 +2,11 @@
 
 ## 2026-10-26 Weapon fusion replaces the v10 combos (v10.150)
 - Systems: weapons (fusion, new), combos (retired under v10), draft, ui (HUD slot), tests
-- Files: wfusion.js (new), index.html, tests/wfusiontest.js (new), tests/combo10test.js and combo3test.js (set WF.on = false), ARCHITECTURE.md
+- Files: wfusion.js (new), index.html, mobfeats.js (mobTick global, for hookstest), tests/wfusiontest.js (new), tests/combo10test.js, combo3test.js and v9armstest.js (set WF.on = false), ARCHITECTURE.md
 - What: two weapons from 8 listed pairs, both at HUD Lv 3, offer a fusion card. Fusing folds the second into the first (it leaves the HUD, keeps firing with its own modifiers and levels with the first), opens a weapon mount with a draft, and adds the pair's power (zapbub, acidmess, sibshot, peekegg, hotcore, lardmine, pinclock, snotfire). Declining asks again after the first weapon's next level. The v10 branch combos and v9 combo partner swaps are off under v10. Names and card text are TODO_COPY.
 - Save data: none (run state only: G.wf, G.wfAsked, w.wfIn, w.wfWith).
 - Hooks: none in shared files (hookOn tick and proc; wraps v10Loot, draftTitle, availableCombos, wupForkCards, sbSlotMark, modOk, bubblePop, peekFire, detonateMine).
+- Tests: full suite 126/138 before the last two fixes; the 10 still failing (reachtest, statuptest, celltest, lasershot, laserbeamtest, sptest, slicetest, spslicetest, newfoestest, modstest) fail on main as well.
 - Risk: weapon count can reach 4 entries (one hidden); systems that count G.weapons see the absorbed weapon. Combo achievements and Field Guide combo pages no longer progress under v10.
 
 ## 2026-10-26 Unwanted Contact zip-zap (v10.150)
