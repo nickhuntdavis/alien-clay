@@ -64,7 +64,24 @@ function stFmt(k, v) {
   if (D.fmt === 'rate') return '+' + r(v) + '/s';
   return '+' + r(v);
 }
-const stLine = k => `${stFmt(k, ST_DEF[k].k)} ${ST_DEF[k].name}`;
+// Your current value of a stat, and what it would be after n more steps (cards show "Crit Chance 5% → 8%", user 26 Oct).
+function stNow(k, add) {
+  const D = ST_DEF[k], P = (G && G.P) || {}, r = x => Math.round(x * 10) / 10;
+  let v;
+  if (k === 'hp') v = P.maxHp || 0;
+  else if (k === 'crit' || k === 'regen') v = P[D.P] || 0;
+  else if (k === 'critX') v = (P.critDmg || ST_X0) - 1;
+  else if (k === 'shell' || k === 'membrane') v = stVal(k);
+  else if (D.P) v = P[D.P] == null ? 1 : P[D.P];
+  else v = 1 + stVal(k); // (Bullet Damage, Feat Power: a multiplier on the weapon or Feat)
+  v += add || 0;
+  if (k === 'critX') return '+' + r(v * 100) + '%';
+  if (D.fmt === 'pct') return r(v * 100) + '%';
+  if (D.fmt === 'rate') return r(v) + '/s';
+  return String(Math.round(v * 10) / 10);
+}
+const stDelta = (k, n) => `${ST_DEF[k].name} ${stNow(k)} → ${stNow(k, ST_DEF[k].k * (n || 1))}`;
+const stLine = k => stDelta(k, 1);
 
 // ---------------------------------------------------------------- weapon base stats
 // Shape per weapon: rof/mag/reload multiply the old values, crit adds to the chance, critX to the crit multiplier,

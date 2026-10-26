@@ -1,5 +1,5 @@
 'use strict';
-// Spawn Prawn - two mobility Feats (user, 26 Oct 2026; plan in NOTES.md). Card text is TODO_COPY until the user writes it.
+// Spawn Prawn - two mobility Feats (user, 26 Oct 2026; plan in NOTES.md). Card text: Claude-drafted (user, 26 Oct: "write copy for all missing copy").
 //  - BRAVE PHASE (Force, Contact): you go see-through for a moment and race forward at 2.6x speed. Nothing can hurt
 //    you, you swim straight through bodies, and each enemy you pass through takes one heavy hit. Autorun aims it down
 //    the line with the most enemies in it; under manual steering it bends with your thumb (BP.turn radians a second).
@@ -23,7 +23,7 @@
 
   // ================================================================ Brave Phase
   feat({ id: 'brave_phase', name: 'Brave Phase', icon: 'BP', ico: 'peek', type: 'force', atk: 'contact', start: 1, rar: 1, stam: 20,
-    does: 'TODO_COPY:bp_desc',
+    does: 'You go see-through and surge forward. Nothing can hurt you, and every enemy you pass through takes a heavy hit.',
     base: { dmg: 34, cd: 9, dur: 0.6 },
     stat: (w, s) => { if (f10Fk(w, 'long')) s.dur *= 1.5; if (f10Fk(w, 'quick')) s.cd *= 0.7; },
     when: w => {
@@ -41,8 +41,8 @@
       p.iframes = Math.max(p.iframes || 0, w.s.dur + 0.1);
       ring(p.x, p.y, p.r + 12, w.def.color, 0.25, 3);
     },
-    forks: { 3: [fk('exit', 'TODO_COPY:bp_f3a', 'TODO_COPY:bp_f3a_desc'), fk('ghosts', 'TODO_COPY:bp_f3b', 'TODO_COPY:bp_f3b_desc')],
-      5: [fk('long', 'TODO_COPY:bp_f5a', 'TODO_COPY:bp_f5a_desc'), fk('quick', 'TODO_COPY:bp_f5b', 'TODO_COPY:bp_f5b_desc')] } });
+    forks: { 3: [fk('exit', 'Exit Wound', 'Where the surge ends, a burst damages and shoves everything nearby.'), fk('ghosts', 'After-Images', 'You leave after-images behind. Anything that touches one takes a hit.')],
+      5: [fk('long', 'Extended Release', 'The surge lasts 50% longer.'), fk('quick', 'Quick Recovery', 'Cooldown 30% shorter.')] } });
 
   function bpTick(m, p, dt) {
     const B = m.bp, w = B.w, s = w.s;
@@ -66,7 +66,7 @@
 
   // ================================================================ Puddle Jumper
   feat({ id: 'puddle_jumper', name: 'Puddle Jumper', icon: 'PJ', ico: 'bubble', type: 'mucus', atk: 'burst', start: 1, rar: 1, stam: 14,
-    does: 'TODO_COPY:pj_desc',
+    does: 'You drop into a puddle and come up somewhere safer, leaving a Mucus splash behind. With a close-range weapon, you come up behind the biggest enemy and stab it in the back.',
     base: { dmg: 30, cd: 8, range: 300, area: 80 },
     stat: (w, s) => { if (f10Fk(w, 'far')) s.range *= 1.5; if (f10Fk(w, 'quick')) s.cd *= 0.7; },
     when: w => {
@@ -102,8 +102,8 @@
       if (f10Fk(w, 'splash')) { const l = f10Near(p.x, p.y, s.area); f10Many(w, l, s.dmg * 0.4, 'burst'); for (const e of l) if (!e.boss) e.frozen = Math.max(e.frozen || 0, 1); }
       if (f10Fk(w, 'double')) { w.pjAlt = !w.pjAlt; if (w.pjAlt) after(0, () => { if (G && w.cd > 1.2) w.cd = 1.2; }); }
     },
-    forks: { 3: [fk('double', 'TODO_COPY:pj_f3a', 'TODO_COPY:pj_f3a_desc'), fk('splash', 'TODO_COPY:pj_f3b', 'TODO_COPY:pj_f3b_desc')],
-      5: [fk('far', 'TODO_COPY:pj_f5a', 'TODO_COPY:pj_f5a_desc'), fk('quick', 'TODO_COPY:pj_f5b', 'TODO_COPY:pj_f5b_desc')] } });
+    forks: { 3: [fk('double', 'Double Dip', 'Two jumps per cooldown.'), fk('splash', 'Belly Flop', 'Landing splashes Mucus around you and Snares what it hits.')],
+      5: [fk('far', 'Long Jump', 'Jumps reach 50% further.'), fk('quick', 'Quick Turnaround', 'Cooldown 30% shorter.')] } });
 
   // ================================================================ hooks
   function mobTick(dt) {

@@ -32,12 +32,19 @@ const V9UP = { // id -> when it can matter (null: always)
 const V9UP_TXT = { // where the v9 text names something v10 retired
   ram: 'Enemies you swim into take big damage. It grows with your level and max HP. At full speed it sends out a shockwave and their contact hurts 40% less.',
 };
+// The same sentence at two ranks, with each number that changes shown as "before → after" ("take 10% → 20% less damage").
+function v9Delta(a, b) {
+  const re = /[+\-x]?\d+(?:\.\d+)?%?/g, na = a.match(re) || [], nb = b.match(re) || [];
+  if (na.length !== nb.length || a.replace(re, '#') !== b.replace(re, '#')) return b;
+  let i = 0;
+  return a.replace(re, x => { const y = nb[i++]; return x === y ? x : x + ' → ' + y; });
+}
 for (const id in V9UP) {
   const P0 = PASSIVES[id]; if (!P0) continue;
   const ok = V9UP[id], rank = () => (G && G.passives && G.passives[id]) || 0;
   const c = { id: 'up_' + id, kind: 'enhance', slot: null, family: 'up:' + id, type: null, rarity: P0.minRarity || 1, start: true,
     title: P0.name, icon: P0.icon, color: '#9fd8ff', maxRank: Math.min(3, P0.max),
-    get desc() { const t = V9UP_TXT[id] || P0.fmt(P0.v * (rank() + 1)); return /\.$|^TODO_COPY/.test(t) ? t : t + '.'; }, // (what you have after taking it)
+    get desc() { const r = rank(), t = V9UP_TXT[id] || (r ? v9Delta(P0.fmt(P0.v * r), P0.fmt(P0.v * (r + 1))) : P0.fmt(P0.v)); return /\.$|^TODO_COPY/.test(t) ? t : t + '.'; }, // (from rank 2: each changing number as before → after)
     eligible: G => !ok || ok(G), rank,
     apply: G => { P0.apply(G.P, P0.v, G); G.passives[id] = rank() + 1; } };
   if (typeof draftRegister === 'function') draftRegister(c); else (window.CARDS10 = window.CARDS10 || []).push(c);

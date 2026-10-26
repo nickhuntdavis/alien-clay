@@ -41,7 +41,7 @@ const { chromium } = require('playwright');
     G.weapons[0] = makeSlot('v_phys_proj', false, 1); recomputeAll();
     const w = G.weapons[0], c = modCard(w, 'rapid'), cd0 = w.s.cd;
     if (c.stUp !== 'rof') bad.push('rapid card stat ' + c.stUp);
-    if (!UI.boonHtml(c).includes('+3% Rate of Fire')) bad.push('card line ' + UI.boonHtml(c));
+    if (!/Rate of Fire [\d.]+% → [\d.]+%/.test(UI.boonHtml(c))) bad.push('card line ' + UI.boonHtml(c));
     c.apply();
     if (!(Math.abs(G.stb.rof - 0.03) < 1e-9)) bad.push('rof banked ' + G.stb.rof);
     if (!(w.s.cd < cd0)) bad.push('rof did not apply');

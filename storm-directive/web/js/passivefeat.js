@@ -15,14 +15,14 @@
 //    Each level: +35% damage; levels 3 and 5 widen the aura (and add a pearl).
 //  - Also fixes the HUD for weapon mounts past the first three (fusion's and this file's): weapon-row keys are added as
 //    G.weapons grows (ui.js builds MAX_WEAPONS at start).
-//  - Card text is TODO_COPY (PF_TEXT).
+//  - Card text in PF_TEXT (Claude-drafted, 26 Oct).
 // Hooks: none in shared files. hookOn tick 'pfTick'; wraps modAdd, modOk, hcWeapon (holdcopy.js), cardOpt (draft.js),
 // sbSlotMark, comboBonds (fusion.js, called at the end of UI.refreshHud) and modDraw. Loads after holdcopy.js.
 const PF = { on: !(typeof window !== 'undefined' && window.V10_OFF), cloakR: 70, cloakDmg: 5, cloakTick: 0.25, pearlR: 56, pearlN: 5, pearlDmg: 9, pearlSpin: 2.6, regrow: 1.5, lvK: 0.35 };
 const PF_TEXT = {
-  slotEmpty: 'TODO_COPY:pf_slot_empty', slotWeapon: 'TODO_COPY:pf_slot_weapon', holdMoves: 'TODO_COPY:pf_hold_moves', holdLoses: 'TODO_COPY:pf_hold_loses',
-  flame_cloak: { desc: 'TODO_COPY:pf_flame_cloak_desc', up: 'TODO_COPY:pf_flame_cloak_up' },
-  pearl_necklace: { desc: 'TODO_COPY:pf_pearl_necklace_desc', up: 'TODO_COPY:pf_pearl_necklace_up' },
+  slotEmpty: 'Passive Feat slot. It holds one aura: an aura Feat, or a weapon given Melee or Orbiting.', slotWeapon: 'Moved here by Melee or Orbiting. It works on its own, around you, and keeps its modifiers.', holdMoves: 'Taking this moves the weapon to your Passive Feat slot. Its weapon slot opens for a new weapon.', holdLoses: 'These modifiers stop working there and come off:',
+  flame_cloak: { desc: 'Burns everything close to you, four times a second. Always on. No stamina.', up: '+35% damage. Levels 3 and 5 also widen the cloak.' },
+  pearl_necklace: { desc: 'Pearls circle you and pop on the first enemy they touch, Snaring it. They grow back. Always on. No stamina.', up: '+35% damage. Levels 3 and 5 add a pearl and widen the circle. From level 4, pearls also pop enemy shots.' },
 };
 const PF_AURAS = {
   flame_cloak: { id: 'flame_cloak', name: 'Flame Cloak', type: 'fire', elem: 'flame', icon: 'FC', ico: 'flame' },

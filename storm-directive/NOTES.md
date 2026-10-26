@@ -1,6 +1,7 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
+- Version v10.155 (versionCode 434): merge of `claude/keen-euler-cl2st0`: every open TODO_COPY written (Claude-drafted, awaiting the user's read-through: perk, vitals, fusion, Passive Feat, Brave Phase and Puddle Jumper copy); stat cards show before → after ("Crit Chance 5% → 8%"). statuptest's Enzyme Sneeze dps ratio (1.47) fails on main too.
 - Version v10.150 (versionCode 429): Queen snack budget 3 a cycle (9%); boss Membranes 30% of health (BOSS10_MEM_FRAC). Wave 20 stress probe of every boss in the changes fragment / CHANGELOG. Open: at wave 20 health, percentage heals (Matron ward round 5% x2 a cycle = 1100/s) and Membrane refills outpace a weak build; the human target is 45 to 120 s and the god bot with random builds deals 400 to 4000 a second there.
 - (ccr-b6a373a9-q8ofbd, 26 Oct) Trims after the forced-card sim (v10.151): vt_rally 10% a rank, capped at half the hit (5 of 12 wins forced, baseline 3 of 12); vt_drip 0.2%/s a rank (4 of 12); pk_hex +10% damage taken (1 of 12). The Queen fix (v10.150) also moved the baseline: no card 15.4 mean wave, 3 of 12.
 - (ccr-b6a373a9-q8ofbd, 26 Oct) Forced-card sim (each card at top rank from 2 s, the other new cards out of the pool, bot, mortal, Petri Dish; mean wave reached / wins): baseline 13.4 / 4 of 24, with a Membrane 16.7 / 6 of 24. Strongest: vt_rally 19.3 / 9 of 18, vt_drip 18.2 / 8 of 18, vt_feed 18.1 / 6 of 18 (vs Membrane). No effect or worse: pk_hex 10.5 / 0 of 18, pk_streak 14.1 / 2 of 18. 6-run reads: vt_leech 18.8, pk_slayer 17.8, pk_edge 17.2, vt_regrow 19.3 and vt_shrap 18.2 (vs Shell 16.8), vt_osmo 19.2; pk_shrug 13.8, pk_burst 14.0, pk_trail 14.8, vt_pop 15.4. The autorun bot does not sprint, so the sprint cards are untested. Race cards do nothing for the bot: it dies at 3 to 4 min, before reaching the egg. Unchanged numbers so far.
@@ -230,6 +231,7 @@ Tone: Dungeon Crawler Carl. Dry, deadpan, nerdy, not self-aware; bodies, sex, co
 - Campaign Level 1: difficulty clock `pt` [10, 200], par (bristles) 540 s, arena quotas 30/70/90/110, Tartar Colony with `campK` 0.65. A self-steering bot clears it in about 4 to 7 minutes.
 
 ## Open threads and ideas
+- (26 Oct, ccr-1ac49716) Material skin Feat built (matskin.js, v10.156). Iron and Keratin are parked material ideas.
 - (26 Oct, ccr-1ac49716) The Runs rolls its damage type per card (runstype.js, v10.155). spfulltest fails on main (sp_aim list, Chain Letter): not this branch.
 - (26 Oct, ccr-1ac49716) Alien damage type renamed **Parasite** (user). Internal id `soul` unchanged. Older redesign docs, GIFT_LINES.md and Card_Copy_Draft_All.xlsx still say Alien: read it as Parasite.
 - (26 Oct, ccr-1ac49716) Passive Feat slot built (passivefeat.js, v10.154): Melee/Orbiting move a weapon there; Flame Cloak and Pearl Necklace. No forks on aura Feats yet; numbers untested for balance.
