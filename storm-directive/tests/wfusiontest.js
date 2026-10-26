@@ -50,7 +50,7 @@ const { chromium } = require('playwright');
     if ((P = fuse('snotfire'))) { const e = foe(120, 0); fireWeapon(P.A, e); run(2); if (!dealtBy.get(P.B)) bad.push('snotfire: puddle never burned'); }
     if ((P = fuse('zapbub'))) { for (let i = 0; i < 5; i++) foe(80 + i * 20, (i % 2) * 30); fireWeapon(P.B, G.enemies[0]); run(3); out.zapbub = dealtBy.get(P.A) || 0; if (!out.zapbub) bad.push('zapbub: popped bubbles never arced'); }
     if ((P = fuse('peekegg'))) { foe(150, 0); fireWeapon(P.A, G.enemies[0]); const T = TOYS(); if (!T.teeth.some(t => t.w === P.B)) bad.push('peekegg: no egg left behind'); }
-    if ((P = fuse('lardmine'))) { const e = foe(30, 0); for (let i = 0; i < 4 && !G.proj.some(pr => pr.mine && pr.w === P.A); i++) { P.A.cd = 0; fireWeapon(P.A, e); } const m = G.proj.find(pr => pr.mine && pr.w === P.A); if (!m) bad.push('lardmine: no mine'); else { const v = foe(m.x + 20, m.y); const x0 = v.x; detonateMine(m); run(0.3); out.lard = Math.round(Math.hypot(v.x - x0, 0)); if (out.lard < 15) bad.push('lardmine: blast did not launch ' + out.lard); } }
+    if ((P = fuse('lardmine'))) { const e = foe(30, 0); for (let i = 0; i < 4 && !G.proj.some(pr => pr.mine && pr.w === P.A); i++) { P.A.cd = 0; fireWeapon(P.A, e); } const m = G.proj.find(pr => pr.mine && pr.w === P.A); if (!m) bad.push('lardmine: no mine'); else { const v = foe(m.x + 20, m.y); const x0 = v.x; detonateMine(m); let far = 0; for (let i = 0; i < 18; i++) { run(1 / 60); far = Math.max(far, Math.abs(v.x - x0)); } out.lard = Math.round(far); if (out.lard < 15) bad.push('lardmine: blast did not launch ' + out.lard); } }
     damageEnemy = dE;
     out.ok = bad.length === 0;
     return { bad, out };

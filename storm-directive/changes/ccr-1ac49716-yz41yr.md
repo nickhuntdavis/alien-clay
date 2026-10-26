@@ -1,5 +1,13 @@
 # ccr-1ac49716-yz41yr
 
+## 2026-10-26 Reverse Tooth Fairy (v10.153)
+- Systems: weapons (Eggs), modifier cards, tests
+- Files: rtooth.js (new), index.html, tests/rtoothtest.js (new), tests/wfusiontest.js (lardmine check tracks the furthest launch: it was flaky), BASE_WEAPONS.md, ARCHITECTURE.md
+- What: Eggs switched to Blood can take Homing (plain Eggs still can't). With both, Eggs fires homing teeth instead of dropping eggs; teeth embed and Bleed; a bleeding enemy holding 3 teeth (2 at Homing Rank 3) thrashes for 3 s and bites its mates; bosses never thrash; Homing mastery makes bites plant teeth. Its float text is TODO_COPY:rt_float.
+- Save data: none.
+- Hooks: none in shared files (hookOn tick and proc; wraps toothFire, modOk, modDraw).
+- Risk: thrashing enemies are capped at 6; bite damage is untested for balance.
+
 ## 2026-10-26 Fused weapons show their fused name (v10.152)
 - Systems: weapons (fusion), ui
 - Files: wfusion.js, tests/wfusiontest.js

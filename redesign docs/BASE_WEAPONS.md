@@ -199,6 +199,7 @@ Playstyle is from the user (18 Oct 2026). Mechanics are carried over from the ar
 - **Start stats:** 20 damage, 5.5 s cooldown, hidden 1.8 s.
 
 ### 22. Eggs (`toothfairy`)
+- **Reverse Tooth Fairy (user, 26 Oct; built in `rtooth.js`):** Switched at Birth to Blood, Eggs can take Homing. With both, it fires 1 + Homing rank homing teeth that embed and Bleed; a bleeding enemy holding 3 teeth (2 at Homing Rank 3) thrashes for 3 s, lurching at random and biting its mates (60%, Blood, Contact); bosses never thrash; Homing mastery makes bites plant teeth.
 - **Playstyle:** Prediction, baiting and delayed payoff. Baits enemies with spectral eggs and punishes them when they approach.
 - **Is:** Alien, Burst (the smite).
 - **Signature:** drops spectral eggs near the crowd. Greedy enemies within 230 swim off to grab one; the egg smites whoever takes it, harder the longer it waited (Lv 3, promise C).
