@@ -204,12 +204,12 @@ body { font-size: 14px; }
 .hint { color: var(--color-text-muted); }
 
 /* ---------------------------------------------------------------- surfaces: sheet + 2px ink rule, no shadow */
-.btn, .slot, #moveBtn, #armBtn, #pauseBtn, #rewindBtn, .sec, .card, .tile, .li, .dbtn, .atab, .chip, .ostats div, .dmgrow,
+.btn, .slot, #moveBtn, #armBtn, #spermBtn, #pauseBtn, #rewindBtn, .sec, .card, .tile, .li, .dbtn, .atab, .chip, .ostats div, .dmgrow,
 #how, .ahead, #sysmsg, .tp, .modslot, .fuse, .aico, .cico, #toast, .trow .tl {
   border: var(--rule) solid var(--color-border-edge) !important; background: var(--color-bg-sheet) !important; box-shadow: none !important;
 }
 .sec, .card, #sysmsg, .ahead, #how { border-radius: var(--radius-lg) !important; }
-.btn, .slot, #moveBtn, #armBtn, .tile, .li, .dbtn, .atab, .tp, .modslot, .fuse, .ostats div, .dmgrow, #toast { border-radius: var(--radius-md) !important; }
+.btn, .slot, #moveBtn, #armBtn, #spermBtn, .tile, .li, .dbtn, .atab, .tp, .modslot, .fuse, .ostats div, .dmgrow, #toast { border-radius: var(--radius-md) !important; }
 .chip, .trow .tl { border-radius: var(--radius-sm) !important; border-width: 1.5px !important; }
 .aico, .cico { border-radius: 0 !important; border-width: 2.5px !important; background: var(--color-bg-app) !important; }
 .slot.empty, .modslot.empty, .atab.empty, .atab.locked { border-style: dashed !important; background: transparent !important; }
@@ -227,7 +227,7 @@ body { font-size: 14px; }
 .tp.pending { border-color: var(--color-status-info) !important; animation: none; }
 
 /* ---------------------------------------------------------------- type */
-.btn, #moveBtn, #armBtn, #pauseBtn { font-family: var(--sans); font-weight: 700; letter-spacing: 0.06em; font-size: 14px; text-transform: uppercase; }
+.btn, #moveBtn, #armBtn, #spermBtn, #pauseBtn { font-family: var(--sans); font-weight: 700; letter-spacing: 0.06em; font-size: 14px; text-transform: uppercase; }
 .chip, .chip.small { font-family: var(--sans); font-weight: 700; letter-spacing: 0.08em; font-size: 11px; text-transform: uppercase; }
 .card .tag, .card .csub, .tile span, .atab span, .sec h3, .bdna, .brole, .cdxpct span, .cdxcount, .sqkick, .sqtag, .sqh, .sqrl, #draft .dkick, #draft .drole, #draft h4, #draft .dbars, #armoury .dbars, .rbars span, #lootCards .lsec, .card .chold { font-family: var(--sans); }
 .tile b, .ostats b, .slot .lv, .slot .ico, #rewindBtn .rl, #rewindBtn .rt, .atab b, .aico, .trow .tl, .svv, .shq, #holdInfo em, .dna, .bown { font-family: var(--sans); }
@@ -342,7 +342,7 @@ body { font-size: 14px; }
    One look over light field and darkfield (the --hud-* tokens). Keys rest at 50%, brighten when pressed or lit.
    Immersive layout (portrait): AUTO + speed top-left, Tackle Box + pause top-right; weapons are round keys stacked
    bottom-right; Rewind bottom-left with the Autorun key under it; Feats bottom-centre. */
-#hud .slot, #moveBtn, #armBtn, #pauseBtn, #rewindBtn, #autoBtn, #spdBtn, #schoolSkip, #dbgBtn, #abilBtn {
+#hud .slot, #moveBtn, #armBtn, #spermBtn, #pauseBtn, #rewindBtn, #autoBtn, #spdBtn, #schoolSkip, #dbgBtn, #abilBtn {
   background: var(--hud-bg-app) !important; border: 1px solid var(--hud-border-edge) !important; color: var(--hud-text-primary) !important;
   box-shadow: none !important; border-radius: 12px !important; font-family: var(--sans);
 }
@@ -518,7 +518,7 @@ canvas.cdxp { box-shadow: 0 0 0 2px var(--color-border-edge); }
 .picto.sm { width: var(--picto-sm); height: var(--picto-sm); }
 .picto.xl { width: var(--picto-xl); height: var(--picto-xl); }
 [data-picto] { display: block; }
-.btn, #moveBtn, #armBtn { border-width: var(--rule-btn) !important; font-size: 15px; }
+.btn, #moveBtn, #armBtn, #spermBtn { border-width: var(--rule-btn) !important; font-size: 15px; }
 .ptitle, .ltitle, #overTitle, #draft .dtitle, .sqtitle { font-size: 31px; }
 
 /* 01 Title: hero egg fills the gap so the actions sit low; secondary links as 2 x 2 pictogram tiles */
