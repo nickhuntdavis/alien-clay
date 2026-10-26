@@ -155,6 +155,7 @@ Playstyle is from the user (18 Oct 2026). Mechanics are carried over from the ar
 - **Start stats:** 24 damage, 1.6 s cooldown, 3 per load.
 
 ### 16. Unwanted Contact (`tesla`)
+- **Zip-zap (user, 26 Oct; built in `zapper.js`):** the base is now one quick spark to one target (no jumps of its own); Ricochet forks it, Piercing runs a line, Homing spreads Charge, Area splashes, Charged Charges in one hit. Jumps from the Chain Letter passive or promise cards still chain. The lines below describe the old chain.
 - **Playstyle:** Chain reactions and weapon-to-weapon synergy. Chains electricity through enemies and lets other weapons exploit Charged targets.
 - **Is:** Static, Projectile with the chaining modifier (3 jumps, range 140).
 - **Signature:** every enemy it hits is Charged. Your **other** weapons' hits on a Charged enemy arc too (the old "powers every other weapon"), within the usual 3-jump limit.

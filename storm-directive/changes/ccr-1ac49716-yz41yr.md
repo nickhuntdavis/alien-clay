@@ -1,5 +1,13 @@
 # ccr-1ac49716-yz41yr
 
+## 2026-10-26 Unwanted Contact zip-zap (not shipped yet)
+- Systems: weapons (Unwanted Contact), modifier cards, tests
+- Files: zapper.js (new), index.html, moddead.js (s_tesla row), tests/zappertest.js (new), BASE_WEAPONS.md, ARCHITECTURE.md
+- What: Unwanted Contact fires one quick spark at one target instead of a 3-jump chain. Ricochet forks it (1/2/3, mastery forks again), Piercing runs a line (1/3/6/12), Homing goes for enemies not yet Charged, Area splashes, Charged Charges in one hit (mastery zaps Charged enemies within 200), Rapid Fire mastery adds a spark. Jumps from Chain Letter or promise cards still chain. Ricochet, Piercing, Homing and Area are offered on it again.
+- Save data: none.
+- Hooks: none in shared files (wraps v10Fire after laserbeam.js).
+- Risk: much less crowd damage at base for Redtail (sims running); Static's own arcs off Charged enemies are unchanged.
+
 ## 2026-10-26 Static looks grow with weapon level (v10.149)
 - Systems: type looks (typelook)
 - Files: typelook.js
