@@ -7,6 +7,7 @@ const N = +(process.argv[2] || 2), GOD = process.argv[3] !== 'mortal', TUNE = pr
   const errors = []; page.on('pageerror', e => errors.push(e.message + ' ' + (e.stack || '').split('\n')[1]));
   await page.goto('file://' + require('path').resolve(__dirname, '../../web/index.html')); await page.evaluate(() => (window.TUT_OFF = 1, splashEnd())); await page.waitForTimeout(400);
   await page.evaluate(() => { META.seenSt = {}; for (const k in STATUS_INTRO) META.seenSt[k] = 1; for (const k in POWERUPS) META.seenSt[POWERUPS[k].name] = 1; META.seen = {}; for (const k in ENEMY_INTRO) META.seen[k] = 1; for (const R of RIVALS) META.seen['rival_' + R.id] = 1; META.eggMet = 1; }); if (TUNE) await page.evaluate(TUNE);
+  if (TUNE) await page.evaluate(TUNE); // (balance experiments, as wave20.js --pre)
   let wins = 0;
   for (let seed = 0; seed < N; seed++) {
     const r = await page.evaluate(async GOD => {
@@ -34,6 +35,7 @@ const N = +(process.argv[2] || 2), GOD = process.argv[3] !== 'mortal', TUNE = pr
       }
       if (G && G.state === 'play') ev.push('TIMEOUT t=' + Math.round(G.t) + ' lv' + G.level);
       if (G) { const st = G.stats, fl = G.gems.reduce((a, g) => a + (g.kind === 'x' ? g.v : 0), 0); ev.push(`xp ${Math.round(st.xpRaw || 0)}/${Math.round(st.xpDrop || 0)} floor ${Math.round(fl)} | W ${G.weapons.filter(Boolean).map(w => w.def.name + ' ' + w.lvl + (w.up && w.up.p ? w.up.p : '')).join(', ')} | boxes ${JSON.stringify(st.boxBy || {})} | combos ${Object.keys(G.combo || {}).join(',') || '-'} | screens ${st.scr || 0} ${JSON.stringify(st.scrBy || {})} merged ${st.merged || 0} auto ${st.auto || 0}`); }
+      if (G) ev.push('cards ' + JSON.stringify(Object.assign({}, G.hpc, G.vtc, G.pkc))); // (health and perk card ranks)
       return { win, s: ev.join(' | ') };
     }, GOD);
     if (r.win) wins++;
