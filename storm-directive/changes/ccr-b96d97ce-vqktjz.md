@@ -1,10 +1,10 @@
-## 2026-10-26 XP granules: bigger, no drift in waves, pickup stat cards
+## 2026-10-26 XP granules: bigger, no drift in waves, pickup stat cards (v10.168)
 - Systems: pickups, render, stats, draft
 - Files: xpgems.js (new), game.js, render.js, index.html, ARCHITECTURE.md, tests/xpgemstest.js (new)
-- What: XP granules draw 1.8x bigger with a white halo. Loose granules no longer drift to you in wave mode (was from 650 px); the race keeps a shorter drift (700 px at 110, was 1600 at 190). The 105 px magnet is unchanged. Two new stat cards: Pickup Range (+15% magnet a step) and a drift stat (+100 px of drift reach a step, TODO_COPY:stat_drift_name).
+- What: XP granules draw 1.8x bigger with a white halo. Loose granules no longer drift to you in wave mode (was from 650 px); the race keeps a shorter drift (700 px at 110, was 1600 at 190). The 105 px magnet is unchanged. Two new stat cards: Pickup Range (+15% magnet a step) and Gem Drift (+100 px of drift reach a step).
 - Save data: none
 - Hooks: game.js updatePickups -> xpDrift (one line); render.js gem pass reads XPG (size and halo).
-- Risk: slower levelling where the bot or player does not swim to XP (see sim in the next build entry).
+- Risk: slower levelling. Bot sim, Petri Dish, mortal, 6 runs each (old drift via --pre): level at wave 10 mean 19 (old 21); mean wave reached 14.3 (old 13.7), wins 1 of 6 (old 2 of 6), inside run-to-run noise.
 
 ## 2026-10-26 Sperm key matches the Tackle Box key (v10.167)
 - Systems: hud

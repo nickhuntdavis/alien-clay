@@ -9,7 +9,7 @@
 // Hooks: game.js updatePickups -> xpDrift; render.js gem pass reads XPG. Wraps statup.js stNow. Loads after buildbtn.js.
 const XPG = { size: 1.8, halo: true, wave: { r: 0, v: 0 }, race: { r: 700, v: 110 }, driftV: 85 };
 ST_DEF.magnet = { name: 'Pickup Range', k: 0.15, fmt: 'pct', P: 'magnet' };
-ST_DEF.drift = { name: 'TODO_COPY:stat_drift_name', k: 100, fmt: 'flat' };
+ST_DEF.drift = { name: 'Gem Drift', k: 100, fmt: 'flat' };
 for (const k of ['magnet', 'drift']) { if (!ST_ORDER.includes(k)) ST_ORDER.push(k); if (typeof WM_STAT !== 'undefined' && !WM_STAT.includes(k)) WM_STAT.push(k); }
 // [reach, speed] of the slow drift towards you.
 function xpDrift(race) {
