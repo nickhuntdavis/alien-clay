@@ -60,6 +60,12 @@ const { chromium } = require('playwright');
     if ((P = fuse('nervepanic'))) { const e = foe(60, 0); foe(90, 20); G.wfNerveT = 0; wfProc(e, 10, weaponSrc(P.A)); if (!dealtBy.get(P.B)) bad.push('nervepanic: no pulse'); }
     if ((P = fuse('crossbeam'))) { for (let i = 0; i < 5; i++) foe(100 + i * 40, 60); const cdA = () => { P.A.cd = 1e9; }; for (let i = 0; i < 90; i++) { cdA(); run(1 / 60); } if (!(P.B.twins && P.B.twins.length)) bad.push('crossbeam: no twins'); else if (!dealtBy.get(P.A)) bad.push('crossbeam: no beams'); }
     if (WF_BY.spoonbub) bad.push('pair 13 should be parked');
+    // ---- pair 13 as a passive pairing: There Is No Spoon + Blowing Bubbles
+    const spoonRun = withBub => { start(); CARDS.find(c => c.id === 'sp_spoon').apply(G); if (withBub) gun(0, 's_bubble'); const e = foe(220, 0); const n0 = G.weapons.length;
+      for (let i = 0; i < 90; i++) { if (G.weapons[0]) G.weapons[0].cd = 1e9; if (i % 10 === 0) G.ebul.push({ x: G.player.x + 30, y: G.player.y, vx: -1, vy: 0, r: 4, dmg: 8, life: 2, elem: 'phys' }); run(1 / 60); }
+      return { e, grew: G.weapons.length !== n0 }; };
+    { const r1 = spoonRun(true); out.spoonHit = r1.e.hp < r1.e.maxHp; if (!out.spoonHit) bad.push('spoonbub: Spoon never fired back (test set-up)'); else if (!(r1.e.wfBubT > 0)) bad.push('spoonbub: returned bullets did not trap'); if (r1.grew) bad.push('spoonbub: the pairing opened a mount'); if (!G.wfSbOn) bad.push('spoonbub: pairing never switched on'); }
+    { const r2 = spoonRun(false); if (r2.e.wfBubT > 0) bad.push('spoonbub: trapped without Blowing Bubbles'); }
     damageEnemy = dE;
     out.ok = bad.length === 0;
     return { bad, out };

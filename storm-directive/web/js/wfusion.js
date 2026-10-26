@@ -19,7 +19,7 @@
 //      pinclock  Little Prick + One of These Days: needles start a 3 s countdown; at zero every Bleed stack on the
 //                enemy goes off at once (plus 50% of b's damage a needle).
 //      snotfire  Nocturnal Emission + Hot Mess: the puddles burn too (b's damage, Fire, twice a second).
-//      (pairs 9 to 16; 13, There Is No Spoon + Blowing Bubbles, is parked: Spoon is a sperm passive, never a weapon now)
+//      (pairs 9 to 16; 13, There Is No Spoon + Blowing Bubbles, is a passive pairing at the end of this file: Spoon is a sperm passive)
 //      tapezap    Ewww, Gross + Unwanted Contact: a zap on a taped enemy arcs through its whole bundle (6 at most, 60%).
 //      wormsibs   Chest Burster + Sister Cousin: its risen allies spit homing siblings (every 1.2 s, 50%).
 //      redlaser   Laser + Red Flagship: the Laser's target throws Static arcs at 2 neighbours (60%).
@@ -257,3 +257,24 @@ hookOn('proc', 'wfProc', (e, dmg, src) => wfProc(e, dmg, src));
   };
   if (typeof draftTitle === 'function') { const dt = draftTitle; draftTitle = function (req) { return req && req.kind === 'wfuse' ? ['WEAPON FUSION', 'Two weapons become one. A weapon slot opens.'] : dt.apply(this, arguments); }; }
 })();
+
+// ---------------------------------------------------------------- pair 13 as a passive pairing (user, 26 Oct)
+// There Is No Spoon is a sperm passive (spoon.js: a hidden slot, never in G.weapons), so it can't fuse. Held together with
+// Blowing Bubbles at HUD Lv WF.tier, it pairs instead (no merge, no mount): every bullet Spoon fires back traps what it
+// hits in a bubble (WF_SB.trap s of Snare; bosses and rivals are only slowed). The first time it switches on, a float
+// says so (TODO_COPY:wf_spoonbub_on).
+const WF_SB = { trap: 1.5, text: 'TODO_COPY:wf_spoonbub_on' };
+const wfSpoonBub = () => { const B = wfSlot('s_bubble'); return !!(G && G.spSpoon && G.spSpoon.w && typeof mr === 'function' && mr('sp_spoon') > 0 && B && wfTierOf(B) >= WF.tier); };
+hookOn('proc', 'wfSpoonProc', (e, dmg, src) => {
+  if (!src || !G || !G.spSpoon || src.w !== G.spSpoon.w || !wfSpoonBub() || e.dead) return;
+  if (typeof nfStick === 'function') nfStick(e, WF_SB.trap); else if (!e.boss) e.frozen = Math.max(e.frozen || 0, WF_SB.trap);
+  e.wfBubT = G.t + WF_SB.trap; fxParts('bubble', e.x, e.y, ELEMENTS.ice.color, 6, 80, 0.4, 3);
+});
+hookOn('tick', 'wfSpoonTick', () => { if (G && G.state === 'play' && !G.wfSbOn && wfSpoonBub()) { G.wfSbOn = true; const p = G.player; floatText(p.x, p.y - 40, WF_SB.text, ELEMENTS.ice.color, 12, 1.4); } });
+modDraw = (orig => function () {
+  orig.apply(this, arguments);
+  if (!G || !G.wfSbOn) return;
+  ctx.save(); ctx.strokeStyle = col('#cfeff6'); ctx.lineWidth = 2;
+  for (const e of G.enemies) if (!e.dead && e.wfBubT > G.t) { ctx.globalAlpha = 0.55; ctx.beginPath(); ctx.arc(sx(e.x), sy(e.y), (e.r + 8) * S, 0, TAU); ctx.stroke(); ctx.globalAlpha = 0.6; ctx.fillStyle = col('#ffffff'); ctx.beginPath(); ctx.arc(sx(e.x - e.r * 0.4), sy(e.y - e.r * 0.5), 2.5 * S, 0, TAU); ctx.fill(); }
+  ctx.restore();
+})(modDraw);

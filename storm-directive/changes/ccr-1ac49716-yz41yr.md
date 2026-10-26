@@ -1,5 +1,13 @@
 # ccr-1ac49716-yz41yr (after main's v10.154 fold)
 
+## 2026-10-26 There Is No Spoon + Blowing Bubbles as a passive pairing (v10.159)
+- Systems: weapons (fusion), sperm passives (There Is No Spoon), tests
+- Files: wfusion.js (pair 13 at the end), tests/wfusiontest.js
+- What: holding the There Is No Spoon passive with Blowing Bubbles at HUD Lv 3 pairs them (no merge, no mount): every bullet Spoon fires back traps what it hits in a bubble (1.5 s Snare; bosses only slowed). A float says when it switches on (TODO_COPY:wf_spoonbub_on).
+- Save data: none.
+- Hooks: none in shared files (hookOn proc 'wfSpoonProc' and tick 'wfSpoonTick'; another modDraw wrap).
+- Risk: none beyond balance.
+
 ## 2026-10-26 Fusion pairs 9 to 16 (v10.158)
 - Systems: weapons (fusion), tests
 - Files: wfusion.js, tests/wfusiontest.js (7 new checks; the lardmine check pauses both weapons, it was flaky)
