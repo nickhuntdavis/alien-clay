@@ -14,7 +14,7 @@
 // render.js drawHud -> raceHud, raceTrackH, behind-pace chip -> raceCurveT, drawTopBar -> raceClock;
 // rivals.js updateShowdown -> raceTick, rival egg mode -> raceRivalEgg; inspect.js inspectMul -> raceMul; meta.js runDna -> raceDnaBonus.
 
-const RACE15 = { len: 900, curveT: 690, early: 20, slow: 0.1, pace: 1.0, xp: 1.8, rivalFinish: 860, countTime: 810, surgeLag: 180, touch: 80 }; // (touch: how close to the egg's edge counts as swimming into it, game.js eggTick)
+const RACE15 = { len: 900, curveT: 690, early: 20, slow: 0.1, pace: 1.0, xp: 1.8, rivalFinish: 860, countTime: 810, surgeLag: 180, touch: 80, eggPull: [4, 3.5] }; // (eggPull: autorun's pull to the egg once it is breakable, before and after it wakes, game.js autoSteer; was 1.8 and 1.4, which lost to dodging) // (touch: how close to the egg's edge counts as swimming into it, game.js eggTick)
 // Fever Pitch (game.js SURGE_T, 15:00) used to start the moment the egg opened, so every egg fight ran inside a damage
 // spiral (x1.3 a minute). In a race, enemy damage holds at its 15:00 level for RACE15.surgeLag seconds, then grows again.
 { const dm0 = dmgMul; dmgMul = function (t) { return dm0(raceOn() && t > SURGE_T ? Math.max(SURGE_T, t - RACE15.surgeLag) : t); }; }

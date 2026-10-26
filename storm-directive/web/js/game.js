@@ -2413,8 +2413,9 @@ function autoSteer() {
   // Yours to break: swim straight into it, then circle it at shooting range (in its healing glow).
   const M = G.eggE && !G.eggE.dead ? G.eggE : null, race = !G.wave && !G.lvl && !G.debug;
   if (race && mode !== 'hold' && eggBreakable()) {
-    if (!(M && M.woke)) goal(core.x, core.y, 1.8);
-    else if (cdist > CORE.sanctuary * 0.9) goal(core.x, core.y, 1.4);
+    const ep = typeof RACE15 !== 'undefined' ? RACE15.eggPull : [1.8, 1.4]; // (race15.js: strong enough to beat the dodging)
+    if (!(M && M.woke)) goal(core.x, core.y, ep[0]);
+    else if (cdist > CORE.sanctuary * 0.9) goal(core.x, core.y, ep[1]);
     else { gx += -(p.y - core.y) / (cdist || 1) * 0.6; gy += (p.x - core.x) / (cdist || 1) * 0.6; }
   } else if (race && M && mode !== 'hold') { const rv = G.enemies.find(e => e.rival && e.mode === 'egg' && !e.dead); if (rv) goal(rv.x, rv.y, 1.2); }
   // Stay inside the womb.

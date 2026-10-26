@@ -1,3 +1,11 @@
+## 2026-10-26 Race: autorun pulls harder to the egg once it is breakable
+- Systems: race (race15), autorun steering
+- Files: race15.js, game.js (autoSteer egg goal weights)
+- What: autorun's pull to the egg is now RACE15.eggPull (4 before it wakes, 3.5 after; was 1.8 and 1.4), which beat the dodging that kept it 500 to 2,500 px away while a rival broke in. In a probe its damage to the egg rose from about 3k to 115k.
+- Save data: none
+- Hooks: game.js autoSteer reads RACE15.eggPull.
+- Risk: autorun players head into the egg's bullet rings more readily.
+
 ## 2026-10-26 Race: swimming into the egg counts from 80 px of its edge
 - Systems: race (race15), egg
 - Files: race15.js, game.js (eggTick touch radius)
