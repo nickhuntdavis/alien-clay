@@ -3,6 +3,14 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.174 (versionCode 453): 2026-10-26 Race course level (merge of `ccr-a4871635-2p0jtu`)
+- Systems: race course (new), campaign, autorun steering, ui (end screen, sample cards), render (HUD track), tests
+- Files: course.js (new), levels.js, game.js, render.js, ui.js, samples10.js, index.html, tests/coursetest.js (new), tests/run.sh
+- What: a new mode `s011` on each sample's mode screen: a straight obstacle course (slalom, spit swamp, a fork with a plaque shortcut, sweepers, valves, boost pads) raced against five rivals after a 3-2-1 countdown. Cross the finish line first and alive to win; a rival over it first ends the run. All player-facing text is TODO_COPY placeholders.
+- Save data: META.courseBest added (best winning time, seconds).
+- Hooks: levels.js lvTick -> courseTick, lvWin -> courseWin, drawLevelHud -> courseHud, drawLevel -> courseFloor (in place of the tonsil stone), drawLevelOver -> courseDraw, drawLevelMap -> courseMap; game.js autoSteer -> courseSteer; render.js drawHud -> courseTrack; ui.js showGameOver title -> courseTitle, body -> courseEulogy; samples10.js s10Modes card. course.js wraps lvSlow.
+- Risk: sample id s011 (s010 is the Sandbox). Balance unsimmed for humans: autorun alone rarely wins.
+
 ## v10.173 (versionCode 452): 2026-10-26 Opening draft deals the sample's three; newfeattest green
 - Systems: samples (start draft), tests
 - Files: samplekit.js (wraps s10Start; Acrobat kit added), tests/samplestest.js, tests/newfeattest.js

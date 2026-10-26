@@ -149,6 +149,7 @@ function s10Modes(id) {
     + (S10_PETRI ? card('s002', '002', 'Iteration', 'Twenty drops into the dish, a boss every fifth.', 'WAVE MODE') : '')
     + (S10_ENDLESS ? card('s006', '006', 'Endless', 'The dish keeps topping itself up. Nobody has found the bottom.', 'NO END') : '')
     + (S10_LEVELS ? card('s007', '007', typeof lvName === 'function' && typeof LEVELS !== 'undefined' ? lvName(LEVELS[LV_SAMPLE.s007]) : 'Level 1', 'The first stretch of the way in. Mapped by nobody who came back.', 'CAMPAIGN') : '')
+    + (typeof COURSE !== 'undefined' ? card('s011', '011', COURSE.name, 'TODO_COPY:crs_card', 'TODO_COPY:crs_tag') : '') // (the race course: course.js)
     + uiButton('BACK', { attrs: 'id="s10Back"' });
   $('sampleList').querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => { UI.sample = b.dataset.mode; META.profile = 's10_' + id; saveMeta(); UI.startGame(true); }));
   $('s10Back').addEventListener('click', s10Samples);

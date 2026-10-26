@@ -2432,6 +2432,7 @@ function autoSteer() {
     gx += Math.cos(hd) * cw; gy += Math.sin(hd) * cw;
   }
   if (G.lvl && G.lvl.L.school && mode !== 'hold') { const sg = schoolSteer(p); if (sg) goal(sg.x, sg.y, sg.w); } // (Level 0: autorun swims you on: school.js)
+  if (G.lvl && G.lvl.L.course && mode !== 'hold') { const cg = courseSteer(p); if (cg) goal(cg.x, cg.y, cg.w); } // (the race course: course.js)
   const gl = Math.hypot(gx, gy);
   const gcap = homing || eggGo ? 4 : 1.5;
   if (gl > gcap) { gx = gx / gl * gcap; gy = gy / gl * gcap; }

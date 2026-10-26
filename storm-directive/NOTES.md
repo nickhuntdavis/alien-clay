@@ -1,6 +1,7 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
+- Version v10.174 (versionCode 453): merge of `ccr-a4871635-2p0jtu`: a race course mode (`s011`, course.js) on every sample's mode screen: five rivals, a countdown, an obstacle course (slalom, spit swamp, plaque-shortcut fork, sweepers, valves, boost pads); first over the line alive wins. All its text is TODO_COPY (22 `crs_*` placeholders). Autorun alone wins about 1 in 10.
 - Version v10.173 (versionCode 452): opening draft = the sample's three (samplekit.js); newfeattest green (v10 statuses). Still red on main: statuptest Enzyme Sneeze, sivtest; pdeftest flaky.
 - Version v10.172 (versionCode 451): Puddle Jumper card line written (Claude-drafted at the user's request).
 - Version v10.171 (versionCode 450): every sample deals three weapons fitted to it (samplekit.js SAMPLE_KIT; Ordered Online gets the Laser, Redtail Hot Mess and Spark of Life, Not of This World Sister Cousin). Flaky or red on main: pdeftest (about 1 in 3), sivtest, statuptest Enzyme Sneeze.
@@ -109,6 +110,7 @@ Tone: Dungeon Crawler Carl. Dry, deadpan, nerdy, not self-aware; bodies, sex, co
 - Saves: full wipe on v10 (new META key, old `sd_meta` ignored).
 
 ## Recent changes (newest first)
+- v10.174: race course level (s011). Details in CHANGELOG.md v10.174.
 - v10.169: Orbiting takes Extra, Rapid Fire and Charged, Homing on Orbiting is magnetic; wave mode upgrades only between waves; enemy tap card shows Active effects. Details in CHANGELOG.md v10.169.
 - v10.148: Sandbox Laser with Bounce or Piercing is offered Homing. Details in CHANGELOG.md v10.148.
 - v10.147: Range and Up Close cards back on about 50 weapons; nine stale tests fixed. Details in CHANGELOG.md v10.147.
@@ -233,6 +235,7 @@ Tone: Dungeon Crawler Carl. Dry, deadpan, nerdy, not self-aware; bodies, sex, co
 - v8.49: campaign Level 1, Achievement DNA, "damage type" wording.
 
 ## Balance numbers to know
+- (ccr-a4871635-2p0jtu, 26 Oct) Race course (s011, course.js): rivals at `CRS.speed` 136 x skill, rubber band 0.82 when 8+ cells ahead of you, 1.15 when 14+ behind. Bot (tests/coursetest.js, mortal): steering along the route when no germ is within 150, 2 of 6 wins; autorun alone 1 of 10 (usually 85 to 95% of the way when beaten). Races last 75 to 105 s. All its text is still TODO_COPY (22 placeholders, `crs_*`).
 - Wave mode boss strength: `CAMP.hp` [2.2, 13, 50, 160] and `CAMP.hit` [0.55, 0.82, 1, 1.1]; ordinary waves `CAMP.more` 1.3, `CAMP.dmgK` 1.15, `CAMP.early`/`earlyPT`. Wave 5 is now a tier 1 boss (base HP 1500, dmg 18): with the boss pack the mortal bot wins 11 of 32 (34%), with deaths spread over wave 5 (the tier 1 teachers and their entourage), waves 7 to 9 (rivals) and wave 10. Before the pack it won about 1 in 5 and mostly died to the Pepsinator at wave 5.
 - About 37 boxes per 9-minute wave run (it was 48).
 - v9.23 sim (`wave20.js 4 mortal`, `--feat <id>` for each new Feat): baseline 6/22 wins (27%); with each new Feat forced into a slot 68/187 (36%). Highest: Mosquito, Fecal Transplant, Brown Fat, Fertile Window 6/12 each (50%, 12 runs). 0/4 (noise at n=4, check with more runs if players say so): Anhydrobiosis, Bombardier Beetle, Hirudotherapy, Lipid Bilayer, Osmosis, Shed the Lining, Hagfish (0/6).
