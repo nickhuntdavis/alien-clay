@@ -57,7 +57,7 @@ Every sequence, weapon, combo, Feat, power-up, perk, modifier, stain and curse i
 
 ## How upgrades work
 
-1. **Level-ups and DNA strands** offer loot cards: new weapons, weapon levels, Feats, power-ups, modifiers, stains and (rarely) curses.
+1. **Level-ups and DNA strands** offer loot cards: new weapons, Feats, power-ups, defences, small stat bonuses and (rarely) curses. **Weapons level from their own kills**: each weapon fills a thin bar under its HUD slot, and a full bar opens its next level. Lv 3, 6 and 9 are branch screens; every other level is a modifier screen with three modifier cards for that weapon, REROLL, and SKIP (+2 rerolls, no level: the bar starts again).
    Each ordinary card has a pin and a hide (✕) button at its top right. A pinned card (up to 3) turns up in your next box if it still fits; a hidden card (up to 5) never comes back this run. Tap either in the pause menu (Build tab) to undo it.
    **Weird boxes:** about one level or DNA strand box in six (after the first two minutes) breaks the rules. **Double or Nothing**: take a card, or GAMBLE (half the time two cards a rarity better, half the time nothing). **Mystery Sachet**: three sealed cards, only the border shows the rarity. **The Recycler**: hand over two weapon modifiers for one card two rarities better (Legendary at most). **Cursed Bargain**: a Mythical card with a curse attached, or refuse it. **Nothing Box**: you get nothing, and the next ordinary box is all Immaculate.
    **Upgrade All:** holding 5 or more rerolls, an UPGRADE ALL (5) button sits beside REROLL. It spends 5 rerolls and raises every card in the box one rarity (each has a 20% chance of two), up to Mythical, keeping the same upgrades. Curses, supplies and stains stay as they are.
@@ -781,7 +781,7 @@ Offered at weapon level 3. Which three a weapon is offered is fixed per weapon (
 
 ## Modifiers
 
-Level-up cards for one weapon whose attack type fits. A weapon holds up to 3 different modifiers, and only one Delivery modifier. Taking one again ranks it up, to Rank 3. **Switched at Birth** (a Rare card, never two level-ups running) changes a random weapon to a random other damage type; it keeps its level, upgrades and modifiers.
+Dealt on a weapon's own modifier screens (weapon Lv 2, 4, 5, 7 and 8, and after Lv 9), for that weapon's attack type. A weapon holds up to 3 different modifiers, and only one Delivery modifier. Taking one again ranks it up, to Rank 3. **Switched at Birth** (a Rare card, never two level-ups running) changes a random weapon to a random other damage type; it keeps its level, upgrades and modifiers.
 
 | Modifier | Effect | Rank 2 | Rank 3 | Fits |
 |---|---|---|---|---|
