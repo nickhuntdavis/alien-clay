@@ -225,7 +225,7 @@ function bpDamageMul(e, src) {
 function bpPhase(e, ph) {
   const d = e.def;
   if (d.phase && d.phase[ph - 1]) sysMsg(d.name, d.phase[ph - 1], PAL.danger, true);
-  if (d.stone) { const res = { layersLost: 0 }; dropLayer(fightCd(e), res); if (res.layersLost) { ring(e.x, e.y, e.r + 6, FIGHT_COL.shell, 0.5, 6); fxParts('spark', e.x, e.y, FIGHT_COL.shell, 12, 160, 0.5, 3); floatText(e.x, e.y - e.r - 24, 'TODO_COPY:boss_stone_crack', PAL.reward, 16, 1.4); } } // (each enrage cracks one Shell layer)
+  if (d.stone) { const res = { layersLost: 0 }; dropLayer(fightCd(e), res); if (res.layersLost) { ring(e.x, e.y, e.r + 6, FIGHT_COL.shell, 0.5, 6); fxParts('spark', e.x, e.y, FIGHT_COL.shell, 12, 160, 0.5, 3); floatText(e.x, e.y - e.r - 24, 'CRACKED', PAL.reward, 16, 1.4); } } // (each enrage cracks one Shell layer)
   if (d.litmus) e.litT = Math.min(e.litT, 1);
 }
 // Per frame (from updateBosses).

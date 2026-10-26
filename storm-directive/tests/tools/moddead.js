@@ -13,7 +13,8 @@ const A = process.argv.slice(2), file = A.find(a => !a.startsWith('--')) || path
     const h = ln.match(/^(.+?) \(\w+\)(?: \+(\S+))?\s*(?:\(all visible\))?$/);
     if (h && !ln.startsWith(' ')) { cur = names[h[1]]; base = h[2] || ''; if (!cur) console.error('unknown weapon', h[1]); continue; }
     const m = ln.match(/^  NO-OP\s+(\w+)/);
-    if (m && cur) ((dead[cur] = dead[cur] || {})[base] = dead[cur][base] || []).push(m[1]);
+    // Range and Up Close are never hidden (COMBAT_MATRIX.md 15.5, reach.js): the audit misses reach-only changes.
+    if (m && cur && m[1] !== 'range' && m[1] !== 'upclose') ((dead[cur] = dead[cur] || {})[base] = dead[cur][base] || []).push(m[1]);
   }
   let out = '';
   for (const w of Object.keys(dead)) out += `  ${w}: { ${Object.keys(dead[w]).map(k => `'${k}': [${dead[w][k].map(x => `'${x}'`).join(', ')}]`).join(', ')} },\n`;

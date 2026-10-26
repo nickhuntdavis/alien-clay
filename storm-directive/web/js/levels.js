@@ -54,7 +54,7 @@ Object.assign(ENEMY_INTRO, {
 const LV_BOSSES = lvLazy(() => ({
   tartar: Object.assign({}, BOSSES.find(b => b.id === 'colossus'), { id: 'tartar', name: 'THE TARTAR COLONY', title: 'Calcified, and Proud of It', color: '#efe0b0', shape: 'cell',
     hp: 2600, armour: 0, quote: 'Twenty years without a dentist. We built a city.',
-    desc: 'TODO_COPY:tartar_desc' }), // (strengths and weaknesses: the Colossus's, which boss10.js rewrote for its v10 defence)
+    desc: 'A city of hardened plaque on the move. Thick Shell, cannot be knocked back or glued, and charges in straight lines.' }), // (strengths and weaknesses: the Colossus's, which boss10.js rewrote for its v10 defence)
 }));
 
 const LEVELS = [{

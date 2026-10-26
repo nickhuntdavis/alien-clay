@@ -8,6 +8,9 @@ const { chromium } = require('playwright');
   await page.goto('file://' + require('path').resolve(__dirname, '../web/index.html'));
   await page.evaluate(() => { window.TUT_OFF = 1; splashEnd(); }); await page.waitForTimeout(300);
   await page.evaluate(() => { if (typeof P11 !== 'undefined') Object.assign(P11, { cap: 99, start: 1, dmgTo: 1, dmgLv: 0, farK: 1, foeHp: 1 }); }); // (weapon mechanics, not pacing: the V11 power curve off, power11.js)
+  // (moddead.js hides audit-dead combos from modOk, e.g. Homing on a naked Standard Issue, whose aimed shots never need to
+  // turn: this file tests each modifier's mechanics, so the draft filter is cleared as in sim/modaudit.js; tests/moddead.js covers it)
+  await page.evaluate(() => { if (typeof MOD_DEAD !== 'undefined') for (const k in MOD_DEAD) delete MOD_DEAD[k]; });
   const r = await page.evaluate(() => {
     const bad = [], out = {};
     const fresh = () => {

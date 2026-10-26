@@ -3,6 +3,48 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.149 (versionCode 428): 2026-10-26 Cramp and Sneeze close in when you are far; every boss probed; merged with main's v10.148
+- Systems: bosses (boss pack tier 1), tests
+- Files: bosspack.js, bosssig10_t1.js, tests/sim/bossprobe.js
+- What: Probe of the tier 1 and tier 3 bosses (god-mode bot, two runs each). The Cramp (grip at 0.3 speed, contraction at 0.3) and the Sneeze (still through the wind-up and the recovery) never closed on a kiting player: 420 to 570 px out, in reach 9 to 21% of the fight, fights 141 to 200 s. Now the usual far close-in (over 380 px) stands during the Cramp's grip and contraction and the Sneeze's cone, the Sneeze moves while it recovers from a sneeze, and it does not start a wind-up from more than 420 px (it walks in first). Probe after: Cramp 20, 41, 100 s (was 141, 159); Sneeze 15, 40, 140 s (was 89, 200). Litmus Strip 16 and 86 s and Mucus Plug 32 and 52 s untouched. Tier 3 at wave 20 (345k to 437k health): Chad 182 s, Colossus 198 s, Fever 113 s, Failed Experiment 114 s with the signature beats, against 257 to 326 s (Chad) and 207 s (Fever) with the old lists; the Colossus killed the god bot twice with the old lists. No tier 3 change. bossprobe.js seeds a lost run so `failed` can be probed, and runs to 4800 s so wave 20 fights fit.
+- Save data: none.
+- Hooks: none.
+- Risk: the Cramp and Sneeze reach a player who hangs back; a human who stands off now gets approached rather than ignored.
+
+## v10.148 (versionCode 427): 2026-10-26 Sandbox Laser with Bounce or Piercing is offered Homing
+- Systems: weapon modifiers (dead-card table), tests
+- Files: moddead.js, tests/moddead.js
+- What: the dead-card filter only looked at the Delivery, so it hid Homing on a Laser holding Bounce or Piercing, where Homing curves every bounce and pierce. A hand-kept MOD_LIVE_WITH table (outside the generated section, so a rebuild keeps it) lets a dead card through when the weapon holds a card that wakes it. Homing, Bounce and Piercing share the Flight group, so this only shows in the Sandbox (no slot limits).
+- Save data: none.
+- Hooks: none.
+- Risk: none outside the Sandbox.
+
+## v10.147 (versionCode 426): 2026-10-26 Nine stale or broken tests fixed; Range and Up Close cards offered again
+- Systems: weapon modifiers (dead-card table), stat points, tests
+- Files: moddead.js, statup.js; tests modstest.js, celltest.js, laserbeamtest.js, lasershot.js, slicetest.js, spslicetest.js, sptest.js, statuptest.js, tools/moddead.js
+- What: the dead-card table (MOD_DEAD) had Range and Up Close back on about 50 weapon cells after a rebuild (b8daec1 had taken them off on purpose; v_phys_contact was refused Range though it widens reach 110 to 154); they are removed and the generator now skips both. Returning gets its stat ('range', what its cards already got by default). Tests updated to the intended game: MOD_DEAD filtering, the Laser's charge-up and held beam and its own forks, the two-best-weapons start draft; statuptest resets ids, kill counts, sightings and the damage-number average between weapons so results no longer depend on order; random crits off where a lucky one flipped a check.
+- Save data: none.
+- Hooks: none.
+- Risk: Range and Up Close cards show up again on many weapons (more card variety, slightly different offers). statuptest still fails on Enzyme Sneeze (dps ratio about 1.3 to 1.5, a balance call left open).
+
+## v10.146 (versionCode 425): 2026-10-26 Merge of two v10.145 sessions: all open copy, modifier hold view, run log newest first
+- Merged: `ccr-0f6f9db5-704msv` (every open TODO_COPY written; holding a modifier card explains it on each weapon with real numbers) and `ccr-56c32e6b-e1zsrr` (run log newest first, Sandbox offer lists shortened) into main's v10.145 (boss Membrane refill). All three had shipped as v10.145; one build.
+
+### Folded from ccr-0f6f9db5-704msv: 2026-10-25 All open copy written; modifier hold view explains the instance (v10.145)
+- Systems: ui (loot cards, glossary), weapons (modifier cards), relics, bosses, tutorials, Switched at Birth, health cards
+- Files: holdcopy.js (new), index.html, style.css, glossary.js, rewardui.js, data.js, rrelics.js, levels.js, foes3.js, bosspack.js, rackgrid.js, spoils.js, dnadrop.js; tests cell4test.js, sabtierstest.js, dnadroptest.js
+- What: every remaining TODO_COPY is written (11 relics, 15 boss signature lines, 6 health and Membrane cards, Switched at Birth levels and fork, 25 water-balloon cells, Tartar Colony, Hocker tip, Toughest targeting, Trophy Hide, DNA drop label, notes and tutorial, random sample tag, the pick-a-weapon fit line). Holding a modifier card now shows, for each weapon it can go on, what it does on that weapon at that rank (cell or Delivery text where one exists, else a line in the weapon's own words with the rank's real numbers), what this rank adds, and the weapon's numbers before and after including the card's stat point. glossFor no longer matches "The shakes" on every "the".
+- Save data: none.
+- Hooks: none in shared files (holdcopy.js wraps cardGlossary and sabCard; glossary.js glossFor one-line fix).
+- Risk: copy only, plus a read-only stat preview (computeStats with the modifier added, then restored). celltest's "nappy dealt" failure is pre-existing on main.
+
+### Folded from ccr-56c32e6b-e1zsrr: 2026-10-25 Run log newest first, Sandbox offers shortened (v10.145)
+- Systems: meta (run log), weapon telemetry
+- Files: meta.js, wstats.js
+- What: the copied run log lists the newest run first, so a paste that gets cut off loses the oldest runs, not the one that crashed; a draft offering more than 8 cards (Sandbox, the whole pool) prints "all N" instead of every name.
+- Save data: none
+- Hooks: none
+- Risk: none (text only)
 ## v10.145 (versionCode 424): 2026-10-26 Boss Membranes refill in 10 s, not 2 (the Johnny's health bar moves again)
 - Systems: bosses, combat defences
 - Files: boss10.js

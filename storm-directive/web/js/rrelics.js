@@ -12,7 +12,7 @@ Object.assign(RELICS, {
   pickpocket:  { name: 'Pickpocket', desc: '+50% pickup range, and XP gems are worth 15% more.' },
   fivefinger:  { name: 'Five-Finger Discount', desc: 'Elites always drop a power-up when they die.' },
   // Brick Wallace: a wall.
-  mucuswall:   { name: 'Mucus Wall', desc: 'TODO_COPY:relic_mucuswall_desc' },
+  mucuswall:   { name: 'Mucus Wall', desc: '+2 Shell layers, but you swim 5% slower. Snot, but load-bearing.' },
   loadbearing: { name: 'Load-Bearing', desc: 'While you are barely moving, you take 35% less damage.' },
   // Hawkeye Harriet: never misses.
   eagleeye:    { name: 'Eagle Eye', desc: '+45% damage to enemies more than 350 away from you.' },
