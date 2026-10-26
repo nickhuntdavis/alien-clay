@@ -11,6 +11,7 @@ const N = +(process.argv[2] || 2), GOD = process.argv[3] !== 'mortal', TUNE = pr
   let wins = 0;
   for (let seed = 0; seed < N; seed++) {
     const r = await page.evaluate(async GOD => {
+      if (!self.SIM_KEEP_PROFILE) META.profile = 's10_baseline'; // (a real run always starts as a sample: without one there are no rescues, so no second weapon, kindred.js)
       SET.auto = true; UI.sample = 's001'; UI.syncAuto(); newGame(); UI.show('hud'); if (G.state !== 'intro') G.state = 'play';
       const ev = []; const once = {}; const mark = (k, s) => { if (!once[k]) { once[k] = 1; ev.push(s + ' t=' + Math.round(G.t) + ' lv' + G.level); } };
       let win = false;
