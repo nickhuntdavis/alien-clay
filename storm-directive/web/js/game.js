@@ -1368,7 +1368,7 @@ function shootPattern(e, pat, a0) {
   if (G.nf && nfNoFire(e)) return; // (scratching, gagged or clogged: newfeats.js)
   const p = G.player, sh = e.def.shoot || {};
   const aim = (G.nf && nfAim(e)) ?? ((G.toy || G.decoy) && toyAim(e)) ?? Math.atan2(p.y - e.y, p.x - e.x); // (a decoy: newfeats.js)
-  const dm = dmgNow(), bd = (sh.dmg || e.def.dmg * 0.4 || 8) * dm;
+  const dm = dmgNow(), bd = (sh.dmg || e.def.dmg * 0.4 || 8) * dm * (e.campK || 1); // (campK: a race boss's RACE.bossHit, bosses.js; its bullets were missing it)
   switch (pat) {
     case 'aimed': {
       // Antibodies fan out as the run goes on, but a fan's bullets are lighter (late fans were the top killer).

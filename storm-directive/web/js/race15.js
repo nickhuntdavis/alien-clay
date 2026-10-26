@@ -9,12 +9,15 @@
 //  - Rival track (Immersive mode): a thin line under the menu buttons with a dot for you and each rival, placed by
 //    level, the egg at the right end and a tick for the clock. Tap it: the full standings in a small overlay while
 //    the slide runs at RACE15.slow speed.
-// Hooks: game.js eggBreakable -> raceEggOpen, levelsAhead -> raceCurveT, PT and spawn rate -> racePace, gainXp -> raceXp,
+// Hooks: wraps game.js dmgMul (the Fever Pitch hold); game.js eggBreakable -> raceEggOpen, levelsAhead -> raceCurveT, PT and spawn rate -> racePace, gainXp -> raceXp,
 // canvas tap -> raceTap;
 // render.js drawHud -> raceHud, raceTrackH, behind-pace chip -> raceCurveT, drawTopBar -> raceClock;
 // rivals.js updateShowdown -> raceTick, rival egg mode -> raceRivalEgg; inspect.js inspectMul -> raceMul; meta.js runDna -> raceDnaBonus.
 
-const RACE15 = { len: 900, curveT: 690, early: 20, slow: 0.1, pace: 1.0, xp: 1.8, rivalFinish: 860, countTime: 810 };
+const RACE15 = { len: 900, curveT: 690, early: 20, slow: 0.1, pace: 1.0, xp: 1.8, rivalFinish: 860, countTime: 810, surgeLag: 180 };
+// Fever Pitch (game.js SURGE_T, 15:00) used to start the moment the egg opened, so every egg fight ran inside a damage
+// spiral (x1.3 a minute). In a race, enemy damage holds at its 15:00 level for RACE15.surgeLag seconds, then grows again.
+{ const dm0 = dmgMul; dmgMul = function (t) { return dm0(raceOn() && t > SURGE_T ? Math.max(SURGE_T, t - RACE15.surgeLag) : t); }; }
 // Race-only numbers (the Petri Dish, Endless and the levels keep theirs).
 { const F = RIVAL.finish, T = COUNT.time;
   Object.defineProperty(RIVAL, 'finish', { get: () => (raceOn() ? RACE15.rivalFinish : F) });

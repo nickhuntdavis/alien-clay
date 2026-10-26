@@ -1,3 +1,11 @@
+## 2026-10-26 Race: Fever Pitch holds 3 min after the egg opens; race boss bullets take RACE.bossHit
+- Systems: race (race15), bosses, director (difficulty clock)
+- Files: race15.js, game.js (one line in shootPattern)
+- What: in a race, enemy damage now holds at its 15:00 level for RACE15.surgeLag (180 s) before Fever Pitch compounds, so the egg fight no longer starts inside the x1.3-a-minute spiral. Race bosses' bullets now take their RACE.bossHit softening (only their contact damage did).
+- Save data: none
+- Hooks: game.js shootPattern bullet damage x e.campK (set only on race bosses, bosses.js); race15.js wraps dmgMul.
+- Risk: the race egg phase and the first four race bosses are easier; Petri Dish, Endless and levels unchanged (raceOn and campK gate both).
+
 ## 2026-10-26 Race: autorun no longer stacks weapons in a rescue's fusion; D2 Sprinter finding (v10.155)
 - Systems: race (kindred rescues), tests
 - Files: kindred.js, tests/kindredtest.js, tests/sim/race.js
