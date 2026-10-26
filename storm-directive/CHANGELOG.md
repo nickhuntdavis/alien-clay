@@ -3,6 +3,19 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.170 (versionCode 449): 2026-10-26 One session branch merged: the Tackle Box (weapons, targeting, Feats) split from the BUILD tab (autorun, Genome, upgrades, stats)
+- Merged: `ccr-b96d97ce-vqktjz` into main at v10.169 (only the APK conflicted: rebuilt; both sides had shipped a v10.169, so this build is v10.170).
+- Systems: ui (Tackle Box Loadout tab, pause BUILD tab).
+- Hooks: none in shared files (pagesplit.js replaces bpHtml, wraps loadoutHtml and UI.renderPause).
+
+### Folded from ccr-b96d97ce-vqktjz: 2026-10-26 Tackle Box and BUILD tab split by job (v10.170)
+- Systems: ui (Tackle Box Loadout tab, pause BUILD tab)
+- Files: pagesplit.js (new), index.html, ARCHITECTURE.md, tests/pagesplittest.js (new), tests/buildbtntest.js
+- What: the Tackle Box is weapons, targeting and Feats: Autorun leaves it; each weapon row gains its branch, modifiers with rank pips, slots used and weapon mutations; Feat rows show level pips and forks taken; a Next panel (weapon upgrade, weapon slot) follows the Feats. The BUILD tab (sperm key) opens with Autorun as two columns of compact rows (current mode's full hint below), then Genome rows with pips, Upgrades (slotless cards held, with pips), Stat bonuses and the non-weapon Next lines. Hold a Genome or Upgrades row for its card.
+- Save data: none
+- Hooks: none in shared files. Replaces buildpanel.js bpHtml (statup.js's Stat bonuses wrap is folded in); wraps loadout.js loadoutHtml and ui.js UI.renderPause.
+- Risk: a branch that wraps bpHtml before this loads loses its wrap (only statup.js did); the Loadout post-process keys on .lomv, .low, [data-go] and .lon in loadout.js.
+
 ## v10.169 (versionCode 448): 2026-10-26 One session branch merged: Orbiting takes Extra, Rapid Fire and Charged with magnetic Homing; wave mode holds every upgrade until the wave is clear; tapping an enemy lists its Active effects
 - Merged: `ccr-1b7c90aa-a9892t` (only the version lines and the APK conflicted: rebuilt). Its own builds v10.162 to v10.164 never reached main.
 - Systems: Delivery forms (Orbiting), modifiers, waves, inspect.
