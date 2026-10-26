@@ -3,6 +3,12 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.157 (versionCode 436): 2026-10-26 Loot card icons in ink
+- Merged: `claude/eager-thompson-eie9mn` (no conflicts).
+- Systems: ui, reward cards, pictomap. Files: style.css.
+- What: icons on loot cards (pictograms and the line-icon fallback) draw in ink instead of their type or category colour; the rarity chip and damage-type left border keep their colour.
+- Save data: none. Hooks: none. Risk: none (CSS scoped to #lootCards .card .cico).
+
 ## v10.156 (versionCode 435): 2026-10-26 Queen snack budget starts at 6 and falls (two sessions' cuts no longer stack)
 - Systems: bosses. Files: bosssig10_t2.js.
 - What: main's v10.154 merge carried both this session's flat cut (3 snacks a cycle) and ccr-b6a373a9's falling budget (6, 4, 2, 1, 1, then none), which stacked to 3, 2, 1, 1, 0 and failed queennomstest. The falling budget from 6 stands on its own (42% of her health over a whole fight, 18% in the first cycle).

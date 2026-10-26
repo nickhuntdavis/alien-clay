@@ -1,6 +1,7 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
+- Version v10.157 (versionCode 436): loot card icons in ink, not colour (merge of `claude/eager-thompson-eie9mn`).
 - Version v10.156 (versionCode 435): Queen snack budget 6 falling by 0.6 a cycle (the v10.150 flat 3 and ccr-b6a373a9's falling 6 had stacked to 3, 2, 1, 1).
 - Version v10.155 (versionCode 434): merge of `claude/keen-euler-cl2st0`: every open TODO_COPY written (Claude-drafted, awaiting the user's read-through: perk, vitals, fusion, Passive Feat, Brave Phase and Puddle Jumper copy); stat cards show before → after ("Crit Chance 5% → 8%"). statuptest's Enzyme Sneeze dps ratio (1.47) fails on main too.
 - Version v10.150 (versionCode 429): Queen snack budget 3 a cycle (9%); boss Membranes 30% of health (BOSS10_MEM_FRAC). Wave 20 stress probe of every boss in the changes fragment / CHANGELOG. Open: at wave 20 health, percentage heals (Matron ward round 5% x2 a cycle = 1100/s) and Membrane refills outpace a weak build; the human target is 45 to 120 s and the god bot with random builds deals 400 to 4000 a second there.

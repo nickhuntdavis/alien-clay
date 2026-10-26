@@ -1311,6 +1311,10 @@ body #sysmsg.ws { pointer-events: auto; }
 #lootCards .card.mod { border-style: solid !important; }
 #lootCards .card .sheen, #lootCards .card .rrib, #lootCards .card::after { display: none !important; }
 #lootCards .card .cico { background: var(--color-bg-sheet) !important; border-color: var(--line) !important; }
+/* Loot card icons in ink, never in colour (user, 26 Oct): pictograms draw in currentColor, line icons carry their own stroke. */
+#lootCards .card .cico { --ic: var(--color-text-primary) !important; color: var(--color-text-primary) !important; }
+#lootCards .card .cico svg { filter: grayscale(1) contrast(1.2); }
+#lootCards .card .cico svg[stroke]:not([stroke="none"]), #lootCards .card .cico svg [stroke]:not([stroke="none"]):not([stroke^="var"]) { stroke: currentColor !important; }
 #lootCards .card .el { color: inherit !important; }
 #lootCards .card .tag { display: flex; justify-content: space-between; gap: 8px; }
 #lootCards .card .tag b { order: -1; color: var(--rar, var(--rc)); }
