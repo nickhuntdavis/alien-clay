@@ -1,3 +1,11 @@
+## 2026-10-26 Sperm button: shortcut to the BUILD tab (v10.164)
+- Systems: hud, pause
+- Files: buildbtn.js (new), index.html, tests/buildbtntest.js (new)
+- What: a sperm-icon HUD key left of RUN; one tap pauses on the BUILD tab (the pause button still opens on YOU). In the portrait Immersive HUD it takes Rewind's spot, moving one slot left while Rewind is on.
+- Save data: none
+- Hooks: none in shared files (adds #spermBtn before #moveBtn at load; calls UI.togglePause, UI.renderPause).
+- Risk: another branch that moves RUN or Rewind in eink.css would need this key's left offset moved too.
+
 ## 2026-10-26 Stat cards roll a rarity (v10.163)
 - Systems: draft, stats
 - Files: wmods.js, tests/statrartest.js (new)
