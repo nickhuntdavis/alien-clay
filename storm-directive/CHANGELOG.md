@@ -7,6 +7,7 @@ Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, 
 - Merged: `ccr-1b7c90aa-a9892t` (only the version lines and the APK conflicted: rebuilt). Its own builds v10.162 to v10.164 never reached main.
 - Systems: Delivery forms (Orbiting), modifiers, waves, inspect.
 - Hooks: hookOn('tick', 'inspect:foe') in inspect.js; none in shared files.
+- Merge fix: batchcheck now expects a boss reward to wait for the wave clear. statuptest and sivtest fail on main before this merge too.
 
 ### Folded from ccr-1b7c90aa-a9892t: 2026-10-26 Wave mode holds every upgrade until the wave is clear; tapping an enemy lists its Active effects (v10.164)
 - Systems: waves, inspect

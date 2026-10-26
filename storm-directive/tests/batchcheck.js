@@ -1,4 +1,4 @@
-// Boss reward opens at once in wave mode; Feats card after the first Feat; terrain/grudge cards; reaction pair; HUD shots.
+// Boss reward waits for the wave to clear in wave mode, then opens at once; Feats card after the first Feat; terrain/grudge cards; reaction pair; HUD shots.
 const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 400, height: 860 } });
@@ -12,8 +12,9 @@ const { chromium } = require('playwright');
     G.wave.active = true; G.lootQueue.push({ kind: 'level' });
     const e = { def: { id: 'pepsin', name: 'X' } };
     G.lootQueue.unshift({ kind: 'relic', boss: 'pepsin', now: true });
-    out.holdsWithBossReward = waveHoldsLoot();
-    G.lootQueue.shift(); out.holdsWithPlainBox = waveHoldsLoot();
+    out.holdsWithBossReward = waveHoldsLoot(); // (user, 26 Oct: upgrades only between waves, a boss's reward too)
+    G.wave.active = false; G.wave.restT = 1.6; out.bossRewardAfterWave = waveHoldsLoot(); // (the wave clear: it opens at once)
+    G.lootQueue.shift(); out.holdsWithPlainBox = waveHoldsLoot(); G.wave.restT = 0;
     G.wave.active = false; G.lootQueue.length = 0;
     // 3: no Feats card from a box; card after a Feat is taken
     out.beforeLoot = tutBeforeLoot({ kind: 'level' });
@@ -28,7 +29,7 @@ const { chromium } = require('playwright');
     return out;
   });
   console.log(JSON.stringify(r, null, 1));
-  const ok = r.holdsWithBossReward === false && r.holdsWithPlainBox === true && r.beforeLoot === false && r.featsQueued && /Water \+ Static|Static \+ Water/.test(r.react) && /tr_cilia/.test(r.terrainQueued) && !Object.keys(r).some(k => k.startsWith('bad_'));
+  const ok = r.holdsWithBossReward === true && r.bossRewardAfterWave === false && r.holdsWithPlainBox === true && r.beforeLoot === false && r.featsQueued && /Water \+ Static|Static \+ Water/.test(r.react) && /tr_cilia/.test(r.terrainQueued) && !Object.keys(r).some(k => k.startsWith('bad_'));
   // screenshots: kicker card, HUD with health bar (normal and immersive), stamina ring
   await page.evaluate(() => { META.seenTut = {}; G.tutQ = []; G.state = 'play'; G.manual = null; G.tutNext = 0; tutOpen('grudge'); });
   await page.waitForTimeout(2600); await page.screenshot({ path: 'batch_card.png' });
