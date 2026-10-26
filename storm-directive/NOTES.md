@@ -1,6 +1,7 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
+- Version v10.178 (versionCode 457): merge of `ccr-3feb4203-x7mgyg`: the Bigger Membrane bubble is drawn 60% wider (was only its hitbox); weapon kill bars get assists (0.3 of a kill), catch-up (+35% per level behind the top weapon), a gentler curve (WM.kg 0.42, 316 kills to Lv 9), bank kills while a level screen waits, and credit burns, reactions and turret kills to the weapon that last hit. Still red on main: armtest, statuptest Enzyme Sneeze, sivtest; pdeftest flaky.
 - Version v10.173 (versionCode 452): opening draft = the sample's three (samplekit.js); newfeattest green (v10 statuses). Still red on main: statuptest Enzyme Sneeze, sivtest; pdeftest flaky.
 - Version v10.172 (versionCode 451): Puddle Jumper card line written (Claude-drafted at the user's request).
 - Version v10.171 (versionCode 450): every sample deals three weapons fitted to it (samplekit.js SAMPLE_KIT; Ordered Online gets the Laser, Redtail Hot Mess and Spark of Life, Not of This World Sister Cousin). Flaky or red on main: pdeftest (about 1 in 3), sivtest, statuptest Enzyme Sneeze.
