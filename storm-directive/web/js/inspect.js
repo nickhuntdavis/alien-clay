@@ -4,6 +4,8 @@
 // weakness on a card, or a row in Active effects), and every damage type card opens the Reaction chart.
 // Settings > Inspect speed: PAUSE stops the game while a card is open; HALF slows it to half speed.
 // Unmet enemies (META.seen / META.bosses), statuses (META.seenSt) and reactions (META.seenRx) show locked.
+// An enemy's card lists its Active effects (user, 26 Oct): every status, damage over time and build-up bar on it now, with
+// time left, damage a second and the weapon that put it there; a row opens its Field Guide line. Refreshed while open in HALF.
 // Hooks: inspectTap (game.js, endTouch), inspectMul (game.js loop), inspectSeeRx (game.js, react),
 // rxChartHtml and data-insp buttons (ui.js Field Guide), data-insp="st:KEY" rows (ui.js status panel).
 
@@ -44,6 +46,43 @@ function inspectTap(x0, y0, x1, y1, held) {
   return true;
 }
 
+// ---------------------------------------------------------------- an enemy's Active effects
+// [name (a GLOSSARY term or an existing status name), colour, detail] for everything on it now
+function inspectFxList(e) {
+  const L = [], now = G.t, c = e.cd, sec = t => (t > 0 ? t.toFixed(1) + ' s' : ''), by = n => (n ? ' · ' + n : '');
+  const glOr = (n, alt) => (GLOSSARY.some(g => g[1] === n) ? n : alt);
+  if (typeof f_burning === 'function' && f_burning(e)) L.push(['Burn bar', '#ff6a2a', `${Math.round(c.burnPool / Math.max(0.1, c.burnT))}/s · ${sec(c.burnT)}${by(e.burnBy)}`, 'Burning']);
+  if (typeof f_bleeding === 'function' && f_bleeding(e)) { const b = e.bleeds; L.push(['Bleeding', '#c9184a', `×${b.length} · ${Math.round(b.reduce((t, q) => t + q.dps, 0))}/s · ${sec(Math.max(...b.map(q => q.t)))}${by(b[b.length - 1].by)}`]); }
+  if (typeof snared === 'function' && snared(e)) L.push(['Snared', FIGHT_COL.snared, sec(e.snareT - now)]);
+  if (typeof charged === 'function' && charged(e)) L.push(['Charged', '#c9a400', sec(e.chargeT - now)]);
+  if (e.corrodedT > now) L.push(['Corrosion', FIGHT_COL.corroded, sec(e.corrodedT - now), 'Corroded']);
+  if (e.dazeT > now) L.push(['Stunned', '#8a94a6', sec(e.dazeT - now)]);
+  if (e.charmed) L.push(['Parasite bar', '#b06cff', '', 'Possessed']);
+  if (e.conjT > now && e.conjWith && !e.conjWith.dead) L.push(['Conjoined', FIGHT_COL.snared, sec(e.conjT - now)]);
+  // the older statuses a few weapons and Feats still leave (chem.js)
+  if (e.poison > 0 && e.poisonStacks > 0) L.push(['Sick', ELEMENTS.poison.color, `×${e.poisonStacks} · ${Math.round((e.poisonDps || 0) * e.poisonStacks)}/s · ${sec(e.poison)}${by(e.poisonBy)}`]);
+  if (e.burn > 0 && !(typeof f_burning === 'function' && f_burning(e))) L.push(['Melting', ELEMENTS.fire.color, sec(e.burn)]);
+  if ((e.chill > 0 || e.frozen > 0) && !(typeof snared === 'function' && snared(e))) L.push([e.frozen > 0 ? 'Glued' : 'Snotty', ELEMENTS.ice.color, sec(Math.max(e.chill || 0, e.frozen || 0))]);
+  for (const [k, on] of [['oxi', e.fizz > 0], ['salt', e.pickle > 0], ['soul', e.curse > 0]]) if (on && ELEMENTS[k]) L.push([ELEMENTS[k].status, ELEMENTS[k].color, '']);
+  if (e.due && e.due.end > now && WEAPONS.s_duedate) L.push([WEAPONS.s_duedate.name, '#c9184a', sec(e.due.end - now)]);
+  if (e.tape && WEAPONS.s_redtape) L.push([WEAPONS.s_redtape.name, ELEMENTS.ice.color, '']);
+  // build-up bars, while they fill
+  if (c && c.bars) for (const [k, n, cc] of [['acid', 'Corrosion', FIGHT_COL.corroded], ['force', 'Poise', '#8a94a6'], ['fire', 'Burn bar', '#ff6a2a'], ['soul', 'Parasite bar', '#b06cff']]) {
+    const v = c.bars[k]; if (v > 0.02) L.push([n, cc, Math.round(Math.min(1, v) * 100) + '%']);
+  }
+  return L.map(([n, cc, d, label]) => ({ gl: glOr(n, null), label: label || n, colour: cc, detail: d }));
+}
+const inspectFx = e => {
+  const L = inspectFxList(e); if (!L.length) return '';
+  return `<div class="irow"><h4>ACTIVE EFFECTS</h4>${L.map(r => `<button class="ichip" style="--c:${col(r.colour)}"${r.gl ? ` data-insp="gl:${inspectEsc(r.gl)}"` : ''}>${inspectEsc(r.label)}${r.detail ? ' <b>' + inspectEsc(r.detail) + '</b>' : ''}</button>`).join('')}</div>`;
+};
+// HALF speed: the card keeps up with the enemy (4 times a second)
+hookOn('tick', 'inspect:foe', () => {
+  const e = INSPECT.foe; if (!INSPECT.open || !e) return;
+  if (G.t < (INSPECT.foeT || 0)) return; INSPECT.foeT = G.t + 0.25;
+  if (!e.dead) INSPECTOR.foe(e, true);
+});
+
 // ---------------------------------------------------------------- the card
 const inspectEsc = s => (typeof esc === 'function' ? esc(s) : String(s));
 function inspectEl() {
@@ -56,6 +95,7 @@ function inspectEl() {
       const i = b.dataset.insp.indexOf(':'), k = b.dataset.insp.slice(0, i), v = b.dataset.insp.slice(i + 1);
       if (k === 'close') INSPECTOR.close(); else if (k === 'back') INSPECTOR.back();
       else if (k === 'el') INSPECTOR.elem(v); else if (k === 'st') INSPECTOR.status(v);
+      else if (k === 'gl') INSPECTOR.gloss(v);
       else if (k === 'rx') INSPECTOR.chart(); else if (k === 'rxcell') INSPECTOR.cell(v);
     });
     document.body.appendChild(el);
@@ -73,21 +113,22 @@ const INSPECTOR = {
       INSPECT.half = !INSPECT.pause;
       if (G) { INPUT.active = false; INPUT.id = null; G.manual = null; if (INSPECT.pause && G.state === 'play') G.state = 'pause'; }
     }
-    if (!back) INSPECT.hist.push({ html, colour });
+    if (back !== 'top') INSPECT.foe = null; // (another card on top: stop refreshing the enemy's)
+    if (!back) INSPECT.hist.push({ html, colour }); else if (back === 'top') INSPECT.hist[INSPECT.hist.length - 1] = { html, colour };
     el.className = 'on' + (INSPECT.pause ? ' pausing' : '');
     el.style.setProperty('--ic', colour || '#d1ddef');
     const resume = INSPECT.pause && INSPECT.prev === 'play';
     el.innerHTML = `<div class="icard">${html}<div class="ibtns">${INSPECT.hist.length > 1 ? '<button class="btn" data-insp="back:">BACK</button>' : ''}${uiButton(resume ? 'RESUME' : 'CLOSE', { cls: 'primary', attrs: 'data-insp="close:"' })}</div></div>`;
   },
-  back() { if (INSPECT.hist.length > 1) { INSPECT.hist.pop(); const h = INSPECT.hist[INSPECT.hist.length - 1]; INSPECTOR.show(h.html, h.colour, true); } },
+  back() { if (INSPECT.hist.length > 1) { const first = INSPECT.hist.length === 2; INSPECT.hist.pop(); const h = INSPECT.hist[INSPECT.hist.length - 1]; INSPECTOR.show(h.html, h.colour, true); if (first && INSPECT.foeAt && !INSPECT.foeAt.dead) INSPECT.foe = INSPECT.foeAt; } },
   close() {
     if (!INSPECT.open) return;
-    INSPECT.open = false; INSPECT.hist = [];
+    INSPECT.open = false; INSPECT.hist = []; INSPECT.foe = INSPECT.foeAt = null;
     inspectEl().className = '';
     if (G && INSPECT.pause && INSPECT.prev === 'play' && G.state === 'pause') { G.state = 'play'; if (typeof lastTs !== 'undefined') lastTs = performance.now(); }
   },
   // An enemy or boss. Unmet ones are a silhouette.
-  foe(e) {
+  foe(e, refresh) {
     const d = e.def, boss = !!(e.boss || e.bossDef), id = boss ? d.id : introKey(e);
     const met = boss ? !!(META.bosses && META.bosses[d.id]) : (!id || !ENEMY_INTRO[id] || seenFoe(id));
     if (!met) {
@@ -99,8 +140,15 @@ const INSPECTOR = {
     const html = `<div class="idot" style="background:${d.color}"></div><h3>${inspectEsc(d.name)}</h3>` + (boss && d.title ? `<em>${inspectEsc(d.title)}</em>` : '') +
       `<div class="istats"><span>HP <b>${hp}</b></span><span>Speed <b>${Math.round(d.speed || 0)}</b></span></div>` +
       `<p>Hits for <b>${dmg}</b>.</p>` +
+      inspectFx(e) +
       (I ? `<p class="ijoke">${inspectEsc(I.what)}</p>${uiHint(inspectEsc(I.tip))}` : boss && d.quote ? `<p class="ijoke">${inspectEsc(d.quote)}</p>` : '');
-    INSPECTOR.show(html, d.color);
+    INSPECTOR.show(html, d.color, refresh ? 'top' : false);
+    INSPECT.foe = e; if (!refresh) INSPECT.foeAt = e;
+  },
+  // A Field Guide term (an Active effects row on an enemy card)
+  gloss(name) {
+    const g = GLOSSARY.find(r => r[1] === name); if (!g) return;
+    INSPECTOR.show(`<h3>${inspectEsc(g[1])}</h3><p>${inspectEsc(g[2])}</p>`, '#d1ddef');
   },
   // A damage type: what it does, its status, and the reaction chart.
   elem(id) {

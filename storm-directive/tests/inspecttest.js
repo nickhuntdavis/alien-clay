@@ -29,8 +29,16 @@ const { chromium } = require('playwright');
   out.push(await page.evaluate(() => 'chart:' + document.querySelectorAll('#inspect .rxc').length + ' ' + document.querySelectorAll('#inspect .rxc.unk').length));
   await page.evaluate(() => { inspectSeeRx('bath'); INSPECTOR.close(); SET.inspect = 'pause'; });
   out.push(await page.evaluate(() => 'seenRx:' + JSON.stringify(META.seenRx)));
+  // 5. Active effects: a Snared, Bleeding, Burning enemy lists all three; a row opens its Field Guide line; HALF keeps it live
+  await page.evaluate(() => { const e = __e; e.snareT = G.t + 2; e.bleeds = [{ dps: 10, t: 3, by: 'Little Prick' }]; const c = fightCd(e); c.burnPool = 30; c.burnT = 3; c.bars.force = 0.5; INSPECTOR.foe(e); });
+  out.push(await page.evaluate(() => 'fx:' + [...document.querySelectorAll('#inspect .irow .ichip')].map(b => b.innerText.split(' ')[0]).join(',')));
+  await page.evaluate(() => document.querySelector('#inspect [data-insp="gl:Snared"]').click());
+  out.push(await page.evaluate(() => 'gl:' + /Snared/.test(document.querySelector('#inspect h3').innerText) + ' ' + INSPECT.hist.length));
+  await page.evaluate(() => { INSPECTOR.close(); SET.inspect = 'half'; __e.snareT = 0; INSPECTOR.foe(__e); __e.snareT = G.t + 5; for (let i = 0; i < 20; i++) update(1 / 30); });
+  out.push(await page.evaluate(() => 'live:' + /Snared/.test(document.getElementById('inspect').innerText)));
+  await page.evaluate(() => { INSPECTOR.close(); SET.inspect = 'pause'; });
   console.log(out.join('\n'));
-  const ok = /^tap:true pause/.test(out[0]) && out[1] === 'closed:false play' && out[2] === 'drag:false' && out[3] === 'locked:true true' && /^half:play 0.5/.test(out[4]) && out[5] === 'chart:49 42';
+  const ok = /^fx:Burn.*Bleeding.*Snared.*Poise/.test(out[7] || '') && out[8] === 'gl:true 2' && out[9] === 'live:true' && /^tap:true pause/.test(out[0]) && out[1] === 'closed:false play' && out[2] === 'drag:false' && out[3] === 'locked:true true' && /^half:play 0.5/.test(out[4]) && out[5] === 'chart:49 42';
   console.log(ok ? 'inspect ok' : 'FAIL inspect');
   console.log('ERRORS', errors.length ? errors.slice(0, 3) : '[]'); await b.close();
 })();

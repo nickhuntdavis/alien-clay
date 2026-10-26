@@ -103,7 +103,8 @@ function waveClear(V) {
   if (V.n === 15) achieve('wave15');
 }
 
-// Boxes wait until the wave is over, except a boss's reward, which opens as soon as it dies.
-const waveHoldsLoot = () => wavesMode() && (G.wave.final || (G.wave.active || G.wave.restT > 0) && !(G.lootQueue[0] && G.lootQueue[0].now));
+// Upgrades are only applied between waves (user, 26 Oct): nothing opens during a wave, not even a 'now' request (a boss's
+// reward, a fusion, a DNA drop). Once the wave is clear, 'now' requests open at once; the rest wait out the 1.6 s rest.
+const waveHoldsLoot = () => wavesMode() && (G.wave.final || G.wave.active || G.wave.restT > 0 && !(G.lootQueue[0] && G.lootQueue[0].now));
 // Ready for the next drop: wave over, boxes all opened.
 const waveReady = () => wavesMode() && !G.wave.active && G.wave.restT <= 0 && !G.lootQueue.length && G.state === 'play';
