@@ -1,5 +1,13 @@
 # ccr-1ac49716-yz41yr
 
+## 2026-10-26 The Passive Feat slot and aura Feats (v10.154)
+- Systems: Feats (aura, new slot), modifier cards (Melee, Orbiting), ui (HUD), tests
+- Files: passivefeat.js (new), index.html, tests/passivefeattest.js (new), FEATS.md, ARCHITECTURE.md
+- What: a Passive Feat key on the Feat row holds one aura. Melee or Orbiting moves the weapon into it (stays in G.weapons as w.pfAura, weapon key hidden), opens a weapon mount with a draft and drops the modifiers that are dead under that Delivery (the hold view lists them first); Melee and Orbiting are only dealt while the slot is free. New aura Feats Flame Cloak (Fire ring) and Pearl Necklace (orbiting Mucus pearls; eat shots from level 4). The HUD now adds weapon keys past three, so the mounts fusion and auras open show up (they were invisible). Card text TODO_COPY.
+- Save data: none (run state G.pf, w.pfAura, w.pfLost).
+- Hooks: none in shared files (hookOn tick; wraps modAdd, modOk, hcWeapon, cardOpt, sbSlotMark, comboBonds, modDraw).
+- Risk: Melee or Orbiting on a second weapon is no longer possible; tests or sims that stack them change. Aura numbers are first guesses.
+
 ## 2026-10-26 Reverse Tooth Fairy (v10.153)
 - Systems: weapons (Eggs), modifier cards, tests
 - Files: rtooth.js (new), index.html, tests/rtoothtest.js (new), tests/wfusiontest.js (lardmine check tracks the furthest launch: it was flaky), BASE_WEAPONS.md, ARCHITECTURE.md
