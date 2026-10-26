@@ -4,7 +4,7 @@ Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, 
 
 
 ## v10.146 (versionCode 425): 2026-10-26 Merge of two v10.145 sessions: all open copy, modifier hold view, run log newest first
-- Merged: `ccr-0f6f9db5-704msv` (every open TODO_COPY written; holding a modifier card explains it on each weapon with real numbers) and `ccr-56c32e6b-e1zsrr` (run log newest first, Sandbox offer lists shortened) into main's v10.144. Both had shipped as v10.145; one build.
+- Merged: `ccr-0f6f9db5-704msv` (every open TODO_COPY written; holding a modifier card explains it on each weapon with real numbers) and `ccr-56c32e6b-e1zsrr` (run log newest first, Sandbox offer lists shortened) into main's v10.145 (boss Membrane refill). All three had shipped as v10.145; one build.
 
 ### Folded from ccr-0f6f9db5-704msv: 2026-10-25 All open copy written; modifier hold view explains the instance (v10.145)
 - Systems: ui (loot cards, glossary), weapons (modifier cards), relics, bosses, tutorials, Switched at Birth, health cards
@@ -21,6 +21,13 @@ Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, 
 - Save data: none
 - Hooks: none
 - Risk: none (text only)
+## v10.145 (versionCode 424): 2026-10-26 Boss Membranes refill in 10 s, not 2 (the Johnny's health bar moves again)
+- Systems: bosses, combat defences
+- Files: boss10.js
+- What: The Johnny's Membrane (half its health, 1505 points at wave 5) refilled fully 2 s after 2 s untouched, so it came back during every roll and a weak build never dented the health bar. Probe (god-mode bot, wave 5): Membrane up 79 to 99% of the fight, fights 97 to 400 s, with the old pattern list too (not a C3 regression). Boss-rank Membranes now take 10 s to refill; the 2 s quiet time stays, as the intro card says. Mitch (Twins) has the same defence and gets the same rule. Probe after: 56, 66, 97 s.
+- Save data: none.
+- Hooks: boss10.js wraps combat.js tickDefence (fight.js calls it by name each frame).
+- Risk: every boss Membrane is softer under sustained fire; small-cell Membranes unchanged.
 
 ## v10.144 (versionCode 423): 2026-10-25 Matron and Queen fights end: round healing capped per add, one healing snack budget a cycle
 - Systems: bosses, tests
