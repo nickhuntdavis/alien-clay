@@ -1451,16 +1451,17 @@ function render() {
   const GEM_TIERS = [[100, 9, '#6a1f7a'], [20, 7, '#7a5a00'], [5, 5.5, '#14594a'], [0, 4, '#0f3d55']];
   const gemOf = g => (g.v >= 100 ? 0 : g.v >= 20 ? 1 : g.v >= 5 ? 2 : 3);
   const diamond = (x, y, r) => { ctx.moveTo(x, y - r * 1.3); ctx.lineTo(x + r, y); ctx.lineTo(x, y + r * 1.3); ctx.lineTo(x - r, y); ctx.closePath(); };
-  const gemVis = G.gems.filter(g => g.kind !== 's' && vis(g));
+  const gemVis = G.gems.filter(g => g.kind !== 's' && vis(g)), gk = typeof XPG !== 'undefined' ? XPG.size : 1; // (bigger, with a halo: xpgems.js)
+  if (gk !== 1 && XPG.halo && gemVis.length) { ctx.strokeStyle = 'rgba(255,255,255,0.9)'; ctx.lineWidth = Math.max(3, 5 * S); ctx.lineJoin = 'round'; ctx.beginPath(); for (const g of gemVis) diamond(sx(g.x), sy(g.y), GEM_TIERS[gemOf(g)][1] * S * gk); ctx.stroke(); }
   ctx.strokeStyle = 'rgb(12,14,16)'; ctx.lineWidth = 1;
   for (let ti = 0; ti < GEM_TIERS.length; ti++) {
-    const r = GEM_TIERS[ti][1] * S; let any = false;
+    const r = GEM_TIERS[ti][1] * S * gk; let any = false;
     ctx.beginPath();
     for (const g of gemVis) if (gemOf(g) === ti) { diamond(sx(g.x), sy(g.y), r); any = true; }
     if (any) { ctx.fillStyle = GEM_TIERS[ti][2]; ctx.fill(); ctx.stroke(); }
   }
   ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.beginPath();
-  for (const g of gemVis) { const r = GEM_TIERS[gemOf(g)][1] * S, x = sx(g.x), y = sy(g.y); ctx.moveTo(x, y - r * 1.3); ctx.lineTo(x + r * 0.5, y - r * 0.2); ctx.lineTo(x, y); ctx.closePath(); }
+  for (const g of gemVis) { const r = GEM_TIERS[gemOf(g)][1] * S * gk, x = sx(g.x), y = sy(g.y); ctx.moveTo(x, y - r * 1.3); ctx.lineTo(x + r * 0.5, y - r * 0.2); ctx.lineTo(x, y); ctx.closePath(); }
   ctx.fill();
   // Pickups: temporary power-ups are monitor magenta; DNA strands (loot) are gold.
   for (const u of G.pickups) {
