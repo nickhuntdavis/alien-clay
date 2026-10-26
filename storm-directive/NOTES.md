@@ -1,6 +1,8 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
+- Version v10.146 (versionCode 425): merge of `ccr-0f6f9db5-704msv` (all open copy written, modifier hold view shows what a card does on each weapon with before/after numbers; holdcopy.js) and `ccr-56c32e6b-e1zsrr` (run log newest first, Sandbox offers print "all N").
+- Version v10.145 (versionCode 424): boss-rank Membranes refill in 10 s (BOSS10_MEM_FILL, boss10.js), 2 s quiet unchanged. The Johnny's bar was not moving for weak builds.
 - Version v10.144 (versionCode 423): Queen heals from at most 6 snacks a pattern cycle (18%) across devour and both dinners; Matron rounds heal an add at most 6 ticks in its life, bed walk 240 px/s. Probe: bossprobe.js <id> w15 for the wave 15 slot.
 - Version v10.143 (versionCode 422): tier 2 boss fight length (changes fragment): Eye one saccade a slot then closes in; Twins crossfire ring 200 px, bodies keep the usual distance outside the lit lane, adds pulse on charge only, rebuilds diminish 60/36/22%. Probe tool: node tests/sim/bossprobe.js <bossId> (god-mode run to that boss, prints reach share, mean distance, adds alive, boss dps, rebuilds).
 - Version v10.142 (versionCode 421): merge of ENEMY_HANDOFF.md C3: every boss has a signature second beat from its own mechanic in place of the generic sprays (Litmus Titration drip line, Johnny Unroll band, Mucus Plug Drip, Cramp Contraction ring, Sneeze Sniffle cloud; Twins Crossfire beam between the bodies, Stone Fragment chunks per shed layer, Matron Rounds bed to bed, Phantom False positive copies with the real one ringed, Eye Saccade sector sweep, Pepsinator Reflux half-arena wave, Queen Dinner bell add rush; Fever Flush gapped heat waves, Chad Flex landing shockwave, Colossus Y-volley). Tier 1 keeps one aimedFan as a breather. No HP, damage or rate number changed. 15 new placeholders `TODO_COPY:boss_<id>_sig` (one strengths line each, about 60 characters). ENEMY_HANDOFF.md is complete except D2 (Race early threat, with the user).
@@ -86,6 +88,7 @@ Tone: Dungeon Crawler Carl. Dry, deadpan, nerdy, not self-aware; bodies, sex, co
 - Saves: full wipe on v10 (new META key, old `sd_meta` ignored).
 
 ## Recent changes (newest first)
+- v10.146: merged `ccr-0f6f9db5-704msv` (all open copy, modifier hold view) and `ccr-56c32e6b-e1zsrr` (run log order). Details in CHANGELOG.md v10.146.
 - v10.124: merged `claude/serene-mayer-hzufbe` (rings on top, branch screens, two best weapons per sample). Details in CHANGELOG.md v10.124.
 - v10.122: merged `claude/serene-mayer-hzufbe` (v9 sample bodies, v9 samples back on the rack). Details in CHANGELOG.md v10.122.
 - v10.115: merged `ccr-8707d278-h1fnlw` (stat bonuses, weapon base stats, run log fixes, frame rate). Details in CHANGELOG.md v10.115.

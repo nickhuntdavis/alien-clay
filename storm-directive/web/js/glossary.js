@@ -131,7 +131,7 @@ GLOSSARY.push(
 function glossFor(text) {
   const out = [], seen = new Set();
   for (const id in ELEMENTS) { const n = ELEMENTS[id].name; if (new RegExp('\\b' + n + '\\b').test(text) && !seen.has(n)) { seen.add(n); out.push([n, ELEMENTS[id].blurb]); } }
-  for (const id in REACTIONS) { const n = REACTIONS[id].name, w = n.split(' ')[0].slice(0, 6); if (new RegExp('\\b' + w, 'i').test(text) && !seen.has(n)) { seen.add(n); out.push([n.charAt(0) + n.slice(1).toLowerCase(), REACTIONS[id].desc]); } }
+  for (const id in REACTIONS) { const n = REACTIONS[id].name, f = n.split(' ')[0], w = /^(the|a|an|last)$/i.test(f) ? n : f.slice(0, 6); /* ("The shakes" matched every "the") */ if (new RegExp('\\b' + w, 'i').test(text) && !seen.has(n)) { seen.add(n); out.push([n.charAt(0) + n.slice(1).toLowerCase(), REACTIONS[id].desc]); } }
   for (const [re, term, def] of GLOSSARY) if (re.test(text) && !seen.has(term)) { seen.add(term); out.push([term, def]); }
   return out.slice(0, 8);
 }

@@ -81,7 +81,8 @@ function wsText(r) {
     out += ` wpn ${x.n} T${x.tier}${x.up.length ? '{' + x.up.join('/') + '}' : ''} held ${x.held}s dps ${x.dps} up ${x.upPct}% tgt ${x.tgt} hit ${x.hit == null ? '-' : x.hit + '%'} dist ${x.dist} kills ${x.kills} boss ${x.boss}% picked@${x.at}s tiers ${x.tiers.length ? x.tiers.map(t => t[0] + '@' + t[1] + 's').join(' ') : '-'}\n`;
   }
   const nm = id => (W24_BY[id] || {}).name || id, o = z.off || [];
-  const f = k => o.filter(x => x.k === k).map(x => x.off.map(nm).join(',') + '>' + nm(x.got)).join(' ');
+  // (a Sandbox draft offers the whole pool: print its size, not 27 names, so the copied log stays short)
+  const f = k => o.filter(x => x.k === k).map(x => (x.off.length > 8 ? 'all ' + x.off.length : x.off.map(nm).join(',')) + '>' + nm(x.got)).join(' ');
   if (o.length) out += ` offers: start[${f('start')}] slot[${f('slot')}]\n`;
   return out;
 }

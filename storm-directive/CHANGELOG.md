@@ -3,6 +3,32 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.146 (versionCode 425): 2026-10-26 Merge of two v10.145 sessions: all open copy, modifier hold view, run log newest first
+- Merged: `ccr-0f6f9db5-704msv` (every open TODO_COPY written; holding a modifier card explains it on each weapon with real numbers) and `ccr-56c32e6b-e1zsrr` (run log newest first, Sandbox offer lists shortened) into main's v10.145 (boss Membrane refill). All three had shipped as v10.145; one build.
+
+### Folded from ccr-0f6f9db5-704msv: 2026-10-25 All open copy written; modifier hold view explains the instance (v10.145)
+- Systems: ui (loot cards, glossary), weapons (modifier cards), relics, bosses, tutorials, Switched at Birth, health cards
+- Files: holdcopy.js (new), index.html, style.css, glossary.js, rewardui.js, data.js, rrelics.js, levels.js, foes3.js, bosspack.js, rackgrid.js, spoils.js, dnadrop.js; tests cell4test.js, sabtierstest.js, dnadroptest.js
+- What: every remaining TODO_COPY is written (11 relics, 15 boss signature lines, 6 health and Membrane cards, Switched at Birth levels and fork, 25 water-balloon cells, Tartar Colony, Hocker tip, Toughest targeting, Trophy Hide, DNA drop label, notes and tutorial, random sample tag, the pick-a-weapon fit line). Holding a modifier card now shows, for each weapon it can go on, what it does on that weapon at that rank (cell or Delivery text where one exists, else a line in the weapon's own words with the rank's real numbers), what this rank adds, and the weapon's numbers before and after including the card's stat point. glossFor no longer matches "The shakes" on every "the".
+- Save data: none.
+- Hooks: none in shared files (holdcopy.js wraps cardGlossary and sabCard; glossary.js glossFor one-line fix).
+- Risk: copy only, plus a read-only stat preview (computeStats with the modifier added, then restored). celltest's "nappy dealt" failure is pre-existing on main.
+
+### Folded from ccr-56c32e6b-e1zsrr: 2026-10-25 Run log newest first, Sandbox offers shortened (v10.145)
+- Systems: meta (run log), weapon telemetry
+- Files: meta.js, wstats.js
+- What: the copied run log lists the newest run first, so a paste that gets cut off loses the oldest runs, not the one that crashed; a draft offering more than 8 cards (Sandbox, the whole pool) prints "all N" instead of every name.
+- Save data: none
+- Hooks: none
+- Risk: none (text only)
+## v10.145 (versionCode 424): 2026-10-26 Boss Membranes refill in 10 s, not 2 (the Johnny's health bar moves again)
+- Systems: bosses, combat defences
+- Files: boss10.js
+- What: The Johnny's Membrane (half its health, 1505 points at wave 5) refilled fully 2 s after 2 s untouched, so it came back during every roll and a weak build never dented the health bar. Probe (god-mode bot, wave 5): Membrane up 79 to 99% of the fight, fights 97 to 400 s, with the old pattern list too (not a C3 regression). Boss-rank Membranes now take 10 s to refill; the 2 s quiet time stays, as the intro card says. Mitch (Twins) has the same defence and gets the same rule. Probe after: 56, 66, 97 s.
+- Save data: none.
+- Hooks: boss10.js wraps combat.js tickDefence (fight.js calls it by name each frame).
+- Risk: every boss Membrane is softer under sustained fire; small-cell Membranes unchanged.
+
 ## v10.144 (versionCode 423): 2026-10-25 Matron and Queen fights end: round healing capped per add, one healing snack budget a cycle
 - Systems: bosses, tests
 - Files: bosssig10_t2.js, tests/sim/bossprobe.js

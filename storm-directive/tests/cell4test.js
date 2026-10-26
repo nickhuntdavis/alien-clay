@@ -19,7 +19,7 @@ const { chromium } = require('playwright');
     for (const id of ['v_ice_pool', 'v_flame_pool']) {
       const w = fresh(id); SET.noLimits = true;
       const no = BL_CELLS.filter(m => !modOk(w, m)); if (no.length) bad.push(id + ' not dealt: ' + no);
-      const c = modCard(w, 'ranged'); if (!c || c.desc !== 'TODO_COPY:cell_bl_ranged') bad.push(id + ' card text ' + (c && c.desc));
+      const c = modCard(w, 'ranged'); if (!c || c.desc !== SLICE_COPY.cell_bl_ranged) bad.push(id + ' card text ' + (c && c.desc));
       modAdd(w, 'pull'); modAdd(w, 'pull'); SET.noLimits = false;
       if (G.lootQueue.some(q => q.kind === 'fork')) bad.push(id + ' fork screen');
     }

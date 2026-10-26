@@ -526,6 +526,14 @@ body.land .pwrap, body.land .owrap, body.land .lwrap { max-width: 760px; }
 #holdInfo ul.gloss { margin: 8px 0 0; padding-left: 16px; font-size: 12px; line-height: 1.35; }
 #holdInfo ul.gloss li { margin: 3px 0; }
 #holdInfo ul.gloss b { font-size: 12px; }
+#holdInfo { max-height: calc(100vh - 16px); overflow: hidden; }
+#holdInfo .hcw { margin-top: 8px; padding-top: 6px; border-top: 1px solid var(--line); }
+#holdInfo .hcw b { font-size: 13px; }
+#holdInfo .hcw p { margin: 4px 0 0; font-size: 13px; line-height: 1.35; }
+#holdInfo .hcr { color: var(--color-text-muted); }
+#holdInfo .hcn { margin-top: 5px; font-size: 12px; line-height: 1.35; }
+#holdInfo .rwfit { margin-top: 6px; font-size: 12px; line-height: 1.35; }
+#holdInfo .rwfit b, #holdInfo .hcn b { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 4px; }
 .card .chold { margin-top: 6px; font-family: var(--mono); font-size: 9px; letter-spacing: 1.5px; color: var(--color-text-muted); text-transform: uppercase; }
 #armBody.swipeL { animation: swl 0.22s ease-out; }
 #armBody.swipeR { animation: swr 0.22s ease-out; }
