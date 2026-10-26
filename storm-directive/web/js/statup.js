@@ -41,6 +41,7 @@ const ST_MOD = {
   mines: 'mag', extra: 'mag', ranged: 'reload', connecting: 'reload', range: 'range', catalyst: 'feat', nth: 'feat',
   upclose: 'hp', kinship: 'regen', area: 'regen', knock: 'shell', melee: 'shell', sticky: 'membrane', orbiting: 'membrane',
   dfa: 'speed', turncoat: 'xp', switch: 'xp', pull: 'traction', ricochet: 'accel',
+  returning: 'range', // (back in the matrix from v10.140; 'range' is what the stFor fallback already gave it, so cards bank the same)
 };
 const ST_FALLBACK = ['dmg', 'rof', 'crit', 'critX', 'mag', 'reload', 'range', 'feat']; // (modifiers outside the matrix: a weapon stat by id)
 const stFor = id => ST_MOD[id] || ST_FALLBACK[[...String(id)].reduce((a, c) => a + c.charCodeAt(0), 0) % ST_FALLBACK.length];

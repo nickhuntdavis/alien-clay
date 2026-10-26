@@ -13,10 +13,14 @@ const { chromium } = require('playwright');
   await page.screenshot({ path: 'laserdraft.png' });
   const r1 = await page.evaluate(() => ({ titles: UI.lootOpts.map(o => o.title || (o.def && o.def.name)), n: UI.lootOpts.length }));
   out.start = r1.titles;
-  if (r1.n !== 4 || !r1.titles.some(t => /Laser/.test(t))) bad.push('start draft: ' + r1.titles);
+  // (since 91870e9 the start draft is the sample's two suited weapons, S10_FIT, plus two random matrix weapons: the Laser
+  // is in that pool but not guaranteed, so when it is not dealt the test swaps it in for the last random card)
+  const fitN = await page.evaluate(() => S10_FIT.ordered.map(id => WEAPONS[id].name).filter(n => UI.lootOpts.some(o => (o.title || (o.def && o.def.name)) === n)).length);
+  if (r1.n !== 4 || fitN !== 2) bad.push('start draft: ' + r1.titles);
   const r2 = await page.evaluate(() => {
-    const i = UI.lootOpts.findIndex(o => /Laser/.test(o.title || ''));
-    UI.pickLoot(i < 0 ? 0 : i);
+    let i = UI.lootOpts.findIndex(o => /Laser/.test(o.title || ''));
+    if (i < 0) { i = UI.lootOpts.findIndex(o => !(o.def && S10_FIT.ordered.includes(o.def.id))); UI.lootOpts[i] = optNewWeapon('v_flame_beam', 0); }
+    UI.pickLoot(i);
     const w = G.weapons.find(Boolean); G.state = 'play'; G.lootQueue = [];
     const p = G.player, e = makeEnemy(ENEMIES.brute, p.x + 140, p.y, {}); e.speed = 0; e.hp = e.maxHp = 5000; G.enemies.length = 0; G.enemies.push(e);
     return { id: w && w.id, atk: w && w.def.v10atk, elem: w && w.def.elem, hp0: e.hp };
