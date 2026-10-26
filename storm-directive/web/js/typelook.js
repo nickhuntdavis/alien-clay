@@ -8,6 +8,10 @@
 // Beams are drawn per type instead of a line: Static a continuous jagged bolt with forks (redrawn every frame),
 // Acid a sagging dribbling stream, Mucus a stretched braided rope of snot, Blood an arterial spurt in pulses,
 // Parasite a twisting ghost ribbon, Fire a flamethrower plume.
+// Static grows with the weapon (user, 26 Oct): at Lv 1 it is a faint pale crackle with short, rare arcs; it only becomes full
+// lightning (glow, white-hot core, forks) near the level cap. tlZ() runs 0 (Lv 1) to 1 (Lv 9, MM.lvlCap): the firing weapon's
+// level where the effect knows it (TL_Z, set round shots, pools and the twin), else your highest-level Static weapon's;
+// Static from no weapon of yours looks full. Chain bolts (game.js bolt) in the Static colour follow it too (wrapped below).
 // Hooks: v10.js v10Tick -> tlTick, v10Draw -> tlBeam (per beam); render.js after your shots -> tlShots,
 // after drawTypeFx -> tlDraw; toys.js Twin Telepathy beam -> tlSeg.
 
@@ -18,6 +22,16 @@ const TL_SOUL = '#b06cff', TL_SOUL2 = '#e6d4ff', TL_ZAP = '#ffe94a';
 const TL_OF = {}; // a type colour -> its type (rings, swings and lashes carry only a colour)
 for (const t in TYPE_PAL) if (t !== 'phys') TL_OF[TYPE_PAL[t].toLowerCase()] = t;
 const tlS = () => G.tlook || (G.tlook = { p: [], a: [] });
+const TL_STAT = '#eaf4ff'; // (pale static, before it is lightning)
+let TL_Z = null;
+const tlZOf = w => (w && !w.isSpell && w.lvl ? clamp((w.lvl - 1) / (((typeof MM !== 'undefined' && MM.lvlCap) || 9) - 1), 0, 1) : null);
+function tlZapLv() {
+  if (G.tlzT === G.realT) return G.tlz;
+  let z = null; for (const w of G.weapons || []) if (w && !w.isSpell && (w.typeOver || w.def.elem) === 'shock') { const q = tlZOf(w); if (q != null && (z == null || q > z)) z = q; }
+  G.tlzT = G.realT; G.tlz = z == null ? 1 : z; return G.tlz;
+}
+const tlZ = () => (TL_Z != null ? TL_Z : G ? tlZapLv() : 1);
+const tlRnd = x => Math.floor(x) + (Math.random() < x % 1 ? 1 : 0);
 const tlK = () => (typeof FX !== 'undefined' ? 0.4 + 0.6 * FX.k : 1) * (QUAL.lv >= 2 ? 0.5 : 1);
 const tlEl = o => (o && o.src && o.src.elem) || null;
 const tlOn = (x, y, m) => Math.abs(x - cam.x) * S < W / 2 + m && Math.abs(y - cam.y) * S < H / 2 + m;
@@ -30,23 +44,24 @@ function tlPart(k, x, y, vx, vy, life, s, extra) {
 }
 function tlArc(x, y, x2, y2, life, w, e) {
   const T = tlS(); if (T.a.length >= TL_MAXA) return;
-  T.a.push({ x, y, x2, y2, life, max: life, w: w || 1, e, ox: e ? x2 - e.x : 0, oy: e ? y2 - e.y : 0 });
+  T.a.push({ x, y, x2, y2, life, max: life, w: w || 1, e, ox: e ? x2 - e.x : 0, oy: e ? y2 - e.y : 0, z: tlZ() });
 }
 // Static: snap up to n arcs from (x, y) to enemies within R; with none in reach, a short feeler into the water.
 function tlSnap(x, y, R, n) {
+  const z = tlZ(); R *= 0.35 + 0.65 * z; n = tlRnd(n * (0.25 + 0.75 * z));
   const got = [];
   forNear(x, y, R, e => { if (!e.dead && !e.charmed && got.length < 6) got.push(e); });
   for (let i = 0; i < n; i++) {
     if (got.length) {
       const e = got[(Math.random() * got.length) | 0], a = Math.random() * TAU;
       tlArc(x, y, e.x + Math.cos(a) * e.r * 0.6, e.y + Math.sin(a) * e.r * 0.6, rand(0.06, 0.14), 1, e);
-    } else { const a = Math.random() * TAU, L = rand(14, 34); tlArc(x, y, x + Math.cos(a) * L, y + Math.sin(a) * L, rand(0.05, 0.1), 0.7); }
+    } else { const a = Math.random() * TAU, L = rand(14, 34) * (0.5 + 0.5 * z); tlArc(x, y, x + Math.cos(a) * L, y + Math.sin(a) * L, rand(0.05, 0.1), 0.7); }
   }
 }
 
 // ---------------------------------------------------------------- the spawners (one per type)
 const TL_EMIT = {
-  shock(x, y, r, n) { tlSnap(x, y, 110 + r * 2, n > 1 ? 2 : 1); if (Math.random() < 0.6) { const a = Math.random() * TAU, v = rand(60, 160); tlPart('spark', x, y, Math.cos(a) * v, Math.sin(a) * v, rand(0.1, 0.2), 1.2); } },
+  shock(x, y, r, n) { tlSnap(x, y, 110 + r * 2, n > 1 ? 2 : 1); if (Math.random() < 0.6 * (0.3 + 0.7 * tlZ())) { const a = Math.random() * TAU, v = rand(60, 160); tlPart('spark', x, y, Math.cos(a) * v, Math.sin(a) * v, rand(0.1, 0.2), 1.2); } },
   fire(x, y, r) { tlPart('drip', x + rand(-r, r) * 0.6, y + r * 0.4, rand(-10, 10), rand(10, 40), rand(0.3, 0.5), rand(1.6, 2.8)); },
   ice(x, y, r) {
     if (Math.random() < 0.5) tlPart('goo', x + rand(-r, r) * 0.5, y + r * 0.3, rand(-6, 6), rand(4, 14), rand(0.5, 0.8), rand(1.8, 3), { ox: x, oy: y });
@@ -113,14 +128,18 @@ function tlTick(dt) {
       if (pr.tlx == null) { pr.tlx = pr.x; pr.tly = y; }
       pr.tlx += (pr.x - pr.tlx) * Math.min(1, dt * 9); pr.tly += (y - pr.tly) * Math.min(1, dt * 9);
     }
+    TL_Z = t === 'shock' ? tlZOf(pr.src && pr.src.w) : null;
     for (let i = tlRoll(TL_RATE[t] * K * (pr.mine ? 0.3 : 1), dt); i > 0; i--) tlEmit(t, pr.x, y, r, 1, pr.vx, pr.vy);
+    TL_Z = null;
   }
   // Beams (v10 beams and Getting Warmer): particles once per beam.
   if (G.v10fx) for (const f of G.v10fx) if (f.k === 'beam' && !f.tl) { f.tl = 1; if (tlOn(f.x, f.y, 400)) tlBeamFired(f); }
   // Twin Telepathy (Static): arcs jump off the beam.
   for (const w of G.weapons) {
     if (!w || w.def.kind !== 'twin' || !w.twins || w.def.elem !== 'shock') continue;
+    TL_Z = tlZOf(w);
     for (const [a, b] of twinSegs(w)) for (let i = tlRoll(4 * K, dt); i > 0; i--) { const k = Math.random(); tlSnap(lerp(a.x, b.x, k), lerp(a.y, b.y, k), 90, 1); }
+    TL_Z = null;
   }
   // Rings (bursts landing), swings and lashes in a type's colour: one flourish each.
   for (const f of G.fx) {
@@ -144,7 +163,7 @@ function tlTick(dt) {
         let e = null; forNear(z.x, z.y, z.r, q => { if (!e && !q.dead && Math.random() < 0.5) e = q; });
         if (e) tlPart('string', x, y, 0, 0, rand(0.4, 0.7), rand(1, 1.6), { e, x2: e.x, y2: e.y }); else tlEmit('ice', x, y, 4);
       } else if (t === 'arcane') tlPart('ripple', x, y, 0, 0, rand(0.5, 0.8), rand(4, 8));
-      else if (t === 'shock') tlSnap(x, y, z.r * 0.8 + 30, 1);
+      else if (t === 'shock') { TL_Z = tlZOf(z.src.w); tlSnap(x, y, z.r * 0.8 + 30, 1); TL_Z = null; }
       else tlEmit(t, x, y, 5);
     }
   }
@@ -182,14 +201,17 @@ function tlStrokePts(P, lw, c, al) {
   for (let i = 2; i < P.length; i += 2) ctx.lineTo(P[i], P[i + 1]); ctx.stroke();
 }
 // A full lightning bolt: wide glow, coloured channel, white-hot core, and forks.
-function tlBolt(x1, y1, x2, y2, w, k, forks) {
+function tlBolt(x1, y1, x2, y2, w, k, forks, z) {
   const L = Math.hypot(x2 - x1, y2 - y1); if (L < 2) return;
-  const P = [x1, y1]; tlJag(x1, y1, x2, y2, Math.min(L * 0.35, 70 * S), L > 160 * S ? 5 : 4, P);
+  if (z == null) z = tlZ();
+  if (z < 0.5) k *= 0.55 + 0.45 * Math.random(); // (low: it fizzes rather than burns)
+  const P = [x1, y1]; tlJag(x1, y1, x2, y2, Math.min(L * 0.35, 70 * S) * (0.15 + 0.85 * z * z), L > 160 * S ? 5 : 4, P);
   ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-  tlStrokePts(P, Math.max(3, w * 2.2), TL_ZAP, 0.18 * k);
-  tlStrokePts(P, Math.max(1.4, w * 0.7), TL_ZAP, 0.9 * k);
-  tlStrokePts(P, Math.max(0.8, w * 0.28), '#ffffff', k);
-  for (let f = 0; f < (forks || 0); f++) {
+  if (z > 0.2) tlStrokePts(P, Math.max(3, w * 2.2) * (0.5 + 0.5 * z), TL_ZAP, 0.18 * k * z * z);
+  tlStrokePts(P, Math.max(1, w * (0.25 + 0.45 * z)), z < 0.35 ? TL_STAT : TL_ZAP, (0.4 + 0.5 * z) * k);
+  if (z > 0.25) tlStrokePts(P, Math.max(0.8, w * 0.28 * z), '#ffffff', k * z);
+  forks = Math.round((forks || 0) * clamp((z - 0.45) / 0.4, 0, 1));
+  for (let f = 0; f < forks; f++) {
     const i = 2 + 2 * Math.floor(Math.random() * (P.length / 2 - 2)), a = Math.atan2(y2 - y1, x2 - x1) + (Math.random() < 0.5 ? -1 : 1) * rand(0.4, 1.1), FL = L * rand(0.12, 0.28);
     const F = [P[i], P[i + 1]]; tlJag(P[i], P[i + 1], P[i] + Math.cos(a) * FL, P[i + 1] + Math.sin(a) * FL, FL * 0.4, 3, F);
     tlStrokePts(F, Math.max(1, w * 0.4), TL_ZAP, 0.75 * k); tlStrokePts(F, Math.max(0.6, w * 0.15), '#ffffff', 0.8 * k);
@@ -206,8 +228,8 @@ function tlBeam(f) {
   RAW_COL = true; ctx.save();
   if (t === 'shock') { // a continuous lightning bolt in erratic shapes, never a straight line
     ctx.globalCompositeOperation = 'lighter';
-    tlBolt(x1, y1, x2, y2, w, k, 2);
-    glow(x2, y2, 16 * S, TL_ZAP, 0.6 * k); glow(x1, y1, 10 * S, TL_ZAP, 0.5 * k);
+    const z = tlZ(); tlBolt(x1, y1, x2, y2, w, k, 2, z);
+    glow(x2, y2, 16 * S * (0.5 + 0.5 * z), z < 0.35 ? TL_STAT : TL_ZAP, 0.6 * k * (0.25 + 0.75 * z)); glow(x1, y1, 10 * S * (0.5 + 0.5 * z), TL_ZAP, 0.5 * k * z);
   } else if (t === 'fire' || t === 'ice') { // Acid: a sagging stream that dribbles. Mucus: a stretched rope that braids and beads.
     const acid = t === 'fire', sag = tlSag(f) * S * (acid ? 0.6 : 1), N = 24, C = acid ? TL_GOO : TL_SNOT, C2 = acid ? TL_GOO2 : TL_SNOT2;
     const pt = (q, off, ph) => { const droop = sag * 4 * q * (1 - q), wob = Math.sin(q * 14 - tm * (acid ? 16 : 7) + ph) * w * (acid ? 0.15 : 0.35) * Math.sin(q * Math.PI);
@@ -283,8 +305,9 @@ function tlShots() {
     const x = sx(pr.x), y = sy(pr.y - (pr.h || 0)), r = Math.max(2, (pr.r || 5) * S), sp = Math.hypot(pr.vx, pr.vy) || 1, ux = pr.vx / sp, uy = pr.vy / sp, tm = G.realT;
     if (t === 'shock') { // crackle round the shot
       ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round';
-      for (let i = 0; i < 2; i++) { const a = Math.random() * TAU, R = r * rand(1.6, 2.8), P = [x, y]; tlJag(x, y, x + Math.cos(a) * R, y + Math.sin(a) * R, R * 0.6, 2, P); tlStrokePts(P, Math.max(1, S), TL_ZAP, 0.8); }
-      if (Math.random() < 0.5) glow(x, y, r * 2.2, '#ffffff', 0.5);
+      const z = tlZOf(pr.src && pr.src.w) ?? tlZ();
+      for (let i = 0; i < (z < 0.4 ? 1 : 2); i++) { const a = Math.random() * TAU, R = r * rand(1.6, 2.8) * (0.6 + 0.4 * z), P = [x, y]; tlJag(x, y, x + Math.cos(a) * R, y + Math.sin(a) * R, R * 0.6, 2, P); tlStrokePts(P, Math.max(1, S), z < 0.35 ? TL_STAT : TL_ZAP, 0.4 + 0.4 * z); }
+      if (Math.random() < 0.5 * z) glow(x, y, r * 2.2, '#ffffff', 0.5);
     } else if (t === 'fire') { // a drip hanging off it, stretching
       const st = (tm * 3 + pr.x * 0.01) % 1, dl = r * (0.6 + 1.6 * st);
       ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 0.9; ctx.fillStyle = TL_GOO;
@@ -369,12 +392,29 @@ function tlDraw() {
     if (a.e && !a.e.dead) { a.x2 = a.e.x + a.ox; a.y2 = a.e.y + a.oy; }
     if (!tlOn(a.x, a.y, 120)) continue;
     const k = Math.min(1, (a.life / a.max) * 1.6), x1 = sx(a.x), y1 = sy(a.y), x2 = sx(a.x2), y2 = sy(a.y2), L = Math.hypot(x2 - x1, y2 - y1), P = [x1, y1];
-    tlJag(x1, y1, x2, y2, Math.min(L * 0.45, 40 * S), L > 60 * S ? 4 : 3, P);
-    tlStrokePts(P, 4 * a.w * Math.max(0.7, S), TL_ZAP, 0.2 * k);
-    tlStrokePts(P, 1.5 * a.w * Math.max(0.7, S), TL_ZAP, 0.85 * k);
-    tlStrokePts(P, 0.7 * a.w * Math.max(0.7, S), '#ffffff', k);
-    if (a.e) glow(x2, y2, 7 * S, TL_ZAP, 0.6 * k);
+    const z = a.z == null ? 1 : a.z, wz = a.w * (0.5 + 0.5 * z) * Math.max(0.7, S);
+    tlJag(x1, y1, x2, y2, Math.min(L * 0.45, 40 * S) * (0.4 + 0.6 * z), L > 60 * S ? 4 : 3, P);
+    if (z > 0.2) tlStrokePts(P, 4 * wz, TL_ZAP, 0.2 * k * z);
+    tlStrokePts(P, 1.5 * wz, z < 0.35 ? TL_STAT : TL_ZAP, 0.85 * k * (0.45 + 0.55 * z));
+    if (z > 0.3) tlStrokePts(P, 0.7 * wz, '#ffffff', k * z);
+    if (a.e) glow(x2, y2, 7 * S * (0.5 + 0.5 * z), TL_ZAP, 0.6 * k * z);
   }
   ctx.lineCap = 'butt'; ctx.lineJoin = 'miter';
   ctx.globalAlpha = 1; ctx.globalCompositeOperation = op; RAW_COL = rc;
+}
+
+// Chain bolts in the Static colour (game.js bolt, drawn by render.js): flatter, fork-free, paler and briefer while the Static is weak.
+if (typeof bolt === 'function') {
+  const _bolt = bolt, zapCol = c => typeof c === 'string' && c.slice(0, 7).toLowerCase() === TYPE_PAL.shock;
+  bolt = function (x1, y1, x2, y2, color, life) {
+    const r = _bolt(x1, y1, x2, y2, color, life), f = G && G.fx && G.fx[G.fx.length - 1];
+    if (!f || f.type !== 'bolt' || !zapCol(color)) return r;
+    const z = tlZ(); if (z >= 1) return r;
+    const P = f.pts, flat = 0.25 + 0.75 * z;
+    if (P) for (let i = 2; i < P.length - 2; i += 2) { const t = i / (P.length - 2); P[i] = x1 + (x2 - x1) * t + (P[i] - (x1 + (x2 - x1) * t)) * flat; P[i + 1] = y1 + (y2 - y1) * t + (P[i + 1] - (y1 + (y2 - y1) * t)) * flat; }
+    if (z < 0.6) f.forks = null;
+    if (z < 0.35) f.color = TL_STAT;
+    if (f.life != null) { f.life *= 0.5 + 0.5 * z; if (f.max != null) f.max = f.life; }
+    return r;
+  };
 }

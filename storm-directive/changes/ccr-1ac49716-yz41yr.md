@@ -1,5 +1,13 @@
 # ccr-1ac49716-yz41yr
 
+## 2026-10-26 Static looks grow with weapon level (v10.149)
+- Systems: type looks (typelook)
+- Files: typelook.js
+- What: Static visuals start as a faint pale crackle at weapon Lv 1 (thin beam, short rare arcs, no glow or forks) and only become full forked lightning near the Lv 9 cap. The level comes from the firing weapon where known (shots, pools, the twin), else your highest-level Static weapon; Static from no weapon of yours (Feats, reactions with no Static weapon held) stays full. Chain bolts in the Static colour flatten, lose forks and fade sooner while weak.
+- Save data: none.
+- Hooks: typelook.js wraps game.js bolt (Static-coloured bolts only).
+- Risk: reaction arcs (Static colour) also look quieter while your Static weapon is low level.
+
 ## 2026-10-26 Brave Phase and Puddle Jumper Feats (v10.148)
 - Systems: Feats (v10), tests
 - Files: mobfeats.js (new), index.html, tests/mobfeatstest.js (new), tests/featstest.js, FEATS.md (F16, F17), ARCHITECTURE.md
