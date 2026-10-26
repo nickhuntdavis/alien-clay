@@ -47,7 +47,14 @@ function boss10SummonOk(boss) {
 // Membrane is half of 3000 health at wave 5) it refilled during every roll and a weak build never touched the health bar
 // (bossprobe: Membrane up 79 to 99% of the fight, 97 to 400 s). The 2 s quiet stays (its intro card says so); the refill
 // takes 10 s. Hook: wraps combat.js tickDefence (fight.js calls it by name each frame).
-const BOSS10_MEM_FILL = 10;
+const BOSS10_MEM_FILL = 10, BOSS10_MEM_FRAC = 0.3; // (refill seconds; Membrane as a share of boss health, in place of COMBAT.membraneFrac's 0.5)
+// Boss Membranes are 30% of health, not 50%: at wave 20 Mitch's was 55k points, up 87 to 95% of a 400 s fight that never ended.
+const boss10Cd0 = fightCd;
+fightCd = function (e) {
+  const had = !!e.cd, c = boss10Cd0(e);
+  if (!had && e.boss && c.def === 'membrane' && c.memMax > 0) { const k = BOSS10_MEM_FRAC / COMBAT.membraneFrac; c.memMax *= k; c.mem = Math.min(c.mem, c.memMax); }
+  return c;
+};
 const boss10Tick0 = tickDefence;
 tickDefence = function (t, dt) {
   if (t.rank !== 'boss' || t.def !== 'membrane') return boss10Tick0(t, dt);

@@ -7,7 +7,7 @@
 //    landing (game.js landLob: the face and its neighbours take the hit, the puddle settles round the face). Damage and
 //    puddle numbers are unchanged; only aim and look are new.
 //  - Drawn as a wobbling balloon with a knot (render.js), not a droplet.
-// Hooks: render.js lob drawing -> blDraw. Wraps game.js fireWeapon, updateProjectiles, landLob. Loads after cellmods2.js.
+// Hooks: render.js lob drawing -> blDraw. hooks.js fire:after; wraps game.js updateProjectiles, landLob. Loads after cellmods2.js.
 
 const BL_IDS = ['v_ice_pool', 'v_flame_pool'];
 const BL_JUMP = 40; // (a face that moves further than this in one frame has blinked or been thrown: let it go)
@@ -18,9 +18,8 @@ const blAlive = e => !!(e && !e.dead && e.hp > 0);
 SOUNDS.splat = [0.07, t => { const r = jit(0.12); vNoise(t, 0.09, 'bandpass', 900 * r, 260, 0.9, 0.07); vNoise(t + 0.02, 0.12, 'lowpass', 1800 * r, 500, 0.6, 0.04); vTone(t, 320 * r, 90, 0.06, 0.03, 'sine'); }];
 
 // Tag the lobs a pool weapon just threw with the enemy each is aimed at.
-fireWeapon = (orig => function (w, target) {
-  const n = G && G.proj ? G.proj.length : 0, r = orig(w, target);
-  if (!G || !blIs(w)) return r;
+hookOn('fire:after', 'balloon:face', (w, target, n) => {
+  if (!G || !blIs(w)) return;
   for (let i = n; i < G.proj.length; i++) {
     const pr = G.proj[i];
     if (!pr.lob || pr.bl || pr.w !== w) continue;
@@ -28,8 +27,7 @@ fireWeapon = (orig => function (w, target) {
     if (!face) forNear(pr.tx, pr.ty, 60, e => { if (blAlive(e) && (!face || Math.hypot(e.x - pr.tx, e.y - pr.ty) < Math.hypot(face.x - pr.tx, face.y - pr.ty))) face = e; });
     pr.bl = { face, ox: pr.tx, oy: pr.ty, dx: face ? pr.tx - face.x : 0, dy: face ? pr.ty - face.y : 0, seed: Math.random() * TAU };
   }
-  return r;
-})(fireWeapon);
+}, 10);
 
 // In flight, the landing spot follows the face (game.js moves the balloon between the thrower and tx, ty).
 updateProjectiles = (orig => function (dt) {

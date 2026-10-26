@@ -12,7 +12,7 @@
 //   Siphon: updateSiphon is replaced by w4SipUpdate once any card is taken (it is a copy of arsenal.js updateSiphon plus the cards).
 //   Mines: mineDrop, mineScale and detonateMine are wrapped. Twin: twinPoints is wrapped (Evil Twin, Conjoined Twins).
 //   Tesla: fires through a 'fire' hook with its own bounded chain (a copy of game.js doChain plus the cards).
-//   Also wrapped: pdefHurt (Umbilical Membrane), wupDmgMul (Conductive Personality), killEnemy and rateBonus (Last Spark),
+//   Also wrapped: pdefHurt (Umbilical Membrane), wupDmgMul (Conductive Personality), hooks.js kill:before/after and rateBonus (Last Spark),
 //   fightArc (Feedback Loop), fightPayoff (Flare Up), wupHit (Tumble Dryer), projHit/projEnd (the 'phit' and 'pend' hook kinds).
 // Simplified (see changes/ fragment): staleness of stored bullets is not modelled (the base weapon has none).
 (function () {
@@ -862,18 +862,16 @@
     return k;
   };
   // Last Spark: a Charged enemy dying makes all your weapons fire 20% faster for 2 s (does not stack)
-  const ucKill0 = killEnemy;
-  killEnemy = function (e, src) {
-    const ch = !!(e && e.chargeT > G.t && !e.egg);
-    ucKill0(e, src);
-    if (ch && G && e.dead && G.weapons) {
+  hookOn('kill:before', 'wup4:lastSpark', (e, src, c) => { c.w4ch = !!(e && e.chargeT > G.t && !e.egg); }, 30);
+  hookOn('kill:after', 'wup4:lastSpark', (e, src, c) => {
+    if (c.w4ch && G && e.dead && G.weapons) {
       const w = G.weapons.find(x => x && x.w4 && x.w4.haste);
       if (w) {
         if (!(G.w4haste > G.t)) { mark(w, 'haste'); ring(G.player.x, G.player.y, G.player.r + 14, YEL, 0.5, 4); floatText(G.player.x, G.player.y - 34, 'LAST SPARK', YEL, 12, 0.8); }
         G.w4haste = G.t + 2;
       }
     }
-  };
+  }, 10);
   const ucRate0 = rateBonus;
   rateBonus = function () { return ucRate0() * (G && G.w4haste > G.t ? 1.2 : 1); };
   // Tumble Dryer: 20% of the hits from your other weapons start a chain
