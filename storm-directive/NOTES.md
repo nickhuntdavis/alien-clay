@@ -230,6 +230,7 @@ Tone: Dungeon Crawler Carl. Dry, deadpan, nerdy, not self-aware; bodies, sex, co
 - Campaign Level 1: difficulty clock `pt` [10, 200], par (bristles) 540 s, arena quotas 30/70/90/110, Tartar Colony with `campK` 0.65. A self-steering bot clears it in about 4 to 7 minutes.
 
 ## Open threads and ideas
+- (26 Oct, ccr-1ac49716) The Runs rolls its damage type per card (runstype.js, v10.155). spfulltest fails on main (sp_aim list, Chain Letter): not this branch.
 - (26 Oct, ccr-1ac49716) Alien damage type renamed **Parasite** (user). Internal id `soul` unchanged. Older redesign docs, GIFT_LINES.md and Card_Copy_Draft_All.xlsx still say Alien: read it as Parasite.
 - (26 Oct, ccr-1ac49716) Passive Feat slot built (passivefeat.js, v10.154): Melee/Orbiting move a weapon there; Flame Cloak and Pearl Necklace. No forks on aura Feats yet; numbers untested for balance.
 - (26 Oct, ccr-1ac49716) Reverse Tooth Fairy built (rtooth.js, v10.153): Eggs + Switched at Birth to Blood + Homing. Not balance-tested.

@@ -62,7 +62,7 @@ mutCard({ id: 'sp_runs', title: 'The Runs', icon: 'TR', rarity: 1, maxRank: 3, s
 // The Runs: a hidden trail slot in the sample's primary damage type (DRAFT_INT maps the sample's type names).
 function spRunsSlot() {
   const S = G.spRuns || (G.spRuns = { w: makeSlot('s_wake', false, 1), rank: 0, type: null });
-  const t = DRAFT_INT[(G.sampleTypes && G.sampleTypes.primary) || 'force'] || 'phys';
+  const t = G.spRunsType || DRAFT_INT[(G.sampleTypes && G.sampleTypes.primary) || 'force'] || 'phys'; // (the type its card rolled: runstype.js)
   if (S.type !== t) { S.type = t; S.w.def = Object.create(WEAPONS.s_wake, { elem: { value: t, enumerable: true }, v10type: { value: t, enumerable: true }, color: { value: (V10_COL && V10_COL[t]) || WEAPONS.s_wake.color, writable: true, enumerable: true } }); S.rank = 0; }
   const r = mr('sp_runs');
   if (S.rank !== r) { S.rank = r; computeStats(S.w); const s = S.w.s; if (r >= 2) { s.dur *= 1.5; s.area *= 1.5; } if (r >= 3) s.dmg *= 1.5; if (r >= 4) s.dmg *= 4 / 3; }
