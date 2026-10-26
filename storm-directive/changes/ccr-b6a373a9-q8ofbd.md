@@ -1,3 +1,11 @@
+## 2026-10-26 Race egg fight: egg health x0.03, autorun holds range and clears bodyguards
+- Systems: race (race15), autorun steering, targeting, egg
+- Files: race15.js, game.js (autoSteer, acquire, egg buds), boss10.js (V10_DIFF.egg)
+- What: the egg's health is V10_DIFF.egg 0.03 (was 0.5: about 3.8 million at 15:00, so no build could break it before a rival's fixed chip did). Once woken, autorun holds a ring at 80% of its weapons' reach inside the healing glow (raceEggSteer), the egg pull uses the homing goal cap (4, the 1.5 cap had cut it back under the dodging), and while 2+ of the egg's bodyguards are within 260 px only 20% of target picks go to the egg (raceEggPick).
+- Save data: none
+- Hooks: game.js autoSteer -> raceEggSteer, acquire -> raceEggPick; egg buds marked e.eggBud.
+- Risk: the egg breaks much faster for human players too (the 2.5%-a-second cap still holds it for at least 40 s).
+
 ## 2026-10-26 Race: autorun pulls harder to the egg once it is breakable
 - Systems: race (race15), autorun steering
 - Files: race15.js, game.js (autoSteer egg goal weights)
