@@ -3,6 +3,19 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.163 (versionCode 442): 2026-10-26 Orbiting takes Extra Projectiles, Rapid Fire and Charged; Homing makes the ring magnetic
+- Merged: `ccr-1b7c90aa-a9892t` (fast-forward, no conflicts).
+- Systems: Delivery forms (Orbiting), modifiers.
+- Hooks: none in shared files.
+
+### Folded from ccr-1b7c90aa-a9892t: 2026-10-26 Orbiting: Extra, Rapid Fire, Charged and magnetic Homing (v10.162)
+- Systems: Delivery forms (Orbiting), modifiers
+- Files: delivforms.js, tests/delivtest.js
+- What: on an orbiting projectile or contact weapon, Extra Projectiles adds 1 / 2 / 3 bodies, Rapid Fire spins the ring 30 / 60 / 100% faster, and Charged makes bodies hit for a quarter while they glow, then each blasts (radius 40, twice a body hit) every 4 / 3.5 / 3 s. Homing no longer sends a body off to chase: each body bends towards the nearest enemy within 120 (up to 25 / 40 / 55), so the ring warps like a magnet is pulling it. Beam rings are unchanged. Link already joined the bodies.
+- Save data: none.
+- Hooks: none (modOrbit wrapper in delivforms.js now also runs for Extra, Rapid Fire and Charged: xdOrbBodies).
+- Risk: Orbiting with Charged hits softer between blasts (balance unsimulated); MOD_DEAD not regenerated (these three were already live combos). Card text for the four orbit lines written on request (v10.163).
+
 ## v10.161 (versionCode 440): 2026-10-26 Two session branches merged: weapon fusion pairs 9 to 16 and the Spoon pairing, Little Jacob, the material skin Feat, The Runs rolling its type, written copy; race egg fight fixes
 - Merged: `ccr-1ac49716-yz41yr` (clean), `ccr-b6a373a9-q8ofbd` (only the APK conflicted: rebuilt).
 - Systems: weapons (fusion, Sister Cousin), Feats, sperm passives, ui copy (ccr-1ac49716); race, autorun steering, targeting, egg, kindred rescues (ccr-b6a373a9).
