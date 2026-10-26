@@ -31,6 +31,12 @@ const { chromium } = require('playwright');
       if (!G.lootQueue.some(q => q.kind === 'slot')) bad.push('no weapon draft for the new mount');
       setWeaponLevel(A, 8, 7); run(0.1); if (B.lvl !== 8) bad.push('absorbed weapon does not level with its partner ' + B.lvl);
       wfCheck(); if (G.lootQueue.some(q => q.kind === 'wfuse')) bad.push('a fused pair is offered again');
+      // the fused name shows wherever the weapon's name does, and survives a def swap
+      if (A.def.name !== WF_TEXT.zapbub.name || A.def.desc !== WF_TEXT.zapbub.desc) bad.push('fused name not shown: ' + A.def.name);
+      recomputeAll(); if (A.def.name !== WF_TEXT.zapbub.name) bad.push('fused name lost on recompute');
+      A.def = WEAPONS.s_tesla; run(0.1); if (A.def.name !== WF_TEXT.zapbub.name) bad.push('fused name not restored after a def swap');
+      if (WEAPONS.s_tesla.name === WF_TEXT.zapbub.name) bad.push('fused name leaked onto the shared weapon');
+      if (!zpIs(A)) bad.push('renamed Unwanted Contact no longer fires its spark');
       UI.refreshHud(true); const el = $('wslots').children[1]; if (el && el.style.display !== 'none') bad.push('absorbed weapon still on the HUD');
     }
     // ---- old combos retired

@@ -19,7 +19,7 @@
 //      pinclock  Little Prick + One of These Days: needles start a 3 s countdown; at zero every Bleed stack on the
 //                enemy goes off at once (plus 50% of b's damage a needle).
 //      snotfire  Nocturnal Emission + Hot Mess: the puddles burn too (b's damage, Fire, twice a second).
-//  Names and card text are TODO_COPY.
+//  Names and card text are TODO_COPY (WF_TEXT). The fused weapon shows its fused name everywhere (wfName).
 // Hooks: none in shared files. hookOn tick 'wfTick' and proc 'wfProc'; wraps v10Loot, draftTitle, availableCombos,
 // wupForkCards, sbSlotMark (hides the absorbed weapon's HUD slot), modOk, bubblePop, peekFire,
 // detonateMine. Loads after combos10.js, fusion.js, sandbox.js, modmatrix.js and moddead.js (right after moddead.js).
@@ -35,6 +35,8 @@ const WF_LIST = [
   { id: 'snotfire', a: 'v_ice_pool', b: 'v_flame_pool' },
 ];
 const WF_BY = Object.fromEntries(WF_LIST.map(f => [f.id, f]));
+// The fused weapon's name and description (the user writes them: drop the copy in here).
+const WF_TEXT = Object.fromEntries(WF_LIST.map(f => [f.id, { name: 'TODO_COPY:wf_' + f.id + '_name', desc: 'TODO_COPY:wf_' + f.id + '_desc' }]));
 const wfSlot = sid => (G && G.weapons.find(w => w && !w.isSpell && w.sid === sid)) || null;
 const wfFree = w => w && !w.wfIn && !w.wfWith;
 const wfTierOf = w => (typeof wTier === 'function' ? wTier(w) : w.lvl);
@@ -69,7 +71,7 @@ function wfFuse(f) {
   const A = wfSlot(f.a), B = wfSlot(f.b);
   if (!wfFree(A) || !wfFree(B)) return false;
   (G.wf || (G.wf = {}))[f.id] = { a: A, b: B };
-  A.wfWith = B; B.wfIn = A;
+  A.wfWith = B; B.wfIn = A; wfName(A, f.id);
   if (B.lvl < A.lvl) setWeaponLevel(B, A.lvl, B.lvl);
   if (WF.mount) G.weapons.push(null); // (the slot it frees: a new empty mount)
   const p = G.player; ring(p.x, p.y, 160, A.def.color, 0.6, 8); cam.shake = Math.min(12, cam.shake + 5); sfx('level');
@@ -82,10 +84,19 @@ function wfOpts(req) {
   const f = WF_BY[req.id], A = f && wfSlot(f.a), B = f && wfSlot(f.b);
   if (!f || !A || !B) return [{ title: 'TODO_COPY:wf_skip', tag: 'TODO_COPY:wf_tag', icon: '', color: '#cfe7ff', desc: '', rarity: 0, apply: () => {} }];
   return [
-    { def: A.def, rarity: 4, tag: 'TODO_COPY:wf_tag', icon: A.def.icon, color: A.def.color, elem: A.def.elem, title: 'TODO_COPY:wf_' + f.id + '_name',
-      sub: `${A.def.name} + ${B.def.name}`, desc: 'TODO_COPY:wf_' + f.id + '_desc', c10: true, wfuse: f.id, apply: () => wfFuse(f) },
+    { def: A.def, rarity: 4, tag: 'TODO_COPY:wf_tag', icon: A.def.icon, color: A.def.color, elem: A.def.elem, title: WF_TEXT[f.id].name,
+      sub: `${A.def.name} + ${B.def.name}`, desc: WF_TEXT[f.id].desc, c10: true, wfuse: f.id, apply: () => wfFuse(f) },
     { rarity: 0, tag: 'TODO_COPY:wf_tag', icon: A.def.icon, color: '#9aa4b2', elem: A.def.elem, title: 'TODO_COPY:wf_skip', sub: '', desc: 'TODO_COPY:wf_skip_desc', apply: () => {} },
   ];
+}
+
+// The fused weapon wears its own name and description everywhere the game shows a weapon (hold card, Tackle Box, drafts,
+// run summary: all read w.def.name): its own copy of the def over the original, as wRecolour does for colour. Re-applied
+// whenever something else swaps the def (wfTick). Not on a weapon carrying Switched at Birth: its def swaps (sabtiers.js
+// sabFace) would read the copy as its own.
+function wfName(w, id) {
+  if (!w || !w.def || w.sab || w.def.wfFused === id) return;
+  w.def = Object.create(w.def, { name: { value: WF_TEXT[id].name, enumerable: true }, desc: { value: WF_TEXT[id].desc, enumerable: true }, wfFused: { value: id } });
 }
 
 // ---------------------------------------------------------------- the fused powers
@@ -112,7 +123,7 @@ function wfTick(dt) {
   if (!G || G.state !== 'play') return;
   if (!(G.wfAt > G.t)) { G.wfAt = G.t + 0.25; wfCheck(); }
   if (!G.wf) return;
-  for (const id in G.wf) { const F = G.wf[id]; if (F.b && F.a && F.b.lvl < F.a.lvl) setWeaponLevel(F.b, F.a.lvl, F.b.lvl); }
+  for (const id in G.wf) { const F = G.wf[id]; if (F.b && F.a && F.b.lvl < F.a.lvl) setWeaponLevel(F.b, F.a.lvl, F.b.lvl); wfName(F.a, id); }
   let F;
   if ((F = wfPair('hotcore')) && !(G.wfCoreT > G.t)) {
     G.wfCoreT = G.t + 0.3;

@@ -1,5 +1,13 @@
 # ccr-1ac49716-yz41yr
 
+## 2026-10-26 Fused weapons show their fused name (v10.152)
+- Systems: weapons (fusion), ui
+- Files: wfusion.js, tests/wfusiontest.js
+- What: a fused weapon wears its own name and description (WF_TEXT, TODO_COPY until the user writes them) everywhere the game shows a weapon's name: hold card, Tackle Box, drafts, run summary. It is a per-slot copy of the def over the original (as wRecolour does), re-applied if another system swaps the def; skipped on a weapon carrying Switched at Birth.
+- Save data: none.
+- Hooks: none.
+- Risk: code that compares w.def to WEAPONS[id] by identity misses the fused weapon (acro.js only, whose weapons are in no pair).
+
 ## 2026-10-26 Weapon fusion replaces the v10 combos (v10.151)
 - Systems: weapons (fusion, new), combos (retired under v10), draft, ui (HUD slot), tests
 - Files: wfusion.js (new), index.html, mobfeats.js (mobTick global, for hookstest), tests/wfusiontest.js (new), tests/combo10test.js, combo3test.js and v9armstest.js (set WF.on = false), ARCHITECTURE.md
