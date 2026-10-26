@@ -60,8 +60,9 @@ const MS_TEXT = { name: 'Petrified', desc: 'You turn to stone for a few seconds.
     // Enamel: shots bounce off you at the nearest enemy
     if (f10Fk(w, 'enamel')) for (const b of G.ebul) if (!b.dead && Math.hypot(b.x - p.x, b.y - p.y) < p.r + 8) { b.dead = true; const t = acquire('nearest', 400, p.x, p.y); if (t) { bolt(p.x, p.y, t.x, t.y, '#f4f1e8', 0.12); f10Hit(w, t, Math.max(8, (b.dmg || 8) * 2), 'proj'); } }
   }
-  hookOn('tick', 'msTick2', dt => skinTick(dt));
-  hookOn('hurtMul', 'msHurtMul', () => { const K = G && G.f10 && G.f10.skin; return K ? 1 - (f10Fk(K.w, 'chitin') ? MS.cutHard : MS.cut) : 1; });
+  window.msTick2 = skinTick; window.msHurtMul = () => { const K = G && G.f10 && G.f10.skin; return K ? 1 - (f10Fk(K.w, 'chitin') ? MS.cutHard : MS.cut) : 1; }; // (hook names are globals: hookstest)
+  hookOn('tick', 'msTick2', dt => msTick2(dt));
+  hookOn('hurtMul', 'msHurtMul', () => msHurtMul());
   const _speed = nfSpeed;
   nfSpeed = function () { const k = _speed(); return G && G.f10 && G.f10.skin ? Math.min(k, 0.05) : k; }; // (no swimming strokes: you roll on momentum)
   const _draw = f10Draw;

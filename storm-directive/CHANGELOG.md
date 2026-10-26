@@ -7,6 +7,7 @@ Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, 
 - Merged: `ccr-1ac49716-yz41yr` (clean), `ccr-b6a373a9-q8ofbd` (only the APK conflicted: rebuilt).
 - Systems: weapons (fusion, Sister Cousin), Feats, sperm passives, ui copy (ccr-1ac49716); race, autorun steering, targeting, egg, kindred rescues (ccr-b6a373a9).
 - Hooks: game.js autoSteer -> raceEggSteer, acquire -> raceEggPick, eggTick reads RACE15.touch, shootPattern x e.campK (ccr-b6a373a9); none in shared files from ccr-1ac49716.
+- Merge fix: matskin.js and wfusion.js hook names made globals (hookstest).
 
 ### Folded from ccr-1ac49716-yz41yr: 2026-10-26 Open copy written (v10.160)
 - Systems: ui (card copy): Feats, sperm passives, weapons (fusion), Little Jacob

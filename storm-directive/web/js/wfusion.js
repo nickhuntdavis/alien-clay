@@ -265,12 +265,14 @@ hookOn('proc', 'wfProc', (e, dmg, src) => wfProc(e, dmg, src));
 // says so (WF_SB.text).
 const WF_SB = { trap: 1.5, text: 'PAIRED: SPOON + BUBBLES' };
 const wfSpoonBub = () => { const B = wfSlot('s_bubble'); return !!(G && G.spSpoon && G.spSpoon.w && typeof mr === 'function' && mr('sp_spoon') > 0 && B && wfTierOf(B) >= WF.tier); };
-hookOn('proc', 'wfSpoonProc', (e, dmg, src) => {
+function wfSpoonProc(e, dmg, src) {
   if (!src || !G || !G.spSpoon || src.w !== G.spSpoon.w || !wfSpoonBub() || e.dead) return;
   if (typeof nfStick === 'function') nfStick(e, WF_SB.trap); else if (!e.boss) e.frozen = Math.max(e.frozen || 0, WF_SB.trap);
   e.wfBubT = G.t + WF_SB.trap; fxParts('bubble', e.x, e.y, ELEMENTS.ice.color, 6, 80, 0.4, 3);
-});
-hookOn('tick', 'wfSpoonTick', () => { if (G && G.state === 'play' && !G.wfSbOn && wfSpoonBub()) { G.wfSbOn = true; const p = G.player; floatText(p.x, p.y - 40, WF_SB.text, ELEMENTS.ice.color, 12, 1.4); } });
+}
+hookOn('proc', 'wfSpoonProc', (e, dmg, src) => wfSpoonProc(e, dmg, src));
+function wfSpoonTick() { if (G && G.state === 'play' && !G.wfSbOn && wfSpoonBub()) { G.wfSbOn = true; const p = G.player; floatText(p.x, p.y - 40, WF_SB.text, ELEMENTS.ice.color, 12, 1.4); } }
+hookOn('tick', 'wfSpoonTick', () => wfSpoonTick());
 modDraw = (orig => function () {
   orig.apply(this, arguments);
   if (!G || !G.wfSbOn) return;
