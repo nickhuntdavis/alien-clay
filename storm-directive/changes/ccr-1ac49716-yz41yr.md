@@ -1,5 +1,13 @@
 # ccr-1ac49716-yz41yr (after main's v10.154 fold)
 
+## 2026-10-26 Fusion pairs 9 to 16 (v10.158)
+- Systems: weapons (fusion), tests
+- Files: wfusion.js, tests/wfusiontest.js (7 new checks; the lardmine check pauses both weapons, it was flaky)
+- What: seven more fusions: Ewww, Gross + Unwanted Contact (zaps arc through a taped bundle), Chest Burster + Sister Cousin (risen allies spit siblings), Laser + Red Flagship (the Laser's target arcs Static to 2 neighbours), Rent Free + Panic Button (possessed enemies pulse), Maximum Gains + Enzyme Sneeze (close hits splash acid), Nervous Wreck + Panic Button (snaps end in a pulse), Red Flagship + Soulmate Signal (twins fire Red Flagship beams). Pair 13 (There Is No Spoon + Blowing Bubbles) is parked: Spoon is a sperm passive now, never a weapon. Names and card text TODO_COPY.
+- Save data: none.
+- Hooks: none.
+- Risk: weapons in two pairs (Panic Button, Red Flagship, Unwanted Contact, Sister Cousin, Blowing Bubbles) fuse with whichever partner reaches Lv 3 first.
+
 ## 2026-10-26 Little Jacob (v10.157)
 - Systems: weapons (Sister Cousin), modifier masteries, tests
 - Files: ljacob.js (new), index.html, tests/ljacobtest.js (new), MODIFIER_MATRIX.md (5.4b), ARCHITECTURE.md
