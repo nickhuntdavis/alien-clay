@@ -1,6 +1,6 @@
 'use strict';
 // Spawn Prawn - the Build panel (pause menu BUILD tab, v10): what you have, what is full and what comes next.
-//  - Arsenal: each weapon's tier, the branch it took (promise, Lv 6 card, mastery), its modifiers with ranks and
+//  - Arsenal: each weapon's tier, the branch it took (promise, Lv 6 card, mastery), its modifiers with their ranks as pips and
 //    its weapon mutations.
 //  - Feats: level of 5 and the forks taken. Genome: mutations and defences against its 4 slots.
 //  - Next: the next weapon upgrade, the next weapon slot, the egg (15:00 or Lv 60), rewards waiting.
@@ -24,9 +24,11 @@ function bpHtml() {
     if (U.l10) br.push(U.l10 + ' (mastery)');
     if (br.length) bits.push(`<span class="bp-tag" style="--cat:${C.branch.col}">${esc(br.join(' > '))}</span>`);
     const brOf = id => (typeof MSB !== 'undefined' && MSB[id] && modCount(w, id) >= 2 ? MSB[id][{ A: 0, B: 1, A1: 2, A2: 3, B1: 4, B2: 5 }[modCount(w, id) >= 4 ? msMa(w, id) : msBr(w, id)]] : ''); // (branch or mastery taken: modslice.js)
-    const mods = [...new Set(w.m10 || [])].map(id => `${esc((MODS10[id] || {}).name || id)}${modCount(w, id) > 1 ? ' ' + ['', '', 'II', 'III', 'IV'][modCount(w, id)] : ''}${brOf(id) ? ' (' + esc(brOf(id)) + ')' : ''}`);
+    // One tag per modifier: its rank as pips out of 3 (a 4th, ringed, once it is mastered), then the branch it took.
+    const pips = n => `<span class="bp-pips">${Array.from({ length: Math.max(3, n) }, (_, k) => `<i class="${k < n ? 'on' : ''}${k >= 3 ? ' ms' : ''}"></i>`).join('')}</span>`;
+    const mods = [...new Set(w.m10 || [])].map(id => `${esc((MODS10[id] || {}).name || id)} ${pips(modCount(w, id))}${brOf(id) ? ' ' + esc(brOf(id)) : ''}`);
     const slots = typeof mmSlots === 'function' ? `${mmHeld(w).size}/${mmFree() ? '∞' : mmSlots(w)}` : `${mods.length}/3`; // (group slots by weapon level: modmatrix.js)
-    if (mods.length) bits.push(`<span class="bp-tag" style="--cat:${C.modifier.col}">${mods.join(', ')} (${slots})</span>`);
+    if (mods.length) bits.push(mods.map(m => `<span class="bp-tag" style="--cat:${C.modifier.col}">${m}</span>`).join('') + `<span class="bp-tag bp-slots">${slots}</span>`);
     const wm = (w.wm10 || []).map(id => (card(id) || {}).title || id);
     if (wm.length) bits.push(`<span class="bp-tag" style="--cat:${C.mutation.col}">${esc(wm.join(', '))}</span>`);
     const nx = typeof wupNextLv === 'function' ? wupNextLv(w) : 0;

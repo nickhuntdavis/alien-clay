@@ -1,3 +1,11 @@
+## 2026-10-26 BUILD tab: modifier ranks as pips (v10.165)
+- Systems: pause (build panel)
+- Files: buildpanel.js, style.css, tests/buildbtntest.js
+- What: each weapon's modifiers on the BUILD tab are now one tag each with their rank as pips out of 3 (a 4th, ringed, once mastered) and the branch taken, then the slot count, in place of one comma list with roman numerals.
+- Save data: none
+- Hooks: none
+- Risk: none
+
 ## 2026-10-26 Sperm button: shortcut to the BUILD tab (v10.164)
 - Systems: hud, pause
 - Files: buildbtn.js (new), index.html, tests/buildbtntest.js (new)

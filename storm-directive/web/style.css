@@ -1287,6 +1287,11 @@ body #sysmsg.ws { pointer-events: auto; }
 .bp .bp-w { display: flex; gap: 10px; align-items: flex-start; }
 .bp .bp-ico { flex: none; margin-top: 2px; }
 .bp .bp-tag { display: inline-block; margin: 3px 4px 0 0; padding: 1px 6px; border-radius: 8px; border: 1px solid var(--cat); color: var(--cat); font-size: 10.5px; }
+.bp .bp-pips { display: inline-flex; gap: 3px; margin-left: 3px; vertical-align: middle; }
+.bp .bp-pips i { width: 7px; height: 7px; border-radius: 50%; border: 1px solid var(--cat); box-sizing: border-box; }
+.bp .bp-pips i.on { background: var(--cat); }
+.bp .bp-pips i.ms { box-shadow: 0 0 0 1.5px var(--color-bg-sheet, #fff), 0 0 0 2.5px var(--cat); margin-left: 2px; }
+.bp .bp-slots { border-color: var(--line); color: var(--color-text-muted); }
 .bp .bp-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .bp .bp-chip { padding: 3px 9px; border-radius: 10px; border: 1px solid var(--cat); color: var(--cat); font-size: 11px; }
 .bp .bp-chip.empty { border-style: dashed; border-color: var(--line); color: var(--color-text-muted); }
