@@ -1,6 +1,7 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
+- Version v10.146 (versionCode 425): Cramp and Sneeze keep the far close-in (over 380 px) during their beats; the Sneeze walks to within 420 px before winding up. Every boss probed (bossprobe.js); wave 20 fights run 110 to 200 s for the god bot at 345k to 437k health, no change made.
 - Version v10.145 (versionCode 424): boss-rank Membranes refill in 10 s (BOSS10_MEM_FILL, boss10.js), 2 s quiet unchanged. The Johnny's bar was not moving for weak builds.
 - Version v10.144 (versionCode 423): Queen heals from at most 6 snacks a pattern cycle (18%) across devour and both dinners; Matron rounds heal an add at most 6 ticks in its life, bed walk 240 px/s. Probe: bossprobe.js <id> w15 for the wave 15 slot.
 - Version v10.143 (versionCode 422): tier 2 boss fight length (changes fragment): Eye one saccade a slot then closes in; Twins crossfire ring 200 px, bodies keep the usual distance outside the lit lane, adds pulse on charge only, rebuilds diminish 60/36/22%. Probe tool: node tests/sim/bossprobe.js <bossId> (god-mode run to that boss, prints reach share, mean distance, adds alive, boss dps, rebuilds).

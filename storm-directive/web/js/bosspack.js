@@ -151,7 +151,7 @@ function bpSpecial(e, pat, dt, dist, ux, uy, aim, bd) {
       return true;
     case 'crampgrip':
       // A tendon reaches out (0.9 s), then reels you in for 3.8 s. Sprint while it has you and it snaps.
-      e.mvs = e.speed * 0.3;
+      if (dist < 380) e.mvs = e.speed * 0.3; // (far off, the usual fast close-in stands: a kiting player sat 450 px out and bot fights ran 140 to 160 s)
       if (e.st === 0) { e.st = 1; e.stT = 0.9; }
       if (e.st === 1) {
         e.stT -= dt;
@@ -170,14 +170,15 @@ function bpSpecial(e, pat, dt, dist, ux, uy, aim, bd) {
       }
       return true;
     case 'sneezecone':
-      e.mvs = e.speed * 0.4;
+      if (dist < 380) e.mvs = e.speed * 0.4; // (far off, the usual fast close-in stands)
+      if (e.st === 0 && dist > 420) return true; // (no wind-up from across the dish: it walks in first. Standing still out of a kiting player's reach, bot fights ran 90 to 200 s)
       if (e.st === 0) { e.st = 1; e.stT = 1.5; e.coneA = aim; floatText(e.x, e.y - e.r - 14, 'AH...', XR.white, 15, 0.7); }
       if (e.st === 1) {
         e.mvs = 0; e.stT -= dt;
         if (e.stT > 0.95) e.coneA += clamp(angDiff(aim, e.coneA), -BP.coneTrack * dt, BP.coneTrack * dt); // (it follows you, then locks on: nearly a second to get out)
         else if (!e.ahah) { e.ahah = true; floatText(e.x, e.y - e.r - 14, 'AH... AH...', XR.white, 17, 0.6); }
         if (e.stT <= 0) { bpSneeze(e, bd); e.st = 2; e.stT = 1.2; e.ahah = false; e.sniff = G.t + 1.8; }
-      } else if (e.st === 2) { e.mvs = 0; e.stT -= dt; if (e.stT <= 0) e.st = 0; }
+      } else if (e.st === 2) { e.stT -= dt; if (e.stT <= 0) e.st = 0; } // (it moves while it recovers: still through both halves, it never closed on a player 500 px out)
       return true;
     case 'stoneroll':
       // It rocks back, then rolls at you, leaving gravel behind it.
