@@ -36,7 +36,7 @@ p('');
 p('## Contents'); p('%%TOC%%'); p('');
 p('## How upgrades work');
 p('');
-p('1. **Level-ups and DNA strands** offer loot cards: new weapons, weapon levels, Feats, power-ups, modifiers, stains and (rarely) curses.');
+p('1. **Level-ups and DNA strands** offer loot cards: new weapons, Feats, power-ups, defences, small stat bonuses and (rarely) curses. **Weapons level from their own kills**: each weapon fills a thin bar under its HUD slot, and a full bar opens its next level. Lv 3, 6 and 9 are branch screens; every other level is a modifier screen with three modifier cards for that weapon, REROLL, and SKIP (+2 rerolls, no level: the bar starts again).');
 p('   Each ordinary card has a pin and a hide (✕) button at its top right. A pinned card (up to 3) turns up in your next box if it still fits; a hidden card (up to 5) never comes back this run. Tap either in the pause menu (Build tab) to undo it.');
 p('   **Weird boxes:** about one level or DNA strand box in six (after the first two minutes) breaks the rules. **Double or Nothing**: take a card, or GAMBLE (half the time two cards a rarity better, half the time nothing). **Mystery Sachet**: three sealed cards, only the border shows the rarity. **The Recycler**: hand over two weapon modifiers for one card two rarities better (Legendary at most). **Cursed Bargain**: a Mythical card with a curse attached, or refuse it. **Nothing Box**: you get nothing, and the next ordinary box is all Immaculate.');
 p('   **Upgrade All:** holding 5 or more rerolls, an UPGRADE ALL (5) button sits beside REROLL. It spends 5 rerolls and raises every card in the box one rarity (each has a 20% chance of two), up to Mythical, keeping the same upgrades. Curses, supplies and stains stay as they are.');
@@ -75,7 +75,7 @@ const W24 = vm.runInNewContext('(' + w24src.match(/const W24 = (\[[\s\S]*?\n\]);
 const W24_DESC = vm.runInNewContext('(' + w24src.match(/const W24_DESC = (\{[\s\S]*?\n\});/)[1] + ')');
 const s10src = fs.readFileSync(J + 'samples10.js', 'utf8');
 const SAMPLE_NAME = Object.fromEntries([...s10src.matchAll(/\{ id: '(\w+)', name: '([^']+)'/g)].map(m => [m[1], m[2]]));
-const TYPE_NAME = { phys: 'Force', fire: 'Acid', shock: 'Static', ice: 'Mucus', arcane: 'Blood', soul: 'Alien', flame: 'Fire' };
+const TYPE_NAME = { phys: 'Force', fire: 'Acid', shock: 'Static', ice: 'Mucus', arcane: 'Blood', soul: 'Parasite', flame: 'Fire' };
 const ATK_NAME = { proj: 'Projectile', spread: 'Spread', contact: 'Contact', burst: 'Burst', beam: 'Beam', pool: 'Pool' };
 const oldId = id => id.startsWith('s_') ? id.slice(2) : id; // (combos and pairings use the old id of a signature weapon)
 const W24NAME = Object.fromEntries(W24.map(r => [oldId(r[0]), r[1]]));
@@ -167,7 +167,7 @@ p('## Modifiers'); p('');
   const mc = { }; vm.createContext(mc);
   vm.runInContext(cut('modifiers.js', 'const MOD_ALL') + cut('modcards.js', 'const MODUP') + ';globalThis.M = { MODS10, MODUP };', mc);
   const ATK = { contact: 'Contact', proj: 'Projectile', spread: 'Spread', burst: 'Burst', beam: 'Beam', pool: 'Pool' };
-  p('Level-up cards for one weapon whose attack type fits. A weapon holds up to 3 different modifiers, and only one Delivery modifier. Taking one again ranks it up, to Rank 3. **Switched at Birth** (a Rare card, never two level-ups running) changes a random weapon to a random other damage type; it keeps its level, upgrades and modifiers.'); p('');
+  p('Dealt on a weapon\'s own modifier screens (weapon Lv 2, 4, 5, 7 and 8, and after Lv 9), for that weapon\'s attack type. A weapon holds up to 3 different modifiers, and only one Delivery modifier. Taking one again ranks it up, to Rank 3. **Switched at Birth** (a Rare card, never two level-ups running) changes a random weapon to a random other damage type; it keeps its level, upgrades and modifiers.'); p('');
   p('| Modifier | Effect | Rank 2 | Rank 3 | Fits |'); p('|---|---|---|---|---|');
   for (const [id, m] of Object.entries(mc.M.MODS10)) p(`| **${esc(m.name)}**${m.group ? ' (Delivery)' : ''} | ${esc(m.desc)} | ${esc((mc.M.MODUP[id] || [])[0])} | ${esc((mc.M.MODUP[id] || [])[1])} | ${m.atk.map(a => ATK[a]).join(', ')} |`);
   p('');
@@ -208,11 +208,11 @@ p('');
 p('**Switched at Birth** changes most weapons to any other damage type. Seven weapons have branches built on their own damage type, so each switches only to the one type its branch has a version for, and its cards change to say so:'); p('');
 p('| Weapon | Switches to | What changes |'); p('|---|---|---|');
 [['The Runs', 'Static', 'The trail is a live wire: a bolt from the trail jolts (staggers) what crosses it, waves are running sparks, and closing a loop is CIRCUIT CLOSED (the loop lights up and one bolt jolts everything inside).'],
- ['Little Prick', 'Alien', 'Voodoo pins: Bleed stacks show as pins in the enemy, a full pincushion (6) is Possessed, Sutures yanks crossers back along a ghost thread, Reef Knot stitches the knot into a Possessed ragdoll, Terminal Clause\'s spirit slams the nearest enemy, Exsanguinate becomes Voodoo Doll (Possessed enemies burst in pins, in place of the healing).'],
+ ['Little Prick', 'Parasite', 'Voodoo pins: Bleed stacks show as pins in the enemy, a full pincushion (6) is Possessed, Sutures yanks crossers back along a ghost thread, Reef Knot stitches the knot into a Possessed ragdoll, Terminal Clause\'s spirit slams the nearest enemy, Exsanguinate becomes Voodoo Doll (Possessed enemies burst in pins, in place of the healing).'],
  ['Acid Spit', 'Mucus', 'Snowball: each glob thickens a snot coat; a full coat snowballs the enemy (stuck fast for 1.5 s) and its sneeze Snares everything near. Acid Pools become snot puddles. Stripped Bare and Projectile Vomit are not offered.'],
- ['Nocturnal Emission', 'Alien', 'Ectoplasm: ghost hands rise from each puddle and grip what is in it; strands and bogeys grip too; Bogged Down pulls enemies under, held down by two hands.'],
+ ['Nocturnal Emission', 'Parasite', 'Ectoplasm: ghost hands rise from each puddle and grip what is in it; strands and bogeys grip too; Bogged Down pulls enemies under, held down by two hands.'],
  ['Hot Mess', 'Blood', 'Crime Scene: a full Burn bar is a SPIN-OUT (the enemy slips, spins across the floor, cannot attack for 1 s and takes a hit), and the Ignite cards count slips; anything that walks out leaves bloody footprints.'],
- ['Rent Free', 'Force', 'Poltergeist: every 4th hit on one enemy (or a full Alien bar from a card) picks it up and THROWS it at the nearest enemy. Nine-Tenths of the Law and Hitching a Ride are not offered.'],
+ ['Rent Free', 'Force', 'Poltergeist: every 4th hit on one enemy (or a full Parasite bar from a card) picks it up and THROWS it at the nearest enemy. Nine-Tenths of the Law and Hitching a Ride are not offered.'],
  ['Unwanted Contact', 'Fire', 'Wildfire: the chain is a flame that leaps enemy to enemy (Fire hits, so they Burn and Ignite); each one it catches is kindling, which the Charged cards read. Brainstorm becomes a wildfire to every piece of kindling.']].forEach(r => p(`| **${r[0]}** | ${r[1]} | ${r[2]} |`));
 p('');
 p('Switched to another type, Nappy Mines leaves patches of that type, and only Flare Up (which needs an Ignite) is not offered.'); p('');

@@ -8,7 +8,7 @@ Spawn Prawn is an Android autorun bullet-storm roguelite. You are a sperm cell, 
 - Android wrapper: `storm-directive/android/`. Released APK: `storm-directive/release/SpawnPrawn.apk`.
 - Player guide (generated): `storm-directive/GAME_GUIDE.md`, from `storm-directive/tests/tools/guide.js`.
 - Tests: `storm-directive/tests/` (Playwright, headless Chromium).
-- Combat redesign (v10 spec, live in the shipped build; on unless `window.V10_OFF`, which brings back v9): `redesign docs/`. Read `redesign docs/CLAUDE.md` first; `COMBAT_MATRIX.md` there is the single source of rules.
+- Combat redesign (v10 spec, the only combat build since v10.125 removed the v9 fallback): `redesign docs/`. Read `redesign docs/CLAUDE.md` first; `COMBAT_MATRIX.md` there is the single source of rules.
 - Visual style guide: `storm-directive/STYLE.md`. Read it before redesigning anything drawn in the world.
 - Voice guide: `storm-directive/voice_and_tone.md`. The user writes all player-facing text (see Copy below); use the guide to write good briefs.
 - System map: `storm-directive/ARCHITECTURE.md`. Change log: `storm-directive/changes/<branch>.md` per session, folded into `storm-directive/CHANGELOG.md` on merge into `main`.
@@ -122,11 +122,11 @@ After resolving: run the full suite (`./run.sh`, a merge counts as a big batch),
 
 ## Architecture (the hook-file pattern)
 - Each feature lives in its own file with small hook calls into `game.js`, `render.js`, `ui.js` and `bosses.js`. Each file's header comment lists its hooks. Follow the pattern: add a file, add it to `index.html` in the right order, then add one-line hooks.
-- For kills, hits, damage multipliers, being hurt, firing and per-frame ticks, don't edit `game.js`: register from your own file with `hookOn('kill', 'myKill', (e, src) => myKill(e, src))` (events and arguments: header of `hooks.js`).
+- For kills, hits, damage multipliers, being hurt, firing and per-frame ticks, don't edit `game.js`: register from your own file with `hookOn('kill', 'myfile:what', (e, src) => myKill(e, src))` (events and arguments: header of `hooks.js`). Don't wrap `killEnemy`, `damageEnemy`, `hurtPlayer` or `fireWeapon`: use their `:before` / `:after` events.
 - Script order matters (globals). `data.js` and `game.js` come first. Later files include … `chem`, `spoils`, `campaign`, `statusintro`, `tutorial`, `levels`, `glossary`, `evolve`, `stamina` …, `splash`, `finale`, `juice`, `audio`, `daily`, `portraits`, `lab`, `ui`.
 - Globals:
   - `G` is the run state; `null` on the title screen.
-  - `META` is persistent: `localStorage sd_meta10` (`sd_meta` under `V10_OFF`; `META_KEY` in meta.js). `SET` is settings: `sd_settings`, defined in `settings.js` `SETTINGS_DEF` with Play/View/Sound/Data tabs.
+  - `META` is persistent: `localStorage sd_meta10` (`META_KEY` in meta.js). `SET` is settings: `sd_settings`, defined in `settings.js` `SETTINGS_DEF` with Play/View/Sound/Data tabs.
   - `UI` is the DOM UI (`ui.js`).
   - `ctx`, `W`, `H` and `S` (world→screen scale), `cam`, and `PAL` (colours).
   - `col()` greyscales colours unless `RAW_COL` is true. `SET.view`: Arcade view (`viewArcade()`, the default under v10) is full colour with draining rings; Lab view (the v9 default, a Settings option again from v10.32) has no colour at all on the slide (`labGrey` in typefx.js, after the world is drawn) and no status rings. Damage-type looks live in `typefx.js` (soft, organic: see STYLE.md). Stains and research grants are retired (v9.11; `grants.js` is mostly inert). Campaign levels draw with `RAW_COL` on, in pink.
@@ -137,7 +137,7 @@ After resolving: run the full suite (`./run.sh`, a merge counts as a big batch),
   - `s006` Endless.
   - `s007` campaign Level 1 (`levels.js`); `s008` Level 2 is a locked placeholder.
   - `s000` Lab Bench debug (tap the samples title 5 times).
-- Damage types (internal id → name, status): `phys`=Force (untyped base damage, no status or reactions), `fire`=Acid (Melting), `ice`=Mucus (Snotty), `shock`=Static (Shocked), `poison`=Cooties (Sick), `oxi`=Oil (Lubricated), `salt`=Water (Soaking wet), `arcane`=Blood (Bleeding), `soul`=Alien (Cursed; bosses Spooked). Statuses and the 28 pair reactions live in `chem.js`; names in `data.js` `REACTIONS`; the pair table is `RX_PAIR` in `inspect.js`.
+- Damage types (internal id → name, status): `phys`=Force (untyped base damage, no status or reactions), `fire`=Acid (Melting), `ice`=Mucus (Snotty), `shock`=Static (Shocked), `poison`=Cooties (Sick), `oxi`=Oil (Lubricated), `salt`=Water (Soaking wet), `arcane`=Blood (Bleeding), `soul`=Parasite (Cursed; bosses Spooked). Statuses and the 28 pair reactions live in `chem.js`; names in `data.js` `REACTIONS`; the pair table is `RX_PAIR` in `inspect.js`.
   - In player-facing text say "damage type" and "unstable reaction". Never say "element" or "elemental".
   - Internal names stay as they are (`ELEMENTS`, `elem`, the mod id `elemental`).
 - Spells are called "Feats" in all player-facing text, and you "perform" a Feat (never "cast"). Internals stay `G.spells`, `SPELLS`, `isSpell`.

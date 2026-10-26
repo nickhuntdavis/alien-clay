@@ -9,7 +9,7 @@
 //  - a collision hit is 40% of the weapon's hit size; every chain or repeat has a fixed depth; every list is capped.
 // Peekaboo and Eggs are toy weapons (toys.js): fireWeapon sends them to toyFire before the 'fire' hook is reached, so this
 // file wraps the toy functions it needs (peekSpot, toySteer, toyAim, toothFire, toothTaken, toothLure). Also wrapped:
-// hurtPlayer (Peekaboo B shield, Eggs B no-attack and Egg on Your Face), killEnemy (Chest Burster deaths), sigwTick (its
+// hooks.js hurt:before (Peekaboo B shield, Eggs B no-attack and Egg on Your Face), kill:before/after (Chest Burster deaths), sigwTick (its
 // undead are managed here once a card is taken), wupDmgMul (Sneak Attack) and v10Draw (outlines, glows, worms). No shared
 // file is edited.
 // Simplifications are noted at each card (search "simplified").
@@ -66,7 +66,7 @@
   const SET = flag => w => { const st = w6S(w); st[flag] = 1; INST[w24Key(w)](w); };
   const PRO = k => w => { const st = w6S(w); st.p = k; INST[w24Key(w)](w); };
 
-  // ================================================================ Peekaboo (Alien, Burst, Fear)
+  // ================================================================ Peekaboo (Parasite, Burst, Fear)
   function pkInstall(w) {
     const st = w6S(w); if (st.inst) return; st.inst = 1;
     w6On(w, 'stats', (w, s) => {
@@ -85,7 +85,7 @@
       if (src.wname !== 'BOO!') return;
       bump(w, 'boo');
       if (t.p === 'C' && Math.hypot(e.x - G.player.x, e.y - G.player.y) < 150) e.w6boo = G.t; // Boo!: Fear lasts 3 s (applied in the tick: the Fear lands just after the hit)
-      if (t.hyst && !e.boss) { // Mass Hysteria: the BOO fills the Alien bar of up to 5 enemies
+      if (t.hyst && !e.boss) { // Mass Hysteria: the BOO fills the Parasite bar of up to 5 enemies
         if (t.hystK !== G.peek) { t.hystK = G.peek; t.hystN = 0; }
         if ((t.hystN || 0) < 5) { t.hystN++; bar6(e, 'soul', 1.05, w); bump(w, 'hyst'); }
       }
@@ -200,7 +200,7 @@
 
   wupReg('s_peekaboo', {
     A: { name: 'Peek-a-Boom', tag: 'Punish the bait', costs: 'the BOO itself is 30% weaker.', shows: 'a faint sperm-shaped outline that pops when crowded.', modes: 'KITE leaves the bait far behind.',
-      lv3: { desc: 'Your decoy explodes in an Alien burst when 3 enemies crowd it, or when you reappear. The BOO itself is 30% weaker.', apply: PRO('A') },
+      lv3: { desc: 'Your decoy explodes in a Parasite burst when 3 enemies crowd it, or when you reappear. The BOO itself is 30% weaker.', apply: PRO('A') },
       lv6: [CARD('Standing Room Only', 'The decoy\'s burst grows with every enemy that reached it.', SET('grow')),
         CARD('Long Goodbye', 'The decoy stays for a few seconds after you reappear, then goes off a second time.', SET('second'))],
       wild: CARD('Rattle', 'While you are hidden, a baby rattle is flung far away and enemies swarm it instead of your empty spot.', SET('rattle')) },
@@ -216,10 +216,10 @@
       wild: CARD('Cuckoo', 'When you reappear, you swap places with the nearest enemy.', SET('cuckoo')) },
     lv10: [
       { name: 'Object Permanence', best: 'BC', desc: 'You vanish twice as often, and the BOO reaches the whole screen.', apply: SET('perm') },
-      { name: 'Mass Hysteria', best: 'C', desc: 'The BOO also fills the Alien bar of up to 5 enemies, leaving them Possessed.', apply: SET('hyst') },
+      { name: 'Mass Hysteria', best: 'C', desc: 'The BOO also fills the Parasite bar of up to 5 enemies, leaving them Possessed.', apply: SET('hyst') },
       { name: 'Now You See Me', best: 'AB', desc: 'You are hidden most of the time, and every reappearance is a BOO.', apply: SET('nysm') }] });
 
-  // ================================================================ Eggs (Alien, Burst, lures)
+  // ================================================================ Eggs (Parasite, Burst, lures)
   const egCap = w => { const st = w6S(w); return st.clutch ? 12 : st.big ? 6 : 3; };
   const egOwn = w => { let n = 0; for (const q of TOYS().teeth) if (q.w === w && !q.dead) n++; return n; };
   function egSmiteMul(w, g) { // the smite's size relative to base (Costs, and C's charge)
@@ -369,7 +369,7 @@
       { name: 'Clutch', best: 'AB', desc: 'Two lure eggs a drop, they last longer, and up to 12 lie scattered all round you.', apply: SET('clutch') },
       { name: 'Possession Fee', best: 'B', desc: 'Every smite Possesses the victim at once (bosses take triple damage instead).', apply: SET('fee') }] });
 
-  // ================================================================ Chest Burster (Alien, Projectile)
+  // ================================================================ Chest Burster (Parasite, Projectile)
   const cbCap = w => { const st = w6S(w); return st.zombie ? 12 : st.p === 'A' ? 3 : 4; };
   function cbInstall(w) {
     const st = w6S(w); if (st.inst) return; st.inst = 1; st.cb = 1; st.und = []; st.worms = null;
@@ -403,13 +403,13 @@
       }
       try { sw(dt); } finally { for (const t of hold) G.turrets.push(t); }
     };
-    const ke = killEnemy;
-    killEnemy = function (e, src) {
-      const pw = e && !e.dead && e.parasiteT > 0 && e.parasiteW, wasInf = !!(pw && pw.w6 && pw.w6.cb && held(pw));
-      const r = ke(e, src);
-      if (wasInf && !e.w6died) { e.w6died = 1; safe(() => cbDied(pw, e)); }
-      return r;
-    };
+    hookOn('kill:before', 'wup6:infected', (e, src, c) => {
+      const pw = e && !e.dead && e.parasiteT > 0 && e.parasiteW;
+      c.w6pw = pw && pw.w6 && pw.w6.cb && held(pw) ? pw : null;
+    }, 20);
+    hookOn('kill:after', 'wup6:infected', (e, src, c) => {
+      if (c.w6pw && !e.w6died) { e.w6died = 1; safe(() => cbDied(c.w6pw, e)); }
+    }, 20);
   }
   cbPatch();
   const waveId = () => (G.wave ? G.wave.n : Math.floor(G.t / 60));
@@ -530,8 +530,8 @@
         CARD('Open Casket', 'Any enemy that dies infected rises, whoever killed it, and passes the infection to two neighbours.', SET('casket'))],
       wild: CARD('Hookworm', 'Undead latch on to an enemy and ride it, biting, until it dies.', SET('hook')) },
     C: { name: 'Dead Useful', tag: 'An army of ammunition', costs: 'undead deal 50% less.', shows: 'undead shambling into crowds and popping.', modes: 'HUNT points them at a big target.',
-      lv3: { desc: 'Undead shamble into the crowd and go off in an Alien burst when they expire. Undead hit half as hard.', apply: PRO('C') },
-      lv6: [CARD('Soul Searching', 'The undead\'s burst adds Alien build-up to everything it hits.', SET('soulbar')),
+      lv3: { desc: 'Undead shamble into the crowd and go off in a Parasite burst when they expire. Undead hit half as hard.', apply: PRO('C') },
+      lv6: [CARD('Soul Searching', 'The undead\'s burst adds Parasite build-up to everything it hits.', SET('soulbar')),
         CARD('Remote Detonation', 'Every few seconds all undead rush the densest cluster and burst on arrival.', SET('rush'))],
       wild: CARD('Gut Feeling', 'Infected enemies flash red just before they attack.', SET('gut')) },
     lv10: [
@@ -709,23 +709,22 @@
       { name: 'Scorched Route', best: 'C', desc: 'The trail stays at full heat for much longer.', apply: SET('scorch') }] });
 
   // ================================================================ shared wrappers
-  const hp = hurtPlayer;
-  hurtPlayer = function (dmg, from, ent, kind) {
+  hookOn('hurt:before', 'wup6:passThrough', (dmg, from, ent, kind) => {
     if (G && G.weapons) {
       for (const w of G.weapons) {
         const st = w && w.w6; if (!st || !st.inst) continue;
         const k = w24Key(w);
         if (k === 's_peekaboo' && st.p === 'B' && kind === 'bullets' && peekHidden()) { // shots pass through your old position
-          say('pk-pass2', G.player.x, G.player.y - 26, 'PASSES THROUGH', w.def.color, 11, 0.5); bump(w, 'passed'); return;
+          say('pk-pass2', G.player.x, G.player.y - 26, 'PASSES THROUGH', w.def.color, 11, 0.5); bump(w, 'passed'); return null;
         }
         if (k === 's_toothfairy') {
-          if (st.p === 'B' && ent && ent.w6lure > G.t && kind === 'contact') { bump(w, 'spared'); say('eg-spare', ent.x, ent.y - 20, 'BUSY', w.def.color, 11, 0.5); return; }
+          if (st.p === 'B' && ent && ent.w6lure > G.t && kind === 'contact') { bump(w, 'spared'); say('eg-spare', ent.x, ent.y - 20, 'BUSY', w.def.color, 11, 0.5); return null; }
           if (st.face && ent && live(ent) && !(st.faceT > G.t)) { st.faceT = G.t + 0.4; if (egPlace(w, ent.x, ent.y, {})) { bump(w, 'face'); floatText(ent.x, ent.y - ent.r - 12, 'EGG ON YOUR FACE', w.def.color, 12, 0.8); } }
         }
       }
     }
-    return hp(dmg, from, ent, kind);
-  };
+    return dmg;
+  }, 30);
   const dm = wupDmgMul;
   wupDmgMul = function (e, src) { // Sneak Attack: your other weapons hit 30% harder while Peekaboo has you hidden
     let k = dm(e, src);

@@ -58,7 +58,7 @@
   const FIT_KEEP_TYPE = [];
   // Weapons that may switch only to these types (their branch has a version for each).
   const FIT_SAB_TYPES = { s_wake: ['shock'], v_arcane_proj: ['soul'], v_fire_proj: ['ice'], v_ice_pool: ['soul'], v_flame_pool: ['arcane'], v_soul_proj: ['phys'], s_tesla: ['flame'] };
-  // (The Runs: Static zaps, wup6.js; Little Prick: Alien voodoo pins, Acid Spit: Mucus Snowball, Nocturnal Emission: Alien
+  // (The Runs: Static zaps, wup6.js; Little Prick: Parasite voodoo pins, Acid Spit: Mucus Snowball, Nocturnal Emission: Parasite
   // Ectoplasm, wup2.js; Hot Mess: Blood Crime Scene, Rent Free: Force Poltergeist, wup3.js; Unwanted Contact: Fire Wildfire, wup4.js)
   // Card text for those versions: weapon -> type -> card title -> description.
   const FIT_TEXT = { s_wake: { shock: {

@@ -5,7 +5,7 @@
 //   chargeSnap(x, y, r, elem)             WORLD units; the release: a ring and flair at full (drawn by this file).
 //   Force a tightening ring; Acid pink drips swelling at the rim; Mucus green strands pulled to the middle; Static
 //   jittering arcs; Cooties a pulsing rash of dots; Oil a travelling gleam; Water ripples running inwards; Blood a
-//   heartbeat and spurting drops; Alien wisps spiralling in; Fire (flame) tongues rising.
+//   heartbeat and spurting drops; Parasite wisps spiralling in; Fire (flame) tongues rising.
 // No allocation per frame: motes come from sin/cos of time and an index, the snaps live in a fixed pool.
 // Hooks: laserbeam.js lzChargeDraw, newfeats.js nfDrawCharge, render.js drawEnemy (charger wind-up), bosstells10.js
 // (charge lane), newfoes.js (Matchstick, Static Sock), foes3.js (sneeze) each call drawChargeFx; modDraw is wrapped
@@ -90,7 +90,7 @@ function drawChargeFx(x, y, r, k, elem, seed) {
       for (let i = 0; i < n; i++) { const ph = (t * 1.1 + i * 0.29) % 1, a = i * 2.399, d = r * (2.2 - 1.5 * ph); ctx.beginPath(); ctx.arc(x + Math.cos(a) * d, y + Math.sin(a) * d, (1 + 1.3 * k) * Math.max(0.8, r / 12) * (0.5 + ph * 0.5), 0, TAU); ctx.fill(); }
       break;
     }
-    case 'soul': { // Alien: wisps spiralling in
+    case 'soul': { // Parasite: wisps spiralling in
       const n = cfxN(3, 6, k);
       for (let i = 0; i < n; i++) {
         const ph = (t * 0.8 + i / n) % 1, a = i / n * TAU + ph * 4, d = r * (2.4 - 1.6 * ph);

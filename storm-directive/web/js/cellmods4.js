@@ -12,7 +12,7 @@
 // Nappy Mines). The Range wave and the Extra Projectiles lake are puddles laid in a line and one big puddle (zones are round).
 // Card text: TODO_COPY:cell_bl_<modifier> (one per cell, shared by both pools).
 // Hooks: none in shared files. Adds XC_W / XC_ALT / MM_SAB entries; fills XC_FIRE / XC_STATS / XC_TICK / XC_RUN / XC_LIFE;
-// wraps modOk, landLob, wupDmgMul, wupHit, wupKill, rxFired, hurtPlayer, modDraw. Loads after balloon.js.
+// wraps modOk, landLob, wupDmgMul, wupHit, wupKill, rxFired, modDraw; hooks.js hurt (Juggling). Loads after balloon.js.
 
 const BL_CELLS = ['range', 'upclose', 'rapid', 'charged', 'catalyst', 'kinship', 'knock', 'pull', 'sticky', 'piercing', 'explode', 'homing',
   'ricochet', 'focus', 'connecting', 'turncoat', 'melee', 'ranged', 'mines', 'dfa', 'primer', 'nth', 'extra', 'orbiting', 'area'];
@@ -450,14 +450,12 @@ rxFired = (orig => function (id, e) { // Evaporating mastery: a reaction in a pu
   if (!G || !e) return;
   for (const z of G.zones) if (z.blW && z.life > 0 && z.life < 1 && !z.blRefill && xcR(z.blW, 'catalyst') >= 4 && blIn(z, e)) { z.blRefill = 1; z.life = z.max; z.blBorn = G.t; z.r = z.blR0; ring(z.x, z.y, z.r, z.color, 0.3, 4); }
 })(rxFired);
-hurtPlayer = (orig => function (dmg, from, ent, kind) { // Juggling mastery: when you are hit, every juggled balloon bursts round you
-  const hp = G && G.player ? G.player.hp : 0, r = orig(dmg, from, ent, kind);
-  if (G && G.player && G.player.hp < hp) for (const w of G.weapons) {
+hookOn('hurt', 'cellmods4:juggling', () => { // Juggling mastery: when you are hit, every juggled balloon bursts round you
+  for (const w of G.weapons) {
     if (!w || !xcIs(w, 'bl') || xcR(w, 'orbiting') < 4 || !w.blOrb) continue;
     for (const sl of w.blOrb.slots) if (!(sl.ready > G.t) && sl.x != null) { sl.ready = G.t + 2; blPop(w, xcFoe(sl.x, sl.y, 60), sl.x, sl.y); }
   }
-  return r;
-})(hurtPlayer);
+});
 
 // ---------------------------------------------------------------- drawing (world space)
 modDraw = (orig => function () {

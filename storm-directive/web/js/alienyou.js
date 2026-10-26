@@ -5,7 +5,7 @@
 //  - idle: slow pulse, tentacles hang close.            - curious: slow, nothing near: the outer tentacles reach forward.
 //  - alert: an enemy within 300: tentacles fan, core up. - agitated: an enemy within 130: fast pulse, writhing, core flares.
 //  - hurt: just hit: the core gutters, the rim flushes, motes shed off the bell.
-// The core and tentacle tips take the colour of Adaptive Biology's current type (G.s10.shiftI: Fire, Alien, Static).
+// The core and tentacle tips take the colour of Adaptive Biology's current type (G.s10.shiftI: Fire, Parasite, Static).
 // Tentacles are short chains in world space (dragged through the fluid, so turns sweep them round), kept on the body
 // (b.ay). Your hitbox and swim physics are unchanged.
 // Hooks: none of its own: samplelooks.js sampleLook calls alienYou (for you and the pause-menu portrait) and
@@ -121,7 +121,7 @@ function alienDraw(x, y, face, tag, alpha, scale, body, now, core, mood) {
   gr.addColorStop(0, `rgba(${AY.dark},0.55)`); gr.addColorStop(0.55, `rgba(${AY.bell},0.5)`); gr.addColorStop(1, `rgba(${AY.rim},0.85)`);
   ctx.globalAlpha = alpha * flick; ctx.fillStyle = gr; ctx.fill();
   ctx.strokeStyle = hurt || tag === '#ff4d6d' ? '#ff8fb0' : `rgb(${AY.rim})`; ctx.lineWidth = 0.9 * k; ctx.stroke();
-  // Veins over the dome, and Alien sparkle drifting inside it.
+  // Veins over the dome, and Parasite sparkle drifting inside it.
   ctx.strokeStyle = `rgba(${AY.rim},0.35)`; ctx.lineWidth = 0.6 * k; ctx.beginPath();
   for (const s of [-0.62, -0.25, 0.25, 0.62]) { ctx.moveTo(rx * 0.92, s * ry * 0.3); ctx.quadraticCurveTo(rx * 0.3, s * ry * 1.25, bx + 0.5 * k, s * ry * 0.95); }
   ctx.stroke();

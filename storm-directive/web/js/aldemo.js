@@ -1,6 +1,6 @@
 'use strict';
-// Spawn Prawn - previews and branch scenes for the Alien weapons, on the sidemo.js engine with the bldemo.js, fbdemo.js
-// and asdemo.js (xs* statuses) helpers. Alien hits fill the Alien bar; a full bar Possesses a cell, and it fights its mates.
+// Spawn Prawn - previews and branch scenes for the Parasite weapons, on the sidemo.js engine with the bldemo.js, fbdemo.js
+// and asdemo.js (xs* statuses) helpers. Parasite hits fill the Parasite bar; a full bar Possesses a cell, and it fights its mates.
 //  - Rent Free (v_soul_proj): a slow pale ghost (22, 240 speed) at the nearest cell in reach (440), 8 a magazine.
 //  - Peekaboo (s_peekaboo): every 5.5 s you vanish for 1.8 s; cells swarm the empty spot (shooters hit each other), then
 //    BOO: everything near takes 20 and is Feared for 2 s.

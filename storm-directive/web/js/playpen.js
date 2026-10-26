@@ -89,7 +89,7 @@ Object.assign(WEAPONS, {
     desc: 'First prize at the fair. Second prize was not catching it.',
     base: { dmg: 40, cd: 0.25, mag: 1, reload: 0, count: 1, range: 260, speed: 460 },
     lv: { 3: { dmg: 0.25 }, 6: { count: 1 }, 9: { dmg: 0.35 } }, sig: { 5: ['plitter', 'pgreasy'], 10: ['pfly', 'phogwild'] } },
-  // ---- Alien
+  // ---- Parasite
   nightlight: { name: 'Night Light', stars: [2, 3, 2, 4], play: 'You plug in night lights as you swim. Each one glows for a while and zaps anything that creeps too close.', icon: 'NL', elem: 'soul', kind: 'critter', critter: 'lamp', dir: 'nearest', noTarget: 1, role: 'Plug-ins', armoury: 1, pen: 1,
     desc: 'Keeps the monsters away. You are the monster.',
     base: { dmg: 18, cd: 0.6, mag: 1, reload: 0, count: 3, range: 120, dur: 9 },

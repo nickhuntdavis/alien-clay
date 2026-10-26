@@ -367,6 +367,28 @@ The best 15 of the 48 original Feats (`SPELLS` in `data.js`, forks in `spellfork
 - **Field Guide note:** "Removes no earwax. This has been tested."
 - **Start stats:** 10 damage per tick, 7 s cooldown.
 
+### F16. Brave Phase (`brave_phase`, user, 26 Oct; built in `mobfeats.js`)
+- **Is:** Force, Contact. You go see-through and race forward at 2.6x speed for 0.6 s.
+- **Signature:** nothing can hurt you while it lasts, you swim straight through bodies, and each enemy you pass through takes one heavy hit (once each). Autorun aims it down the line with the most enemies; manual steering bends it. Unlike Capacitation it steers and you can't be hit.
+- **Limits:** walls stop it. Contact, so Thorns answers each hit (you are untouchable meanwhile).
+- **Lv 3 fork:** exit burst where it ends (radius 90, 60%), or after-images that hit what touches them for 1 s (40%). **Lv 5:** lasts 50% longer, or a 30% shorter cooldown.
+- **Start stats:** 34 damage, 9 s cooldown, 20 stamina. Card text: `TODO_COPY:bp_*`.
+
+### F17. Puddle Jumper (`puddle_jumper`, user, 26 Oct; built in `mobfeats.js`)
+- **Is:** Mucus, Burst. A tap teleport (range 300).
+- **Signature:** with a close-range weapon (the Melee modifier, or a Contact weapon) you land behind the biggest enemy in reach and backstab it (150%); otherwise you land in the safest spot in reach (THIS WAY's scoring). You leave with a Mucus splash (radius 80, 40%) and a Mucus puddle where you were.
+- **Limits:** never lands in a wall or jumps across one (the path is sampled). Bosses are never the backstab target.
+- **Lv 3 fork:** two jumps per cooldown (the first leaves a 1.2 s wait), or a splash on landing that Snares for 1 s. **Lv 5:** 50% further, or a 30% shorter cooldown.
+- **Start stats:** 30 damage, 8 s cooldown, 14 stamina. Card text: `TODO_COPY:pj_*`.
+
+### The Passive Feat slot and aura Feats (user, 26 Oct; built in `passivefeat.js`)
+- **The slot:** one extra key on the Feat row. It holds one aura: an aura Feat, or a weapon that took Melee or Orbiting.
+- **Melee / Orbiting:** taking either moves the weapon into the slot (it keeps firing as its Melee or Orbiting form and keeps its levels and the modifiers that still work there). Its weapon mount opens with a weapon draft. Modifiers that do nothing under that Delivery (the audit table, `moddead.js`) come off; the card's hold view says so first. Only dealt while the slot is free.
+- **Flame Cloak (Fire):** burns everything within 70 of you four times a second (5 damage at level 1).
+- **Pearl Necklace (Mucus):** 5 pearls circle you (radius 56); each pops on the first enemy it touches (9 damage, builds Snare) and grows back after 1.5 s. From level 4 pearls also pop on enemy shots, destroying them.
+- **Levels 1 to 5:** +35% damage a level; levels 3 and 5 widen the aura by 15% (and add a pearl). No forks yet. No stamina.
+- Card text: `TODO_COPY:pf_*`.
+
 ## 5. Suggested starting pool
 
 About 15 universal Feats, then more through unlocks. Every damage type has at least one, so the sample lean (`UPGRADES.md` 7) always has typed Feats to offer.

@@ -1,4 +1,4 @@
-// Pass 3 type mechanics: Oil slicks, Water splash, Blood clot and pools, Alien ghosts and pass-through, Mucus stuck shots (chem.js).
+// Pass 3 type mechanics: Oil slicks, Water splash, Blood clot and pools, Parasite ghosts and pass-through, Mucus stuck shots (chem.js).
 const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch(); const page = await b.newPage();

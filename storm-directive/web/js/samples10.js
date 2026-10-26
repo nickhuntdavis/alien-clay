@@ -38,9 +38,9 @@ const SAMPLES10 = [
     sci: 'Sample {id} was discovered outside the laboratory. The door was locked. Eleven minutes of footage are missing.', unlock: { txt: 'Survive one of the slide\'s rare big hazards.' } },
   { id: 'prawn', name: 'Prawn Again', origin: 'Impossible', types: ['soul', 'blood'], passive: 'Collateral Memory',
     pdesc: 'Enemies it Possesses make their old friends Bleed hard.', line: 'There you are. You were here before. Keep going. The ending is different this time.',
-    sci: 'Sample {id} was not introduced to the slide. The count is correct. No amendment is required.', unlock: { txt: 'Land a boss\'s killing blow with Alien damage.', secret: true } },
+    sci: 'Sample {id} was not introduced to the slide. The count is correct. No amendment is required.', unlock: { txt: 'Land a boss\'s killing blow with Parasite damage.', secret: true } },
   { id: 'alien', name: 'Not of This World', origin: 'Extraterrestrial', types: ['fire', 'soul', 'static'], passive: 'Adaptive Biology',
-    pdesc: 'Its weapons shift between Fire, Alien and Static every 12 seconds, and hit 30% harder for 3 seconds after each shift.', line: 'The egg is there. The egg has always been there. We are late to our appointment. Proceed with the arriving.',
+    pdesc: 'Its weapons shift between Fire, Parasite and Static every 12 seconds, and hit 30% harder for 3 seconds after each shift.', line: 'The egg is there. The egg has always been there. We are late to our appointment. Proceed with the arriving.',
     sci: 'Sample {id} has responded to the target. The target has not yet been introduced.', unlock: { txt: 'Beat the campaign\'s furthest level.' }, shift: ['flame', 'soul', 'shock'], shield: true },
 ];
 for (const s of SAMPLES10) s.weapons = w24Starters(s.id); // (the sample's three starters: weapons24.js)

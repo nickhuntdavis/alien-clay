@@ -7,7 +7,7 @@ const { chromium } = require('playwright');
   const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 400, height: 860 } });
   const errors = []; page.on('pageerror', e => errors.push(e.message + ' ' + (e.stack || '').split('\n')[1]));
   await page.goto('file://' + require('path').resolve(__dirname, '../web/index.html'));
-  await page.evaluate(() => { window.TUT_OFF = 1; splashEnd(), (typeof matrixRestore === "function" && matrixRestore()); }); await page.waitForTimeout(300);
+  await page.evaluate(() => { window.TUT_OFF = 1; WF.on = false; splashEnd(), (typeof matrixRestore === "function" && matrixRestore()); }); await page.waitForTimeout(300);
   const r = await page.evaluate(() => {
     const bad = [], out = { dmg: {} };
     const LIVE = ['phys', 'fire', 'shock', 'ice', 'arcane', 'soul', 'flame'];
@@ -40,15 +40,16 @@ const { chromium } = require('playwright');
     G.weapons = [makeSlot('s_blaster', false, 5), makeSlot('s_seeker', false, 5)]; recomputeAll();
     if (!availableCombos().some(c => c.id === 'bigsib')) bad.push('bigsib not available');
     else { comboFuse(COMBO_BY.bigsib); for (let f = 0; f < 120; f++) { G.state = 'play'; G.lootQueue = []; update(1 / 60); } if (!G.combo.bigsib) bad.push('bigsib not fused'); }
-    // Tier screens: a v9 weapon's tiers are modifier cards, up to internal Lv 10 (so its combos at Lv 5 can happen).
+    // Tier screens: a v9 weapon's tiers are modifier cards, Lv 3 and 6; weapons stop at Lv 9 (MM.lvlCap via wCap: wmods.js), so no Lv 10 tier.
     META.profile = 's10_baseline'; UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = [];
     { const w = makeSlot('s_blaster', false, 1); G.weapons = [w]; recomputeAll();
-      for (const lv of [3, 6, 10]) {
+      for (const lv of [3, 6, 0]) {
         if (wupNextLv(w) !== lv) { bad.push('blaster next tier ' + wupNextLv(w) + ' not ' + lv); break; }
+        if (!lv) break;
         const cs = wupRaise(w, lv); if (!cs.length || cs.some(c => c.tag !== 'MODIFIER')) { bad.push('blaster tier cards ' + cs.map(c => c.tag)); break; }
         cs[0].apply();
       }
-      out.tiers = w.lvl + ' ' + (w.m10 || []).join('/'); if (w.lvl !== 10 || !(w.m10 || []).length) bad.push('blaster tiers ' + out.tiers); }
+      out.tiers = w.lvl + ' ' + (w.m10 || []).join('/'); if (w.lvl < 6 || w.lvl > MM.lvlCap || !(w.m10 || []).length) bad.push('blaster tiers ' + out.tiers); }
     // The rack.
     s10Samples();
     out.rack = document.querySelectorAll('#sampleList [data-s10]').length;

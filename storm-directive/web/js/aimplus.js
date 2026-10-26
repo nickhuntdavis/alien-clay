@@ -11,7 +11,7 @@
 //    "Then" rule, or the nearest enemy.
 // Text: names are the user's words; descriptions are plain first-pass copy (user, 24 Oct).
 // Hooks: none in shared files. Adds DIRECTIVES entries; wraps aimAllowed, aimList (spsteer.js), targetScore, acquire,
-// acquireMany, fireWeapon, damageEnemy (game.js). Loads after spsteer.js and modwide.js.
+// acquireMany (game.js); hooks.js fire:before and hit:before. Loads after spsteer.js and modwide.js.
 
 const XAIM_IDS = ['mines', 'shots', 'enemies', 'me'];
 DIRECTIVES.push(
@@ -66,15 +66,11 @@ function xaimHit(t) {
   else if (t.from === 'mod') { if (!q.dead && G.m10.mines.includes(q)) modBlow(q); }
   else if (t.from === 'shot') { if (!q.dead) { q.dead = true; spawnPart(q.x, q.y, '#ffffff', 4, 60, 0.25, 2); } }
 }
-fireWeapon = (orig => function (w, target) {
+hookOn('fire:before', 'aimplus:xaim', (w, target) => {
   if (target && target.xaim && G) {
     const s = w.s || {}, a = w.def.v10atk, d = Math.hypot(target.x - G.player.x, target.y - G.player.y);
     const t = a === 'beam' || a === 'contact' ? 0.05 : a === 'burst' ? (s.delay || 0.3) : (a === 'pool' || w.def.kind === 'lob') ? (s.flight || 0.55) : d / Math.max(200, s.speed || 500);
     after(Math.min(1.5, t), () => { if (G) xaimHit(target); });
   }
-  return orig(w, target);
-})(fireWeapon);
-damageEnemy = (orig => function (e, dmg, src) {
-  if (e && e.xaim) { xaimHit(e); return 0; }
-  return orig.apply(this, arguments);
-})(damageEnemy);
+}, 10);
+hookOn('hit:before', 'aimplus:xaim', e => { if (e && e.xaim) { xaimHit(e); return true; } return false; }, 10);

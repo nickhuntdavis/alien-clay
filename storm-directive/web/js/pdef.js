@@ -157,7 +157,7 @@ function pdefHurt(dmg, from, ent, kind) {
 // ---------------------------------------------------------------- your statuses (matrix 11.5 "On the player")
 // A hit that got past the Membrane applies its damage types' statuses: Mucus Snares (55% slower, 1.5 s here, and it
 // puts out Burning), Blood Bleeds (30% of the hit over 3 s, 3 at most), Fire adds to one shared burn (20% of the
-// hit over 3 s, at most 25% of your max health held), Static Charges (3 s, +20% Static taken). Alien never Possesses you.
+// hit over 3 s, at most 25% of your max health held), Static Charges (3 s, +20% Static taken). Parasite never Possesses you.
 function pdefStatus(D, amt, d) {
   const P = PDEF_ST;
   if (amt.mucus > 0) { D.snareT = G.t + P.snareT; D.burnPool = 0; D.burnT = 0; }

@@ -100,7 +100,7 @@ Object.assign(WEAPONS, {
     desc: 'Medically approved. In 1820.',
     base: { dmg: 6, cd: 0.25, mag: 1, reload: 0, count: 2, range: 340, speed: 240 },
     lv: { 3: { count: 1 }, 6: { dmg: 0.3 }, 9: { count: 1 } }, sig: { 5: ['xleech', 'xbloodsucker'], 10: ['xfatleech', 'xjumbo'] } },
-  // ---- Alien
+  // ---- Parasite
   spiritfingers: { name: 'Spirit Fingers', stars: [3, 3, 1, 4], play: 'Ghostly jazz hands: every attack is two swipes in front of you, one each way.', icon: 'SF', elem: 'soul', kind: 'melee', melee: 'sweep', dir: 'nearest', role: 'Melee', armoury: 1,
     desc: 'They are like regular fingers, but more spirited.',
     base: { dmg: 14, cd: 0.6, mag: 4, reload: 1.1, count: 1, range: 115, area: 1, arc: 1.8, knock: 60 },

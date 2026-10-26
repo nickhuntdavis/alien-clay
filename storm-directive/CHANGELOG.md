@@ -3,6 +3,139 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.154 (versionCode 433): 2026-10-26 Five session branches merged: weapon fusion and the Passive Feat slot, slotless draft cards, weapons level from their own kills, Queen snack cap, combat overrides on the event hub
+- Merged: `ccr-1ac49716-yz41yr`, `ccr-b6a373a9-q8ofbd`, `ccr-c2f81cd0-9wox5o`, `claude/practical-brahmagupta-ry2k05`, `claude/keen-archimedes-9okpqe`. Conflicts: version files, APK, ARCHITECTURE.md script order, NOTES.md bullets, index.html script tags (wmods then passivefeat), game.js damageEnemy (event-hub wrapper kept, main's body line kept: phased Ghost Swimmers stay hittable), bosssig10_t2.js Macrophage Queen snacks (both fixes combined: noms 3 a cycle, shrinking 60% each cycle, so 3, 2, 1, 1, then none).
+- Risk: the Queen now gets both healing cuts at once and may fall faster than either branch tuned for; weapon fusion (replaces v10 combos) and per-weapon kill levelling landed together untested against each other; built without running the suite (user's request).
+
+### Folded from ccr-1ac49716-yz41yr: 2026-10-26 The Passive Feat slot and aura Feats (v10.154)
+- Systems: Feats (aura, new slot), modifier cards (Melee, Orbiting), ui (HUD), tests
+- Files: passivefeat.js (new), index.html, tests/passivefeattest.js (new), FEATS.md, ARCHITECTURE.md
+- What: a Passive Feat key on the Feat row holds one aura. Melee or Orbiting moves the weapon into it (stays in G.weapons as w.pfAura, weapon key hidden), opens a weapon mount with a draft and drops the modifiers that are dead under that Delivery (the hold view lists them first); Melee and Orbiting are only dealt while the slot is free. New aura Feats Flame Cloak (Fire ring) and Pearl Necklace (orbiting Mucus pearls; eat shots from level 4). The HUD now adds weapon keys past three, so the mounts fusion and auras open show up (they were invisible). Card text TODO_COPY.
+- Save data: none (run state G.pf, w.pfAura, w.pfLost).
+- Hooks: none in shared files (hookOn tick; wraps modAdd, modOk, hcWeapon, cardOpt, sbSlotMark, comboBonds, modDraw).
+- Risk: Melee or Orbiting on a second weapon is no longer possible; tests or sims that stack them change. Aura numbers are first guesses.
+
+### Folded from ccr-1ac49716-yz41yr: 2026-10-26 Reverse Tooth Fairy (v10.153)
+- Systems: weapons (Eggs), modifier cards, tests
+- Files: rtooth.js (new), index.html, tests/rtoothtest.js (new), tests/wfusiontest.js (lardmine check tracks the furthest launch: it was flaky), BASE_WEAPONS.md, ARCHITECTURE.md
+- What: Eggs switched to Blood can take Homing (plain Eggs still can't). With both, Eggs fires homing teeth instead of dropping eggs; teeth embed and Bleed; a bleeding enemy holding 3 teeth (2 at Homing Rank 3) thrashes for 3 s and bites its mates; bosses never thrash; Homing mastery makes bites plant teeth. Its float text is TODO_COPY:rt_float.
+- Save data: none.
+- Hooks: none in shared files (hookOn tick and proc; wraps toothFire, modOk, modDraw).
+- Risk: thrashing enemies are capped at 6; bite damage is untested for balance.
+
+### Folded from ccr-1ac49716-yz41yr: 2026-10-26 Fused weapons show their fused name (v10.152)
+- Systems: weapons (fusion), ui
+- Files: wfusion.js, tests/wfusiontest.js
+- What: a fused weapon wears its own name and description (WF_TEXT, TODO_COPY until the user writes them) everywhere the game shows a weapon's name: hold card, Tackle Box, drafts, run summary. It is a per-slot copy of the def over the original (as wRecolour does), re-applied if another system swaps the def; skipped on a weapon carrying Switched at Birth.
+- Save data: none.
+- Hooks: none.
+- Risk: code that compares w.def to WEAPONS[id] by identity misses the fused weapon (acro.js only, whose weapons are in no pair).
+
+### Folded from ccr-1ac49716-yz41yr: 2026-10-26 Weapon fusion replaces the v10 combos (v10.151)
+- Systems: weapons (fusion, new), combos (retired under v10), draft, ui (HUD slot), tests
+- Files: wfusion.js (new), index.html, mobfeats.js (mobTick global, for hookstest), tests/wfusiontest.js (new), tests/combo10test.js, combo3test.js and v9armstest.js (set WF.on = false), ARCHITECTURE.md
+- What: two weapons from 8 listed pairs, both at HUD Lv 3, offer a fusion card. Fusing folds the second into the first (it leaves the HUD, keeps firing with its own modifiers and levels with the first), opens a weapon mount with a draft, and adds the pair's power (zapbub, acidmess, sibshot, peekegg, hotcore, lardmine, pinclock, snotfire). Declining asks again after the first weapon's next level. The v10 branch combos and v9 combo partner swaps are off under v10. Names and card text are TODO_COPY.
+- Save data: none (run state only: G.wf, G.wfAsked, w.wfIn, w.wfWith).
+- Hooks: none in shared files (hookOn tick and proc; wraps v10Loot, draftTitle, availableCombos, wupForkCards, sbSlotMark, modOk, bubblePop, peekFire, detonateMine).
+- Tests: after merging main (v10.148), statuptest still fails (Enzyme Sneeze dps ratio 1.48), as it does on main; everything else that was run passes. Merge fix: the v10.150 commit carried conflict markers in moddead.js, meta.js and build.gradle; resolved in the v10.151 commit.
+- Risk: weapon count can reach 4 entries (one hidden); systems that count G.weapons see the absorbed weapon. Combo achievements and Field Guide combo pages no longer progress under v10.
+
+### Folded from ccr-1ac49716-yz41yr: 2026-10-26 Unwanted Contact zip-zap (v10.151)
+- Systems: weapons (Unwanted Contact), modifier cards, tests
+- Files: zapper.js (new), index.html, moddead.js (s_tesla row), tests/zappertest.js (new), BASE_WEAPONS.md, ARCHITECTURE.md
+- What: Unwanted Contact fires one quick spark at one target instead of a 3-jump chain. Ricochet forks it (1/2/3, mastery forks again), Piercing runs a line (1/3/6/12), Homing goes for enemies not yet Charged, Area splashes, Charged Charges in one hit (mastery zaps Charged enemies within 200), Rapid Fire mastery adds a spark. Jumps from Chain Letter or promise cards still chain. Ricochet, Piercing, Homing and Area are offered on it again.
+- Save data: none.
+- Hooks: none in shared files (wraps v10Fire after laserbeam.js).
+- Risk: much less crowd damage at base for Redtail (sims running); Static's own arcs off Charged enemies are unchanged.
+
+### Folded from ccr-1ac49716-yz41yr: 2026-10-26 Static looks grow with weapon level (v10.149)
+- Systems: type looks (typelook)
+- Files: typelook.js
+- What: Static visuals start as a faint pale crackle at weapon Lv 1 (thin beam, short rare arcs, no glow or forks) and only become full forked lightning near the Lv 9 cap. The level comes from the firing weapon where known (shots, pools, the twin), else your highest-level Static weapon; Static from no weapon of yours (Feats, reactions with no Static weapon held) stays full. Chain bolts in the Static colour flatten, lose forks and fade sooner while weak.
+- Save data: none.
+- Hooks: typelook.js wraps game.js bolt (Static-coloured bolts only).
+- Risk: reaction arcs (Static colour) also look quieter while your Static weapon is low level.
+
+### Folded from ccr-1ac49716-yz41yr: 2026-10-26 Brave Phase and Puddle Jumper Feats (v10.148)
+- Systems: Feats (v10), tests
+- Files: mobfeats.js (new), index.html, tests/mobfeatstest.js (new), tests/featstest.js, FEATS.md (F16, F17), ARCHITECTURE.md
+- What: two new mobility Feats in the starting pool. Brave Phase: a see-through, untouchable Force dash at 2.6x speed for 0.6 s that hits each enemy you pass through once; autorun aims it down the busiest line, manual steering bends it, walls stop it. Puddle Jumper: a Mucus tap teleport (300) behind the biggest enemy with a backstab when you carry a close-range weapon, else to the safest spot; you leave a Mucus splash and puddle. Card text is TODO_COPY.
+- Save data: none.
+- Hooks: none in shared files (hookOn tick 'mobTick'; wraps newfeats.js nfSpeed and feats10.js f10Draw).
+- Risk: the Feat starting pool grows from 18 to 20, so other Feats are offered a little less often. Brave Phase moves you directly (like f10Lunge), so it ignores swim physics for 0.6 s.
+
+### Folded from ccr-1ac49716-yz41yr: 2026-10-26 Alien damage type renamed Parasite (v10.147)
+- Systems: chemistry, damage types, ui (glossary), docs
+- Files: 41 web/js files and index.html (text and comments only), glossary.js (the bar regex matches "alien bar" or "parasite bar"), tests (assert messages), tests/tools/guide.js, COMBAT_MATRIX.md, DAMAGE_TYPES.md, redesign docs/CLAUDE.md, CLAUDE.md, STYLE.md, ARCHITECTURE.md
+- What: the user renamed the Alien damage type to Parasite (you take enemies over). Every player-facing "Alien" is now "Parasite" ("an Alien" became "a Parasite"; the reaction ALIEN ROT is PARASITE ROT). The internal id stays `soul`, statuses keep their names (Possessed), and the Not of This World sample keeps its name and alien theme.
+- Save data: none.
+- Hooks: none.
+- Risk: text only. Card_Copy_Draft_All.xlsx and GIFT_LINES.md still say Alien (cardvoice.py and giftvoice.py key off the "Not of This World (Alien)" column), as do the other redesign docs; neither puts the word on screen.
+
+### Folded from ccr-b6a373a9-q8ofbd: 2026-10-26 Health card trims from the forced-card sim (v10.151)
+- Systems: draft cards, healing
+- Files: vitals.js, perks.js
+- What: Rally wins back 10% of the hit a rank (was 15%) and at most half the hit (was all of it); steady regen 0.2% of max HP a second a rank (was 0.3%); Hex adds 10% damage taken (was 15%). Forced-card sim, 12 runs each against a 3 of 12 baseline: Rally 8 of 12 after the first trim, 5 of 12 with the half-hit cap; regen 4 of 12; Hex 1 of 12 (was 0 of 18).
+- Save data: none
+- Hooks: none
+- Risk: Hex is still a net loss for the bot (it does not value the extra card); a human may rate it differently. Copy briefs for vt_drip, vt_rally and pk_hex must use the new numbers.
+
+### Folded from ccr-b6a373a9-q8ofbd: 2026-10-26 Macrophage Queen heals less each cycle; forced-card balance sim (v10.150)
+- Systems: bosses (tier 2 signatures), tests
+- Files: bosssig10_t2.js, tests/queennomstest.js (new), tests/sim/wave20.js, tests/sim/race.js; merge of main v10.149
+- What: the Queen's snack budget shrinks each pattern cycle (SG2.nomsFall 0.6: 6, 4, 2, 1, 1, then none), so she heals at most 42% of her health in a fight; before, 18% every 22 s cycle outhealed any build under about 140 damage a second (two bot fights ran 1000+ s). bossprobe: strong builds unchanged (36 to 72 s); a forced weak build went from a full-health stall to a kill in 245 s.
+- Save data: none
+- Hooks: none
+- Risk: the Queen is easier for weak builds after about 90 s of fighting; fast fights are unchanged.
+
+### Folded from ccr-b6a373a9-q8ofbd: 2026-10-26 Fourteen more draft cards: trade-offs, streaks, sprint, decoy, bosses, curse, race (v10.147 on this branch; main later used v10.147 too)
+- Systems: draft cards, defences (pdef), healing, stamina (sprint), weapons (fire rate), enemy targeting (decoy)
+- Files: perks.js (new), index.html, ARCHITECTURE.md, tests/perkstest.js (new); merge of main v10.146
+- What: Big Heart (+40% max HP, 10% slower), Bubble Wrap (Membrane x2, mends half as fast), damage up as health drops, your statuses 25% shorter a rank, a Membrane that cuts the damage type that has hurt you most, kill streaks give +40% fire rate for 4 s, sprinting leaves a slippery trail, starting a sprint shoves and damages, a dud-sperm decoy every 30/24/18 s, +12% damage to bosses, boss hits 10% weaker, Hex (take 15% more, one more draft card), and two race-only cards near the egg (faster, tougher).
+- Save data: none
+- Hooks: none in shared files. hookOn tick, kill, dmgMul, hurtMul; wraps mutSpeed (mutations.js), rateBonus (arsenal.js), pdefHurt / pdefStatus / pdefTick (pdef.js), draftCards (draft.js), sillyTick / sillyDraw (silly.js), v10Draw (v10.js).
+- Risk: Bubble Wrap works by lending Thicker/Faster ranks inside pdefTick (restored after the call), so anything reading G.pd.n during that tick sees the lent ranks. Hex can make 4-card drafts on take-one screens. Draft group 'up' now holds 29 health/perk cards beside the v9 upgrades. Unsimmed for balance (bot 0/3 waves, 1/1 Level 1, no errors). Copy: TODO_COPY:pk_*_title / _desc (28).
+
+### Folded from ccr-b6a373a9-q8ofbd: 2026-10-26 Nine more health, Shell and Membrane cards (v10.145 on this branch; main later used v10.145 for its own build)
+- Systems: draft cards, defences (pdef), healing
+- Files: vitals.js (new), index.html, ARCHITECTURE.md, tests/vitalstest.js (new)
+- What: nine slotless 'up:' cards beside membrane.js's six: always-on regen, on-hit lifesteal (inside the lifesteal pool), +20% healing, rally (kills within 3 s of a hit win part of it back), Shell layers regrow mid-wave, Shell layers burst into shrapnel when they break, Membrane pops (damage and shove) when knocked to zero, regen while the Membrane is full, kills refill the Membrane. Shell and Membrane cards only appear when you have one.
+- Save data: none
+- Hooks: none in shared files (hookOn tick, kill, proc, hurt).
+- Risk: more healing in the 'up' draft group (now 15 health cards in it, which dilutes the v9 upgrades); balance unsimmed beyond 2 bot runs (no errors). Copy is TODO_COPY:vt_*_title / _desc (18).
+
+### Folded from ccr-c2f81cd0-9wox5o: 2026-10-26 Weapons stop at Lv 9; Trophy Polish fills kill bars; one level per screen (v10.148)
+- Systems: weapon levels, loot (boss spoils), tests
+- Files: wmods.js, tests/wmodstest.js, tests/v9armstest.js
+- What: wCap is capped at MM.lvlCap (9) for weapons (it was the v9 Lv 10, so Trophy Polish could raise a weapon to Lv 10). Under the kill bar, Trophy Polish fills every weapon's bar instead of adding a raw level (a raw level skipped branch tiers for good). A level screen now leaves the weapon exactly one level up (a branch card granting a modifier levelled it twice, e.g. v_soul_proj Lv 2 > 4).
+- Save data: none
+- Hooks: none in shared files. Wraps game.js wCap and spoils.js SPOILS.trophy.
+- Risk: anything reading wCap for weapons now sees 9 (v9 tier screens no longer offer a Lv 10 tier; they are retired in the live game). v9armstest updated to match.
+
+### Folded from ccr-c2f81cd0-9wox5o: 2026-10-26 Weapons level from their own kills; modifier screens between branch tiers (v10.147)
+- Systems: weapon levels (new), modifier cards, draft, branches back, stat bonuses, sidemo (stage), ui (HUD slot), tests
+- Files: wmods.js (new), index.html, style.css, tests/wmodstest.js (new), tests/run.sh, tests/sim/wave20.js (per-wave weapon levels `wl`), tests/tools/guide.js, ARCHITECTURE.md
+- What: each weapon fills a kill bar (its own kills, thin bar under its HUD slot); a full bar opens its next level. Lv 3/6/9 are the branch screens; Lv 2, 4, 5, 7, 8 (and after 9) are modifier screens in the Weapon Draft layout with 3 cards for that weapon, REROLL and SKIP (+2 rerolls, no level). Level-ups and DNA strands no longer deal modifiers or Switched at Birth; small stat cards (2 steps of a statup.js stat) take their place. The free weapon level every 4th player level is off. One drawn loop per modifier on the stage, shaped by the weapon's attack type.
+- Save data: none (run state only: w.wmK, w.wmQ)
+- Hooks: none in shared files. hookOn('kill', 'wmKill'); wraps xbrTick, forkCards, draftBox, sivDraftKind, sivDraftHead, sbDraftInfo, makePreview, modDraftCands, modBoxCards, wupLevel, UI.openDraft, UI.refreshHud.
+- Risk: weapon power curve (bot wave20 mortal: old rules 1 of 4 wins, every weapon Lv 9 by wave 10; kill bar at WM.k0 16 / kg 0.5: 2 of 4 wins, best weapon Lv 9 around wave 15). Branches that queue modifier cards or wrap modDraftCands for level-ups (raceplan, sabtiers, spslice, modpick) now only act on the weapon screens. Open copy: TODO_COPY:wm_title, wm_sub, wm_stat_tag, wm_stat_quip.
+
+### Folded from claude/practical-brahmagupta-ry2k05: 2026-10-26 Wave 20 probe of every boss: Queen heals from 3 snacks a cycle, boss Membranes 30% of health (v10.150)
+- Systems: bosses, combat defences, tests
+- Files: bosssig10_t2.js, boss10.js, tests/sim/bossprobe.js
+- What: Every boss plus the Failed Experiment probed in the wave 20 slot (bossprobe.js `w20`; god-mode bot, two runs each, 172k to 437k health). Two were heal-locked: the Queen healed back 95% of what she took (six snacks a cycle is 54k at wave 20) and the Twins' Membrane (half of Mitch's health, 55k) was up 87 to 95% of two 400 s fights. The Queen's shared snack budget is now 3 a cycle (9%); boss-rank Membranes are 30% of health instead of 50% (boss10.js wraps fight.js fightCd once at creation; refill stays 10 s, quiet 2 s). Wave 20 after: Queen 318 s, Twins 234 and 312 s, Johnny 129 s (each with one weak-build run still at 400 s). Real waves after: Johnny wave 5 11 and 47 s, Queen wave 10 33 s, Twins wave 10 56 s (one run each at 224 to 400 s with builds dealing under 100 damage a second). The rest at wave 20: Fever 93, Cramp 89 and 175, Litmus 95 and 152, Mucus 108 and 117, Sneeze 74, Chad 157, Colossus 162 (and one 352 with a bot death), Failed 109 and 178, Stone 180, Ghost 193, Eye 215 and 235, Pepsinator 140, Matron 60 and 259 (ward round heals 5% of 345k twice a cycle: 1100 a second). Tier 1 and 2 bosses never reach wave 20 in wave mode (bossTierRoster), so those are stress figures.
+- Save data: none.
+- Hooks: boss10.js now also wraps fightCd.
+- Risk: every boss Membrane (Johnny, Mitch) soaks 40% less before health shows; the Queen heals half as much a cycle as v10.144.
+
+### Folded from claude/keen-archimedes-9okpqe: 2026-10-25 Wrappers moved onto the event hub (v10.126)
+- Systems: hooks, engine, weapons24, modifiers, weapon cells, pool balloons, acro, combos, aim
+- Files: game.js, hooks.js, wup1.js, wup4.js, wup5.js, wup6.js, acro.js, combos10.js, modwide.js, spmast.js, balloon.js, cellmods4.js, aimplus.js, tests/hookstest.js, ARCHITECTURE.md, CLAUDE.md
+- What: killEnemy, damageEnemy, hurtPlayer and fireWeapon are now thin: they fire `hit:before`, `kill:before`/`kill:after`, `hurt:before` (change or cancel the damage) and `fire:before`/`fire:after` round an unchanged body (`damageEnemyBody`, `killEnemyBody`, `hurtPlayerBody`, `fireWeaponBody`). The 13 wrap-and-replace overrides of those four functions in 11 files are hookOn listeners now, ordered as the wrappers ran. No behaviour change intended.
+- Save data: none.
+- Hooks: game.js killEnemy / damageEnemy / hurtPlayer / fireWeapon split into a thin entry and a ...Body; hurtPlayer takes an optional 5th argument (hookAfter, used by wup5's Postponed).
+- Risk: a branch that still wraps one of the four functions keeps working (it wraps the thin entry, as before). Juggling (cellmods4) now also pops balloons on a Postponed hit landing 2 s later (it used to miss those).
+
 ## v10.149 (versionCode 428): 2026-10-26 Cramp and Sneeze close in when you are far; every boss probed; merged with main's v10.148
 - Systems: bosses (boss pack tier 1), tests
 - Files: bosspack.js, bosssig10_t1.js, tests/sim/bossprobe.js

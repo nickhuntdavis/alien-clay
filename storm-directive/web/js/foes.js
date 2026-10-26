@@ -1,5 +1,5 @@
 'use strict';
-// Spawn Prawn - the Sperminator and the Alien Sperm (two new enemies), the status-effect VFX (burning,
+// Spawn Prawn - the Sperminator and the Parasite Sperm (two new enemies), the status-effect VFX (burning,
 // poisoned, chilled/frozen, electrocuted) and the stain-gated health and armour rings.
 
 // ================================================================ new enemies
@@ -78,7 +78,7 @@ function foeKill(e, src) {
 }
 
 // Drawing. Robot: a chrome head with panel lines, a glowing red eye and a segmented metal tail. Endoskeleton:
-// just the frame. Alien: a long ridged dome of a head, a jaw that shoots out, a barbed tail.
+// just the frame. Parasite: a long ridged dome of a head, a jaw that shoots out, a barbed tail.
 function foeTail(e, x, y, face, r, len) {
   const back = r * 0.95, wx = e.x - Math.cos(face) * back / S, wy = e.y - Math.sin(face) * back / S;
   if (e.tailV == null) { e.tailV = 0; e.px = e.x; e.py = e.y; }
