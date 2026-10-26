@@ -1323,3 +1323,6 @@ body #sysmsg.ws { pointer-events: auto; }
 .sx-rack .sx-txt b { font-size: 14px; letter-spacing: 0.3px; }
 .sx-rack .sx-random { grid-column: 1 / -1; flex-direction: row; justify-content: center; text-align: left; padding: 12px 14px; }
 .sx-rack .sx-random .sx-art { width: 44px; height: 44px; }
+/* Weapon kill bar: fills with the weapon's own kills, opens its next level screen (wmods.js) */
+.slot .wmk { position: absolute; left: 0; right: 0; bottom: -4px; height: 2px; background: var(--track); pointer-events: none; }
+.slot .wmk i { display: block; height: 100%; width: 0; background: #fff; opacity: 0.85; }

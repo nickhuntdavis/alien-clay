@@ -37,7 +37,7 @@ const N = +(ARGS[0] || 2), GOD = ARGS[1] !== 'mortal', SEQ = ARGS[2] || '';
         const V = G.wave;
         if (V.active && V.n !== lastN) { lastN = V.n; t0 = G.t; h0 = hurtNow(); lvB = 0; }
         if (V.phase === 'boss' && !lvB) lvB = G.level + '@' + Math.round(G.t - t0) + 's hp' + Math.round(G.boss ? G.boss.maxHp : 0);
-        if (!V.active && lastN && !ev[lastN]) ev[lastN] = `w${lastN} ${V.boss || (V.fresh || []).join('+')} lv${G.level}${lvB ? ' boss@lv' + lvB : ''} ${Math.round(G.t - t0)}s hurt${Math.round(hurtNow() - h0)}/${Math.round(G.P.maxHp)} t${Math.round(G.t)}`;
+        if (!V.active && lastN && !ev[lastN]) ev[lastN] = `w${lastN} ${V.boss || (V.fresh || []).join('+')} lv${G.level}${lvB ? ' boss@lv' + lvB : ''} ${Math.round(G.t - t0)}s hurt${Math.round(hurtNow() - h0)}/${Math.round(G.P.maxHp)} t${Math.round(G.t)} wl${G.weapons.filter(w => w && !w.isSpell).map(w => w.lvl).join('/')}`;
         if (f % 600 === 0) await new Promise(r => setTimeout(r, 0));
       }
       if (G && G.fst) { const S = G.fst, r = n => Math.round(n); ev.push('fst rx ' + JSON.stringify(S.rx) + ' dmg w' + r(S.dmg.weapon) + '/rx' + r(S.dmg.reaction) + '/dot' + r(S.dmg.dot) + ' miss' + S.miss + ' memSoak' + r(S.mem) + ' layers' + S.layers + ' stagger' + S.stagger + ' possess' + S.possess + ' snare' + r(S.snareT) + 's heal' + r(S.heal || 0) + ' | you: mem' + r(S.pMem || 0) + ' layers' + (S.pLayers || 0) + ' miss' + (S.pMiss || 0) + ' thorns' + r(S.pThorns || 0)); }
