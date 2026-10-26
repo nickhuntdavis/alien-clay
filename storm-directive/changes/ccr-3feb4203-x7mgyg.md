@@ -1,3 +1,11 @@
+## 2026-10-26 Milder weapon level catch-up (v10.176)
+- Systems: weapon levels
+- Files: wmods.js
+- What: catch-up toned down at the user's request: assists 0.5 to 0.3 of a kill, catch-up +50% to +35% per level behind, WM.kg 0.35 to 0.42 (316 kills from Lv 1 to Lv 9; was 352 before v10.175, 285 in it). Not simulated.
+- Save data: none.
+- Hooks: none.
+- Risk: untested values; v10.175's milder sim variant (assist 0.3, catchK 0.35, kg 0.5) won 4/8.
+
 ## 2026-10-26 Weapon levels catch up (v10.175)
 - Systems: weapon levels
 - Files: wmods.js
