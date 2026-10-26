@@ -1,3 +1,11 @@
+## 2026-10-26 Race: swimming into the egg counts from 80 px of its edge
+- Systems: race (race15), egg
+- Files: race15.js, game.js (eggTick touch radius)
+- What: once the egg is breakable, coming within RACE15.touch (80 px, was 14) of its edge wakes it. Autorun circled it just outside the old radius while dodging its rings, so it never started its own egg fight and a rival always won.
+- Save data: none
+- Hooks: game.js eggTick reads RACE15.touch.
+- Risk: the egg fight starts a little earlier for human players too.
+
 ## 2026-10-26 Race: Fever Pitch holds 3 min after the egg opens; race boss bullets take RACE.bossHit
 - Systems: race (race15), bosses, director (difficulty clock)
 - Files: race15.js, game.js (one line in shootPattern)

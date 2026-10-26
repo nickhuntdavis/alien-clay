@@ -2620,7 +2620,7 @@ function eggTick() {
   if (G.state !== 'play' || !G.core || !eggBreakable()) return;
   if (G.eggE && G.eggE.woke) return;
   const p = me();
-  if (Math.hypot(p.x - G.core.x, p.y - G.core.y) < CORE.r + p.r + 14) openEgg();
+  if (Math.hypot(p.x - G.core.x, p.y - G.core.y) < CORE.r + p.r + (typeof RACE15 !== 'undefined' ? RACE15.touch : 14)) openEgg(); // (race15.js: a generous touch, autorun's dodging kept it circling just outside)
 }
 function eggAI(e, dt) {
   e.x = G.core.x; e.y = G.core.y; e.kx = e.ky = 0; e.frozen = 0;
