@@ -1,7 +1,8 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
-- Version v10.175 (versionCode 454): merge of `ccr-a4871635-2p0jtu`: a race course mode (`s011`, course.js) on every sample's mode screen: five rivals, a countdown, an obstacle course (slalom, spit swamp, plaque-shortcut fork, sweepers, valves, boost pads); first over the line alive wins. All its text is TODO_COPY (22 `crs_*` placeholders). Autorun alone wins about 1 in 10.
+- Version v10.180 (versionCode 459): merge of `ccr-a4871635-2p0jtu`: a race course mode (`s011`, course.js) on every sample's mode screen: five rivals, a countdown, an obstacle course (slalom, spit swamp, plaque-shortcut fork, sweepers, valves, boost pads); first over the line alive wins. All its text is TODO_COPY (22 `crs_*` placeholders). Autorun alone wins about 1 in 10.
+- Version v10.179 (versionCode 458): merge of `ccr-3feb4203-x7mgyg` (on top of v10.174's Race crowd thinning): the Bigger Membrane bubble is drawn 60% wider (was only its hitbox); weapon kill bars get assists (0.3 of a kill), catch-up (+35% per level behind the top weapon), a gentler curve (WM.kg 0.42, 316 kills to Lv 9), bank kills while a level screen waits, and credit burns, reactions and turret kills to the weapon that last hit. Still red on main: armtest, statuptest Enzyme Sneeze, sivtest; pdeftest flaky.
 - Version v10.174 (versionCode 453): late-Race frame rate: quality step 5 (q0c in the log) thins the Race crowd to 55% when step 4 is still slow; steps 3 and 4 draw common enemies plain and Membranes flat; pool gradients cached, glowing pools in one additive pass. Open: a played long Race on the phone to confirm.
 - Version v10.173 (versionCode 452): opening draft = the sample's three (samplekit.js); newfeattest green (v10 statuses). Still red on main: statuptest Enzyme Sneeze, sivtest; pdeftest flaky.
 - Version v10.172 (versionCode 451): Puddle Jumper card line written (Claude-drafted at the user's request).
@@ -84,6 +85,9 @@
 
 - (`claude/fervent-mendel-3f1ud8`, v10.123) Pool weapons are water balloons (`balloon.js`, MODIFIER_MATRIX.md 5.10, decision 63): the throw is built, the 26 modifier cells for pools are not (Hot Mess still runs the 5.7 cells in `cellmods2.js`). Pools now land on their target every time: not simmed. The 26 pool cells are built too (`cellmods4.js`, 25 `TODO_COPY:cell_bl_*` card texts open); damage per cell is in `cell4test` output. `wup2test` fails on main too (Little Prick: Final Prick, Terminal Clause).
 
+- (`ccr-3feb4203-x7mgyg`, v10.177) Kill bar leaks closed (wmods.js): banking while the screen waits (overflow carries, capped at one bar), no-weapon kills to the last weapon hitter within 3 s, turret kills via src.wmW. Probe before: Nervous Wreck 924 credited vs 2350 dropped while queued; Chest Burster 82 vs 159 turret kills uncredited. wave20 mortal x6: 3/6 wins vs 1/6.
+- (`ccr-3feb4203-x7mgyg`, v10.176) Catch-up toned down (user: more balanced): WM.assist 0.3, WM.catchK 0.35, WM.kg 0.42. Not simulated yet.
+- (`ccr-3feb4203-x7mgyg`, v10.175) Weapon level catch-up (wmods.js): assists WM.assist 0.5 within WM.assistT 3 s, catch-up WM.catchK 0.5 per level below the top weapon, WM.kg 0.35. wave20 mortal x8 (WM.force, XBR.force): catch-up off 6/8 wins, on 5/8, on + kg 0.35 6/8. Bot wins sit above the 20 to 50% target either way.
 - (`ccr-c2f81cd0-9wox5o`, v10.147) Weapon levels from kills (wmods.js): WM.k0 16, kg 0.5 (kills Lv L>L+1 = 16 x (1 + 0.5 x (L-1)), 352 to Lv 9). wave20 mortal 2 of 4 wins vs 1 of 4 on the old rules. The kill bar is off in tests and sims unless `WM.force` (and branch screens need `XBR.force`): sims use --pre 'WM.force = true; XBR.force = true'. statuptest already fails on main (dps ratios, 'mod without stat returning').
 
 ## Copy sheet
@@ -111,7 +115,7 @@ Tone: Dungeon Crawler Carl. Dry, deadpan, nerdy, not self-aware; bodies, sex, co
 - Saves: full wipe on v10 (new META key, old `sd_meta` ignored).
 
 ## Recent changes (newest first)
-- v10.175: race course level (s011). Details in CHANGELOG.md v10.175.
+- v10.180: race course level (s011). Details in CHANGELOG.md v10.180.
 - v10.169: Orbiting takes Extra, Rapid Fire and Charged, Homing on Orbiting is magnetic; wave mode upgrades only between waves; enemy tap card shows Active effects. Details in CHANGELOG.md v10.169.
 - v10.148: Sandbox Laser with Bounce or Piercing is offered Homing. Details in CHANGELOG.md v10.148.
 - v10.147: Range and Up Close cards back on about 50 weapons; nine stale tests fixed. Details in CHANGELOG.md v10.147.
@@ -236,7 +240,7 @@ Tone: Dungeon Crawler Carl. Dry, deadpan, nerdy, not self-aware; bodies, sex, co
 - v8.49: campaign Level 1, Achievement DNA, "damage type" wording.
 
 ## Balance numbers to know
-- (ccr-a4871635-2p0jtu, 26 Oct) Race course (s011, course.js): rivals at `CRS.speed` 136 x skill, rubber band 0.82 when 8+ cells ahead of you, 1.15 when 14+ behind. Bot (tests/coursetest.js, mortal): steering along the route when no germ is within 150, 2 of 6 wins; autorun alone 1 of 10 (usually 85 to 95% of the way when beaten). Races last 75 to 105 s. All its text is still TODO_COPY (22 placeholders, `crs_*`).
+- (ccr-a4871635-2p0jtu, 26 Oct) Race course (s011, course.js): rivals at `CRS.speed` 136 x skill, rubber band 0.82 when 8+ cells ahead of you, 1.15 when 14+ behind. Bot (tests/coursetest.js, mortal): steering along the route when no germ is within 150, 2 of 6 wins; autorun alone 1 of 10. Races last 75 to 105 s.
 - Wave mode boss strength: `CAMP.hp` [2.2, 13, 50, 160] and `CAMP.hit` [0.55, 0.82, 1, 1.1]; ordinary waves `CAMP.more` 1.3, `CAMP.dmgK` 1.15, `CAMP.early`/`earlyPT`. Wave 5 is now a tier 1 boss (base HP 1500, dmg 18): with the boss pack the mortal bot wins 11 of 32 (34%), with deaths spread over wave 5 (the tier 1 teachers and their entourage), waves 7 to 9 (rivals) and wave 10. Before the pack it won about 1 in 5 and mostly died to the Pepsinator at wave 5.
 - About 37 boxes per 9-minute wave run (it was 48).
 - v9.23 sim (`wave20.js 4 mortal`, `--feat <id>` for each new Feat): baseline 6/22 wins (27%); with each new Feat forced into a slot 68/187 (36%). Highest: Mosquito, Fecal Transplant, Brown Fat, Fertile Window 6/12 each (50%, 12 runs). 0/4 (noise at n=4, check with more runs if players say so): Anhydrobiosis, Bombardier Beetle, Hirudotherapy, Lipid Bilayer, Osmosis, Shed the Lining, Hagfish (0/6).
