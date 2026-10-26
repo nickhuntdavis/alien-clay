@@ -14,6 +14,11 @@ const { chromium } = require('playwright');
     if (modOk(mk('v_flame_beam', ['melee']), 'homing') !== true) bad.push('Laser + Melee hides Homing (live since the Melee forms, delivforms.js)');
     if (modOk(mk('v_flame_beam', ['mines']), 'charged') !== true) bad.push('Laser + Mines lost Charge-Up (it works since the Delivery routing)');
     if (modOk(mk('v_flame_beam', []), 'charged') !== true) bad.push('naked Laser lost Charge-Up');
+    if (modOk(mk('v_flame_beam', []), 'homing') !== false) bad.push('naked Laser offers Homing (dead in the audit)');
+    SET.noLimits = true; // (Homing, Bounce and Piercing share the Flight group, so only the Sandbox holds two)
+    if (modOk(mk('v_flame_beam', ['ricochet']), 'homing') !== true) bad.push('Laser + Bounce hides Homing (it curves the bounces: MOD_LIVE_WITH)');
+    if (modOk(mk('v_flame_beam', ['piercing']), 'homing') !== true) bad.push('Laser + Piercing hides Homing (it curves the pierce: MOD_LIVE_WITH)');
+    SET.noLimits = false;
     const si = mk('v_phys_proj', []); for (const m of ['charged', 'knock', 'rapid']) if (!modOk(si, m)) bad.push('Standard Issue lost ' + m);
     const dl = Object.keys(MODS10).filter(id => MM_GROUP[id] === 'delivery');
     for (const id of MATRIX_ONLY.weapons) for (const base of [[], ...dl.map(d => [d])]) {

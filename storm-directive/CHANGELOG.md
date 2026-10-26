@@ -3,6 +3,14 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.148 (versionCode 427): 2026-10-26 Sandbox Laser with Bounce or Piercing is offered Homing
+- Systems: weapon modifiers (dead-card table), tests
+- Files: moddead.js, tests/moddead.js
+- What: the dead-card filter only looked at the Delivery, so it hid Homing on a Laser holding Bounce or Piercing, where Homing curves every bounce and pierce. A hand-kept MOD_LIVE_WITH table (outside the generated section, so a rebuild keeps it) lets a dead card through when the weapon holds a card that wakes it. Homing, Bounce and Piercing share the Flight group, so this only shows in the Sandbox (no slot limits).
+- Save data: none.
+- Hooks: none.
+- Risk: none outside the Sandbox.
+
 ## v10.147 (versionCode 426): 2026-10-26 Nine stale or broken tests fixed; Range and Up Close cards offered again
 - Systems: weapon modifiers (dead-card table), stat points, tests
 - Files: moddead.js, statup.js; tests modstest.js, celltest.js, laserbeamtest.js, lasershot.js, slicetest.js, spslicetest.js, sptest.js, statuptest.js, tools/moddead.js

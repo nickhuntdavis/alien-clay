@@ -32,9 +32,15 @@ const MOD_DEAD = {
   v_flame_beam: { '': ['homing', 'catalyst', 'area'], 'orbiting': ['nth', 'focus', 'area'], 'extra': ['area'] },
 // TABLE END
 };
+// Modifiers the audit finds dead on their own (it adds one card at a time) that come alive next to another the weapon holds:
+// MOD_LIVE_WITH[weapon id][modifier] = cards that wake it. Hand-kept (outside the table, so a rebuild leaves it alone).
+const MOD_LIVE_WITH = {
+  v_flame_beam: { homing: ['ricochet', 'piercing'] }, // (Homing curves every bounce and pierce: laserbeam.js lzTrace)
+};
 const modDeliveryOf = w => { for (const id of (w && w.m10) || []) if (MM_GROUP[id] === 'delivery') return id; return ''; };
+const modWoken = (w, id) => { const l = (MOD_LIVE_WITH[w24Key(w)] || {})[id]; return !!l && l.some(m => ((w && w.m10) || []).includes(m)); };
 modOk = (orig => function (w, id) {
   const d = MOD_DEAD[w24Key(w)];
-  if (d && d[modDeliveryOf(w)] && d[modDeliveryOf(w)].includes(id)) return false;
+  if (d && d[modDeliveryOf(w)] && d[modDeliveryOf(w)].includes(id) && !modWoken(w, id)) return false;
   return orig(w, id);
 })(modOk);
