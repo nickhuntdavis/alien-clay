@@ -2,10 +2,10 @@
 // Spawn Prawn - more health, Shell and Membrane draft cards (ccr-b6a373a9-q8ofbd). Nine slotless 'up:' cards (draft.js
 // group 'up'), beside membrane.js's six. Ranks live in G.vtc[id]; everything runs from the hooks below.
 //  Health
-//  - vt_drip     regenerate 0.3% of max HP per second per rank, at any health (membrane.js hp_scab only works below half).
+//  - vt_drip     regenerate 0.2% of max HP per second per rank, at any health (membrane.js hp_scab only works below half).
 //  - vt_leech    weapon hits heal 3% of the damage dealt per rank, drawn from the lifesteal pool (G.lsBudget).
 //  - vt_plasma   all healing +20% per rank (G.P.healMult).
-//  - vt_rally    after a hit, kills within 3 s win back 15% per rank of that hit (at most the whole hit).
+//  - vt_rally    after a hit, kills within 3 s win back 10% per rank of that hit (at most the whole hit).
 //  Shell (needs a Shell layer: card or relic)
 //  - vt_regrow   one lost Shell layer grows back every 24 / 16 / 10 s, inside the wave.
 //  - vt_shrap    a Shell layer that breaks bursts: Force damage round you (scales with the enemy HP clock, hpNow).
@@ -28,7 +28,7 @@ const VTC = {
   vt_osmo:   { rarity: 1, max: 3, icon: 'OS', color: '#9fd8ff', needs: 'mem' },
   vt_feed:   { rarity: 1, max: 3, icon: 'FE', color: '#9fd8ff', needs: 'mem' },
 };
-const VT = { drip: 0.003, leech: 0.03, plasma: 0.2, rallyT: 3, rally: 0.15, regrow: [24, 16, 10], shrapR: 120, shrap: 14, popR: 150, pop: 10, popShove: 420, popCd: 6, osmo: 0.005, feed: 0.03 };
+const VT = { drip: 0.002, leech: 0.03, plasma: 0.2, rallyT: 3, rally: 0.10, regrow: [24, 16, 10], shrapR: 120, shrap: 14, popR: 150, pop: 10, popShove: 420, popCd: 6, osmo: 0.005, feed: 0.03 };
 const vtr = id => (G && G.vtc && G.vtc[id]) || 0;
 const vtMem = () => typeof pdHasShield === 'function' && pdHasShield(pdef());
 const vtShellCap = D => Math.min(Math.max(D.n.shell, typeof RELIC10 !== 'undefined' ? RELIC10.shellCap : 0), D.n.shell + (typeof relShell === 'function' ? relShell() : 0)); // (as pdef.js pdRefit)

@@ -13,7 +13,7 @@
 //  - pk_dud      every 30 / 24 / 18 s a dud sperm appears where you are; for 5 s enemies chase and shoot it (G.decoy, toys.js peekSpot).
 //  - pk_slayer   +12% damage to bosses per rank.
 //  - pk_brace    boss hits deal 10% less per rank.
-//  - pk_hex      (curse, 1 rank) take 15% more damage; every level and box draft deals one more card (four at most).
+//  - pk_hex      (curse, 1 rank) take 10% more damage; every level and box draft deals one more card (four at most).
 //  - pk_homing   (race only) within 900 px of the egg, swim 6% faster per rank.
 //  - pk_last     (race only) within 900 px of the egg, take 10% less damage per rank.
 // Hooks: hookOn tick, kill, dmgMul, hurtMul. Wraps mutSpeed (mutations.js), rateBonus (arsenal.js), pdefHurt, pdefStatus,
@@ -38,7 +38,7 @@ const PKC = {
 };
 const PK = { heartHp: 0.4, heartSpd: 0.9, edge: 0.25, shrug: 0.25, learn: 0.35, streakN: [10, 8, 6], streakT: 5, streakDur: 4, streakRate: 1.4,
   trailEvery: 0.08, trailLife: 2, trailR: 30, burstR: 140, burst: 8, burstShove: 380, burstCd: 3, dudEvery: [30, 24, 18], dudDur: 5,
-  slayer: 0.12, brace: 0.1, hexHurt: 1.15, eggR: 900, homing: 0.06, last: 0.1 };
+  slayer: 0.12, brace: 0.1, hexHurt: 1.10, eggR: 900, homing: 0.06, last: 0.1 };
 const pkr = id => (G && G.pkc && G.pkc[id]) || 0;
 const pkMem = () => typeof pdHasShield === 'function' && pdHasShield(pdef());
 const pkRace = () => !!(G && G.eggE && !G.wave && !G.lvl && !G.debug);
