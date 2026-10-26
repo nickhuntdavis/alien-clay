@@ -1,6 +1,7 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
+- (ccr-b6a373a9-q8ofbd, 26 Oct) Balance sim of the 23 vitals.js/perks.js cards, bot, mortal, paired with them removed: Petri Dish wins 3/10 (2/10 without), mean wave reached 14.1 (11.8); Race 0/6 both, mean survival 330 s (218 s). The bot took 0 to 3 of the new cards a run, so the gap is inside run-to-run noise. Open: two Macrophage Queen fights at wave 10 ran 1000+ s (one run with no new cards, one with only pk_dud), against 38 s in the baseline.
 - Version v10.146 (versionCode 425): merge of `ccr-0f6f9db5-704msv` (all open copy written, modifier hold view shows what a card does on each weapon with before/after numbers; holdcopy.js) and `ccr-56c32e6b-e1zsrr` (run log newest first, Sandbox offers print "all N").
 - Version v10.145 (versionCode 424): boss-rank Membranes refill in 10 s (BOSS10_MEM_FILL, boss10.js), 2 s quiet unchanged. The Johnny's bar was not moving for weak builds.
 - Version v10.144 (versionCode 423): Queen heals from at most 6 snacks a pattern cycle (18%) across devour and both dinners; Matron rounds heal an add at most 6 ticks in its life, bed walk 240 px/s. Probe: bossprobe.js <id> w15 for the wave 15 slot.
