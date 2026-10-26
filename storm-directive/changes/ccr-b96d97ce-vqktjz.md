@@ -1,3 +1,11 @@
+## 2026-10-26 Stat cards roll a rarity (v10.163)
+- Systems: draft, stats
+- Files: wmods.js, tests/statrartest.js (new)
+- What: level-up and DNA strand stat cards (Crit Chance, Max Health and the rest) each roll a rarity like other loot (skipped-box floors count), and rarer ones give more: Common 1.5 steps, Uncommon 2 (the old fixed card), Rare 3, Epic 4, Legendary 6 (WM.statSteps). The average deal stays about 2 steps.
+- Save data: none
+- Hooks: none
+- Risk: stat power per run is about the same on average but swingier; a Legendary Bullet Damage card is +18%.
+
 ## 2026-10-26 Rank pips on loot cards (v10.162)
 - Systems: reward cards, draft
 - Files: rankpips.js (new), index.html, tests/rankpipstest.js (new)

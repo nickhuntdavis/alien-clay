@@ -8,7 +8,7 @@
 //    your rerolls) and SKIP (+2 rerolls, no level: the bar empties and has to fill again). Taking a card levels the
 //    weapon (modmatrix.js modAdd; a branch card here). Past Lv 9 a full bar still opens a modifier screen (no level).
 //  - LEVEL-UPS AND DNA STRANDS no longer deal modifier cards or Switched at Birth: they deal Feats, sperm passives,
-//    defences and small stat cards (WM_STAT: two steps of one statup.js stat). The free weapon level every 4th player
+//    defences and small stat cards (WM_STAT: steps of one statup.js stat, more the rarer the card: WM.statSteps). The free weapon level every 4th player
 //    level (modmatrix.js MM.freeEvery) is off.
 //  - THE STAGE: one drawn loop per modifier (WMV_SCENE), drawn with the weapon's own type colour and attack type
 //    (a projectile, a spread, a beam, a contact swipe, a burst or a puddle: wmvKit K.shot).
@@ -18,7 +18,7 @@
 // makePreview (the modifier loops), modmatrix.js modDraftCands and wupLevel, modcards.js modBoxCards, UI.openDraft and
 // UI.refreshHud. Loads last (after modpick.js and holdcopy.js).
 
-const WM = { on: true, force: false, k0: 16, kg: 0.5, cards: 3, skipRerolls: 2, statN: 2, statW: 1.1 };
+const WM = { on: true, force: false, k0: 16, kg: 0.5, cards: 3, skipRerolls: 2, statN: 2, statW: 1.1, statSteps: [1.5, 2, 3, 4, 6, 8, 10] };
 const wmOn = () => WM.on && !!G && !xbrTest(WM.force) && !(typeof sbOn === 'function' && sbOn());
 const wmNeed = w => Math.round(WM.k0 * (1 + WM.kg * (Math.min(MM.lvlCap, w.lvl || 1) - 1)));
 const wmLive = w => !!w && !w.isSpell && !!w.def && G.weapons.includes(w);
@@ -107,11 +107,18 @@ modBoxCards = (orig => function (n) { return wmOn() && !wmIn ? [] : orig(n); })(
 
 // Small stat cards for level-ups: two steps of one stat (statup.js).
 const WM_STAT = ['dmg', 'rof', 'crit', 'critX', 'mag', 'reload', 'range', 'feat', 'hp', 'regen', 'shell', 'membrane', 'speed', 'xp', 'traction', 'accel'];
+// Each card rolls its own rarity (game.js rollRarity, floored by a skipped box's boost); rarer cards give more steps
+// (WM.statSteps by rarity index: Common 1.5, Uncommon 2 (the old fixed card), Rare 3, Epic 4, Legendary 6; the average deal
+// stays about 2 steps, as before).
+function wmStatRar() {
+  const q = typeof UI !== 'undefined' && UI.lootReq, min = q && RAR_SKIP[q.kind] != null ? RAR_SKIP[q.kind] + (q.boost || 0) : 0;
+  return Math.min(WM.statSteps.length - 1, rollRarity(Math.min(4, min)));
+}
 function wmStatCard(k) {
-  const D = ST_DEF[k];
-  return { card: 'stat:' + k, family: 'stat:' + k, rarity: 1, tag: 'STAT', icon: '+', color: '#9fb3c8',
-    elem: 'phys', title: D.name, sub: stFmt(k, D.k * WM.statN), desc: stDelta(k, WM.statN), quip: 'A small, measurable improvement. Logged.',
-    apply: () => stGain(k, WM.statN) };
+  const D = ST_DEF[k], rar = wmStatRar(), n = WM.statSteps[rar];
+  return { card: 'stat:' + k, family: 'stat:' + k, rarity: rar, tag: 'STAT', icon: '+', color: '#9fb3c8', statN: n,
+    elem: 'phys', title: D.name, sub: stFmt(k, D.k * n), desc: stDelta(k, n), quip: 'A small, measurable improvement. Logged.',
+    apply: () => stGain(k, n) };
 }
 function wmStatCands() {
   const ks = WM_STAT.filter(k => ST_DEF[k] && !banished('stat:' + k));
