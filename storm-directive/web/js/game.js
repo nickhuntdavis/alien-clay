@@ -63,18 +63,21 @@ const CAPS = { enemies: 170, proj: 380, ebul: 800, parts: 160, texts: 40, gems: 
 const SPAWN_K = 0.75, XP_K = 1.2, toughK = t => 1 + (1 / spawnK() - 1) * Math.min(1, t / 240);
 // Fewer, tougher still outside wave mode (user, 23 Oct: late-race frame rate): a quarter fewer enemies alive and spawned,
 // each with a third more health and XP, so the work per minute and the levelling stay put. Wave mode keeps its counts.
-const CROWD = { k: 0.75, far: 600, half: true }; // (half: far enemies and separation on alternate frames)
-const crowdK = () => (G && !G.wave ? CROWD.k : 1), spawnK = () => SPAWN_K * crowdK();
+const CROWD = { k: 0.75, kLow: 0.55, far: 600, half: true }; // (half: far enemies and separation on alternate frames; kLow: quality step 5, see qualTick)
+const crowdK = () => (G && !G.wave ? (QUAL.lv >= 5 ? CROWD.kLow : CROWD.k) : 1), spawnK = () => SPAWN_K * crowdK();
 { const E = CAPS.enemies; Object.defineProperty(CAPS, 'enemies', { get: () => Math.round(E * crowdK()), configurable: true }); } // (the hard cap every spawner checks: 128 outside wave mode)
 // Adaptive quality: when frames run slow for a while (busy late game, slower phones), step the costly
 // extras down; step back up once there's headroom again. 0: everything. 1: no lens blur or foreground
-// debris, fewer floating numbers. 2: 1.5x resolution, plainer common enemies, fewer particles. 3: 1x resolution.
-const qualParts = () => (QUAL.lv >= 2 ? 120 : CAPS.parts);
+// debris, fewer floating numbers. 2: 1.5x resolution, plainer common enemies, fewer particles. 3: 1x resolution,
+// every common enemy plain. 4: 0.75x resolution, 70 particles, no scorch marks. 5 (the last resort, outside wave
+// mode): the crowd thins to CROWD.kLow (fewer, tougher enemies, the same XP a minute), since every long Race on the
+// phone (26 Oct) fell to 25 to 45 fps from minute 6 with step 4 already reached. The run log shows it as q0c.
+const qualParts = () => (QUAL.lv >= 4 ? 70 : QUAL.lv >= 2 ? 120 : CAPS.parts);
 const qualTexts = () => (QUAL.lv >= 1 ? 20 : CAPS.texts);
 function qualTick(raw) {
   if (raw > 1 / 40) { QUAL.slow += raw; QUAL.fast = 0; } else if (raw < 1 / 54) { QUAL.fast += raw; QUAL.slow = Math.max(0, QUAL.slow - raw * 0.5); }
   const now = performance.now();
-  if (QUAL.slow > 1.5 && QUAL.lv < 4) {
+  if (QUAL.slow > 1.5 && QUAL.lv < 5) {
     // Stepping straight back down after stepping up means that level is too much: stay put for a minute.
     if (now - (QUAL.upAt || -1e9) < 6000) QUAL.lockUntil = now + 60000;
     QUAL.lv++; QUAL.slow = 0; QUAL.fast = 0; if (QUAL.lv >= 2) resize(); qualSave();
@@ -2666,7 +2669,7 @@ function victory(at) {
 function update(dt) {
   G.t += dt; G.realT += dt; G.frameN = (G.frameN || 0) + 1; updateSevered(dt); updatePill(dt); updateYeast(dt); gemMerge(); stamTick(dt); modsTick(dt); armourRegen(dt); wsTick(dt);
   // Balancing timeline for the run log: level and HP% at every minute.
-  if (G.t >= (G.nextLogT || 60)) { G.nextLogT = (G.nextLogT || 60) + 60; (G.tl || (G.tl = [])).push(G.level + '/' + Math.round(G.player.hp / G.P.maxHp * 100)); (G.perfTl || (G.perfTl = [])).push(perfMinute()); (G.fpsTl || (G.fpsTl = [])).push(Math.round(FPS.runN ? FPS.runSum / FPS.runN : FPS.v) + '/' + Math.round(FPS.runLow < 999 ? FPS.runLow : FPS.low) + (QUAL.lv ? 'q' + (4 - QUAL.lv) : '')); FPS.runN = 0; FPS.runSum = 0; FPS.runLow = 999; }
+  if (G.t >= (G.nextLogT || 60)) { G.nextLogT = (G.nextLogT || 60) + 60; (G.tl || (G.tl = [])).push(G.level + '/' + Math.round(G.player.hp / G.P.maxHp * 100)); (G.perfTl || (G.perfTl = [])).push(perfMinute()); (G.fpsTl || (G.fpsTl = [])).push(Math.round(FPS.runN ? FPS.runSum / FPS.runN : FPS.v) + '/' + Math.round(FPS.runLow < 999 ? FPS.runLow : FPS.low) + (QUAL.lv ? 'q' + Math.max(0, 4 - QUAL.lv) + (QUAL.lv >= 5 ? 'c' : '') : '')); FPS.runN = 0; FPS.runSum = 0; FPS.runLow = 999; }
   if (G.t >= (G.nextLiveT || 30)) { G.nextLiveT = G.t + 20; liveSave(G); }
   const p = G.player;
   gridBuild();

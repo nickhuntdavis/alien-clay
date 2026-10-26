@@ -33,6 +33,11 @@ function foeMemDraw(e, c, x, y, r) {
   const shell = () => { ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]); for (let i = 1; i < N; i++) ctx.lineTo(pts[i][0], pts[i][1]); ctx.closePath(); };
   const df = !!SET.darkfield, tint = df ? '120,220,255' : '40,170,215', rim = df ? '#9ef0ff' : '#1b9cc4', a0 = ctx.globalAlpha;
   ctx.save(); ctx.globalCompositeOperation = df ? 'lighter' : 'source-over';
+  if (QUAL.lv >= 3) { // (the two lowest quality steps: a flat skin and the rim, no gradients: two shader uploads a Membrane a frame)
+    shell(); ctx.fillStyle = `rgba(${tint},${0.12 * base + 0.2 * hot})`; ctx.globalAlpha = a0; ctx.fill();
+    ctx.lineWidth = Math.max(1, 1.3 * S); ctx.strokeStyle = rim; ctx.globalAlpha = a0 * Math.min(1, 0.5 * base + 0.6 * hot); ctx.stroke();
+    ctx.restore(); return;
+  }
   const g = ctx.createRadialGradient(x, y, R * 0.35, x, y, R * 1.02);
   g.addColorStop(0, `rgba(${tint},0)`); g.addColorStop(0.6, `rgba(${tint},${0.05 * base + 0.1 * hot})`); g.addColorStop(1, `rgba(${tint},${0.25 * base + 0.3 * hot})`);
   shell(); ctx.fillStyle = g; ctx.globalAlpha = a0; ctx.fill();
