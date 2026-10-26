@@ -19,7 +19,7 @@
 //      pinclock  Little Prick + One of These Days: needles start a 3 s countdown; at zero every Bleed stack on the
 //                enemy goes off at once (plus 50% of b's damage a needle).
 //      snotfire  Nocturnal Emission + Hot Mess: the puddles burn too (b's damage, Fire, twice a second).
-//  Names and card text are TODO_COPY (WF_TEXT). The fused weapon shows its fused name everywhere (wfName).
+//  Names and card text in WF_TEXT (Claude-drafted, 26 Oct). The fused weapon shows its fused name everywhere (wfName).
 // Hooks: none in shared files. hookOn tick 'wfTick' and proc 'wfProc'; wraps v10Loot, draftTitle, availableCombos,
 // wupForkCards, sbSlotMark (hides the absorbed weapon's HUD slot), modOk, bubblePop, peekFire,
 // detonateMine. Loads after combos10.js, fusion.js, sandbox.js, modmatrix.js and moddead.js (right after moddead.js).
@@ -35,8 +35,17 @@ const WF_LIST = [
   { id: 'snotfire', a: 'v_ice_pool', b: 'v_flame_pool' },
 ];
 const WF_BY = Object.fromEntries(WF_LIST.map(f => [f.id, f]));
-// The fused weapon's name and description (the user writes them: drop the copy in here).
-const WF_TEXT = Object.fromEntries(WF_LIST.map(f => [f.id, { name: 'TODO_COPY:wf_' + f.id + '_name', desc: 'TODO_COPY:wf_' + f.id + '_desc' }]));
+// The fused weapon's name and description.
+const WF_TEXT = {
+  zapbub: { name: 'Static Cling', desc: 'Popped bubbles arc to up to 6 nearby enemies and Charge them.' },
+  acidmess: { name: 'Acid Reflux', desc: 'Acid Spit hits leave small burning patches.' },
+  sibshot: { name: 'Nuclear Family', desc: 'Standard Issue hits burst into two homing siblings.' },
+  peekegg: { name: 'Nest Egg', desc: 'Each time you vanish, you leave an egg behind for the crowd to fight over.' },
+  hotcore: { name: 'Warm Embrace', desc: 'Each vortex burns whatever reaches its core.' },
+  lardmine: { name: 'Nappy Blowout', desc: 'Mine blasts launch enemies outward into each other.' },
+  pinclock: { name: 'Biological Clock', desc: 'Needles start a 3-second countdown. At zero, every Bleed on the enemy goes off at once.' },
+  snotfire: { name: 'Fever Dream', desc: 'Its sticky patches burn as well.' },
+};
 const wfSlot = sid => (G && G.weapons.find(w => w && !w.isSpell && w.sid === sid)) || null;
 const wfFree = w => w && !w.wfIn && !w.wfWith;
 const wfTierOf = w => (typeof wTier === 'function' ? wTier(w) : w.lvl);
@@ -82,11 +91,11 @@ function wfFuse(f) {
 }
 function wfOpts(req) {
   const f = WF_BY[req.id], A = f && wfSlot(f.a), B = f && wfSlot(f.b);
-  if (!f || !A || !B) return [{ title: 'TODO_COPY:wf_skip', tag: 'TODO_COPY:wf_tag', icon: '', color: '#cfe7ff', desc: '', rarity: 0, apply: () => {} }];
+  if (!f || !A || !B) return [{ title: 'Not Yet', tag: 'FUSION', icon: '', color: '#cfe7ff', desc: '', rarity: 0, apply: () => {} }];
   return [
-    { def: A.def, rarity: 4, tag: 'TODO_COPY:wf_tag', icon: A.def.icon, color: A.def.color, elem: A.def.elem, title: WF_TEXT[f.id].name,
+    { def: A.def, rarity: 4, tag: 'FUSION', icon: A.def.icon, color: A.def.color, elem: A.def.elem, title: WF_TEXT[f.id].name,
       sub: `${A.def.name} + ${B.def.name}`, desc: WF_TEXT[f.id].desc, c10: true, wfuse: f.id, apply: () => wfFuse(f) },
-    { rarity: 0, tag: 'TODO_COPY:wf_tag', icon: A.def.icon, color: '#9aa4b2', elem: A.def.elem, title: 'TODO_COPY:wf_skip', sub: '', desc: 'TODO_COPY:wf_skip_desc', apply: () => {} },
+    { rarity: 0, tag: 'FUSION', icon: A.def.icon, color: '#9aa4b2', elem: A.def.elem, title: 'Not Yet', sub: '', desc: 'Keep them apart. You will be asked again when the first one gains a level.', apply: () => {} },
   ];
 }
 
@@ -182,5 +191,5 @@ hookOn('proc', 'wfProc', (e, dmg, src) => wfProc(e, dmg, src));
     if (req && req.kind === 'wfuse') return wfOpts(req);
     return WF.on && req && req.kind === 'slot' ? without(vl, this, arguments) : vl.apply(this, arguments);
   };
-  if (typeof draftTitle === 'function') { const dt = draftTitle; draftTitle = function (req) { return req && req.kind === 'wfuse' ? ['TODO_COPY:wf_title', 'TODO_COPY:wf_title_sub'] : dt.apply(this, arguments); }; }
+  if (typeof draftTitle === 'function') { const dt = draftTitle; draftTitle = function (req) { return req && req.kind === 'wfuse' ? ['WEAPON FUSION', 'Two weapons become one. A weapon slot opens.'] : dt.apply(this, arguments); }; }
 })();

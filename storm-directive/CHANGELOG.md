@@ -3,6 +3,28 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.157 (versionCode 436): 2026-10-26 Loot card icons in ink
+- Merged: `claude/eager-thompson-eie9mn` (no conflicts).
+- Systems: ui, reward cards, pictomap. Files: style.css.
+- What: icons on loot cards (pictograms and the line-icon fallback) draw in ink instead of their type or category colour; the rarity chip and damage-type left border keep their colour.
+- Save data: none. Hooks: none. Risk: none (CSS scoped to #lootCards .card .cico).
+
+## v10.156 (versionCode 435): 2026-10-26 Queen snack budget starts at 6 and falls (two sessions' cuts no longer stack)
+- Systems: bosses. Files: bosssig10_t2.js.
+- What: main's v10.154 merge carried both this session's flat cut (3 snacks a cycle) and ccr-b6a373a9's falling budget (6, 4, 2, 1, 1, then none), which stacked to 3, 2, 1, 1, 0 and failed queennomstest. The falling budget from 6 stands on its own (42% of her health over a whole fight, 18% in the first cycle).
+- Save data: none. Hooks: none. Risk: the Queen heals a little more in her first two cycles than v10.154 did; the same over a long fight.
+
+## v10.155 (versionCode 434): 2026-10-26 All open copy written; stat cards show before → after
+- Merged: `claude/keen-euler-cl2st0` (fast-forward, no conflicts).
+
+### Folded from claude/keen-euler-cl2st0: 2026-10-26 All open copy written; stat cards show before → after (v10.155)
+- Systems: ui, feats, weapons, defence, stats
+- Files: perks.js, vitals.js, mobfeats.js, passivefeat.js, wfusion.js, wmods.js, rtooth.js, statup.js, v9back.js, tests/statuptest.js
+- What: every TODO_COPY that reached the screen now has Claude-drafted text (user asked: "write copy for all missing copy"): the 14 perk and 9 vitals cards (PK_TEXT, VT_TEXT), Brave Phase and Puddle Jumper with their forks, the Passive Feat slot and its two aura Feats, the 8 weapon fusions and the fusion screen, the weapon modifier screen heading and stat cards, Reverse Tooth Fairy's TEETHING float. Stat cards show your current value and the value after taking them (statup.js stNow/stDelta: "Crit Chance 5% → 8%"), as does the stat line under modifier cards; v9 ranked upgrades from rank 2 show each changing number as before → after (v9back.js v9Delta: "take 10% → 20% less damage").
+- Save data: none.
+- Hooks: none.
+- Risk: copy is a first draft for the user's read-through. stLine's format changed (holdcopy.js "Also:" line uses it). statuptest's Enzyme Sneeze dps ratio fails on main too (not from this change).
+
 ## v10.154 (versionCode 433): 2026-10-26 Five session branches merged: weapon fusion and the Passive Feat slot, slotless draft cards, weapons level from their own kills, Queen snack cap, combat overrides on the event hub
 - Merged: `ccr-1ac49716-yz41yr`, `ccr-b6a373a9-q8ofbd`, `ccr-c2f81cd0-9wox5o`, `claude/practical-brahmagupta-ry2k05`, `claude/keen-archimedes-9okpqe`. Conflicts: version files, APK, ARCHITECTURE.md script order, NOTES.md bullets, index.html script tags (wmods then passivefeat), game.js damageEnemy (event-hub wrapper kept, main's body line kept: phased Ghost Swimmers stay hittable), bosssig10_t2.js Macrophage Queen snacks (both fixes combined: noms 3 a cycle, shrinking 60% each cycle, so 3, 2, 1, 1, then none).
 - Risk: the Queen now gets both healing cuts at once and may fall faster than either branch tuned for; weapon fusion (replaces v10 combos) and per-weapon kill levelling landed together untested against each other; built without running the suite (user's request).

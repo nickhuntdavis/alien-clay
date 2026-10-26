@@ -109,8 +109,8 @@ modBoxCards = (orig => function (n) { return wmOn() && !wmIn ? [] : orig(n); })(
 const WM_STAT = ['dmg', 'rof', 'crit', 'critX', 'mag', 'reload', 'range', 'feat', 'hp', 'regen', 'shell', 'membrane', 'speed', 'xp', 'traction', 'accel'];
 function wmStatCard(k) {
   const D = ST_DEF[k];
-  return { card: 'stat:' + k, family: 'stat:' + k, rarity: 1, tag: 'TODO_COPY:wm_stat_tag', icon: '+', color: '#9fb3c8',
-    elem: 'phys', title: D.name, sub: stFmt(k, D.k * WM.statN), desc: `${stFmt(k, D.k * WM.statN)} ${D.name}`, quip: 'TODO_COPY:wm_stat_quip',
+  return { card: 'stat:' + k, family: 'stat:' + k, rarity: 1, tag: 'STAT', icon: '+', color: '#9fb3c8',
+    elem: 'phys', title: D.name, sub: stFmt(k, D.k * WM.statN), desc: stDelta(k, WM.statN), quip: 'A small, measurable improvement. Logged.',
     apply: () => stGain(k, WM.statN) };
 }
 function wmStatCands() {
@@ -148,8 +148,8 @@ sivDraftHead = (orig => function (req, weap) {
   for (const o of UI.lootOpts) o.perk = 'wm|' + (o.wmId || '') + '|' + (o.family === 'switch' ? o.color || '' : '');
   const L = weap.lvl || 1;
   $('dKick').textContent = `${weap.def.name.toUpperCase()} | ${L < MM.lvlCap ? `LV ${L} > ${L + 1}` : 'LV ' + L}`;
-  $('dTitle').textContent = 'TODO_COPY:wm_title';
-  $('dSub').textContent = 'TODO_COPY:wm_sub';
+  $('dTitle').textContent = 'WEAPON MODIFIER';
+  $('dSub').textContent = 'Choose one. Skip for 2 rerolls; the kill bar starts again.';
   return true;
 })(sivDraftHead);
 sbDraftInfo = (orig => function (D, o) {
