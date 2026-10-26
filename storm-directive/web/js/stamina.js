@@ -68,7 +68,7 @@ const ARM_RIP = [];
 function armourRing(px, py) {
   const P = G.P;
   if (!pdefShieldUp()) { ARM_RIP.length = 0; return; } // (v10: the bubble is the Membrane, pdef.js)
-  const k = pdefShieldK(), sc = S0 * ZOOM.z, R = 24 * sc * playerScale() * 1.6, t = G.realT, a0 = ctx.globalAlpha;
+  const k = pdefShieldK(), sc = S0 * ZOOM.z, R = bubbleR() * sc, t = G.realT, a0 = ctx.globalAlpha;
   // Elastic (bodymods.js): it sloshes behind you on its spring and flattens against whatever it is pressed on.
   const B = G.bub, ox = B ? B.ox * sc : 0, oy = B ? B.oy * sc : 0, C = G.bubC;
   px += ox * 0.4; py += oy * 0.4;
