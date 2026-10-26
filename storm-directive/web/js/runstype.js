@@ -9,7 +9,7 @@
 //      Static: arcs jump between neighbouring trail pieces like a fence, hitting what crosses them (RUNS.arc of its dps).
 //      Blood: while enemies stand in it, you heal a little (RUNS.heal of max health a second for each, 3 at most).
 //      Parasite: enemies on it are dragged along it, away from you (RUNS.drag).
-//  Card text TODO_COPY:sp_runs_<type>_desc (type: the internal id).
+//  Card text per type: RUNS_TEXT (Claude-drafted at the user's request, 26 Oct).
 // Hooks: none in shared files. hookOn tick 'runsTick'; wraps draft.js cardOpt. spassives.js spRunsSlot reads G.spRunsType.
 // Loads after passivefeat.js.
 const RUNS = { types: ['phys', 'fire', 'shock', 'ice', 'arcane', 'soul', 'flame'], ownK: 2, tick: 0.25, shove: 160, arc: 0.6, arcGap: 70, heal: 0.004, drag: 110 };
@@ -21,6 +21,15 @@ function runsRoll() {
   for (const t of RUNS.types) { r -= w[t]; if (r <= 0) return t; }
   return 'phys';
 }
+const RUNS_TEXT = {
+  phys: 'Leaves a trail that shoves anything standing in it aside. Nobody was going to stand in it anyway.',
+  fire: 'Leaves a trail of acid that eats through Shell. Stomach acid, mostly. Possibly bile.',
+  shock: 'Leaves a crackling trail. Static jumps between the pieces like an electric fence.',
+  ice: 'Leaves a trail of mucus that Snares whatever wades into it. Self-explanatory.',
+  arcane: 'Leaves a trail of blood that makes enemies bleed, and heals you while they stand in it.',
+  soul: 'Leaves a trail that drags enemies along it, away from you. Something in it wants company.',
+  flame: 'Leaves a burning trail that sets fire to whatever follows you. Something you ate, presumably.',
+};
 const runsCol = t => (typeof V10_COL !== 'undefined' && V10_COL[t]) || (ELEMENTS[t] && ELEMENTS[t].color) || '#cfe7ff';
 cardOpt = (orig => function (c) {
   const o = orig.apply(this, arguments);
@@ -28,7 +37,7 @@ cardOpt = (orig => function (c) {
   const r = c.rank ? c.rank(G) || 0 : 0, t = r ? (G.spRunsType || null) : runsRoll();
   if (!t) return o;
   o.elem = t; o.color = runsCol(t); o.sub = (o.sub || '') + ' | ' + ELEMENTS[t].name;
-  if (!r) { o.desc = 'TODO_COPY:sp_runs_' + t + '_desc'; o.runsType = t; const ap = o.apply; o.apply = () => { G.spRunsType = t; ap(); }; }
+  if (!r) { o.desc = RUNS_TEXT[t]; o.runsType = t; const ap = o.apply; o.apply = () => { G.spRunsType = t; ap(); }; }
   return o;
 })(cardOpt);
 

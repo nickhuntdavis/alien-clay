@@ -27,7 +27,7 @@
 //      gainsneeze Maximum Gains + Enzyme Sneeze: Maximum Gains hits within 140 of you also splash acid (35%).
 //      nervepanic Nervous Wreck + Panic Button: a snap ends in a pulse that throws the crowd outward (every 0.6 s).
 //      crossbeam  Red Flagship + Soulmate Signal: every twin also fires a Red Flagship beam at its nearest enemy.
-//  Names and card text in WF_TEXT (Claude-drafted, 26 Oct). Pairs 9 to 16 are TODO_COPY. The fused weapon shows its fused name everywhere (wfName).
+//  Names and card text in WF_TEXT (Claude-drafted, 26 Oct). Pairs 9 to 16 and the Spoon pairing: Claude-drafted at the user's request, 26 Oct. The fused weapon shows its fused name everywhere (wfName).
 // Hooks: none in shared files. hookOn tick 'wfTick' and proc 'wfProc'; wraps v10Loot, draftTitle, availableCombos,
 // wupForkCards, sbSlotMark (hides the absorbed weapon's HUD slot), modOk, bubblePop, peekFire,
 // detonateMine. Loads after combos10.js, fusion.js, sandbox.js, modmatrix.js and moddead.js (right after moddead.js).
@@ -61,13 +61,13 @@ const WF_TEXT = {
   lardmine: { name: 'Nappy Blowout', desc: 'Mine blasts launch enemies outward into each other.' },
   pinclock: { name: 'Biological Clock', desc: 'Needles start a 3-second countdown. At zero, every Bleed on the enemy goes off at once.' },
   snotfire: { name: 'Fever Dream', desc: 'Its sticky patches burn as well.' },
-  tapezap: { name: 'TODO_COPY:wf_tapezap_name', desc: 'TODO_COPY:wf_tapezap_desc' },
-  wormsibs: { name: 'TODO_COPY:wf_wormsibs_name', desc: 'TODO_COPY:wf_wormsibs_desc' },
-  redlaser: { name: 'TODO_COPY:wf_redlaser_name', desc: 'TODO_COPY:wf_redlaser_desc' },
-  possessed: { name: 'TODO_COPY:wf_possessed_name', desc: 'TODO_COPY:wf_possessed_desc' },
-  gainsneeze: { name: 'TODO_COPY:wf_gainsneeze_name', desc: 'TODO_COPY:wf_gainsneeze_desc' },
-  nervepanic: { name: 'TODO_COPY:wf_nervepanic_name', desc: 'TODO_COPY:wf_nervepanic_desc' },
-  crossbeam: { name: 'TODO_COPY:wf_crossbeam_name', desc: 'TODO_COPY:wf_crossbeam_desc' },
+  tapezap: { name: 'Chain of Custody', desc: 'Zap one taped enemy and the whole bundle gets it. Shared responsibility.' },
+  wormsibs: { name: 'Family Reunion', desc: 'Risen allies spit homing siblings at the living. Everyone is invited.' },
+  redlaser: { name: 'Red Alert', desc: 'Whatever the laser hits throws Static at the two nearest enemies.' },
+  possessed: { name: 'Night Terrors', desc: 'Possessed enemies go off like a panic button and throw their mates. Not their fault. Not ours either.' },
+  gainsneeze: { name: 'Gym Flu', desc: 'Shots up close come with a spray of acid. Cover your mouth.' },
+  nervepanic: { name: 'Fight or Flight', desc: 'Every snap ends in a pulse that throws the crowd outward. Both, then.' },
+  crossbeam: { name: 'Mixed Signals', desc: 'Your twin fires a Red Flagship of its own, so the beams cross the crowd from both sides.' },
 };
 const wfSlot = sid => (G && G.weapons.find(w => w && !w.isSpell && w.sid === sid)) || null;
 const wfFree = w => w && !w.wfIn && !w.wfWith;
@@ -262,8 +262,8 @@ hookOn('proc', 'wfProc', (e, dmg, src) => wfProc(e, dmg, src));
 // There Is No Spoon is a sperm passive (spoon.js: a hidden slot, never in G.weapons), so it can't fuse. Held together with
 // Blowing Bubbles at HUD Lv WF.tier, it pairs instead (no merge, no mount): every bullet Spoon fires back traps what it
 // hits in a bubble (WF_SB.trap s of Snare; bosses and rivals are only slowed). The first time it switches on, a float
-// says so (TODO_COPY:wf_spoonbub_on).
-const WF_SB = { trap: 1.5, text: 'TODO_COPY:wf_spoonbub_on' };
+// says so (WF_SB.text).
+const WF_SB = { trap: 1.5, text: 'PAIRED: SPOON + BUBBLES' };
 const wfSpoonBub = () => { const B = wfSlot('s_bubble'); return !!(G && G.spSpoon && G.spSpoon.w && typeof mr === 'function' && mr('sp_spoon') > 0 && B && wfTierOf(B) >= WF.tier); };
 hookOn('proc', 'wfSpoonProc', (e, dmg, src) => {
   if (!src || !G || !G.spSpoon || src.w !== G.spSpoon.w || !wfSpoonBub() || e.dead) return;

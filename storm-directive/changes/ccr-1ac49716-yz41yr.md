@@ -1,5 +1,13 @@
 # ccr-1ac49716-yz41yr (after main's v10.154 fold)
 
+## 2026-10-26 Open copy written (v10.160)
+- Systems: ui (card copy): Feats, sperm passives, weapons (fusion), Little Jacob
+- Files: matskin.js (MS_TEXT), runstype.js (RUNS_TEXT), wfusion.js (WF_TEXT pairs 9 to 16, WF_SB.text), ljacob.js (LJ_TEXT), tests/runstypetest.js
+- What: at the user's request ("write the open copy yourself"), Claude wrote the 33 open strings: the material skin Feat (Petrified; forks Chitin, Kidney Stone, Enamel, Latex), The Runs' seven per-type card lines, fusions 9 to 16 (Chain of Custody, Family Reunion, Red Alert, Night Terrors, Gym Flu, Fight or Flight, Mixed Signals), the Spoon pairing float and Little Jacob's squeal. No TODO_COPY left in this branch's feature files.
+- Save data: none.
+- Hooks: none.
+- Risk: none (text only).
+
 ## 2026-10-26 There Is No Spoon + Blowing Bubbles as a passive pairing (v10.159)
 - Systems: weapons (fusion), sperm passives (There Is No Spoon), tests
 - Files: wfusion.js (pair 13 at the end), tests/wfusiontest.js

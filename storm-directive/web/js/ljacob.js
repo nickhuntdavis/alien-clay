@@ -6,10 +6,10 @@
 //  - FEEDING HIM: your other weapons' shots that touch him are eaten, and their damage is added to his blast at x LJ.feed
 //    (up to LJ.cap x his base blast). Your shots passing within LJ.lure bend towards him, so shooting him first is easy.
 //  - Bosses take LJ.boss of the blast.
-//  Squeal text TODO_COPY:lj_squeal (LJ_TEXT).
+//  Squeal text in LJ_TEXT.
 // Hooks: none in shared files. hookOn tick 'ljTick'; wraps feats10.js f10Draw. Loads after matskin.js.
 const LJ = { cd: 8, range: 520, speed: 115, arm: 0.8, life: 4.5, r: 140, base: 8, feed: 1.25, cap: 4, lure: 120, turn: 6, boss: 0.5 };
-const LJ_TEXT = { squeal: 'TODO_COPY:lj_squeal' };
+const LJ_TEXT = { squeal: 'SQUEEEE' };
 const ljGun = () => (G && G.weapons || []).find(w => w && !w.isSpell && w24Key(w) === 's_seeker' && modCount(w, 'charged') >= 4 && modCount(w, 'explode') >= 4) || null;
 const ljLive = e => e && !e.dead && !e.charmed && !e.egg && !e.phased;
 function ljLaunch(w) {

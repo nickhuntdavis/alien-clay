@@ -1,6 +1,6 @@
 'use strict';
 // Spawn Prawn - the material skin Feat (user, 26 Oct: "stone skin or iron skin ... you become really tough but you lose a
-// lot of traction ... you tumble in a direction ... bowling"). Name and card text are TODO_COPY (MS_TEXT).
+// lot of traction ... you tumble in a direction ... bowling"). Name and card text in MS_TEXT (Claude-drafted at the user's request, 26 Oct).
 //  - PERFORMED (Force, Contact, stamina): for MS.dur seconds you turn to a hard material. You take MS.cut less damage, and
 //    you lose your grip: you swim on momentum (MS.velocity builds at MS.accel towards where you point, bleeds slowly,
 //    tops out at MS.top of your speed). Enemies you roll into are bowled over: Force damage scaled by your speed and a
@@ -13,13 +13,14 @@
 // Hooks: none in shared files. hookOn tick 'msTick2' and hurtMul 'msHurtMul'; wraps newfeats.js nfSpeed and feats10.js
 // f10Draw. Loads after mobfeats.js.
 const MS = { dur: 4, cut: 0.6, cutHard: 0.8, accel: 260, bleed: 0.25, top: 1.7, minHit: 110, gap: 0.4, shove: 260, heavy: 2, pullR: 220, pullCone: 1.05, pull: 140, crowd: 5 };
-const MS_TEXT = { desc: 'TODO_COPY:ms_desc', f3a: 'TODO_COPY:ms_f3a', f3aD: 'TODO_COPY:ms_f3a_desc', f3b: 'TODO_COPY:ms_f3b', f3bD: 'TODO_COPY:ms_f3b_desc',
-  f5a: 'TODO_COPY:ms_f5a', f5aD: 'TODO_COPY:ms_f5a_desc', f5b: 'TODO_COPY:ms_f5b', f5bD: 'TODO_COPY:ms_f5b_desc' };
+const MS_TEXT = { name: 'Petrified', desc: 'You turn to stone for a few seconds. Hits barely register. Neither does steering. Whatever is in the way gets bowled over.',
+  f3a: 'Chitin', f3aD: 'The same stuff as a prawn\'s shell. You take even less damage.', f3b: 'Kidney Stone', f3bD: 'Twice as heavy. Hits twice as hard. Passing it is not your problem.',
+  f5a: 'Enamel', f5aD: 'The hardest thing the body makes. Shots bounce off and go back.', f5b: 'Latex', f5bD: 'You bounce off big enemies and the edge. Tested for durability.' };
 (function () {
   if (typeof feat !== 'function') return;
   const M = () => { const D = f10(); return D.skin || null; };
   const live = e => e && !e.dead && !e.charmed && !e.egg && !e.phased;
-  feat({ id: 'material_skin', name: 'TODO_COPY:ms_name', icon: 'MS', ico: 'shield', type: 'force', atk: 'contact', start: 1, rar: 1, stam: 22,
+  feat({ id: 'material_skin', name: MS_TEXT.name, icon: 'MS', ico: 'shield', type: 'force', atk: 'contact', start: 1, rar: 1, stam: 22,
     does: MS_TEXT.desc,
     base: { dmg: 30, cd: 14, dur: MS.dur },
     when: w => { const p = me(), n = f10Near(p.x, p.y, 160).length; return n >= MS.crowd || (n && p.hp < G.P.maxHp * 0.5) ? {} : null; },

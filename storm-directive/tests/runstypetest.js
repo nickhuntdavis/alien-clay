@@ -19,7 +19,7 @@ const { chromium } = require('playwright');
     if (Object.keys(n).length !== 7) bad.push('not every type rolls: ' + Object.keys(n));
     G.weapons[0] = makeSlot('v_shock_beam', false, 1); G.weapons[1] = makeSlot('s_tesla', false, 1); const m = {}; for (let i = 0; i < 700; i++) { const o = cardOpt(card()); m[o.runsType] = (m[o.runsType] || 0) + 1; } out.static = m.shock;
     if (!(m.shock > n.shock * 1.8)) bad.push('Static weapons did not lean the roll: ' + n.shock + ' > ' + m.shock);
-    { const o = cardOpt(card()); if (!o.desc.startsWith('TODO_COPY:sp_runs_' + o.runsType) || !o.sub.includes(ELEMENTS[o.runsType].name)) bad.push('card does not show its type'); }
+    { const o = cardOpt(card()); if (o.desc !== RUNS_TEXT[o.runsType] || !o.sub.includes(ELEMENTS[o.runsType].name)) bad.push('card does not show its type'); }
     // ---- picking fixes the type; the trail deals it; upgrades keep it
     const pickAs = t => { start(); let o; for (let i = 0; i < 200 && !(o && o.runsType === t); i++) o = cardOpt(card()); o.apply(); return o; };
     for (const t of ['ice', 'phys']) { pickAs(t); if (G.spRunsType !== t) bad.push('picked ' + t + ', type ' + G.spRunsType); run(1); const z = G.zones.find(z => z.trail && z.src && z.src.w === G.spRuns.w); if (!z || z.elem !== t) bad.push(t + ' trail deals ' + (z && z.elem)); }
