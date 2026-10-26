@@ -1,3 +1,11 @@
+## 2026-10-26 Puddle Jumper: your puddles are portals (v10.166)
+- Systems: feats (mobility)
+- Files: mobfeats.js, tests/puddlejumptest.js (new)
+- What: while you hold Puddle Jumper, swimming into any puddle you made (not The Runs' trail or a Hotbox) pops you out of your most distant puddle, 2.5 s apart, no stamina; portal puddles get a faint dashed ring. A tap jumps to the most distant puddle at once; with none, the old backstab or safe-spot jump. Every jump still leaves a Mucus splash and a puddle (a way back).
+- Save data: none
+- Hooks: none in shared files
+- Risk: puddle-heavy builds can chain jumps every 2.5 s (PJ.gap); the Lv 5 Long Jump fork now only lengthens the no-puddle fallback. New placeholder TODO_COPY:feat_puddle_jumper_does. newfeattest fails on main already (mosquito and others: nostatus).
+
 ## 2026-10-26 BUILD tab: modifier ranks as pips (v10.165)
 - Systems: pause (build panel)
 - Files: buildpanel.js, style.css, tests/buildbtntest.js
