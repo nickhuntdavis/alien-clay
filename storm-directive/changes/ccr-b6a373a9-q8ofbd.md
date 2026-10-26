@@ -1,3 +1,11 @@
+## 2026-10-26 Health card trims from the forced-card sim (v10.151)
+- Systems: draft cards, healing
+- Files: vitals.js, perks.js
+- What: Rally wins back 10% of the hit a rank (was 15%) and at most half the hit (was all of it); steady regen 0.2% of max HP a second a rank (was 0.3%); Hex adds 10% damage taken (was 15%). Forced-card sim, 12 runs each against a 3 of 12 baseline: Rally 8 of 12 after the first trim, 5 of 12 with the half-hit cap; regen 4 of 12; Hex 1 of 12 (was 0 of 18).
+- Save data: none
+- Hooks: none
+- Risk: Hex is still a net loss for the bot (it does not value the extra card); a human may rate it differently. Copy briefs for vt_drip, vt_rally and pk_hex must use the new numbers.
+
 ## 2026-10-26 Macrophage Queen heals less each cycle; forced-card balance sim (v10.150)
 - Systems: bosses (tier 2 signatures), tests
 - Files: bosssig10_t2.js, tests/queennomstest.js (new), tests/sim/wave20.js, tests/sim/race.js; merge of main v10.149

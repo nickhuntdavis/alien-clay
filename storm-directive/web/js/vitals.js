@@ -5,7 +5,7 @@
 //  - vt_drip     regenerate 0.2% of max HP per second per rank, at any health (membrane.js hp_scab only works below half).
 //  - vt_leech    weapon hits heal 3% of the damage dealt per rank, drawn from the lifesteal pool (G.lsBudget).
 //  - vt_plasma   all healing +20% per rank (G.P.healMult).
-//  - vt_rally    after a hit, kills within 3 s win back 10% per rank of that hit (at most the whole hit).
+//  - vt_rally    after a hit, kills within 3 s win back 10% per rank of that hit (at most half the hit, VT.rallyCap).
 //  Shell (needs a Shell layer: card or relic)
 //  - vt_regrow   one lost Shell layer grows back every 24 / 16 / 10 s, inside the wave.
 //  - vt_shrap    a Shell layer that breaks bursts: Force damage round you (scales with the enemy HP clock, hpNow).
@@ -28,7 +28,7 @@ const VTC = {
   vt_osmo:   { rarity: 1, max: 3, icon: 'OS', color: '#9fd8ff', needs: 'mem' },
   vt_feed:   { rarity: 1, max: 3, icon: 'FE', color: '#9fd8ff', needs: 'mem' },
 };
-const VT = { drip: 0.002, leech: 0.03, plasma: 0.2, rallyT: 3, rally: 0.10, regrow: [24, 16, 10], shrapR: 120, shrap: 14, popR: 150, pop: 10, popShove: 420, popCd: 6, osmo: 0.005, feed: 0.03 };
+const VT = { drip: 0.002, leech: 0.03, plasma: 0.2, rallyT: 3, rally: 0.10, rallyCap: 0.5, regrow: [24, 16, 10], shrapR: 120, shrap: 14, popR: 150, pop: 10, popShove: 420, popCd: 6, osmo: 0.005, feed: 0.03 };
 const vtr = id => (G && G.vtc && G.vtc[id]) || 0;
 const vtMem = () => typeof pdHasShield === 'function' && pdHasShield(pdef());
 const vtShellCap = D => Math.min(Math.max(D.n.shell, typeof RELIC10 !== 'undefined' ? RELIC10.shellCap : 0), D.n.shell + (typeof relShell === 'function' ? relShell() : 0)); // (as pdef.js pdRefit)
@@ -82,7 +82,7 @@ function vtProc(e, dmg, src, d) {
   const k = vtr('vt_leech'); if (!k || !(d > 0) || !(G.lsBudget > 0)) return;
   const h = Math.min(G.lsBudget, d * VT.leech * k); G.lsBudget -= h; healPlayer(h, true);
 }
-function vtHurt(d) { if (vtr('vt_rally') && d > 0) G.vtRally = { t: G.t + VT.rallyT, hit: d, left: d }; }
+function vtHurt(d) { if (vtr('vt_rally') && d > 0) G.vtRally = { t: G.t + VT.rallyT, hit: d, left: d * VT.rallyCap }; }
 
 hookOn('tick', 'vtTick', dt => vtTick(dt));
 hookOn('kill', 'vtKill', () => vtKill());
