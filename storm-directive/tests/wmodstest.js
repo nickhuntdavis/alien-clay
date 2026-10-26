@@ -53,6 +53,14 @@ const { chromium } = require('playwright');
     UI.pickLoot(0);
     if (w.lvl !== 3 || w.wmQ) bad.push('branch pick: lvl ' + w.lvl);
     if (WUP[w24Key(w)] && !wupUp(w).p) bad.push('promise not recorded');
+    // Trophy Polish (boss spoils): fills the bar (a screen per weapon), never a raw level; weapons cap at Lv 9
+    const l3 = w.lvl; SPOILS.trophy().apply();
+    if (w.lvl !== l3 || !G.lootQueue.some(x => x.wm && x.wm.w === w)) bad.push('trophy: lvl ' + w.lvl + ' queued ' + G.lootQueue.length);
+    G.lootQueue = []; w.wmQ = false; w.wmK = 0;
+    if (wCap(w) !== MM.lvlCap) bad.push('wCap ' + wCap(w));
+    // each screen is exactly one level, to Lv 9 and no further
+    for (let s = 0; s < 9; s++) { kill(wmNeed(w)); const q = G.lootQueue.pop(); if (!q || !draftBox(q)) continue; const l0 = w.lvl; UI.openLoot(q); UI.lastDown = 1e12; UI.lootOpenT = -1e6; UI.pickLoot(UI.lootOpts.length - 1); G.state = 'play'; if (w.lvl !== Math.min(9, l0 + 1)) bad.push('step ' + l0 + '>' + w.lvl); }
+    out.top = w.lvl;
     // every loop on every attack type
     const cv = document.createElement('canvas'); cv.style.width = '300px'; cv.style.height = '160px'; document.body.appendChild(cv);
     let drawn = 0;

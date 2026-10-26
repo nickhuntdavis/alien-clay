@@ -47,9 +47,27 @@ function wmQueue(w) {
   const lv = wmBranch(w);
   G.lootQueue.push(lv ? { kind: 'fork', v10ok: true, xbr: { w, lv }, wm: { w } } : { kind: 'fork', v10ok: true, wm: { w } });
 }
-function wmDone(w, lvUp) {
+// A screen closes: the bar empties, and a pick (l0: the level before it) leaves the weapon exactly one level up, to Lv 9.
+// (Exactly: a branch card that grants a modifier, or a modifier that ranks up, would otherwise level it twice.)
+function wmDone(w, l0) {
   w.wmK = 0; w.wmQ = false;
-  if (lvUp) { w.lvl = Math.max(w.lvl || 1, Math.min(MM.lvlCap, (w.lvl || 1) + 1)); computeStats(w); recomputeAll(); }
+  if (l0 == null) return;
+  const to = l0 < MM.lvlCap ? l0 + 1 : l0;
+  if (w.lvl !== to) { w.lvl = to; computeStats(w); recomputeAll(); }
+}
+const wmPicked = (w, ap) => (...a) => { const l0 = w.lvl || 1; ap(...a); wmDone(w, l0); };
+// Weapons stop at Lv 9 under the modifier matrix (MM.lvlCap); game.js wCap still said the v9 Lv 10, so Trophy Polish
+// (spoils.js) could raise a weapon to Lv 10. Off in the Sandbox, which keeps the old tiers.
+wCap = (orig => function (w) { const c = orig(w); return MM.on && w && !w.isSpell && !(typeof sbOn === 'function' && sbOn()) ? Math.min(c, MM.lvlCap) : c; })(wCap);
+// Trophy Polish under the kill bar: every weapon's bar fills, so each level still comes through its own screen (a raw
+// level would skip a branch tier for good: wmBranch only offers a tier on the level it opens at).
+{
+  const tp = SPOILS.trophy;
+  SPOILS.trophy = () => {
+    const o = tp(), ap = o.apply;
+    o.apply = () => { if (!wmOn()) return ap(); for (const w of G.weapons) if (wmLive(w) && !w.wmQ && w.lvl < wCap(w)) wmQueue(w); };
+    return o;
+  };
 }
 xbrTick = (orig => function () { if (!wmOn()) orig(); })(xbrTick); // (the bar queues the branch screens now)
 wupLevel = (orig => function (lv) {
@@ -79,7 +97,7 @@ function wmCards(w) {
     }
     cand = out;
   } finally { G.weapons = keep; wmIn--; }
-  return cand.map(c => Object.assign(c, { wmId: (c.family || c.card || '').replace(/^mod:/, ''), apply: (ap => (...a) => { const l0 = w.lvl || 1; ap(...a); wmDone(w, false); if ((w.lvl || 1) === l0 && l0 < MM.lvlCap && c.family === 'switch') wmDone(w, true); })(c.apply) }));
+  return cand.map(c => Object.assign(c, { wmId: (c.family || c.card || '').replace(/^mod:/, ''), apply: wmPicked(w, c.apply) }));
 }
 modDraftCands = (orig => function (kind) {
   if (!wmOn() || wmIn) return orig(kind);
@@ -104,7 +122,7 @@ function wmStatCands() {
 forkCards = (orig => function (req) {
   if (!req.wm) return orig(req);
   const w = req.wm.w;
-  if (req.xbr) return orig(req).map(c => Object.assign(c, { apply: (ap => (...a) => { ap(...a); wmDone(w, true); })(c.apply) }));
+  if (req.xbr) return orig(req).map(c => Object.assign(c, { apply: wmPicked(w, c.apply) }));
   return wmCards(w);
 })(forkCards);
 draftBox = (orig => function (req) {
@@ -113,7 +131,7 @@ draftBox = (orig => function (req) {
   if (!wmLive(w)) return false;
   if (!req.fixed) req.fixed = forkCards(req);
   if (!req.fixed.length && req.xbr) { delete req.xbr; req.fixed = forkCards(req); } // (no branch cards left: a modifier screen instead)
-  if (!req.fixed.length) { wmDone(w, (w.lvl || 1) < MM.lvlCap); return false; } // (nothing fits: the level comes free)
+  if (!req.fixed.length) { wmDone(w, w.lvl || 1); return false; } // (nothing fits: the level comes free)
   return typeof dirGate === 'function' ? dirGate(req) : true;
 })(draftBox);
 sivDraftKind = (orig => function (req) {
@@ -163,7 +181,7 @@ function wmSkip() {
   const req = wmReq();
   if (!req || performance.now() - UI.lootOpenT < 500) return;
   clearPreviews(); G.rerolls += WM.skipRerolls; sfx('pickup');
-  wmDone(req.wm.w, false); // (no level: the bar starts again)
+  wmDone(req.wm.w); // (no level: the bar starts again)
   if (typeof dirPicked === 'function') dirPicked();
   G.state = 'play'; UI.show('hud'); UI.refreshHud(true); lastTs = performance.now();
   if (typeof v11Chain === 'function') v11Chain();
