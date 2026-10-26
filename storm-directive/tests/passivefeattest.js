@@ -27,23 +27,23 @@ const { chromium } = require('playwright');
     if (G.weapons.length !== n0 + 1) bad.push('no new mount'); if (!G.lootQueue.some(q => q.kind === 'slot')) bad.push('no weapon draft');
     if (a.m10.some(id => dead.includes(id))) bad.push('dead modifiers kept: ' + a.m10);
     if (modOk(c, 'melee') || modOk(c, 'orbiting')) bad.push('a second weapon is dealt Melee or Orbiting while the slot is full');
-    if (cardOk(card('pf_flame_cloak'))) bad.push('aura Feat offered while the slot is full');
+    if (cardOk(card('feat_pf_flame_cloak'))) bad.push('aura Feat offered while the slot is full');
     UI.refreshHud(true); { const el = $('pfSlot'); if (!el || el.style.display === 'none') bad.push('no Passive Feat key on the HUD'); const wk = $('wslots').children[0]; if (wk && wk.style.display !== 'none') bad.push('the aura weapon still has a weapon key'); out.wkeys = $('wslots').children.length; if (out.wkeys < G.weapons.length) bad.push('weapon keys ' + out.wkeys + ' for ' + G.weapons.length + ' mounts'); }
     { const e = foe(60, 0); run(2); if (!(e.hp < e.maxHp)) bad.push('the aura weapon stopped hitting'); }
     // ---- Orbiting does the same; removing the weapon frees the slot
     start(); a = gun(0, 'v_shock_beam'); if (!modAdd(a, 'orbiting') || pfWeapon() !== a) bad.push('Orbiting did not move the weapon'); G.weapons[0] = null; if (!pfFree()) bad.push('slot not freed when the weapon goes');
     // ---- Flame Cloak
-    start(); gun(0, 'v_phys_proj'); if (!cardOk(card('pf_flame_cloak'))) bad.push('Flame Cloak not offered with the slot free'); card('pf_flame_cloak').apply(G);
+    start(); gun(0, 'v_phys_proj'); if (!cardOk(card('feat_pf_flame_cloak'))) bad.push('Flame Cloak not offered with the slot free'); card('feat_pf_flame_cloak').apply(G);
     if (!pfFeat() || pfFeat().id !== 'flame_cloak') bad.push('Flame Cloak not in the slot');
     G.weapons[0].cd = 99; G.weapons[0].reloadT = 99; { const near = foe(50, 0), far = foe(200, 0); run(1); out.cloak = Math.round(near.maxHp - near.hp); if (!(out.cloak > 0)) bad.push('Flame Cloak burned nothing'); if (far.hp < far.maxHp) bad.push('Flame Cloak reached 200'); }
     if (modOk(G.weapons[0], 'melee')) bad.push('Melee dealt while Flame Cloak holds the slot');
-    card('pf_flame_cloak_up').apply(G); if (pfFeat().lvl !== 2) bad.push('Flame Cloak did not level');
+    card('feat_pf_flame_cloak_up').apply(G); if (pfFeat().lvl !== 2) bad.push('Flame Cloak did not level');
     // ---- Pearl Necklace
-    start(); card('pf_pearl_necklace').apply(G); run(0.1); out.pearls = G.pf.pearls.length; if (out.pearls !== PF.pearlN) bad.push('pearls ' + out.pearls);
+    start(); card('feat_pf_pearl_necklace').apply(G); run(0.1); out.pearls = G.pf.pearls.length; if (out.pearls !== PF.pearlN) bad.push('pearls ' + out.pearls);
     { const e = foe(PF.pearlR, 0); run(1); if (!(e.hp < e.maxHp)) bad.push('pearls hit nothing'); if (!G.pf.pearls.some(q => q.back > G.t)) bad.push('no pearl popped'); run(PF.regrow + 0.2); }
     G.pf.feat.lvl = 4; G.enemies.length = 0; gridBuild(); G.pf.pearls.forEach(q => { q.back = 0; }); run(0.05); { const q = G.pf.pearls[0]; G.ebul.push({ x: q.x, y: q.y, vx: 0, vy: 0, r: 4, dmg: 5, life: 2 }); run(0.05); if (!G.ebul.every(b2 => b2.dead)) bad.push('a level 4 pearl did not eat a shot'); }
     // ---- a fight with drawing
-    start(); card('pf_pearl_necklace').apply(G); gun(0, 'v_phys_proj'); for (let i = 0; i < 8; i++) foe(Math.cos(i) * 70, Math.sin(i) * 70); for (let i = 0; i < 180; i++) { G.state = 'play'; G.lootQueue = []; update(1 / 60); if (i % 30 === 0) { render(); UI.refreshHud(); } }
+    start(); card('feat_pf_pearl_necklace').apply(G); gun(0, 'v_phys_proj'); for (let i = 0; i < 8; i++) foe(Math.cos(i) * 70, Math.sin(i) * 70); for (let i = 0; i < 180; i++) { G.state = 'play'; G.lootQueue = []; update(1 / 60); if (i % 30 === 0) { render(); UI.refreshHud(); } }
     out.ok = bad.length === 0;
     return { bad, out };
   });
