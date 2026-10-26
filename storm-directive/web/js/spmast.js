@@ -24,7 +24,7 @@
 //   All at Once     A no follow-up penalty.  B an enemy is fresh again after 1.5 s (not 3).
 //   Hungry Hungry   A 1 kill in 6 drops its XP twice (the extra enemies' share).  B XP pickups heal 0.5% each.
 // Hooks: none in shared files. Wraps mutations.js mutDmg, mutRate, mutSpeed, mutHurtIn, mutKill, mutLevel, mutBurst,
-// mutRxLock, mutHit; pdef.js pdefHurt; game.js healPlayer, gainXp, fireWeapon (Feats); weapons24.js wupTick, wupDmgMul,
+// mutRxLock, mutHit; pdef.js pdefHurt; game.js healPlayer, gainXp; hooks.js fire:before (Feats); weapons24.js wupTick, wupDmgMul,
 // wupKill; draft.js forkCards, draftTitle. Loads after spsteer.js.
 
 const SPM_BR = {
@@ -133,7 +133,7 @@ mutRate = (orig => function () {
   return r;
 })(mutRate);
 mutSpeed = (orig => function () { return orig() * (spmB('evasion') === 'B' && G.spSlipT > G.t ? 1.4 : 1); })(mutSpeed);
-fireWeapon = (orig => function (w, target) { if (w && w.isSpell && G) G.spFeatT = G.t + 3; return orig(w, target); })(fireWeapon);
+hookOn('fire:before', 'spmast:featT', w => { if (w && w.isSpell && G) G.spFeatT = G.t + 3; }, 20);
 
 // ---------------------------------------------------------------- getting hurt
 mutHurtIn = (orig => function (dmg, ent, kind) {

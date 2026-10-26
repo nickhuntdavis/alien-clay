@@ -3,12 +3,20 @@
 // passed") and every feature that cares has registered for it, so a new feature adds one hookOn line in its OWN file
 // instead of a call in game.js (where every branch used to collide).
 //  - hookOn(ev, name, fn, order): register. `order` sorts the listeners (lower runs first; ties keep load order);
-//    leave it out to run after everything below (HOOK_LAST). `name` labels errors and makes the list readable.
+//    leave it out to run after everything below (HOOK_LAST). `name` labels errors and makes the list readable: the
+//    wiring below uses the function's own name; a feature file uses 'file:what' (e.g. 'wup5:cottonWool').
 //  - Listeners are called with the event's own arguments (table below). Wrap the call in a closure,
 //    (e, src) => myKill(e, src), so a later file that replaces myKill (the wrap-and-replace pattern) still gets called.
 //  - Errors are NOT swallowed (tests catch them as page errors), except on 'tick', whose listeners run through safely()
 //    as they always have.
-// Events (where they fire, arguments):
+// Events (where they fire, arguments). The :before / :after events wrap the WHOLE call (they run even when it returns
+// early, as the old wrap-and-replace overrides did); :early / :late and the rest are points inside it.
+//   hit:before  game.js damageEnemy, first; true from a listener cancels the hit (hookFirst)   (e, dmg, src)
+//   kill:before game.js killEnemy, first                                             (e, src, c)  c: per-call notes for kill:after
+//   kill:after  game.js killEnemy, last, whatever path the kill took                  (e, src, c)
+//   hurt:before game.js hurtPlayer, first (before dodges and iframes); returns the damage, null cancels (hookPass)  (dmg, from, ent, kind)
+//   fire:before game.js fireWeapon, first                                            (w, target)
+//   fire:after  game.js fireWeapon, last; the shot's projectiles are G.proj from n0   (w, target, n0)
 //   kill:early  game.js killEnemy, just after e.dead, before the kill counts         (e, src)
 //   kill        game.js killEnemy, after the kill counts, before drops and loot      (e, src)
 //   dmgMul      game.js damageEnemy, a multiplier on one hit (hookMul: return 1 for no change)   (e, src)
@@ -19,7 +27,7 @@
 //   hurt:late   game.js hurtPlayer, after the hit's feedback, before the death check (d, ent, hf)
 //   fire        game.js fireWeapon, first listener to return true takes the shot (hookFirst)   (w, target, src)
 //   tick        game.js update, each frame, between the weapons and the projectiles (hookSafe)   (dt)
-// Hooks: game.js killEnemy, damageEnemy, hurtPlayer, fireWeapon and update call hookRun / hookMul / hookFirst / hookSafe.
+// Hooks: game.js killEnemy, damageEnemy, hurtPlayer, fireWeapon and update call hookRun / hookMul / hookFirst / hookPass / hookSafe.
 // Loads after icons.js, before game.js (feature files register at load time).
 
 const HOOKS = {};
@@ -33,6 +41,13 @@ function hookOn(ev, name, fn, order) {
 function hookRun(ev, a, b, c, d, e) { const L = HOOKS[ev]; if (L) for (const h of L) h.fn(a, b, c, d, e); }
 function hookMul(ev, a, b, c) { const L = HOOKS[ev]; let k = 1; if (L) for (const h of L) k *= h.fn(a, b, c); return k; }
 function hookFirst(ev, a, b, c) { const L = HOOKS[ev]; if (L) for (const h of L) if (h.fn(a, b, c)) return true; return false; }
+// A value passed through the listeners in turn (each returns the new value; undefined keeps it; null stops: the caller cancels).
+// after: skip the listeners up to that order.
+function hookPass(ev, v, a, b, c, after) {
+  const L = HOOKS[ev]; if (!L) return v;
+  for (const h of L) { if (after != null && h.order <= after) continue; const r = h.fn(v, a, b, c); if (r === null) return null; if (r !== undefined) v = r; }
+  return v;
+}
 function hookSafe(ev, a) { const L = HOOKS[ev]; if (L) for (const h of L) safely(h.name, () => h.fn(a)); }
 
 // ---------------------------------------------------------------- the wiring that used to be written out in game.js

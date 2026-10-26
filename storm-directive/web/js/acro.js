@@ -6,7 +6,7 @@
 //  - One dispatcher per hook kind reads the flags the cards set on w.ac (promise in w.ac.p; Lv 6 and Lv 10 cards set a
 //    flag each), as wup1.js does. Base behaviour (the Corrosion bonus, the 4th-hit lunge, the beam's targeting) needs no card,
 //    so the branch engine's hooks are wrapped here instead of using wupOn: wupStats, wupFire, wupDmgMul, wupHit, wupKill,
-//    wupTick, and hurtPlayer (two Hard hat cards and one Drilling card react to hits you take). No shared file is edited.
+//    wupTick; and hooks.js hurt:before (two Hard hat cards and one Drilling card react to hits you take). No shared file is edited.
 //  - "Corroded" means the visible Corroded state (e.corrodedT, no Shell left), not fight.js corroded()'s part-filled bar.
 //    The beam waits for the strip: Corroded first, then enemies a Fire hit can't wipe, then Shelled enemies with a filling bar.
 // Simplifications (flagged in the report): pools don't merge (12.7) beyond Drizzle's grow card; the pellet fuse card raises
@@ -179,7 +179,7 @@
   }
 
   // ------------------------------------------------------------ the hook wrappers
-  const _stats = wupStats, _fire = wupFire, _mul = wupDmgMul, _hit = wupHit, _kill = wupKill, _tick = wupTick, _hurt = hurtPlayer;
+  const _stats = wupStats, _fire = wupFire, _mul = wupDmgMul, _hit = wupHit, _kill = wupKill, _tick = wupTick;
   wupStats = function (w, s) {
     _stats(w, s); if (!isAc(w)) return;
     w.uh = w.uh || {}; // (game.js only asks wupFire when the slot has hooks)
@@ -265,7 +265,7 @@
       if (w.def === WEAPONS[CAP] && f.p === 'A' && f.tgt && !f.tgt.dead && (f.stack || 0) > 1 && !(f.ringT > G.realT)) { f.ringT = G.realT + 0.25; ring(f.tgt.x, f.tgt.y, f.tgt.r + 3 + f.stack, PINK, 0.25, 2 + f.stack * 0.4); }
     }
   };
-  hurtPlayer = function (dmg, from, ent, kind) {
+  hookOn('hurt:before', 'acro:contact', (dmg, from, ent, kind) => {
     const contact = ent && !ent.dead && ent.maxHp && typeof pdefAtk === 'function' && pdefAtk(kind, ent) === 'contact';
     if (contact && G && G.weapons) for (const w of G.weapons) {
       if (!isAc(w) || w.def !== WEAPONS[CAP]) continue;
@@ -273,8 +273,8 @@
       if (f.p === 'A' && has(w, 'a6b') && f.tgt && !f.tgt.dead && (f.stack || 0) > 1) dmg *= 0.6;
       if (f.p === 'C' && has(w, 'c6b') && pdef().layers > 0 && !(f.backT > G.t)) { f.backT = G.t + 1; damageEnemy(ent, w.s.dmg, card(w, { atk: 'contact', kx: ent.x - G.player.x, ky: ent.y - G.player.y, knock: 160 })); ring(ent.x, ent.y, ent.r + 6, PINK, 0.3, 3); }
     }
-    return _hurt(dmg, from, ent, kind);
-  };
+    return dmg;
+  }, 20);
 
   // ------------------------------------------------------------ the cards (all text is TODO_COPY: SAMPLE_9_ACRO.md 6.4 to 6.6)
   const set = k => w => { F(w)[k] = 1; };

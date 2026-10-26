@@ -794,7 +794,13 @@ function bolt(x1, y1, x2, y2, color, life) {
 function after(t, fn) { G.timers.push({ t, fn }); }
 
 // ---------------------------------------------------------------- damage & reactions
+// The four combat entry points are thin: events round the body let features act before or after the whole call
+// (hooks.js), the way the old wrap-and-replace overrides did. The bodies are unchanged.
 function damageEnemy(e, dmg, src) {
+  if (hookFirst('hit:before', e, dmg, src)) return 0; // (true: the hit never happens, e.g. a decoy: aimplus.js)
+  return damageEnemyBody(e, dmg, src);
+}
+function damageEnemyBody(e, dmg, src) {
   if (e.dead) return 0; // (v10: a phased Ghost Swimmer stays hittable at its Evasion cap, phasers10.js; autoaim skips a Possessed enemy, but area hits still land and set off Parasite reactions)
   if (e.bubT > G.t && !src.dot && bubbleHit(e, src, dmg)) return 0; // Bubble Wand: the bubble takes the hit and pops
   const P = G.P, syn = G.synergy;
@@ -971,6 +977,12 @@ function tantrumRage() { return (G.rageV || 0) * Math.pow(0.5, (G.t - (G.rageT |
 function tantrumHurt(d) { G.rageV = tantrumRage() + d; G.rageT = G.t; }
 function tantrumK(s) { return 1 + Math.min(2.5, tantrumRage() / G.P.maxHp * s.rage * 10); }
 function killEnemy(e, src) {
+  const c = {}; // (notes a kill:before listener leaves for its kill:after, per call)
+  hookRun('kill:before', e, src, c);
+  killEnemyBody(e, src);
+  hookRun('kill:after', e, src, c);
+}
+function killEnemyBody(e, src) {
   if (src && src.w) wsKill(e, src); // (wstats.js)
   if (e.rival) { if (rivalSurvives(e)) return; rivalDown(e); sfx('killBig'); if (hitStop(0.08)) buzz('elite'); return; }
   if (e.egg) { e.dead = true; G.eggE = null; victory(e); return; }
@@ -1122,7 +1134,13 @@ function setBurn(e, dps, src) { if (!(dps < (e.burnDps || 0))) e.burnBy = dotNam
 function setPoison(e, dps, src) { if (!(dps < (e.poisonDps || 0))) e.poisonBy = dotName(src); e.poisonDps = Math.max(e.poisonDps || 0, dps); }
 
 // kind: 'bullets', 'contact', 'blast' or 'other' (beams, hazards), for the run log.
-function hurtPlayer(dmg, from, ent, kind) {
+// hookAfter: skip the hurt:before listeners up to that order (a hit a listener delayed comes back past itself: wup5.js).
+function hurtPlayer(dmg, from, ent, kind, hookAfter) {
+  dmg = hookPass('hurt:before', dmg, from, ent, kind, hookAfter); // (null: the hit is cancelled)
+  if (dmg === null) return;
+  hurtPlayerBody(dmg, from, ent, kind);
+}
+function hurtPlayerBody(dmg, from, ent, kind) {
   const p = me(), P = G.P;
   if (G.state !== 'play' || p.iframes > 0 || G.shieldT > 0 || (G.debug && G.debug.god)) return;
   const dodgeAtk = PDEF_ATK[kind || 'other'] || 'pool'; // (Evasion never applies to Burst, Beam or Pool: COMBAT_MATRIX 13; pdef.js)
@@ -1730,6 +1748,12 @@ function dronePos(w, i, n) {
 }
 
 function fireWeapon(w, target) {
+  const n0 = G && G.proj ? G.proj.length : 0; // (fire:after can find the shot's projectiles from here on)
+  hookRun('fire:before', w, target);
+  fireWeaponBody(w, target);
+  hookRun('fire:after', w, target, n0);
+}
+function fireWeaponBody(w, target) {
   const s = w.s, d = w.def, p = G.player, src = weaponSrc(w);
   wsFire(w); // (wstats.js)
   if (hookFirst('fire', w, target, src)) return; // (toys, Prawn Again, the Gene Gun, the Armoury, branches, modifiers, v10 beams ...: hooks.js)

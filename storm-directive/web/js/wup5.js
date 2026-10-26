@@ -7,7 +7,7 @@
 // These four weapons' behaviour lives in toys.js (Red Tape, Bubble Wand, Due Date: bundles, bubbles and marks) and in the
 // homing gun + modifiers.js 'multiplying' (Sister Cousin). The cards reach it by wrapping the toys.js / modifiers.js functions
 // they change (canBubble, toyHold, bubbleSoak, bubbleHit, bubblePop, dueMark, duePop, toyHurt, modHit), each a no-op for a slot
-// that has not taken a card; plus wupDmgMul (The Big Day), hurtPlayer (Cotton Wool, Postponed, Lost in the Post), makeSlot
+// that has not taken a card; plus wupDmgMul (The Big Day), hooks.js hurt:before (Cotton Wool, Postponed, Lost in the Post), makeSlot
 // (Sister Cousin starts with the 'multiplying' modifier, so a kill splits it as the weapon text says), v10Draw (marks, rings).
 // Hook kinds used: stats, fire, tick, dmg (weapons24.js) and phit, pend (shared with wup1.js via globalThis.WUP_PROJ_HOOKS).
 // Simplifications are listed in changes/claude-bold-hypatia-jadt4w.md.
@@ -754,8 +754,8 @@
   };
 
   // ================================================================ hurtPlayer: Cotton Wool, Postponed, Lost in the Post
-  const hurt0 = hurtPlayer; let inPost = false;
-  hurtPlayer = function (dmg, from, ent, kind) {
+  const W5_HURT = 40; let inPost = false; // (its hurt:before order: a Postponed hit comes back past this listener)
+  hookOn('hurt:before', 'wup5:wool', (dmg, from, ent, kind) => {
     if (G && G.state === 'play' && G.weapons && !inPost) {
       const p = me();
       if (!(p.iframes > 0) && !(G.shieldT > 0)) {
@@ -763,12 +763,12 @@
           const f = w && w.w5; if (!f) continue;
           if (f.wool && f.wool.n > 0) { // Cotton Wool: the bubble takes the hit
             f.wool.n--; if (f.wool.n <= 0) f.wool.next = G.t + 6;
-            p.iframes = Math.max(p.iframes, 0.3); ring(p.x, p.y, 36, CYAN, 0.4, 5); fxParts('bubble', p.x, p.y, CYAN, 6, 90, 0.4, 3); say('wl' + w.uid, p.x, p.y - 30, 'POP', CYAN, 13, 0.2); fx(w, 'wool'); return;
+            p.iframes = Math.max(p.iframes, 0.3); ring(p.x, p.y, 36, CYAN, 0.4, 5); fxParts('bubble', p.x, p.y, CYAN, 6, 90, 0.4, 3); say('wl' + w.uid, p.x, p.y - 30, 'POP', CYAN, 13, 0.2); fx(w, 'wool'); return null;
           }
           if (f.postp && dmg > G.P.maxHp * 0.15 && G.t >= (f.postNext || 0)) { // Postponed: halved, and it lands 2 s later
             f.postNext = G.t + 10; fx(w, 'postponed'); say('post' + w.uid, p.x, p.y - 30, 'POSTPONED', CRIM, 13, 1); ring(p.x, p.y, 30, CRIM, 0.6, 4);
-            const half = dmg * 0.5; after(2, () => { if (!G) return; inPost = true; try { hurt0(half, from, ent, kind); } finally { inPost = false; } });
-            return;
+            const half = dmg * 0.5; after(2, () => { if (!G) return; inPost = true; try { hurtPlayer(half, from, ent, kind, W5_HURT); } finally { inPost = false; } });
+            return null;
           }
           if (f.you && f.you.until > G.t && f.you.B && !f.you.B.dead) { // Lost in the Post: the bundle takes 40% of it
             const share = dmg * 0.4; dmg -= share;
@@ -778,8 +778,8 @@
         }
       }
     }
-    return hurt0(dmg, from, ent, kind);
-  };
+    return dmg;
+  }, W5_HURT);
 
   // ================================================================ the shared 'phit' and 'pend' hook kinds (wup1.js installs them; same guard)
   if (!globalThis.WUP_PROJ_HOOKS) {
