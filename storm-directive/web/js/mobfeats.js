@@ -5,10 +5,13 @@
 //    the line with the most enemies in it; under manual steering it bends with your thumb (BP.turn radians a second).
 //    Walls stop it (campaign levels). Forks: Lv 3 exit burst where it ends, or after-images that hit what touches
 //    them; Lv 5 lasts 50% longer, or a shorter cooldown.
-//  - PUDDLE JUMPER (Mucus, Burst): a tap teleport. Carrying a close-range weapon (Melee modifier, or a Contact weapon)
+//  - PUDDLE JUMPER (Mucus, Burst): your puddles are portals (user, 26 Oct). While you hold it, swimming into one of your
+//    puddles (any G.zones pool you made, not The Runs' trail or a Hotbox: pjPools) pops you out of your most distant
+//    puddle (PJ.gap seconds between portal jumps, no stamina). A tap jumps you to the most distant puddle at once. With no
+//    puddle to go to, the tap works as before: carrying a close-range weapon (Melee modifier, or a Contact weapon)
 //    it lands you behind the biggest enemy within reach and backstabs it (150% damage); otherwise it lands you in the
 //    safest spot within reach (THIS WAY's scoring: fewest enemies and bullets). Never into a wall, never across one
-//    (the path is sampled), and you leave with a Mucus splash (40%, radius 80) and a puddle where you were. Forks: Lv 3 two jumps per cooldown, or a
+//    (the path is sampled), and every jump leaves with a Mucus splash (40%, radius 80) and a puddle where you were. Forks: Lv 3 two jumps per cooldown, or a
 //    splash on landing that Snares; Lv 5 50% further, or a shorter cooldown.
 // Hooks: none in shared files. hookOn('tick', 'mobTick'); wraps newfeats.js nfSpeed (Brave Phase speed) and
 // feats10.js f10Draw. index.html loads this after gifts10.js.
@@ -65,8 +68,34 @@
   }
 
   // ================================================================ Puddle Jumper
+  const PJ = { gap: 2.5, minR: 20, minLife: 0.6, inside: 0.8 };
+  const pjPools = () => G.zones.filter(z => z.life > PJ.minLife && z.r >= PJ.minR && z.max >= 1 && !z.trail && !z.follow && !wall(z.x, z.y));
+  const pjIn = (z, p) => Math.hypot(z.x - p.x, z.y - p.y) < z.r * PJ.inside;
+  const pjFar = (p, skip) => { let best = null, bd = 0; for (const z of pjPools()) { if (skip.includes(z) || pjIn(z, p)) continue; const d = Math.hypot(z.x - p.x, z.y - p.y); if (d > bd) { bd = d; best = z; } } return best; };
+  const pjSlot = () => (G.spells || []).find(x => x && x.def && x.def.f10 && x.def.f10.id === 'puddle_jumper');
+  // Leave with a splash and a puddle where you were (itself a way back), come up at to.
+  function pjGo(w, p, to) {
+    const s = w.s, ox = p.x, oy = p.y;
+    f10Burst(w, ox, oy, s.area, s.dmg * 0.4, null); // (the splash as you leave splatters whatever crowded you)
+    f10Patch(w, ox, oy, 46, 3, 'mucus', 0.4);
+    f10Mark(ox, oy, 30, 0.4, w.def.color);
+    p.x = to.x; p.y = to.y; p.vx = p.vy = 0; p.iframes = Math.max(p.iframes || 0, 0.25);
+    f10Mark(p.x, p.y, 30, 0.4, w.def.color); ring(p.x, p.y, p.r + 14, w.def.color, 0.3, 3);
+    if (to.e && !to.e.dead) { p.hd = p.face = Math.atan2(to.e.y - p.y, to.e.x - p.x); f10Hit(w, to.e, s.dmg * 1.5, 'contact'); } // (the backstab)
+    if (f10Fk(w, 'splash')) { const l = f10Near(p.x, p.y, s.area); f10Many(w, l, s.dmg * 0.4, 'burst'); for (const e of l) if (!e.boss) e.frozen = Math.max(e.frozen || 0, 1); }
+  }
+  // Swimming into a puddle you were not already in: out of the most distant one.
+  function pjPortal(m, p) {
+    const w = pjSlot(); if (!w || !w.s) { m.pjWas = null; return; }
+    const now = pjPools().filter(z => pjIn(z, p)), was = m.pjWas || [];
+    m.pjWas = now;
+    if (G.t < (m.pjT || 0) || !now.some(z => !was.includes(z))) return;
+    const to = pjFar(p, now); if (!to) return;
+    pjGo(w, p, { x: to.x, y: to.y });
+    m.pjT = G.t + PJ.gap; m.pjWas = pjPools().filter(z => pjIn(z, p)); // (standing in the one you came out of is not entering it)
+  }
   feat({ id: 'puddle_jumper', name: 'Puddle Jumper', icon: 'PJ', ico: 'bubble', type: 'mucus', atk: 'burst', start: 1, rar: 1, stam: 14,
-    does: 'You drop into a puddle and come up somewhere safer, leaving a Mucus splash behind. With a close-range weapon, you come up behind the biggest enemy and stab it in the back.',
+    does: 'TODO_COPY:feat_puddle_jumper_does',
     base: { dmg: 30, cd: 8, range: 300, area: 80 },
     stat: (w, s) => { if (f10Fk(w, 'far')) s.range *= 1.5; if (f10Fk(w, 'quick')) s.cd *= 0.7; },
     when: w => {
@@ -79,8 +108,9 @@
       return f10Near(p.x, p.y, 140).length >= 4 || bul >= 5 ? { away: 1 } : null;
     },
     fire: (w, c) => {
-      const p = me(), s = w.s, ox = p.x, oy = p.y; let to = null;
-      if (c.e && !c.e.dead) { // behind it, as seen from you
+      const p = me(), s = w.s; let to = null;
+      const far = pjFar(p, []); if (far) to = { x: far.x, y: far.y }; // (your most distant puddle first)
+      if (!to && c.e && !c.e.dead) { // behind it, as seen from you
         const e = c.e, d = Math.hypot(e.x - p.x, e.y - p.y) || 1, x = e.x + (e.x - p.x) / d * (e.r + p.r + 14), y = e.y + (e.y - p.y) / d * (e.r + p.r + 14);
         if (!wall(x, y) && clearPath(p.x, p.y, x, y)) to = { x, y, e };
       }
@@ -93,13 +123,7 @@
         }
       }
       if (!to) return;
-      f10Burst(w, ox, oy, s.area, s.dmg * 0.4, null); // (the splash as you leave splatters whatever crowded you)
-      f10Patch(w, ox, oy, 46, 3, 'mucus', 0.4);
-      f10Mark(ox, oy, 30, 0.4, w.def.color);
-      p.x = to.x; p.y = to.y; p.vx = p.vy = 0; p.iframes = Math.max(p.iframes || 0, 0.25);
-      f10Mark(p.x, p.y, 30, 0.4, w.def.color); ring(p.x, p.y, p.r + 14, w.def.color, 0.3, 3);
-      if (to.e && !to.e.dead) { p.hd = p.face = Math.atan2(to.e.y - p.y, to.e.x - p.x); f10Hit(w, to.e, s.dmg * 1.5, 'contact'); } // (the backstab)
-      if (f10Fk(w, 'splash')) { const l = f10Near(p.x, p.y, s.area); f10Many(w, l, s.dmg * 0.4, 'burst'); for (const e of l) if (!e.boss) e.frozen = Math.max(e.frozen || 0, 1); }
+      pjGo(w, p, to); const m = M(); m.pjT = G.t + PJ.gap; m.pjWas = pjPools().filter(z => pjIn(z, p));
       if (f10Fk(w, 'double')) { w.pjAlt = !w.pjAlt; if (w.pjAlt) after(0, () => { if (G && w.cd > 1.2) w.cd = 1.2; }); }
     },
     forks: { 3: [fk('double', 'Double Dip', 'Two jumps per cooldown.'), fk('splash', 'Belly Flop', 'Landing splashes Mucus around you and Snares what it hits.')],
@@ -107,8 +131,9 @@
 
   // ================================================================ hooks
   function mobTick(dt) {
-    if (!G || G.state !== 'play' || !G.f10 || !G.f10.mob) return;
+    if (!G || G.state !== 'play' || (!G.f10 && !pjSlot())) return;
     const m = M(), p = me();
+    pjPortal(m, p);
     if (m.bp) bpTick(m, p, dt);
     m.trail = m.trail.filter(t => G.t - t.t < 0.35);
     for (const g of m.ghosts) forNear(g.x, g.y, 60, e => { if (f10Live(e) && !g.hit.has(e) && Math.hypot(e.x - g.x, e.y - g.y) < e.r + 14) { g.hit.add(e); f10Hit(g.w, e, g.w.s.dmg * 0.4, 'contact'); } });
@@ -122,6 +147,12 @@
   f10Draw = function () {
     _draw();
     const m = G && G.f10 && G.f10.mob; if (!m) return;
+    const pj = pjSlot();
+    if (pj) { // (your puddles are portals: a faint dashed ring on each, brighter while the next jump is ready)
+      ctx.save(); ctx.strokeStyle = col(pj.def.color); ctx.lineWidth = 1.5; ctx.setLineDash([4 * S, 6 * S]); ctx.globalAlpha = G.t < (m.pjT || 0) ? 0.15 : 0.4;
+      let n = 0; for (const z of pjPools()) { if (n++ > 40) break; ctx.beginPath(); ctx.arc(sx(z.x), sy(z.y), z.r * PJ.inside * S, 0, TAU); ctx.stroke(); }
+      ctx.restore();
+    }
     ctx.save(); ctx.fillStyle = col(F10_COL.force);
     for (const t of m.trail) { ctx.globalAlpha = 0.35 * (1 - (G.t - t.t) / 0.35); ctx.beginPath(); ctx.ellipse(sx(t.x), sy(t.y), 14 * S, 7 * S, t.a, 0, TAU); ctx.fill(); }
     for (const g of m.ghosts) { ctx.globalAlpha = 0.25 * (g.end - G.t); ctx.beginPath(); ctx.arc(sx(g.x), sy(g.y), 10 * S, 0, TAU); ctx.fill(); }

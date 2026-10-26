@@ -3,10 +3,18 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
-## v10.163 (versionCode 442): 2026-10-26 Orbiting takes Extra Projectiles, Rapid Fire and Charged; Homing makes the ring magnetic
-- Merged: `ccr-1b7c90aa-a9892t` (fast-forward, no conflicts).
-- Systems: Delivery forms (Orbiting), modifiers.
-- Hooks: none in shared files.
+## v10.167 (versionCode 446): 2026-10-26 One session branch merged: Orbiting takes Extra, Rapid Fire and Charged with magnetic Homing; wave mode holds every upgrade until the wave is clear; tapping an enemy lists its Active effects
+- Merged: `ccr-1b7c90aa-a9892t` (only the version lines and the APK conflicted: rebuilt). Its own builds v10.162 to v10.164 never reached main.
+- Systems: Delivery forms (Orbiting), modifiers, waves, inspect.
+- Hooks: hookOn('tick', 'inspect:foe') in inspect.js; none in shared files.
+
+### Folded from ccr-1b7c90aa-a9892t: 2026-10-26 Wave mode holds every upgrade until the wave is clear; tapping an enemy lists its Active effects (v10.164)
+- Systems: waves, inspect
+- Files: waves.js, inspect.js, tests/inspecttest.js
+- What: in wave mode nothing opens during a wave, including boss rewards, fusions and DNA drops that used to open at once ('now' requests); they open as soon as the wave is clear. An enemy's tap card now has an Active effects row: Burning, Bleeding, Snared, Charged, Corroded, Stunned, Possessed, Conjoined, the older statuses (Sick, Melting, Snotty/Glued, Lubricated, Soaking wet, Cursed), a Due Date countdown, Red Tape, and build-up bars (Corrosion, Poise, Burn bar, Parasite bar) with time left, damage a second and the weapon that caused a damage over time; a chip opens that term's Field Guide line; at HALF inspect speed it refreshes 4 times a second.
+- Save data: none.
+- Hooks: hookOn('tick', 'inspect:foe') in inspect.js.
+- Risk: a boss's relic now waits for the wave's stragglers to die; campaign or tutorial code that relied on 'now' opening mid-wave would wait too.
 
 ### Folded from ccr-1b7c90aa-a9892t: 2026-10-26 Orbiting: Extra, Rapid Fire, Charged and magnetic Homing (v10.162)
 - Systems: Delivery forms (Orbiting), modifiers
@@ -15,6 +23,52 @@ Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, 
 - Save data: none.
 - Hooks: none (modOrbit wrapper in delivforms.js now also runs for Extra, Rapid Fire and Charged: xdOrbBodies).
 - Risk: Orbiting with Charged hits softer between blasts (balance unsimulated); MOD_DEAD not regenerated (these three were already live combos). Card text for the four orbit lines written on request (v10.163).
+
+## v10.166 (versionCode 445): 2026-10-26 One session branch merged: rank pips on loot cards, stat cards roll a rarity, sperm key to the BUILD tab, BUILD modifier pips, Puddle Jumper portals
+- Merged: `ccr-b96d97ce-vqktjz` (fast-forward, no conflicts).
+- Systems: reward cards, draft, stats, hud, pause (build panel), feats (mobility).
+- Hooks: none in shared files (wraps UI.renderLootCards, rwDelta; adds #spermBtn before #moveBtn).
+- Open: TODO_COPY:feat_puddle_jumper_does. newfeattest fails on main (mosquito and others: nostatus), before and after this merge.
+
+### Folded from ccr-b96d97ce-vqktjz: 2026-10-26 Puddle Jumper: your puddles are portals (v10.166)
+- Systems: feats (mobility)
+- Files: mobfeats.js, tests/puddlejumptest.js (new)
+- What: while you hold Puddle Jumper, swimming into any puddle you made (not The Runs' trail or a Hotbox) pops you out of your most distant puddle, 2.5 s apart, no stamina; portal puddles get a faint dashed ring. A tap jumps to the most distant puddle at once; with none, the old backstab or safe-spot jump. Every jump still leaves a Mucus splash and a puddle (a way back).
+- Save data: none
+- Hooks: none in shared files
+- Risk: puddle-heavy builds can chain jumps every 2.5 s (PJ.gap); the Lv 5 Long Jump fork now only lengthens the no-puddle fallback. New placeholder TODO_COPY:feat_puddle_jumper_does. newfeattest fails on main already (mosquito and others: nostatus).
+
+### Folded from ccr-b96d97ce-vqktjz: 2026-10-26 BUILD tab: modifier ranks as pips (v10.165)
+- Systems: pause (build panel)
+- Files: buildpanel.js, style.css, tests/buildbtntest.js
+- What: each weapon's modifiers on the BUILD tab are now one tag each with their rank as pips out of 3 (a 4th, ringed, once mastered) and the branch taken, then the slot count, in place of one comma list with roman numerals.
+- Save data: none
+- Hooks: none
+- Risk: none
+
+### Folded from ccr-b96d97ce-vqktjz: 2026-10-26 Sperm button: shortcut to the BUILD tab (v10.164)
+- Systems: hud, pause
+- Files: buildbtn.js (new), index.html, tests/buildbtntest.js (new)
+- What: a sperm-icon HUD key left of RUN; one tap pauses on the BUILD tab (the pause button still opens on YOU). In the portrait Immersive HUD it takes Rewind's spot, moving one slot left while Rewind is on.
+- Save data: none
+- Hooks: none in shared files (adds #spermBtn before #moveBtn at load; calls UI.togglePause, UI.renderPause).
+- Risk: another branch that moves RUN or Rewind in eink.css would need this key's left offset moved too.
+
+### Folded from ccr-b96d97ce-vqktjz: 2026-10-26 Stat cards roll a rarity (v10.163)
+- Systems: draft, stats
+- Files: wmods.js, tests/statrartest.js (new)
+- What: level-up and DNA strand stat cards (Crit Chance, Max Health and the rest) each roll a rarity like other loot (skipped-box floors count), and rarer ones give more: Common 1.5 steps, Uncommon 2 (the old fixed card), Rare 3, Epic 4, Legendary 6 (WM.statSteps). The average deal stays about 2 steps.
+- Save data: none
+- Hooks: none
+- Risk: stat power per run is about the same on average but swingier; a Legendary Bullet Damage card is +18%.
+
+### Folded from ccr-b96d97ce-vqktjz: 2026-10-26 Rank pips on loot cards (v10.162)
+- Systems: reward cards, draft
+- Files: rankpips.js (new), index.html, tests/rankpipstest.js (new)
+- What: a loot card that ranks up something you already hold (defence, modifier, Feat, mutation, health/vitals/perk and v9 upgrade cards) shows "Lv N" (the rank after taking it) and a row of pips under its title: held ranks filled, the new one ringed and pulsing, ranks still to come hollow. New cards show none. The Runs' upgrade card also shows its next rank's numbers (Area, Lasts, Damage before → after) in the Feat card's "Next level" line.
+- Save data: none
+- Hooks: none in shared files (wraps ui.js UI.renderLootCards, after dsheads.js, and rewardui.js rwDelta).
+- Risk: a card family that reports its rank some new way gets no pips (falls back to parsing "Rank r > r+1 of m" in the sub line).
 
 ## v10.161 (versionCode 440): 2026-10-26 Two session branches merged: weapon fusion pairs 9 to 16 and the Spoon pairing, Little Jacob, the material skin Feat, The Runs rolling its type, written copy; race egg fight fixes
 - Merged: `ccr-1ac49716-yz41yr` (clean), `ccr-b6a373a9-q8ofbd` (only the APK conflicted: rebuilt).
