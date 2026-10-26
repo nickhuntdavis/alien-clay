@@ -27,12 +27,13 @@ const ID = process.argv[2], W15 = process.argv[3] === 'w15', PRE = (/^w1[05]$/.t
         st.frames++; const p = G.player, d = Math.hypot(B.x - p.x, B.y - p.y) - B.r; st.dist += d; if (d < st.reach) st.inReach++;
         st.adds += G.enemies.filter(e => !e.boss && !e.dead).length; st.bossMv += B.mvs || 0; lastHp = B.hp; st.tEnd = G.t;
         if (G.revive && !rev) st.revives++; rev = !!G.revive; if (G.revive) st.oneDown++;
+        { const c = typeof fightCd === 'function' ? fightCd(B) : null; if (c && c.memMax > 0) { st.memUp = (st.memUp || 0) + (c.mem > 0 ? 1 : 0); st.memK = (st.memK || 0) + c.mem / c.memMax; st.memMax = c.memMax; } }
         if (prevHp >= 0 && B.hp > prevHp) st.healed += B.hp - prevHp; if (prevHp >= 0 && B.hp < prevHp) st.dealt += prevHp - B.hp; prevHp = B.hp;
         if (G.t - st.t0 > 400) done = true;
       } else if (st.frames && (!B || B.dead)) { done = true; }
     }
     st.hurt = hs() - hurt0;
-    return { boss: BOSS, lv: st.lv, fight: +(st.tEnd - st.t0).toFixed(0), downs: st.revives, oneDownS: +(st.oneDown / 30).toFixed(0), end: G.state + (G.boss ? ' boss alive' : ' no boss'), inReach: +(st.inReach / st.frames).toFixed(2), meanDist: Math.round(st.dist / st.frames), reach: st.reach, adds: +(st.adds / st.frames).toFixed(1), bossSpeed: Math.round(st.bossMv / st.frames), hp0: Math.round(st.hp0), hpLeft: Math.round(lastHp), dps: Math.round((st.hp0 - lastHp) / (st.tEnd - st.t0)), dealtPerS: Math.round(st.dealt / (st.tEnd - st.t0)), healedPerS: Math.round(st.healed / (st.tEnd - st.t0)), wave: G.wave.n, hurtPerS: +(st.hurt / (st.tEnd - st.t0)).toFixed(1), build: st.build };
+    return { boss: BOSS, lv: st.lv, fight: +(st.tEnd - st.t0).toFixed(0), downs: st.revives, oneDownS: +(st.oneDown / 30).toFixed(0), end: G.state + (G.boss ? ' boss alive' : ' no boss'), inReach: +(st.inReach / st.frames).toFixed(2), meanDist: Math.round(st.dist / st.frames), reach: st.reach, adds: +(st.adds / st.frames).toFixed(1), bossSpeed: Math.round(st.bossMv / st.frames), hp0: Math.round(st.hp0), hpLeft: Math.round(lastHp), dps: Math.round((st.hp0 - lastHp) / (st.tEnd - st.t0)), dealtPerS: Math.round(st.dealt / (st.tEnd - st.t0)), memUp: st.memMax ? +(st.memUp / st.frames).toFixed(2) : null, memAvg: st.memMax ? +(st.memK / st.frames).toFixed(2) : null, memMax: st.memMax ? Math.round(st.memMax) : null, healedPerS: Math.round(st.healed / (st.tEnd - st.t0)), wave: G.wave.n, hurtPerS: +(st.hurt / (st.tEnd - st.t0)).toFixed(1), build: st.build };
   }, ID);
   console.log(JSON.stringify(r)); if (errors.length) console.log('ERRORS', errors.slice(0, 3));
   await b.close();

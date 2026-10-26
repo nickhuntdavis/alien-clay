@@ -42,3 +42,16 @@ function boss10Twins(a, b) {
 function boss10SummonOk(boss) {
   return G.enemies.filter(e => !e.dead && e.summonedBy === boss).length < BOSS10_SUMMON_CAP;
 }
+
+// Boss Membranes refill slowly. COMBAT's 2 s quiet then a full refill in 2 s suits small cells; on a boss (the Johnny's
+// Membrane is half of 3000 health at wave 5) it refilled during every roll and a weak build never touched the health bar
+// (bossprobe: Membrane up 79 to 99% of the fight, 97 to 400 s). The 2 s quiet stays (its intro card says so); the refill
+// takes 10 s. Hook: wraps combat.js tickDefence (fight.js calls it by name each frame).
+const BOSS10_MEM_FILL = 10;
+const boss10Tick0 = tickDefence;
+tickDefence = function (t, dt) {
+  if (t.rank !== 'boss' || t.def !== 'membrane') return boss10Tick0(t, dt);
+  const f0 = COMBAT.membraneFill;
+  COMBAT.membraneFill = BOSS10_MEM_FILL;
+  try { boss10Tick0(t, dt); } finally { COMBAT.membraneFill = f0; }
+};
