@@ -3,6 +3,15 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.181 (versionCode 460): 2026-10-27 Orbiting bodies look like the weapon's shots (merge of `ccr-15e338c4-03tzdb`)
+- Systems: modifiers, rendering
+- Files: modifiers.js, render.js, typelook.js
+- What: Orbiting (Hangers-On) bodies on non-beam weapons now draw as the weapon's own projectile (style, colour, size and damage-type look) instead of plain dots; `orbShots()` hands display-only copies to the shot draw loop and tlShots. Beams keep their dots.
+- Save data: none.
+- Hooks: render.js shot loop and typelook.js tlShots iterate orbShots() instead of G.proj.
+- Risk: none to balance (display only); other branches editing the render.js shot loop's first line will conflict.
+
+
 ## v10.180 (versionCode 459): 2026-10-26 Race course level (merge of `ccr-a4871635-2p0jtu`)
 - Systems: race course (new), campaign, autorun steering, ui (end screen, sample cards), render (HUD track), tests
 - Files: course.js (new), levels.js, game.js, render.js, ui.js, samples10.js, index.html, tests/coursetest.js (new), tests/run.sh
@@ -10,7 +19,6 @@ Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, 
 - Save data: META.courseBest added (best winning time, seconds).
 - Hooks: levels.js lvTick -> courseTick, lvWin -> courseWin, drawLevelHud -> courseHud, drawLevel -> courseFloor (in place of the tonsil stone), drawLevelOver -> courseDraw, drawLevelMap -> courseMap; game.js autoSteer -> courseSteer; render.js drawHud -> courseTrack; ui.js showGameOver title -> courseTitle, body -> courseEulogy; samples10.js s10Modes card. course.js wraps lvSlow.
 - Risk: sample id s011 (s010 is the Sandbox). Balance unsimmed for humans: autorun alone rarely wins.
-=======
 
 ## v10.179 (versionCode 458): 2026-10-26 Merge of `ccr-3feb4203-x7mgyg` (Bigger Membrane drawn wider; weapon level catch-up and kill bar leaks)
 
