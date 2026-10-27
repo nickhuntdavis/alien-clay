@@ -781,7 +781,7 @@ Offered at weapon level 3. Which three a weapon is offered is fixed per weapon (
 
 ## Modifiers
 
-Dealt on a weapon's own modifier screens (weapon Lv 2, 4, 5, 7 and 8, and after Lv 9), for that weapon's attack type. A weapon holds up to 3 different modifiers, and only one Delivery modifier. Taking one again ranks it up, to Rank 3. **Switched at Birth** (a Rare card, never two level-ups running) changes a random weapon to a random other damage type; it keeps its level, upgrades and modifiers.
+Dealt on a weapon's own modifier screens (weapon Lv 2, 4, 5, 7 and 8, and after Lv 9), for that weapon's attack type. A weapon holds up to 3 different modifiers, and only one Delivery modifier. Melee, Ranged, Mines and Orbiting are for keeps: once a weapon has one it is never offered another, and one you are shown and do not take is not offered again that run. Taking one again ranks it up, to Rank 3. **Switched at Birth** (a Rare card, never two level-ups running) changes a random weapon to a random other damage type; it keeps its level, upgrades and modifiers.
 
 | Modifier | Effect | Rank 2 | Rank 3 | Fits |
 |---|---|---|---|---|
