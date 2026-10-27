@@ -242,6 +242,7 @@ Tone: Dungeon Crawler Carl. Dry, deadpan, nerdy, not self-aware; bodies, sex, co
 - v8.49: campaign Level 1, Achievement DNA, "damage type" wording.
 
 ## Balance numbers to know
+- (ccr-b9c3ea28-jvf30l, 27 Oct, v10.182) Pacing (pacing.js): free modes swell and lull on a 75 s cycle (`PACING`: lull 0.6x for 12 s, ramp 0.85x to 1.3x, average 1.0; 10 s lull after a boss dies); wave feeds are burst 1.8x / steady 0.78x / surge 1.45x, rest after a clear 5 s; reward gap x0.5 in a lull, +15 s at a peak. Sims: wave20 4 mortal 1 win, deaths at waves 16, 20, 20 (runs 17 to 32 min); race.js 4 mortal 0 wins, deaths 6:14, 9:11, 14:16 and one beaten at the egg at 17:22 (was 5 to 9 min, 0 wins). `PACING.on = false` restores the flat rate.
 - (ccr-a4871635-2p0jtu, 26 Oct) Race course (s011, course.js): rivals at `CRS.speed` 136 x skill, rubber band 0.82 when 8+ cells ahead of you, 1.15 when 14+ behind. Bot (tests/coursetest.js, mortal): steering along the route when no germ is within 150, 2 of 6 wins; autorun alone 1 of 10. Races last 75 to 105 s.
 - Wave mode boss strength: `CAMP.hp` [2.2, 13, 50, 160] and `CAMP.hit` [0.55, 0.82, 1, 1.1]; ordinary waves `CAMP.more` 1.3, `CAMP.dmgK` 1.15, `CAMP.early`/`earlyPT`. Wave 5 is now a tier 1 boss (base HP 1500, dmg 18): with the boss pack the mortal bot wins 11 of 32 (34%), with deaths spread over wave 5 (the tier 1 teachers and their entourage), waves 7 to 9 (rivals) and wave 10. Before the pack it won about 1 in 5 and mostly died to the Pepsinator at wave 5.
 - About 37 boxes per 9-minute wave run (it was 48).
