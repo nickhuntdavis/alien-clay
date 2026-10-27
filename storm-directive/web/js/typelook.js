@@ -296,10 +296,11 @@ function tlSeg(a, b, elem) {
 
 // ---------------------------------------------------------------- your shots (render.js, after the shot loop)
 function tlShots() {
-  if (!G || !G.proj.length) return;
+  const all = G ? orbShots() : null; // (+ Orbiting bodies: modifiers.js)
+  if (!all || !all.length) return;
   const rc = RAW_COL, op = ctx.globalCompositeOperation; RAW_COL = true;
   let n = 0;
-  for (const pr of G.proj) {
+  for (const pr of all) {
     const t = tlEl(pr); if (!t || t === 'phys' || pr.dead || !tlOn(pr.x, pr.y, 40)) continue;
     if (++n > 60) break;
     const x = sx(pr.x), y = sy(pr.y - (pr.h || 0)), r = Math.max(2, (pr.r || 5) * S), sp = Math.hypot(pr.vx, pr.vy) || 1, ux = pr.vx / sp, uy = pr.vy / sp, tm = G.realT;

@@ -412,7 +412,8 @@ function modDraw() {
   for (const b of S.lobs) { ctx.fillStyle = col(b.color); ctx.beginPath(); ctx.arc(sx(b.x), sy(b.y) - (b.h || 0) * S_(), 5 * S_(), 0, TAU); ctx.fill(); }
   for (const w of G.weapons) {
     if (!w || !w.m10) continue;
-    if (w.m10orb) { ctx.fillStyle = col(w.def.color); for (const o of w.m10orb) { ctx.beginPath(); ctx.arc(sx(o.x), sy(o.y), 7 * S_(), 0, TAU); ctx.fill(); } }
+    // (Orbiting bodies on a beam are dots; every other weapon's look like its own shots: orbShots)
+    if (w.m10orb && w.def.v10atk === 'beam') { ctx.fillStyle = col(w.def.color); for (const o of w.m10orb) { ctx.beginPath(); ctx.arc(sx(o.x), sy(o.y), 7 * S_(), 0, TAU); ctx.fill(); } }
     if (modHas(w, 'nth')) { // the build-up: pips over you
       const n = modV(w, 'nth', 'n'), have = (w.m10n || 0) % n, p = G.player, i0 = G.weapons.indexOf(w);
       for (let i = 0; i < n; i++) { ctx.fillStyle = col(i < have ? w.def.color : '#556'); ctx.beginPath(); ctx.arc(sx(p.x) + (i - (n - 1) / 2) * 7 * S_(), sy(p.y) - (30 + i0 * 7) * S_(), 2.5 * S_(), 0, TAU); ctx.fill(); }
@@ -422,3 +423,25 @@ function modDraw() {
   ctx.restore();
 }
 const S_ = () => (typeof S === 'number' ? S : 1);
+// Orbiting bodies drawn as the weapon's own shots: display-only copies, facing along the spin, that render.js and
+// typelook.js draw with G.proj (never pushed into it, so they never hit, merge or count). Beams keep their dots.
+function orbShots() {
+  if (!G || !G.weapons) return G ? G.proj : [];
+  let out = null;
+  const p = G.player;
+  for (const w of G.weapons) {
+    if (!w || !w.m10orb || !w.m10orb.length || w.def.v10atk === 'beam') continue;
+    const d = w.def, s = w.s || {}, L = w.m10look || (w.m10look = []);
+    w.m10orb.forEach((o, i) => {
+      const q = L[i] || (L[i] = { seed: Math.random() * 10, life: 1, max: 1, orbitT: 1, dmg: 0, hit: null, orbLook: 1 });
+      const a = Math.atan2(o.y - p.y, o.x - p.x) + Math.PI / 2;
+      q.x = o.x; q.y = o.y; q.vx = Math.cos(a) * 300; q.vy = Math.sin(a) * 300; q.r = s.size || 4; q.w = w;
+      q.color = w.typeOver && V10_COL[w.typeOver] || d.color; q.style = s.style || d.style || 'bullet';
+      q.lob = d.v10atk === 'pool'; q.h = 0;
+      if (!q.src || q.src.w !== w) q.src = { elem: d.elem, w };
+      (out || (out = [])).push(q);
+    });
+    L.length = w.m10orb.length;
+  }
+  return out ? G.proj.concat(out) : G.proj;
+}
