@@ -1,3 +1,11 @@
+## 2026-10-27 Intensity meter replaces the clock cycle (v10.183)
+- Systems: pacing
+- Files: pacing.js
+- What: Free modes now run on an invisible intensity meter (Left 4 Dead style) instead of a fixed 75 s loop: it fills from enemies dying within 260 units of you (0.012 each, elites 0.04), from hits you take (0.6 x the share of max HP lost) and slowly with time (0.01/s); the spawn rate is 1x to 1.3x as it fills, then a 4 s peak, then a 0.6x relax while it drains at 0.06/s until it is under 0.3 (or 40 s). A boss death jumps straight to the breather. `PACING.mode = 'clock'` restores the v10.182 loop. Telemetry: `G.stats.peaks`.
+- Save data: none.
+- Hooks: hookOn hurt from pacing.js (the kill and tick hooks already existed).
+- Risk: a busy build (many kills near you) peaks about every 40 s, a kiting one about every 85 s; the Race sim is in NOTES.md.
+
 ## 2026-10-27 Pacing: intensity cycle, wave shape, screens in lulls (v10.182)
 - Systems: pacing (new), engine (spawn rate), wave-mode, reward director
 - Files: pacing.js (new), game.js, waves.js, campaign.js, director.js, index.html, ARCHITECTURE.md
