@@ -169,7 +169,7 @@ function campSpawn(dt, maxAlive, hostile) {
   if (typeof w10Max === 'function') maxAlive = w10Max(V, maxAlive); // (v10: waves10.js)
   if (V.phase === 'mobs') {
     if (V.spawned >= V.budget) return;
-    G.spawnAcc += V.budget / V.dur * dt * (V.t < 3 ? 2 : 1); // a burst from the splash, then a steady feed
+    G.spawnAcc += V.budget / V.dur * dt * (typeof paceShape === 'function' ? paceShape(V) : (V.t < 3 ? 2 : 1)); // burst, steady, surge (pacing.js)
     while (G.spawnAcc >= 1 && V.spawned < V.budget && hostile < maxAlive) { G.spawnAcc--; const k = campSpawnMob(V); V.spawned += Math.max(1, k); hostile += k; }
     return;
   }
