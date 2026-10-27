@@ -9,7 +9,8 @@
 //  - Under v10 the old combos are retired: availableCombos is empty, promise cards no longer say what they fuse with,
 //    and the weapon draft no longer swaps in combo partners (C10 and COMBOS are emptied for those calls). WF.on = false
 //    brings them back (tests of the old combos).
-//  - Fused powers (a + b):
+//  - Fused powers (a + b). zapbub, sibshot, peekegg, lardmine and pinclock were rebuilt as transforming fusions in
+//    wfusion2.js (27 Oct); the lines below are their first versions, kept for the record:
 //      zapbub    Unwanted Contact + Blowing Bubbles: a popped bubble arcs to up to 6 enemies within 150 (a's damage, Charges).
 //      acidmess  Acid Spit + Hot Mess: an Acid Spit hit leaves a small burning patch (b's damage, 2 s; 6 at once).
 //      sibshot   Standard Issue + Sister Cousin: a Standard Issue hit bursts into 2 homing siblings (b's damage, 50%).
@@ -29,8 +30,7 @@
 //      crossbeam  Red Flagship + Soulmate Signal: every twin also fires a Red Flagship beam at its nearest enemy.
 //  Names and card text in WF_TEXT (Claude-drafted, 26 Oct). Pairs 9 to 16 and the Spoon pairing: Claude-drafted at the user's request, 26 Oct. The fused weapon shows its fused name everywhere (wfName).
 // Hooks: none in shared files. hookOn tick 'wfTick' and proc 'wfProc'; wraps v10Loot, draftTitle, availableCombos,
-// wupForkCards, sbSlotMark (hides the absorbed weapon's HUD slot), modOk, bubblePop, peekFire,
-// detonateMine. Loads after combos10.js, fusion.js, sandbox.js, modmatrix.js and moddead.js (right after moddead.js).
+// wupForkCards, sbSlotMark (hides the absorbed weapon's HUD slot), modOk. Loads after combos10.js, fusion.js, sandbox.js, modmatrix.js and moddead.js (right after moddead.js).
 const WF = { on: !(typeof window !== 'undefined' && window.V10_OFF), tier: 3, mount: 1 };
 const WF_LIST = [
   { id: 'zapbub', a: 's_tesla', b: 's_bubble' },
@@ -161,17 +161,7 @@ function wfProc(e, dmg, src) {
     const B = F.b, z = { x: e.x, y: e.y, r: 40, life: 2, max: 2, dps: B.s.dmg * 0.6, elem: 'flame', pull: 0, color: B.def.color, tick: 0, wfAcid: 1, src: wfSrc(B, { atk: 'pool', zoneHit: true, elem: 'flame' }) };
     G.zones.push(z);
   }
-  if ((F = wfPair('sibshot')) && w === F.a && !(e.wfSibT > G.t)) {
-    e.wfSibT = G.t + 0.3; const B = F.b;
-    for (let i = 0; i < 2; i++) {
-      const o = acquire('nearest', 260, e.x + rand(-30, 30), e.y + rand(-30, 30)), a = o && o !== e ? Math.atan2(o.y - e.y, o.x - e.x) : Math.random() * TAU;
-      spawnProj(B, e.x, e.y, a + rand(-0.4, 0.4), wfSrc(B), { r: 4, speed: 330, vx: Math.cos(a) * 330, vy: Math.sin(a) * 330, life: 1.4, dmg: B.s.dmg * 0.5, pierce: 0, style: 'sperm', color: B.def.color, bounce: 0, homing: 6 });
-    }
-  }
-  if ((F = wfPair('pinclock')) && w === F.a && !e.dead) {
-    const C = e.wfClock || (e.wfClock = { end: G.t + 3, n: 0, F });
-    C.n++;
-  }
+  // sibshot and pinclock: wfusion2.js (transforming fusions, 27 Oct)
 }
 function wfTick(dt) {
   if (!G || G.state !== 'play') return;
@@ -209,37 +199,12 @@ function wfTick(dt) {
     G.wfSnotT = G.t + 0.5;
     for (const z of G.zones) if (z.life > 0 && z.src && z.src.w === F.a) forNear(z.x, z.y, z.r, e => { if (wfLive(e) && Math.hypot(e.x - z.x, e.y - z.y) < z.r + e.r) damageEnemy(e, F.b.s.dmg * 0.3, wfSrc(F.b, { atk: 'pool', elem: 'flame' })); });
   }
-  if (wfPair('pinclock')) for (const e of G.enemies) { // One of These Days: at zero, every Bleed stack goes off at once
-    const C = e.wfClock; if (!C || C.end > G.t) continue;
-    e.wfClock = null; if (!wfLive(e)) continue;
-    const left = (e.bleeds || []).reduce((a, b) => a + b.dps * b.t, 0); e.bleeds = [];
-    damageEnemy(e, left + C.F.b.s.dmg * 0.5 * C.n, wfSrc(C.F.b, { elem: 'arcane' }));
-    ring(e.x, e.y, e.r + 20, C.F.b.def.color, 0.35, 4);
-  }
 }
 hookOn('tick', 'wfTick', dt => wfTick(dt));
 hookOn('proc', 'wfProc', (e, dmg, src) => wfProc(e, dmg, src));
 
 (function wfWrap() {
-  if (typeof bubblePop === 'function') { const bp = bubblePop; bubblePop = function (b, throwA, fling) {
-    const was = b && !b.dead, F = wfPair('zapbub');
-    const r = bp.apply(this, arguments);
-    if (was && F && b.w === F.b) {
-      let n = 0; forNear(b.x, b.y, 150, e => { if (n < 6 && wfLive(e)) { n++; bolt(b.x, b.y, e.x, e.y, F.a.def.color, 0.15); damageEnemy(e, F.a.s.dmg * 0.8, wfSrc(F.a, { elem: 'shock' })); if (!e.dead) e.chargeT = Math.max(e.chargeT || 0, G.t + 3); } });
-    }
-    return r;
-  }; }
-  if (typeof peekFire === 'function') { const pf = peekFire; peekFire = function (w) {
-    const r = pf.apply(this, arguments), F = wfPair('peekegg');
-    if (F && w === F.a && !w.echo && G.peek && G.peek.w === w && typeof toothFire === 'function') toothFire(F.b, { x: G.peek.x, y: G.peek.y });
-    return r;
-  }; }
-  if (typeof detonateMine === 'function') { const dm = detonateMine; detonateMine = function (pr) {
-    const F = wfPair('lardmine'), x = pr && pr.x, y = pr && pr.y, mine = F && pr && pr.w === F.a;
-    const r = dm.apply(this, arguments);
-    if (mine) { forNear(x, y, 110, e => { if (wfLive(e) && !e.boss) shove(e, x, y, 420); }); ring(x, y, 110, F.b.def.color, 0.3, 4); }
-    return r;
-  }; }
+  // (zapbub, peekegg and lardmine wrap their weapons in wfusion2.js)
   // The absorbed weapon: off the HUD, no cards of its own.
   if (typeof sbSlotMark === 'function') { const sm = sbSlotMark; sbSlotMark = function (el, w) { sm(el, w); if (w && w.wfIn && G && G.weapons.includes(w.wfIn)) el.style.display = 'none'; }; }
   if (typeof modOk === 'function') { const mo = modOk; modOk = function (w, id) { if (w && w.wfIn) return false; return mo.apply(this, arguments); }; }
