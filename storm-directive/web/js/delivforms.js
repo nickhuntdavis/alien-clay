@@ -559,21 +559,29 @@ function xdOrbit(w, dt) {
       ring(bx, by, R, w.def.color, 0.25, 3); spawnPart(bx, by, w.def.color, 6, 120, 0.3);
     }
   }
-  // Link: a beam joins the bodies (round the ring) and hurts what crosses it
+  // Link: a beam joins the bodies round the ring (a circle; it bends only where a body is pulled off it) and hurts what crosses it
   const lr = xdR(w, 'connecting');
   if (lr && n >= 2 && G.t >= (w.xdLkT || 0)) {
     w.xdLkT = G.t + C.connecting.tick;
-    const pts = w.m10orb, dmg = xdOrbBase(w) * xdLv(C.connecting.k, lr) * hk, src = xdOrbSrc(w);
+    const lk = xdLinkPolar(w.m10orb, p), dmg = xdOrbBase(w) * xdLv(C.connecting.k, lr) * hk, src = xdOrbSrc(w);
     for (const e of G.enemies) {
       if (e.dead || e.charmed) continue;
-      for (let i = 0; i < pts.length; i++) {
-        const A = pts[i], B = pts[(i + 1) % pts.length]; if (n === 2 && i === 1) break;
-        const vx = B.x - A.x, vy = B.y - A.y, l2 = vx * vx + vy * vy || 1, u = Math.max(0, Math.min(1, ((e.x - A.x) * vx + (e.y - A.y) * vy) / l2));
-        if (Math.hypot(e.x - (A.x + vx * u), e.y - (A.y + vy * u)) < (e.r || 10) + 4) { damageEnemy(e, dmg, src); break; }
-      }
+      const d = Math.hypot(e.x - p.x, e.y - p.y);
+      if (Math.abs(d - xdLinkR(lk, Math.atan2(e.y - p.y, e.x - p.x))) < (e.r || 10) + 4) damageEnemy(e, dmg, src);
     }
   }
   xdOrbPull(w, [R0 * fk], dt);
+}
+// The Link beam's shape: each body's angle and distance from you, and between two bodies a radius eased from one to
+// the other (smoothstep), so bodies all on the ring give a true circle and a body pulled off it makes a smooth bulge.
+function xdLinkPolar(pts, p) {
+  return pts.map(q => ({ a: (Math.atan2(q.y - p.y, q.x - p.x) + TAU) % TAU, r: Math.hypot(q.x - p.x, q.y - p.y) })).sort((u, v) => u.a - v.a);
+}
+function xdLinkR(lk, th) {
+  const n = lk.length; th = (th % TAU + TAU) % TAU;
+  let j = lk.findIndex(q => q.a > th); if (j < 0) j = 0;
+  const A = lk[(j - 1 + n) % n], B = lk[j], span = ((B.a - A.a) % TAU + TAU) % TAU || TAU, t = (((th - A.a) % TAU + TAU) % TAU) / span;
+  return A.r + (B.r - A.r) * t * t * (3 - 2 * t);
 }
 modOrbit = (orig => function (w, dt) {
   if (w.def.v10atk === 'beam' || !xdOrbBodies(w)) { w.xdOb = null; return orig(w, dt); }
@@ -886,8 +894,8 @@ modDraw = (orig => function () {
     if (!w || !w.def) continue;
     if (w.xdOb && w.m10orb && w.xdChK > 0) { ctx.globalAlpha = 0.25 + 0.6 * w.xdChK; ctx.strokeStyle = col(w.def.color); ctx.lineWidth = 2 * S; for (const q of w.m10orb) { ctx.beginPath(); ctx.arc(sx(q.x), sy(q.y), (8 + 8 * w.xdChK) * S, 0, TAU); ctx.stroke(); } }
     if (w.xdOb && w.m10orb && w.m10orb.length >= 2 && xdR(w, 'connecting')) {
-      const pts = w.m10orb; ctx.globalAlpha = 0.55; ctx.strokeStyle = col(w.def.color); ctx.lineWidth = 2 * S;
-      ctx.beginPath(); ctx.moveTo(sx(pts[0].x), sy(pts[0].y)); for (const q of pts.slice(1)) ctx.lineTo(sx(q.x), sy(q.y)); if (pts.length > 2) ctx.closePath(); ctx.stroke();
+      const p = G.player, lk = xdLinkPolar(w.m10orb, p); ctx.globalAlpha = 0.55; ctx.strokeStyle = col(w.def.color); ctx.lineWidth = 2 * S;
+      ctx.beginPath(); for (let i = 0; i <= 72; i++) { const a = i / 72 * TAU, r = xdLinkR(lk, a); ctx[i ? 'lineTo' : 'moveTo'](sx(p.x + Math.cos(a) * r), sy(p.y + Math.sin(a) * r)); } ctx.stroke();
     }
     if (w.xdFl) { const p = G.player; ctx.globalAlpha = 0.5; ctx.strokeStyle = col(w.def.color); ctx.lineWidth = 3 * S; for (const R of w.xdFl) { ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), R * S, 0, TAU); ctx.stroke(); } }
   }
