@@ -10,8 +10,8 @@ const path = require('path');
   const bad = [];
   await page.evaluate(() => { UI.codexSec = 'samples'; UI.openCodex(); });
   await page.waitForTimeout(800);
-  const r = await page.evaluate(() => { const cs = [...document.querySelectorAll('#codexBody canvas[data-slpic]')]; const c = cs[0], d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 40) n++; return { count: cs.length, ink: n }; });
-  if (r.count !== 8) bad.push('pictures: ' + r.count);
+  const r = await page.evaluate(() => { const cs = [...document.querySelectorAll('#codexBody canvas[data-slpic]')]; const c = cs[0], d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 40) n++; return { count: cs.length, ink: n, want: SAMPLES10.length }; });
+  if (r.count !== r.want) bad.push('pictures: ' + r.count);
   if (r.ink < 300) bad.push('first picture empty');
   await page.screenshot({ path: path.resolve(__dirname, 'out/codex_samples.png') });
   // From the pause menu, mid-run, with a run's G in place (the pictures swap a stand-in G only while drawing).
