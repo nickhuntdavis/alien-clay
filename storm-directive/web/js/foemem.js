@@ -10,6 +10,7 @@
 const FOEMEM = { ids: ['medic', 'splitter', 'summoner', 'plasma', 'stem'], frac: 0.30 };
 if (typeof ROSTER !== 'undefined') for (const id of FOEMEM.ids) if (ROSTER[id] && !ROSTER[id].def) ROSTER[id].def = Object.assign(ROSTER_DEF.membrane(), { pct: FOEMEM.frac, memFrac: FOEMEM.frac });
 
+const FOEMEM_PTS = new Float64Array(56);
 // Drawn in screen space at x, y (enemy radius r already scaled), c = the enemy's defence (combat.js).
 function foeMemDraw(e, c, x, y, r) {
   const t = G.realT || 0, k = c.mem / c.memMax;
@@ -23,14 +24,14 @@ function foeMemDraw(e, c, x, y, r) {
   const rp = e.memRip && t - e.memRip.t < 0.7 && t >= e.memRip.t ? e.memRip : null;
   const R = r + 7 * S, flick = c.memQuietT < 2 && k < 1 ? 0.75 + 0.25 * Math.sin(t * 30) : 1;
   const base = (0.3 + 0.6 * k) * flick, u = rp ? (t - rp.t) / 0.7 : 1, hot = rp ? (1 - u) * rp.k : 0;
-  const N = 28, pts = [], ph = e.id || 0;
+  const N = 28, pts = FOEMEM_PTS, ph = e.id || 0; // (one reused buffer of x, y pairs: fresh arrays per Membrane per frame were GC churn)
   for (let i = 0; i < N; i++) {
     const th = i / N * TAU;
     let rr = R * (1 + 0.03 * Math.sin(th * 3 + t * 1.6 + ph) + 0.02 * Math.sin(th * 5 - t * 2.3));
     if (rp) { const d = Math.abs(((th - rp.a + Math.PI * 3) % TAU) - Math.PI); rr += R * 0.18 * hot * Math.exp(-((d - u * Math.PI) ** 2) / 0.08); }
-    pts.push([x + Math.cos(th) * rr, y + Math.sin(th) * rr]);
+    pts[2 * i] = x + Math.cos(th) * rr; pts[2 * i + 1] = y + Math.sin(th) * rr;
   }
-  const shell = () => { ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]); for (let i = 1; i < N; i++) ctx.lineTo(pts[i][0], pts[i][1]); ctx.closePath(); };
+  const shell = () => { ctx.beginPath(); ctx.moveTo(pts[0], pts[1]); for (let i = 1; i < N; i++) ctx.lineTo(pts[2 * i], pts[2 * i + 1]); ctx.closePath(); };
   const df = !!SET.darkfield, tint = df ? '120,220,255' : '40,170,215', rim = df ? '#9ef0ff' : '#1b9cc4', a0 = ctx.globalAlpha;
   ctx.save(); ctx.globalCompositeOperation = df ? 'lighter' : 'source-over';
   if (QUAL.lv >= 3) { // (the two lowest quality steps: a flat skin and the rim, no gradients: two shader uploads a Membrane a frame)

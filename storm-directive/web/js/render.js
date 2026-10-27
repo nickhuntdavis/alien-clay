@@ -354,35 +354,50 @@ function smoothPts(P) {
   ctx.moveTo((P[n - 1][0] + P[0][0]) / 2, (P[n - 1][1] + P[0][1]) / 2);
   for (let i = 0; i < n; i++) { const p0 = P[i], p1 = P[(i + 1) % n]; ctx.quadraticCurveTo(p0[0], p0[1], (p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2); }
 }
+// drawShape builds its outlines in one reused buffer (SHB: x, y pairs) rather than fresh [x, y] arrays per enemy
+// per frame: those arrays were the biggest single source of garbage in a busy late wave (v10.180 run log hitches).
+const SHB = new Float64Array(80);
+function shbRound(n, rad) {
+  const B = SHB;
+  ctx.moveTo((B[2 * n - 2] + B[0]) / 2, (B[2 * n - 1] + B[1]) / 2);
+  for (let i = 0; i < n; i++) { const j = (i + 1) % n; ctx.arcTo(B[2 * i], B[2 * i + 1], (B[2 * i] + B[2 * j]) / 2, (B[2 * i + 1] + B[2 * j + 1]) / 2, rad); }
+}
+function shbSmooth(n) {
+  const B = SHB;
+  ctx.moveTo((B[2 * n - 2] + B[0]) / 2, (B[2 * n - 1] + B[1]) / 2);
+  for (let i = 0; i < n; i++) { const j = (i + 1) % n; ctx.quadraticCurveTo(B[2 * i], B[2 * i + 1], (B[2 * i] + B[2 * j]) / 2, (B[2 * i + 1] + B[2 * j + 1]) / 2); }
+}
+const SHB_CROSS = [-1, -2, 1, -2, 1, -1, 2, -1, 2, 1, 1, 1, 1, 2, -1, 2, -1, 1, -2, 1, -2, -1, -1, -1]; // (1 = t, 2 = r)
 function drawShape(shape, x, y, r, rot) {
   ctx.beginPath();
+  const B = SHB;
   switch (shape) {
     case 'tri': for (let i = 0; i < 3; i++) { const a = rot + i / 3 * TAU; ctx.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); } break;
     case 'square': ctx.rect(x - r * 0.85, y - r * 0.85, r * 1.7, r * 1.7); break;
     case 'diamond': ctx.moveTo(x, y - r); ctx.lineTo(x + r * 0.8, y); ctx.lineTo(x, y + r); ctx.lineTo(x - r * 0.8, y); break;
-    case 'hex': { const P = []; for (let i = 0; i < 6; i++) { const a = i / 6 * TAU + rot * 0.2; P.push([x + Math.cos(a) * r, y + Math.sin(a) * r]); } roundPts(P, r * 0.3); break; }
+    case 'hex': { for (let i = 0; i < 6; i++) { const a = i / 6 * TAU + rot * 0.2; B[2 * i] = x + Math.cos(a) * r; B[2 * i + 1] = y + Math.sin(a) * r; } shbRound(6, r * 0.3); break; }
     case 'oct': for (let i = 0; i < 8; i++) { const a = i / 8 * TAU + Math.PI / 8; ctx.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); } break;
-    case 'star': { const P = []; for (let i = 0; i < 10; i++) { const a = i / 10 * TAU + rot * 0.3, rr = i % 2 ? r * 0.55 : r; P.push([x + Math.cos(a) * rr, y + Math.sin(a) * rr]); } roundPts(P, r * 0.2); break; } // soft-lobed
-    case 'spike': { const P = []; for (let i = 0; i < 16; i++) { const a = i / 16 * TAU + rot, rr = i % 2 ? r * 0.86 : r * 1.06; P.push([x + Math.cos(a) * rr, y + Math.sin(a) * rr]); } smoothPts(P); break; } // a scalloped, bubbling membrane
-    case 'cross': { const t = r * 0.38, P = [[-t, -r], [t, -r], [t, -t], [r, -t], [r, t], [t, t], [t, r], [-t, r], [-t, t], [-r, t], [-r, -t], [-t, -t]].map(([px, py]) => [x + px, y + py]); roundPts(P, t * 0.7); break; }
+    case 'star': { for (let i = 0; i < 10; i++) { const a = i / 10 * TAU + rot * 0.3, rr = i % 2 ? r * 0.55 : r; B[2 * i] = x + Math.cos(a) * rr; B[2 * i + 1] = y + Math.sin(a) * rr; } shbRound(10, r * 0.2); break; } // soft-lobed
+    case 'spike': { for (let i = 0; i < 16; i++) { const a = i / 16 * TAU + rot, rr = i % 2 ? r * 0.86 : r * 1.06; B[2 * i] = x + Math.cos(a) * rr; B[2 * i + 1] = y + Math.sin(a) * rr; } shbSmooth(16); break; } // a scalloped, bubbling membrane
+    case 'cross': { const t = r * 0.38; for (let i = 0; i < 24; i++) { const k = SHB_CROSS[i], v = k === 1 ? t : k === -1 ? -t : k === 2 ? r : -r; B[i] = (i % 2 ? y : x) + v; } shbRound(12, t * 0.7); break; }
     case 'sperm': ctx.ellipse(x, y, r, r * 0.72, rot, 0, TAU); break;
     case 'amoeba': {
       // A soft, slowly flowing outline with a few blunt lobopodia, drawn as a smooth closed curve.
-      const n = 36, pts = [];
+      const n = 36;
       for (let i = 0; i < n; i++) {
         const a = i / n * TAU;
         const rr = r * (1 + 0.08 * Math.sin(2 * a + rot) + 0.05 * Math.sin(3 * a - rot * 1.4) + 0.16 * Math.pow(Math.max(0, Math.sin(a + rot * 0.5)), 4) + 0.1 * Math.pow(Math.max(0, Math.sin(2 * a - rot * 0.3 + 1)), 6));
-        pts.push([x + Math.cos(a) * rr, y + Math.sin(a) * rr]);
+        B[2 * i] = x + Math.cos(a) * rr; B[2 * i + 1] = y + Math.sin(a) * rr;
       }
-      ctx.moveTo((pts[n - 1][0] + pts[0][0]) / 2, (pts[n - 1][1] + pts[0][1]) / 2);
-      for (let i = 0; i < n; i++) { const p0 = pts[i], p1 = pts[(i + 1) % n]; ctx.quadraticCurveTo(p0[0], p0[1], (p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2); }
+      shbSmooth(n);
       break;
     }
-    case 'cell': { const P = []; for (let i = 0; i < 16; i++) { const a = i / 16 * TAU, rr = r * (1 + 0.09 * Math.sin(i * 3 + rot * 2.5)); P.push([x + Math.cos(a) * rr, y + Math.sin(a) * rr]); } smoothPts(P); break; }
+    case 'cell': { for (let i = 0; i < 16; i++) { const a = i / 16 * TAU, rr = r * (1 + 0.09 * Math.sin(i * 3 + rot * 2.5)); B[2 * i] = x + Math.cos(a) * rr; B[2 * i + 1] = y + Math.sin(a) * rr; } shbSmooth(16); break; }
     case 'antibody': {
-      const w = r * 0.34, pts = [[-w / 2, r], [w / 2, r], [w / 2, 0.1 * r], [0.9 * r, -0.7 * r], [0.6 * r, -r], [0, -0.3 * r], [-0.6 * r, -r], [-0.9 * r, -0.7 * r], [-w / 2, 0.1 * r]];
-      const c = Math.cos(rot), s2 = Math.sin(rot);
-      roundPts(pts.map(([px, py]) => [x + px * c - py * s2, y + px * s2 + py * c]), w * 0.4);
+      const w = r * 0.34, c = Math.cos(rot), s2 = Math.sin(rot);
+      const px = [-w / 2, w / 2, w / 2, 0.9 * r, 0.6 * r, 0, -0.6 * r, -0.9 * r, -w / 2], py = [r, r, 0.1 * r, -0.7 * r, -r, -0.3 * r, -r, -0.7 * r, 0.1 * r];
+      for (let i = 0; i < 9; i++) { B[2 * i] = x + px[i] * c - py[i] * s2; B[2 * i + 1] = y + px[i] * s2 + py[i] * c; }
+      shbRound(9, w * 0.4);
       break;
     }
     default: ctx.arc(x, y, r, 0, TAU);
@@ -1188,22 +1203,28 @@ function stepTail(o, rx, ry, face, len, speed, beatMul, nSeg) {
 }
 // A smooth, filled ribbon along the tail: rootWidth at the neck (matching the midpiece), easing quickly to the
 // tail's own width and tapering to a hair at the tip.
+// Tail outlines go through two reused buffers (x, y pairs; grown if a tail is longer) instead of fresh point
+// objects per tail per frame: GC churn in a busy wave.
+let TAIL_L = new Float64Array(128), TAIL_R = new Float64Array(128);
 function drawTail(t, color, width, rootWidth) {
   const n = t.length;
   if (n < 2) return;
-  const r0 = (rootWidth || width) / 2, r1 = width / 2;
-  const L = [], R = [];
+  if (TAIL_L.length < 2 * n) { TAIL_L = new Float64Array(4 * n); TAIL_R = new Float64Array(4 * n); }
+  const r0 = (rootWidth || width) / 2, r1 = width / 2, L = TAIL_L, R = TAIL_R;
   for (let i = 0; i < n; i++) {
-    const a = t[Math.max(0, i - 1)], c = t[Math.min(n - 1, i + 1)], f = i / (n - 1);
-    let nx = -(c.y - a.y), ny = c.x - a.x; const nl = Math.hypot(nx, ny) || 1; nx /= nl; ny /= nl;
+    const a = t[i > 0 ? i - 1 : 0], c = t[i < n - 1 ? i + 1 : n - 1], f = i / (n - 1);
+    let nx = -(c.y - a.y), ny = c.x - a.x; const nl = Math.sqrt(nx * nx + ny * ny) || 1; nx /= nl; ny /= nl;
     const h = Math.max(0.35, (f < 0.12 ? lerp(r0, r1, f / 0.12) : r1 * (1 - 0.7 * (f - 0.12) / 0.88)));
     const x = sx(t[i].x), y = sy(t[i].y);
-    L.push({ x: x + nx * h, y: y + ny * h }); R.push({ x: x - nx * h, y: y - ny * h });
+    L[2 * i] = x + nx * h; L[2 * i + 1] = y + ny * h; R[2 * i] = x - nx * h; R[2 * i + 1] = y - ny * h;
   }
-  const side = P => { for (let i = 1; i < P.length - 1; i++) ctx.quadraticCurveTo(P[i].x, P[i].y, (P[i].x + P[i + 1].x) / 2, (P[i].y + P[i + 1].y) / 2); ctx.lineTo(P[P.length - 1].x, P[P.length - 1].y); };
   ctx.fillStyle = color;
-  ctx.beginPath(); ctx.moveTo(L[0].x, L[0].y); side(L);
-  R.reverse(); ctx.lineTo(R[0].x, R[0].y); side(R);
+  ctx.beginPath(); ctx.moveTo(L[0], L[1]);
+  for (let i = 1; i < n - 1; i++) ctx.quadraticCurveTo(L[2 * i], L[2 * i + 1], (L[2 * i] + L[2 * i + 2]) / 2, (L[2 * i + 1] + L[2 * i + 3]) / 2);
+  ctx.lineTo(L[2 * n - 2], L[2 * n - 1]);
+  ctx.lineTo(R[2 * n - 2], R[2 * n - 1]); // (the right side, tip back to root)
+  for (let i = n - 2; i > 0; i--) ctx.quadraticCurveTo(R[2 * i], R[2 * i + 1], (R[2 * i] + R[2 * i - 2]) / 2, (R[2 * i + 1] + R[2 * i - 1]) / 2);
+  ctx.lineTo(R[0], R[1]);
   ctx.closePath(); ctx.fill();
 }
 
@@ -1214,11 +1235,9 @@ function drawTail(t, color, width, rootWidth) {
 // epithelium, streams of drifting particles, and highly refractile lipid droplets.
 // A soft organic outline round (x, y): eight points that wobble slowly (amp: how far, as a share of R).
 function blobPath(x, y, R, ob, t, amp) {
-  const P = [];
-  for (let i = 0; i < 8; i++) { const a = ob.a + i / 8 * TAU, k = (ob.lobes ? ob.lobes[i] : 1) + amp * (Math.sin(t + i * 2.3 + ob.seed) * 0.7 + Math.sin(t * 0.6 + i * 1.1) * 0.3); P.push([x + Math.cos(a) * R * k, y + Math.sin(a) * R * k]); }
-  ctx.beginPath(); ctx.moveTo((P[7][0] + P[0][0]) / 2, (P[7][1] + P[0][1]) / 2);
-  for (let i = 0; i < 8; i++) { const p = P[i], q = P[(i + 1) % 8]; ctx.quadraticCurveTo(p[0], p[1], (p[0] + q[0]) / 2, (p[1] + q[1]) / 2); }
-  ctx.closePath();
+  const B = SHB; // (drawShape's reused buffer)
+  for (let i = 0; i < 8; i++) { const a = ob.a + i / 8 * TAU, k = (ob.lobes ? ob.lobes[i] : 1) + amp * (Math.sin(t + i * 2.3 + ob.seed) * 0.7 + Math.sin(t * 0.6 + i * 1.1) * 0.3); B[2 * i] = x + Math.cos(a) * R * k; B[2 * i + 1] = y + Math.sin(a) * R * k; }
+  ctx.beginPath(); shbSmooth(8); ctx.closePath();
 }
 function drawTerrain() {
   if (!G.terrain) return;
