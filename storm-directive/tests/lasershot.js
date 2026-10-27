@@ -1,4 +1,4 @@
-// The Laser and the modifier matrix (laser.js, modmatrix.js, spassives.js): Ordered Online's start draft offers its four
+// The Laser and the modifier matrix (laser.js, modmatrix.js, spassives.js): Ordered Online's start draft offers its three
 // starters, the Laser fires a Fire beam that hurts enemies, a level-up draft deals a modifier card, and modifiers fill the
 // weapon's group slots. Screenshots: out/laserdraft.png (start draft), out/laser.png (the beam), out/lvdraft.png (a level-up).
 const { chromium } = require('playwright');
@@ -13,10 +13,9 @@ const { chromium } = require('playwright');
   await page.screenshot({ path: 'laserdraft.png' });
   const r1 = await page.evaluate(() => ({ titles: UI.lootOpts.map(o => o.title || (o.def && o.def.name)), n: UI.lootOpts.length }));
   out.start = r1.titles;
-  // (since 91870e9 the start draft is the sample's two suited weapons, S10_FIT, plus two random matrix weapons: the Laser
-  // is in that pool but not guaranteed, so when it is not dealt the test swaps it in for the last random card)
-  const fitN = await page.evaluate(() => S10_FIT.ordered.map(id => WEAPONS[id].name).filter(n => UI.lootOpts.some(o => (o.title || (o.def && o.def.name)) === n)).length);
-  if (r1.n !== 4 || fitN !== 2) bad.push('start draft: ' + r1.titles);
+  // (since v10.173 the start draft is exactly the sample's three weapons, SAMPLE_KIT: samplekit.js; the Laser is one of them)
+  const fitN = await page.evaluate(() => SAMPLE_KIT.ordered.map(id => WEAPONS[id].name).filter(n => UI.lootOpts.some(o => (o.title || (o.def && o.def.name)) === n)).length);
+  if (r1.n !== 3 || fitN !== 3) bad.push('start draft: ' + r1.titles);
   const r2 = await page.evaluate(() => {
     let i = UI.lootOpts.findIndex(o => /Laser/.test(o.title || ''));
     if (i < 0) { i = UI.lootOpts.findIndex(o => !(o.def && S10_FIT.ordered.includes(o.def.id))); UI.lootOpts[i] = optNewWeapon('v_flame_beam', 0); }

@@ -1,4 +1,4 @@
-// v10 test build (v10.js): one sample card; a 4-card start draft from the 42-weapon matrix; level-ups offer only
+// v10 test build (v10.js): one sample card; a start draft of the sample's three weapons (samplekit.js); level-ups offer only
 // Switched at Birth, one card a wave (same attack type, new damage type); other boxes are dropped; every one of the 42 weapons
 // deals damage; Fire leaves Burning; no automatic reactions.
 const { chromium } = require('playwright');
@@ -27,7 +27,7 @@ const { chromium } = require('playwright');
     if (ids.length !== (typeof S10_BY.acro !== 'undefined' ? 45 : 42)) bad.push('weapons: ' + ids.length); // (PROPOSED Sample 9 brings three starters: acro.js)
     const st = genLoot({ kind: 'start' });
     const stIds = st.map(o => W24_IDS.find(k => WEAPONS[k] === o.def || WEAPONS[k] === Object.getPrototypeOf(o.def)));
-    if (st.length !== 4 || !stIds.every(id => s10Pool().includes(id)) || !S10_FIT.baseline.every(id => stIds.includes(id))) bad.push('start draft is not a matrix starting offer: ' + st.map(o => o.title)); // (samplestart.js)
+    if (st.length !== 3 || !SAMPLE_KIT.baseline.every(id => stIds.includes(id))) bad.push('start draft is not the sample\'s three: ' + st.map(o => o.title)); // (samplekit.js)
     const c0 = st.find(o => o.def.v10 && !o.def.sig && !o.sab); // (the type switch below only works on v10 weapons; the random offer may have none)
     if (c0) c0.apply(); else { G.weapons[0] = makeSlot('v_phys_proj', false, 1); recomputeAll(); }
     const w0 = G.weapons.find(Boolean);

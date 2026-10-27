@@ -13,7 +13,7 @@
 //  - THE STAGE: one drawn loop per modifier (WMV_SCENE), drawn with the weapon's own type colour and attack type
 //    (a projectile, a spread, a beam, a contact swipe, a burst or a puddle: wmvKit K.shot).
 //  Off in tests and sims (window.TUT_OFF) unless WM.force, and in the Sandbox.
-// Hooks: none in shared files. hookOn('kill', 'wmKill'), hookOn('hit:late', 'wmHit'), hookOn('tick', 'wmTick'). Wraps branchback.js xbrTick (off while this runs), draft.js
+// Hooks: none in shared files. hookOn('kill', 'wmKill'), hookOn('hit:late', 'wmods:hit'), hookOn('tick', 'wmods:tick'). Wraps branchback.js xbrTick (off while this runs), draft.js
 // forkCards, draftBox, sidemo.js sivDraftKind and sivDraftHead, sandbox.js sbDraftInfo (the details panel), preview.js
 // makePreview (the modifier loops), modmatrix.js modDraftCands and wupLevel, modcards.js modBoxCards, UI.openDraft and
 // UI.refreshHud. Loads last (after modpick.js and holdcopy.js).
@@ -46,8 +46,8 @@ function wmKill(e, src) {
   if (e.wmHit) for (const [x, t] of e.wmHit) if (x !== w && G.t - t <= WM.assistT) wmCredit(x, WM.assist, top);
 }
 hookOn('kill', 'wmKill', (e, src) => wmKill(e, src));
-hookOn('hit:late', 'wmHit', (e, d, src) => { const w = wmOn() && wmW(src); if (w && !w.isSpell) (e.wmHit || (e.wmHit = new Map())).set(w, G.t); });
-hookOn('tick', 'wmTick', () => {
+hookOn('hit:late', 'wmods:hit', (e, d, src) => { const w = wmOn() && wmW(src); if (w && !w.isSpell) (e.wmHit || (e.wmHit = new Map())).set(w, G.t); });
+hookOn('tick', 'wmods:tick', () => {
   if (!wmOn() || G.state !== 'play') return;
   for (const tu of G.turrets || []) if (tu.w && tu.src && !tu.src.wmW) tu.src.wmW = tu.w; // (game.js turrets carry w, not src.w)
   for (const w of G.weapons) if (wmLive(w) && !w.wmQ && (w.wmK || 0) >= wmNeed(w)) wmQueue(w); // (a carried-over full bar)
