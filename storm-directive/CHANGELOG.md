@@ -3,6 +3,25 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.191 (versionCode 470): 2026-10-27 Merge of `ccr-6a5eeab5-civjwp` (XP granules as specks of flowing light)
+
+### 2026-10-27 XP specks smaller and dimmer (v10.190)
+- Systems: xp granules
+- Files: xpgems.js
+- What: specks about 40% smaller, glow at half strength, shorter and fainter tails (user: too big and bright).
+- Save data: none.
+- Hooks: none.
+- Risk: granules are harder to spot on busy screens.
+
+### 2026-10-27 XP granules become specks of flowing light (v10.189)
+- Systems: xp granules, render
+- Files: xpgems.js, render.js
+- What: XP granules are drawn as small glowing motes (bright white core, coloured bloom by size: blue, green, gold, violet) that twinkle, idle in a slow loop and trail a short tail of light, longer while flying to you. XPG.light = false restores the dark diamonds.
+- Save data: none.
+- Hooks: render.js gem pass -> xpgDraw (one line).
+- Risk: purely visual; specks are smaller than the old diamonds, so granules may read less on busy screens.
+
+
 ## v10.188 (versionCode 467): 2026-10-27 Merge of `ccr-64cf07a7-30asvl` (attack types lock in), `ccr-5a800472-3464vq` (transforming fusions, 21 pairs) and `ccr-8bbc67d2-zjlnl4` (Field Guide rebuilt for v10)
 
 ### 2026-10-27 Attack-type confirm copy (v10.186)

@@ -1480,6 +1480,7 @@ function render() {
   const gemOf = g => (g.v >= 100 ? 0 : g.v >= 20 ? 1 : g.v >= 5 ? 2 : 3);
   const diamond = (x, y, r) => { ctx.moveTo(x, y - r * 1.3); ctx.lineTo(x + r, y); ctx.lineTo(x, y + r * 1.3); ctx.lineTo(x - r, y); ctx.closePath(); };
   const gemVis = G.gems.filter(g => g.kind !== 's' && vis(g)), gk = typeof XPG !== 'undefined' ? XPG.size : 1; // (bigger, with a halo: xpgems.js)
+  if (typeof xpgDraw === 'function' && xpgDraw(gemVis, gemOf)) gemVis.length = 0; // (specks of flowing light: xpgems.js)
   if (gk !== 1 && XPG.halo && gemVis.length) { ctx.strokeStyle = 'rgba(255,255,255,0.9)'; ctx.lineWidth = Math.max(3, 5 * S); ctx.lineJoin = 'round'; ctx.beginPath(); for (const g of gemVis) diamond(sx(g.x), sy(g.y), GEM_TIERS[gemOf(g)][1] * S * gk); ctx.stroke(); }
   ctx.strokeStyle = 'rgb(12,14,16)'; ctx.lineWidth = 1;
   for (let ti = 0; ti < GEM_TIERS.length; ti++) {
