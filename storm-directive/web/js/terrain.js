@@ -100,7 +100,9 @@ function zoneForce(x, y, r, me) { // (me: you, whom cilia tangle instead of shov
 // You can swim through cilia, but they tangle you: much slower (TERRAIN_MOVE.cilia, game.js speed) and you
 // can't attack (weapons and attacking Feats hold fire, game.js). You can swim into acid too: it burns while
 // you're in it, and it clings to you for a while after you get out (acidLinger).
-const TERRAIN_MOVE = { cilia: 0.35, linger: 2.5, lingerK: 0.5 };
+// The cling lasts as long as you were in it (lingerPer seconds a second, up to linger): grazing a wall used to
+// cost a full 2.5 s of burn, so in v10.180 the after-burn out-hurt the acid itself (run log #23 and #24).
+const TERRAIN_MOVE = { cilia: 0.35, linger: 2.5, lingerK: 0.5, lingerPer: 1.5 };
 function terrainPlayer(p, dt) {
   bigHazPlayer(p, dt); // (the big hazards: bighaz.js)
   const z = zoneForce(p.x, p.y, p.r, true);
@@ -111,9 +113,10 @@ function terrainPlayer(p, dt) {
   p.slick = z.slick;
   G.inCurrent = !!z.current; // Go With the Flow
   if (z.acid && G.state === 'play' && !G.P.ironGut && !(z.acid.dilT > G.t)) { // (DILUTED by Water: chem.js)
-    hurtPlayer(z.acid.def.dps * dmgNow() * V10_DIFF.terrain, 'Acid Crypt'); acidSizzle(p, z.acid, dt); G.acidOn = G.t + TERRAIN_MOVE.linger; } // (Cast-Iron Stomach: not any more; v10 scale: boss10.js)
+    hurtPlayer(z.acid.def.dps * dmgNow() * V10_DIFF.terrain, 'Acid Crypt'); acidSizzle(p, z.acid, dt);
+    G.acidIn = (G.acidIn || 0) + dt; G.acidOn = G.t + Math.min(TERRAIN_MOVE.linger, G.acidIn * TERRAIN_MOVE.lingerPer); } // (Cast-Iron Stomach: not any more; v10 scale: boss10.js)
   else if (G.acidOn > G.t && G.state === 'play' && !G.P.ironGut) acidLinger(p, dt);
-  else if (G.sizzle > 0) G.sizzle = Math.max(0, G.sizzle - dt * 2.5);
+  else { G.acidIn = 0; if (G.sizzle > 0) G.sizzle = Math.max(0, G.sizzle - dt * 2.5); }
   // Skid Marks: a toxic trail across the slick.
   if (p.slick && G.P.skid && !(G.skidT > G.t) && G.zones.length < 300 && Math.hypot(p.vx || 0, p.vy || 0) > 40) {
     G.skidT = G.t + 0.1;
@@ -316,6 +319,29 @@ function unstick(o, r) { pushOut(o, r || 10, 0); if (G.lvl) lvPush(o, r || 10); 
 // Everything in the womb drifts: solid growths creep (6 to 12 a second), currents, cilia and slicks wander a
 // little faster. They wander, keep out of the egg's glow and inside the arena, and steer round each other.
 const DRIFT = { solid: [6, 12], soft: [10, 20], gap: 120, regrid: 0.25, nEvery: 8 };
+// How hard ob steers away from its neighbours. It looks only in the grid cells within reach (about 18 pieces, not
+// all 150): the all-pairs version allocated about 150 KB a frame on a busy slide, and the garbage collector's
+// pauses were the late-run hitches in the v10.180 run log. Any piece within reach has part of its grid footprint
+// (r + 60) inside the box ob.r + gap round ob, so the box's cells see it; nStamp skips repeats across cells.
+let tNStamp = 0;
+function terrainNTurn(T, ob) {
+  const grid = T.grid; if (!grid) return 0;
+  const st = ++tNStamp, ox = ob.x, oy = ob.y, oh = ob.h, orr = ob.r + DRIFT.gap, lake = !!ob.lake;
+  const cx0 = Math.floor((ox - orr) / TCELL), cx1 = Math.floor((ox + orr) / TCELL), cy0 = Math.floor((oy - orr) / TCELL), cy1 = Math.floor((oy + orr) / TCELL);
+  let nt = 0;
+  for (let cx = cx0; cx <= cx1; cx++) for (let cy = cy0; cy <= cy1; cy++) {
+    const c = grid.get(tKey(cx, cy)); if (!c) continue;
+    for (let j = 0; j < c.length; j++) {
+      const o = c[j];
+      if (o.nStamp === st) continue; o.nStamp = st;
+      if (o === ob || o.parent === ob || (lake && o.type === 'acid')) continue; // (an acid lake ploughs on into other acid: bighaz.js)
+      const dx = ox - o.x, dy = oy - o.y, gap = orr + o.r;
+      if (dx > gap || dx < -gap || dy > gap || dy < -gap || dx * dx + dy * dy > gap * gap) continue;
+      nt += angDiff(Math.atan2(dy, dx), oh);
+    }
+  }
+  return nt * 0.8;
+}
 function updateTerrain(dt) {
   const T = G.terrain;
   if (!T) return;
@@ -334,14 +360,7 @@ function updateTerrain(dt) {
     // Steer away from neighbours. They creep at 6 to 20 a second, so each one looks round only every nEvery-th
     // frame (staggered) and keeps that steer in between: the all-pairs check was the biggest cost in a late Race.
     if (i % DRIFT.nEvery === ph || ob.nTurn == null) {
-      let nt = 0;
-      for (const o of L) {
-        if (o === ob || o.parent === ob || (ob.lake && o.type === 'acid')) continue; // (an acid lake ploughs on into other acid: bighaz.js)
-        const dx = ob.x - o.x, dy = ob.y - o.y, gap = ob.r + o.r + DRIFT.gap;
-        if (Math.abs(dx) > gap || Math.abs(dy) > gap || dx * dx + dy * dy > gap * gap) continue;
-        nt += angDiff(Math.atan2(dy, dx), ob.h) * 0.8;
-      }
-      ob.nTurn = nt;
+      ob.nTurn = terrainNTurn(T, ob);
     }
     turn += ob.nTurn;
     ob.h += clamp(turn, -0.8, 0.8) * dt;
@@ -461,8 +480,10 @@ function updateAmbient(dt) {
     A.push({ x: G.core.x + Math.cos(a) * d, y: G.core.y + Math.sin(a) * d, sp: rand(38, 70), ph: Math.random() * TAU, rim: false, wob: rand(-0.35, 0.35) });
   }
   let rimN = 0;
-  const grid = G.ambGrid || (G.ambGrid = new Map());
-  grid.clear();
+  // (The grid keeps its cell arrays and empties last frame's, rather than a fresh array per cell per frame.)
+  const grid = G.ambGrid || (G.ambGrid = new Map()), used = G.ambUsed || (G.ambUsed = []);
+  for (let i = 0; i < used.length; i++) used[i].length = 0;
+  used.length = 0;
   for (const s of A) {
     if (s.dead) continue;
     const dx = G.core.x - s.x, dy = G.core.y - s.y, d = Math.hypot(dx, dy) || 1;
@@ -474,7 +495,7 @@ function updateAmbient(dt) {
       if (d < CORE.r + 8) { s.rim = true; s.a = Math.atan2(dy, dx); s.rimT = G.t; }
     } else rimN++;
     const k = Math.floor(s.x / AMB.cell) * 100003 + Math.floor(s.y / AMB.cell);
-    let c = grid.get(k); if (!c) grid.set(k, c = []); c.push(s);
+    let c = grid.get(k); if (!c) grid.set(k, c = []); if (!c.length) used.push(c); c.push(s);
   }
   // The egg's surface only holds so many hopefuls; the oldest give up.
   if (rimN > AMB.rim) { let drop = rimN - AMB.rim; for (const s of A) { if (drop <= 0) break; if (s.rim && !s.dead) { s.dead = true; drop--; } } }
