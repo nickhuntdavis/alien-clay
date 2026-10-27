@@ -3,6 +3,56 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.188 (versionCode 467): 2026-10-27 Merge of `ccr-64cf07a7-30asvl` (attack types lock in), `ccr-5a800472-3464vq` (transforming fusions, 21 pairs) and `ccr-8bbc67d2-zjlnl4` (Field Guide rebuilt for v10)
+
+### 2026-10-27 Attack-type confirm copy (v10.186)
+- Systems: ui
+- Files: atklock.js
+- What: the confirm box's four lines written (ATL_COPY; Claude-drafted at the user's request). No TODO_COPY:atk_lock_* left.
+- Save data: none.
+- Hooks: none.
+- Risk: none.
+
+### 2026-10-27 Attack types lock in (v10.185)
+- Systems: modifier cards, attack-type swap, ui
+- Files: atklock.js (new), index.html, tests/atklocktest.js (new), tests/run.sh, tests/tools/guide.js
+- What: Melee, Ranged, Mines and Orbiting are now a one-way choice per weapon: once a weapon has one, no other attack type is offered on it. An attack-type card shown on a reward screen and not taken (another card picked, rerolled or skipped) is never offered again that run. Tapping a card that gives a weapon its first attack type opens a confirm (copy is TODO_COPY:atk_lock_title, _body, _yes, _no). The Sandbox and no-limits play keep the free swap.
+- Save data: none (run state G.atkNo).
+- Hooks: none in shared files (wraps modOk, genLoot, UI.renderLootCards, UI.renderDraft, UI.pickLoot; hookOn('tick', 'atklock:check')).
+- Risk: fewer attack-type cards dealt over a run (each one seen and passed is gone); atkswap.js's switch card now only appears in the Sandbox.
+
+### 2026-10-27 Six new fusion pairs (v10.187)
+- Systems: wfusion, wfusion4 (new), weapons
+- Files: wfusion4.js (new), index.html, tests/wfusiontest.js, ARCHITECTURE.md
+- What: six new transforming fusions, offered like the first fifteen (WF_LIST grows to 21). Enzyme Headbutt + Skill Issue: every 3rd headbutt launches a living cannonball. Spark of Life + Acid Spit: kills jump the beam on with acid splashes. Red Flagship + Nervous Wreck: the beam reels enemies in, snaps fire a Force beam through the crowd. Little Prick + Rent Free: possessed enemies fire needles at their mates. Eggs + Nappy Mines: grabbed eggs explode. Peekaboo + Family Ties: vanishing leaves a black hole that implodes. Enzyme Headbutt and Spark of Life had no fusion before. Sim (400 HP crowd, 10 s, fused vs apart): 1.15x (Spark of Life, kill-driven) to 2.4x (Red Flagship + Nervous Wreck).
+- Save data: none.
+- Hooks: none in shared files (hookOn proc, kill, tick; wraps toothTaken, peekFire).
+- Risk: balance of the six; 12 more TODO_COPY placeholders (wf_<id>_name / _desc).
+
+### 2026-10-27 Transforming fusions, the other ten (v10.186)
+- Systems: wfusion, wfusion3 (new), weapons
+- Files: wfusion3.js (new), wfusion.js, index.html, tests/wfusiontest.js, ARCHITECTURE.md
+- What: the remaining ten fusions transform too. Acid Spit + Hot Mess: globs drip burning patches and splash. Family Ties + Hot Mess: holes burn their core and collapse into a blast and pool. Nocturnal Emission + Hot Mess: puddles burn (without setting off Mucus + Acid) and boil over, harder per enemy stuck. Ewww, Gross + Unwanted Contact: bundles crackle and the tape jumps on a death. Chest Burster + Sister Cousin: siblings infect, allies spit siblings and burst into more. Laser + Red Flagship: a 3-beam Static fan behind the target. Rent Free + Panic Button: every 4th hit possesses; possession jumps on death with a pulse. Maximum Gains + Enzyme Sneeze: close pellets pump an enemy until it ruptures in an acid cone. Nervous Wreck + Panic Button: snaps fill a meter round you; full, a meltdown throws and stuns. Red Flagship + Soulmate Signal: a live beam tethers you to each twin. wfusion.js keeps only the offer and merge (wfProc removed). Sim (400 HP crowd, 10 s, fused vs apart): 1.25x (Soulmate tether, Family Ties) to 2.4x (Rent Free).
+- Save data: none.
+- Hooks: none in shared files (hookOn proc, kill, tick; wraps modDraw).
+- Risk: balance of all ten pairs; 20 more TODO_COPY placeholders (wf_<id>_name / _desc), so the Claude-drafted names of pairs 1 to 16 are gone until the user writes them.
+
+### 2026-10-27 Transforming fusions (v10.185)
+- Systems: wfusion, wfusion2 (new), weapons
+- Files: wfusion2.js (new), wfusion.js, index.html, tests/wfusiontest.js, ARCHITECTURE.md
+- What: five weapon fusions now change how the weapon plays instead of adding a small proc. Nuclear Family pair: Standard Issue homes and pierces, and its kills release generations of homing siblings. Biological Clock pair: drawn countdowns whose Bleed blasts chain through the crowd. Static Cling pair: Blowing Bubbles feeds one storm bubble that drifts onto the crowd, zaps and bursts. Nest Egg pair: vanishing leaves a decoy egg that lures, then explodes and Fears. Nappy Blowout pair: mine blasts throw enemies at your next mine, which chains and grows. Their old powers are removed from wfusion.js. Sim (400 HP crowd, 10 s, fused vs apart): about 1.6x to 2.4x damage.
+- Save data: none.
+- Hooks: none in shared files (hookOn fire:after, fire, kill, proc, tick; wraps peekFire, toothLure, detonateMine, modDraw).
+- Risk: balance of the five pairs (they hit harder than the old fusions); 10 open TODO_COPY placeholders (wf_<id>_name / _desc) show as raw ids on the fusion card and fused weapon name until written.
+
+### 2026-10-27 Field Guide rebuilt for v10 (v10.185)
+- Systems: help (Field Guide, damage type card)
+- Files: codex10.js (new), index.html, ARCHITECTURE.md, tests/codex10test.js (new), tests/codexsamples.js
+- What: the Field Guide lists only what a v10 run can meet. RULES: the seven v10 damage types with their bar or status (GLOSSARY text), the 21 v10 reactions (? until set off), defences, attack types and combo twists on live type pairs; the v9 reaction list, retired types and Rewind are gone. ENEMIES lists only enemies that can still spawn; BOSSES shows the v10 strength and signature lines; SECRETS drops five unreachable ones; MUTATIONS lists the sperm passive cards the draft deals (the 61 genes.js mutations can no longer be had); SEQUENCES no longer repeats each trait. The damage type card uses the same v10 table. 14 TODO_COPY placeholders (type blurbs, new section titles and hints).
+- Save data: META.cdxMut added (mutation card ids taken, for the MUTATIONS tab).
+- Hooks: none in shared files (replaces UI.codexHtml and INSPECTOR.elem; wraps each live mutation card's apply).
+- Risk: other branches editing ui.js codexHtml will no longer show (codex10.js replaces it). Mutation counts start at 0 for everyone (no history before META.cdxMut).
+
 ## v10.184 (versionCode 463): 2026-10-27 Merge of `ccr-b9c3ea28-jvf30l` (pacing: intensity meter), `ccr-2a5c5bea-k3lnlv` (late-wave GC churn, acid after-burn) and `ccr-15e338c4-03tzdb` (test fixes, Enzyme Sneeze damage)
 
 ### 2026-10-27 Merge fixes (v10.184)
