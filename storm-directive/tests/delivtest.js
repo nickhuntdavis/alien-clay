@@ -134,9 +134,11 @@ const { chromium } = require('playwright');
     // Returning: the ring flings out over an enemy at 135 (out of its reach at rest)
     w = fresh('v_phys_proj', [['orbiting', 1], ['returning', 1]]); e = at(foe(0, 0), 135); e.r = 8; tick(1.5, ot); const or0 = lost(e); tick(2.5, ot);
     out.oRet = [or0, lost(e)]; if (or0 || !(lost(e) > 0)) bad.push('orbit returning ' + out.oRet);
-    // Link: the beam between the bodies hurts an enemy inside the ring that no body touches
-    w = fresh('v_phys_proj', [['orbiting', 1], ['connecting', 1]]); e = at(foe(0, 0), 34); e.r = 8; tick(2, ot);
-    out.oLink = lost(e); if (!(lost(e) > 0)) bad.push('orbit link ' + out.oLink);
+    // Link: the beam runs round the ring (a circle, not straight lines between bodies): an enemy on the ring takes more with it
+    w = fresh('v_phys_proj', [['orbiting', 1]]); e = at(foe(0, 0), 72); e.r = 8; tick(2, ot); const ol0 = lost(e);
+    w = fresh('v_phys_proj', [['orbiting', 1], ['connecting', 1]]); e = at(foe(0, 0), 72); e.r = 8; tick(2, ot);
+    const ol1 = lost(e); w = fresh('v_phys_proj', [['orbiting', 1], ['connecting', 1]]); e = at(foe(0, 0), 34); e.r = 8; tick(2, ot);
+    out.oLink = [ol0, ol1, lost(e)]; if (!(ol1 > ol0) || lost(e) > 0) bad.push('orbit link ' + out.oLink); // (34 in: was on the old triangle's edge, now inside the circle)
     // Pull: an enemy 50 outside the ring is dragged onto it
     w = fresh('v_phys_proj', [['orbiting', 1], ['pull', 1]]); e = at(foe(0, 0), 122, 2); const op0 = dist(e); tick(0.3, ot);
     out.oPull = Math.round(op0 - dist(e)); if (!(out.oPull > 10)) bad.push('orbit pull ' + out.oPull);
