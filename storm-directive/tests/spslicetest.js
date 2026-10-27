@@ -20,7 +20,7 @@ const { chromium } = require('playwright');
     const e2 = foe(75); tick(30); const d2 = Math.hypot(e2.x - G.player.x, e2.y - G.player.y);
     out.space = [Math.round(d1), Math.round(d2)]; if (!(d1 > 50) || !(d2 < 75)) bad.push('Personal Space push/pull ' + out.space);
     // 2. Fever Pitch: a burning kill sets a neighbour alight
-    fresh(); card('sp_fever').apply(G); const k = foe(0, -150, 50), n = foe(30, -150); burnAdd(fightCd(k), 200); damageEnemy(k, 1e4, weaponSrc(G.weapons[0])); update(1 / 60);
+    fresh(); card('sp_fever').apply(G); const k = foe(0, -150, 50), n = foe(30, -150); burnAdd(fightCd(k), 200); damageEnemy(k, 1e4, weaponSrc(G.weapons[0])); if (!k.dead) damageEnemy(k, 1e4, weaponSrc(G.weapons[0])); update(1 / 60); // (one hit takes at most half its health: a second makes the kill certain)
     out.fever = [k.dead, n.cd && n.cd.burnT > 0]; if (!k.dead || !(n.cd && n.cd.burnT > 0)) bad.push('Fever Pitch ' + out.fever);
     // 3. Internal Ricochet: only with the whole Membrane Shield; shots bounce back inside the bubble
     fresh(); const ir = card('sp_iric'); if (ir.eligible(G)) bad.push('Internal Ricochet without the shield');

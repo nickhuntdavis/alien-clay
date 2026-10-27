@@ -1,6 +1,7 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
+- Version v10.184 (versionCode 463): merge of three sessions: an invisible intensity meter paces free modes (pacing.js: Race, Endless and race to the egg swell and lull; wave feeds burst, hold, surge; reward screens wait for lulls); late-wave garbage-collector churn cut (terrain, render, foemem) and acid after-burn scales with contact time; Enzyme Sneeze hits for half (ST_W dmgK 0.5: its faster fire set off Corrosive Splash far more); hookstest, lasershot, v10test, sivtest and statuptest green again.
 - Version v10.181 (versionCode 460): merge of `ccr-15e338c4-03tzdb`: Orbiting bodies on non-beam weapons draw as the weapon's own shots (style, colour, size, damage-type look) instead of plain dots (orbShots in modifiers.js). Open: the user saw a "ring line" with orbiting projectiles that could not be found in code; waiting on which weapon shows it. Still red on main (all pre-existing): hookstest (wmHit/wmTick), statuptest Enzyme Sneeze, lasershot and v10test start draft, sivtest.
 - Version v10.180 (versionCode 459): merge of `ccr-a4871635-2p0jtu`: a race course mode (`s011`, course.js) on every sample's mode screen: five rivals, a countdown, an obstacle course (slalom, spit swamp, plaque-shortcut fork, sweepers, valves, boost pads); first over the line alive wins. All its text is TODO_COPY (22 `crs_*` placeholders). Autorun alone wins about 1 in 10.
 - Version v10.179 (versionCode 458): merge of `ccr-3feb4203-x7mgyg` (on top of v10.174's Race crowd thinning): the Bigger Membrane bubble is drawn 60% wider (was only its hitbox); weapon kill bars get assists (0.3 of a kill), catch-up (+35% per level behind the top weapon), a gentler curve (WM.kg 0.42, 316 kills to Lv 9), bank kills while a level screen waits, and credit burns, reactions and turret kills to the weapon that last hit. Still red on main: armtest, statuptest Enzyme Sneeze, sivtest; pdeftest flaky.
@@ -116,6 +117,7 @@ Tone: Dungeon Crawler Carl. Dry, deadpan, nerdy, not self-aware; bodies, sex, co
 - Saves: full wipe on v10 (new META key, old `sd_meta` ignored).
 
 ## Recent changes (newest first)
+- v10.184: pacing intensity meter, late-wave GC churn cut, Enzyme Sneeze damage, five tests green. Details in CHANGELOG.md v10.184.
 - v10.181: Orbiting bodies look like the weapon's shots. Details in CHANGELOG.md v10.181.
 - v10.180: race course level (s011). Details in CHANGELOG.md v10.180.
 - v10.169: Orbiting takes Extra, Rapid Fire and Charged, Homing on Orbiting is magnetic; wave mode upgrades only between waves; enemy tap card shows Active effects. Details in CHANGELOG.md v10.169.

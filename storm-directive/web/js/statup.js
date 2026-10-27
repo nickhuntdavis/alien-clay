@@ -90,7 +90,7 @@ const stLine = k => stDelta(k, 1);
 const ST_W = {
   v_phys_proj:    { mag: 1.25, reload: 0.9 },                                    // Standard Issue: the reliable one
   v_fire_proj:    { rof: 1.25, mag: 1.5, range: 270, dmgK: 0.8 },                // Acid Spit: fast, close (more hits build Melting faster)
-  v_arcane_proj:  { rof: 0.85, mag: 0.75, crit: 0.10, critX: 0.4, dmgK: 0.85 },  // Little Prick: precise (crits Bleed harder)
+  v_arcane_proj:  { rof: 0.85, mag: 0.75, crit: 0.10, critX: 0.4, dmgK: 0.95 },  // Little Prick: precise (crits Bleed harder)
   v_soul_proj:    { rof: 0.9, reload: 1.1, crit: 0.05, critX: 0.2 },
   v_phys_spread:  { rof: 0.9, critX: 0.3 },
   acro_spray:     { rof: 1.15, mag: 1.5, crit: 0.03, dmgK: 0.5 },

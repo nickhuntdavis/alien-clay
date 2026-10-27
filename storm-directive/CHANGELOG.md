@@ -3,6 +3,57 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.184 (versionCode 463): 2026-10-27 Merge of `ccr-b9c3ea28-jvf30l` (pacing: intensity meter), `ccr-2a5c5bea-k3lnlv` (late-wave GC churn, acid after-burn) and `ccr-15e338c4-03tzdb` (test fixes, Enzyme Sneeze damage)
+
+### 2026-10-27 Merge fixes (v10.184)
+- Systems: weapon base stats, tests
+- Files: statup.js, tests/spslicetest.js
+- What: Little Prick's damage correction 0.85 to 0.95 (statuptest read 0.80 of its old output after the merge, at the floor; now 0.85). spslicetest's Fever Pitch check hits twice: one hit takes at most half an enemy's health, so the kill was left to a burn tick and failed about 1 run in 10 (on main too).
+- Save data: none.
+- Hooks: none.
+- Risk: Little Prick hits about 12% harder per shot.
+
+### 2026-10-27 Intensity meter replaces the clock cycle (v10.183)
+- Systems: pacing
+- Files: pacing.js
+- What: Free modes now run on an invisible intensity meter (Left 4 Dead style) instead of a fixed 75 s loop: it fills from enemies dying within 260 units of you (0.012 each, elites 0.04), from hits you take (0.6 x the share of max HP lost) and slowly with time (0.01/s); the spawn rate is 1x to 1.3x as it fills, then a 4 s peak, then a 0.6x relax while it drains at 0.06/s until it is under 0.3 (or 40 s). A boss death jumps straight to the breather. `PACING.mode = 'clock'` restores the v10.182 loop. Telemetry: `G.stats.peaks`.
+- Save data: none.
+- Hooks: hookOn hurt from pacing.js (the kill and tick hooks already existed).
+- Risk: a busy build (many kills near you) peaks about every 40 s, a kiting one about every 85 s; the Race sim is in NOTES.md.
+
+### 2026-10-27 Pacing: intensity cycle, wave shape, screens in lulls (v10.182)
+- Systems: pacing (new), engine (spawn rate), wave-mode, reward director
+- Files: pacing.js (new), game.js, waves.js, campaign.js, director.js, index.html, ARCHITECTURE.md
+- What: Free modes (Race, Endless, race to the egg) swell and lull on a 75 s cycle (0.6x for 12 s, then a ramp from 0.85x to 1.3x; the average is 1.0) with a 10 s lull after every boss death. Wave feeds are a burst, a steady middle and a final surge instead of flat; the rest after a wave clear is 5 s (was 1.6 s). The Reward Director opens screens at half its gap in a lull and 15 s later at a peak (unless three or more rewards wait). `PACING.on = false` restores the old flat behaviour. Telemetry: `G.stats.lullT`, `lullScr`.
+- Save data: none.
+- Hooks: game.js update spawn rate -> paceK; waves.js waveSpawn and campaign.js campSpawn feed -> paceShape; waves.js waveClear -> PACING.rest; director.js dirGate -> paceGap and lullScr. hookOn tick and kill from pacing.js.
+- Risk: balance in the Race and Endless shifts within a cycle (peaks are 30% denser than before); 20-wave runs are about 1 minute longer from the rest; the bot sims are in NOTES.md.
+
+### 2026-10-27 Late-wave hitches and acid after-burn (v10.182)
+- Systems: render (enemy shapes, tails, terrain outlines), terrain (drift, acid, ambient crowd), Membranes (foemem), tests
+- Files: terrain.js, render.js, foemem.js, tests/sim/framewave.js (new), ARCHITECTURE.md
+- What: the late-wave stutter in the v10.180 log (#24, wave 20 win: lows of 6 to 15 fps, frames up to 158 ms) traced to garbage-collector pauses, not one slow system: the game made about 1.2 MB of garbage a frame. Terrain neighbour steering now looks only in nearby grid cells (was all pairs, 150 KB a frame), and enemy shapes, tails, terrain outlines and Membranes draw from reused buffers instead of fresh point arrays; the ambient crowd's grid reuses its cells. Same scene: 1212 -> 859 KB a frame (29% less); drawing is pixel-identical. Acid's after-burn now lasts 1.5 s per second you were in it (up to 2.5 s): a brush used to cost the full 2.5 s, so "Acid burn" out-hurt the acid itself (#23: 43 of 51 damage taken by wave 3).
+- Save data: none.
+- Hooks: none (new helpers terrainNTurn in terrain.js; SHB, shbRound, shbSmooth, TAIL_L/TAIL_R in render.js).
+- Risk: terrain pieces see a neighbour up to 0.25 s late after it drifts into a new cell (the grid's regrid time); the phone's fps gain is unmeasured (the headless bench shows the garbage drop, not phone GC pause length).
+
+### 2026-10-27 sivtest and statuptest green; Enzyme Sneeze damage corrected (v10.182)
+- Systems: weapon base stats, tests
+- Files: statup.js, tests/sivtest.js
+- What: Enzyme Sneeze's reshaped base (faster fire, bigger magazine) never got its damage correction and dealt 1.47x its old output on dummies (its extra hits set off Corrosive Splash far more often); ST_W.acro_spray dmgK 0.5 brings it to 1.16x. sivtest stops at tier 3: the Lv 10 mastery tier is gone since weapons stop at Lv 9 (v10.148), and it now checks no tier 4 is offered.
+- Save data: none.
+- Hooks: none.
+- Risk: Enzyme Sneeze (Acrobat sample) hits for half what it did per shot; its total output is near its pre-reshape level.
+
+### 2026-10-27 Three stale tests green again (v10.182)
+- Systems: weapon levels, tests
+- Files: wmods.js, tests/lasershot.js, tests/v10test.js
+- What: wmods.js's hit and tick listeners are labelled 'wmods:hit' / 'wmods:tick' (hookstest read the bare 'wmHit' / 'wmTick' as missing functions); lasershot and v10test expect the v10.173 opening draft (the sample's three weapons, SAMPLE_KIT) instead of four cards. No change in play.
+- Save data: none.
+- Hooks: none (two hookOn labels renamed in wmods.js).
+- Risk: none.
+
+
 ## v10.181 (versionCode 460): 2026-10-27 Orbiting bodies look like the weapon's shots (merge of `ccr-15e338c4-03tzdb`)
 - Systems: modifiers, rendering
 - Files: modifiers.js, render.js, typelook.js
