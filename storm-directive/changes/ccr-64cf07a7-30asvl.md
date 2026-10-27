@@ -1,3 +1,11 @@
+## 2026-10-27 Attack-type confirm copy (v10.186)
+- Systems: ui
+- Files: atklock.js
+- What: the confirm box's four lines written (ATL_COPY; Claude-drafted at the user's request). No TODO_COPY:atk_lock_* left.
+- Save data: none.
+- Hooks: none.
+- Risk: none.
+
 ## 2026-10-27 Attack types lock in (v10.185)
 - Systems: modifier cards, attack-type swap, ui
 - Files: atklock.js (new), index.html, tests/atklocktest.js (new), tests/run.sh, tests/tools/guide.js

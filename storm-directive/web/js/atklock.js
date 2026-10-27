@@ -4,14 +4,19 @@
 //  - LOCKED: once a weapon holds one, no other attack type is offered on it again (replaces atkswap.js's switch card).
 //  - DECLINED: an attack-type card shown on a reward screen and not taken (picked something else, rerolled, skipped)
 //    is never offered again this run, on any weapon (G.atkNo).
-//  - CONFIRM: tapping a card that gives a weapon its first attack type asks once more (ATL_COPY, TODO_COPY:atk_lock_*).
+//  - CONFIRM: tapping a card that gives a weapon its first attack type asks once more (ATL_COPY).
 //    Only a fresh tap asks; autorun's picks, tests and sims go straight through.
 // The Sandbox and no-limits play (mmFree) keep the free swap.
 // Hooks: none in shared files. Wraps modOk, genLoot, UI.renderLootCards, UI.renderDraft, UI.pickLoot; hookOn('tick').
 // Loads last (after wmods.js and modpick.js, so it wraps outermost).
 
 const ATL = { ids: ['melee', 'ranged', 'mines', 'orbiting'], pend: new Set(), took: new Set(), req: null, arr: null, ask: null };
-const ATL_COPY = {}; // (the user writes these: atk_lock_title, atk_lock_body, atk_lock_yes, atk_lock_no; {attack} and {weapon} are filled in)
+const ATL_COPY = { // ({attack} and {weapon} are filled in; drafted by Claude at the user's request, 27 Oct)
+  atk_lock_title: 'This is permanent',
+  atk_lock_body: '{weapon} stays {attack} for the rest of the run. There is no reversal procedure. Attack types you pass on are not offered again.',
+  atk_lock_yes: 'SIGN THE FORM',
+  atk_lock_no: 'BACK TO CARDS',
+};
 const atlT = id => ATL_COPY[id] || 'TODO_COPY:' + id;
 const atlOn = () => !!G && !(typeof mmFree === 'function' && mmFree());
 const atlId = o => { const f = (o && (o.family || o.fam)) || ''; return f.startsWith('mod:') && ATL.ids.includes(f.slice(4)) ? f.slice(4) : null; };
