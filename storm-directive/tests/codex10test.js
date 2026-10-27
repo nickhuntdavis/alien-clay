@@ -16,6 +16,8 @@ const path = require('path');
     if (!/UNSTABLE REACTIONS \(\d+\/21/i.test(txt.rules)) bad.push('no v10 reaction list');
     if (CDX10_DEAD_QUIRKS.size && cdx10Quirks().some(id => CDX10_DEAD_QUIRKS.has(id))) bad.push('dead secret listed');
     if (!cdx10Muts().length || cdx10Muts().some(id => MUTATIONS[id] && !cdx10Card(id))) bad.push('mutation list');
+    if (/Combo twists|Super combos/i.test(txt.rules + txt.pairs)) bad.push('retired combos listed');
+    if (!new RegExp('FUSIONS \\(0/' + WF_LIST.length + ' FUSED', 'i').test(txt.pairs)) bad.push('fusion list');
     if (/^Weak to: Learn/m.test(txt.bosses) && !/Relics/.test(txt.bosses)) bad.push('boss lines');
     INSPECTOR.elem('fire'); if (!/Corrosion/.test(document.getElementById('inspect').innerText)) bad.push('damage type card'); INSPECTOR.close();
     META.profile = 's10_alpha'; UI.sample = 's001'; newGame(); s10Start(); G.state = 'play';

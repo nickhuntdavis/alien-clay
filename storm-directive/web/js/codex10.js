@@ -5,13 +5,14 @@
 // unreachable secrets and mutations, and combo twists for retired type pairs. This file replaces UI.codexHtml and
 // lists only what can still happen, built from the live tables:
 //  - RULES: the seven v10 damage types (V10_TYPES) with their bar or status from GLOSSARY, the 21 v10 reactions
-//    (fight.js RX10 / FIGHT_RX, ? until set off), enemy defences and attack types (GLOSSARY), live combo twists.
+//    (fight.js RX10 / FIGHT_RX, ? until set off), enemy defences and attack types (GLOSSARY).
+//  - COMBOS: the weapon fusions (WF_LIST); the old combos, super combos and twists are retired.
 //  - ENEMIES: only ids that can still spawn (intro.js introLive). BOSSES: the v10 signature line under each boss.
 //  - SECRETS and MUTATIONS: only the ones a run can still give (CDX10_DEAD_QUIRKS, cdx10Muts; taken ones in META.cdxMut).
 //  - SEQUENCES: the samples' ranks (a v10 sample is its own sequence), without the v9 Primary line.
 // The damage type card (inspect.js INSPECTOR.elem) uses the same v10 type table.
 // Copy still open: TODO_COPY:type_<id>_blurb (6), cdx_def_title/hint, cdx_atk_title/hint, cdx_rx_hint, cdx_seq_hint,
-// cdx_mut_hint, cdx_twist_hint.
+// cdx_mut_hint, cdx_wf_hint.
 // Hooks: none in shared files. Replaces UI.codexHtml and INSPECTOR.elem (loads after ui.js and inspect.js).
 
 // Each v10 damage type: the GLOSSARY entry for what it builds on a target, and its one-line summary.
@@ -36,7 +37,9 @@ const cdx10Muts = () => [...new Set(SLICE.on ? SLICE.muts : CARDS.filter(c => c.
 const cdx10Gloss = n => { const g = GLOSSARY.find(r => r[1] === n); return g ? g[2] : ''; };
 const cdx10Blurb = id => (CDX10_TYPES[id] && CDX10_TYPES[id].blurb) || ELEMENTS[id].blurb;
 const cdx10Quirks = () => Object.keys(QUIRKS).filter(id => !CDX10_DEAD_QUIRKS.has(id));
-const cdx10Twist = k => k.split('+').every(t => V10_TYPES.includes(t));
+// Weapon fusions (wfusion*.js WF_LIST) replaced the v10 combos, super combos and combo twists (all retired: availableCombos
+// is empty, so G.combo never fills). Fusing one logs it in META.cdxWf (wfFuse, wrapped below).
+const cdx10Wf = () => (typeof WF_LIST !== 'undefined' && WF.on ? WF_LIST.filter(f => WEAPONS[f.a] && WEAPONS[f.b] && WF_TEXT[f.id]) : []);
 
 UI.codexHtml = function () {
   const run = !!G, cyan = PAL.upgrade, sec = UI.codexSec || 'all', box = (title, inner, hint) => uiPanel(`${title}`, `${hint ? uiHint(hint) : ''}${inner}`);
@@ -45,11 +48,11 @@ UI.codexHtml = function () {
   const foes = introIds(), beasts = foes.filter(seenFoe).length;
   const met = BOSSES.filter(b => META.bosses[b.id]).length, rel = Object.keys(RELICS).filter(id => META.relics[id]);
   const pids = wl_profiles(), pu = pids.filter(profUnlocked), mids = cdx10Muts(), mf = mids.filter(id => META.cdxMut && META.cdxMut[id]);
-  const cf = wl_combos().filter(c => META.combos && META.combos[c.id]);
+  const wfs = cdx10Wf(), cf = wfs.filter(f => META.cdxWf && META.cdxWf[f.id]);
   const got = used.length + cf.length + pf.length + qf.length + met + rel.length + pu.length + mf.length + beasts;
-  const all = wids.length + wl_combos().length + wl_pairs().length + qs.length + BOSSES.length + Object.keys(RELICS).length + pids.length + mids.length + foes.length;
+  const all = wids.length + wfs.length + wl_pairs().length + qs.length + BOSSES.length + Object.keys(RELICS).length + pids.length + mids.length + foes.length;
   let h = uiPanel('', `<div class="cdxpct"><b>${Math.round(got / all * 100)}%</b><span>FIELD GUIDE COMPLETE</span></div><div class="cdxbar"><i style="width:${(got / all * 100).toFixed(1)}%"></i></div>
-    <div class="cdxcount"><span>Weapons ${used.length}/${wids.length}</span><span>Combos ${cf.length}/${wl_combos().length}</span><span>Pairings ${pf.length}/${wl_pairs().length}</span><span>Secrets ${qf.length}/${qs.length}</span><span>Enemies ${beasts}/${foes.length}</span><span>Bosses ${met}/${BOSSES.length}</span><span>Trophies ${rel.length}/${Object.keys(RELICS).length}</span><span>Sequences ${pu.length}/${pids.length}</span><span>Mutations ${mf.length}/${mids.length}</span></div>`, 'cdxhead');
+    <div class="cdxcount"><span>Weapons ${used.length}/${wids.length}</span><span>Fusions ${cf.length}/${wfs.length}</span><span>Pairings ${pf.length}/${wl_pairs().length}</span><span>Secrets ${qf.length}/${qs.length}</span><span>Enemies ${beasts}/${foes.length}</span><span>Bosses ${met}/${BOSSES.length}</span><span>Trophies ${rel.length}/${Object.keys(RELICS).length}</span><span>Sequences ${pu.length}/${pids.length}</span><span>Mutations ${mf.length}/${mids.length}</span></div>`, 'cdxhead');
   h += uiChips([['all', 'ALL'], ['samples', 'SAMPLES'], ['weapons', 'WEAPONS'], ['feats', 'FEATS'], ['genes', 'SEQUENCES'], ['muts', 'MUTATIONS'], ['pairs', 'COMBOS'], ['secrets', 'SECRETS'], ['beasts', 'ENEMIES'], ['bosses', 'BOSSES'], ['rules', 'RULES']].map(([id, l]) => uiChip(l, { sel: sec === id, attrs: `data-cdx="${id}"` })).join(''), 'cdxtabs');
   const show = id => sec === 'all' || sec === id;
   if (show('weapons')) {
@@ -86,15 +89,11 @@ UI.codexHtml = function () {
   }
   if (show('pairs')) {
     let lc = '';
-    for (const c of wl_combos()) {
-      const known = META.combos && META.combos[c.id], on = run && G.combo && G.combo[c.id];
-      const seqOf = id => { const k = Object.keys(PROFILES).find(p => PROFILES[p].weapons.includes(id)); return k ? SEQ_LOOK[k].short : 'Wildcard'; };
-      const sa = seqOf(c.a), sb = seqOf(c.b);
-      lc += `<div class="li ${on ? 'on' : ''}"><b style="color:${known ? '#ff3df2' : 'inherit'}">${esc(c.name)}</b>${on ? ' (FUSED)' : known ? '' : ' (not fused yet)'}<br><span>${esc(WEAPONS[c.a].name)} + ${esc(WEAPONS[c.b].name)} (${sa === sb ? esc(sa) : esc(sa) + ' + ' + esc(sb) + ', needs a splice'}): ${esc(c.desc)}</span></div>`;
+    for (const f of wfs) {
+      const known = META.cdxWf && META.cdxWf[f.id], on = run && wfOn(f.id), T = WF_TEXT[f.id];
+      lc += `<div class="li cdxw ${on ? 'on' : ''}"><span class="bico">${defPicto(WEAPONS[f.a], known ? elemCol(WEAPONS[f.a].elem) : '') || iconSVG(WEAPONS[f.a], 22, known ? elemCol(WEAPONS[f.a].elem) : '#ffffff40')}</span><div><b style="color:${known ? '#ff3df2' : 'inherit'}">${esc(T.name)}</b>${on ? ' (FUSED)' : known ? '' : ' (not fused yet)'}<br><span>${esc(WEAPONS[f.a].name)} + ${esc(WEAPONS[f.b].name)}: ${esc(T.desc)}</span></div></div>`;
     }
-    h += box(`Combos fused (${cf.length}/${wl_combos().length})`, uiList(lc), `Get both weapons to Lv ${COMBO_LEVEL}+ and the game stops to fuse them. Both keep firing, they gain the new power, and twice a run the fusion opens a bonus weapon mount.`);
-    const sl = wl_supers().map(s => { const known = META.supers && META.supers[s.id], on = run && superOn(s.id); return `<div class="li ${on ? 'on' : ''}"><b style="color:${known ? SUPER_COLOR : 'inherit'}">${known ? esc(s.name) : '???'}</b>${on ? ' (FUSED)' : ''}<br><span>${esc(COMBO_BY[s.x].name)} + ${esc(COMBO_BY[s.y].name)}${known ? ': ' + esc(s.desc) : '. What it does is a secret.'}</span></div>`; }).join('');
-    h += box(`Super combos (${wl_supers().filter(s => META.supers && META.supers[s.id]).length}/${wl_supers().length})`, uiList(sl), `Fuse both combos, then get every weapon in them to Lv ${SUPER_LEVEL}+, and the two combos fuse again. Hardly anyone sees these.`);
+    h += box(`Fusions (${cf.length}/${wfs.length} fused)`, uiList(lc), 'TODO_COPY:cdx_wf_hint');
     let l = '';
     for (const q of wl_pairs()) {
       const known = META.pairs[q.id], on = run && G.pair && G.pair[q.id];
@@ -147,14 +146,6 @@ UI.codexHtml = function () {
     h += box(`Unstable reactions (${seen}/${Object.keys(RX10).length} found)`, uiList(rl), 'TODO_COPY:cdx_rx_hint');
     h += box('TODO_COPY:cdx_def_title', uiList(CDX10_DEFS.map(n => `<div class="li"><b>${esc(n)}</b><br><span>${esc(cdx10Gloss(n))}</span></div>`).join('')), 'TODO_COPY:cdx_def_hint');
     h += box('TODO_COPY:cdx_atk_title', uiList(CDX10_ATKS.map(n => `<div class="li"><b>${esc(n)}</b><br><span>${esc(cdx10Gloss(n))}</span></div>`).join('')), 'TODO_COPY:cdx_atk_hint');
-    let tl = '';
-    const live = run ? activeTwists() : [];
-    for (const k in TWISTS) {
-      if (!cdx10Twist(k)) continue;
-      const on = live.some(x => x.tw.key === k);
-      tl += `<div class="li"><b${on ? ' style="color:#ff3df2"' : ''}>${esc(TWISTS[k].name)}</b> <em>${k.split('+').map(x => ELEMENTS[x].name).join(' + ')}</em>${on ? ' (active)' : ''}<br><span>${esc(TWISTS[k].desc)}</span></div>`;
-    }
-    h += box('Combo twists', uiList(tl), 'TODO_COPY:cdx_twist_hint');
   }
   return h;
 };
@@ -182,3 +173,6 @@ for (const id of new Set([...SLICE.muts, ...CARDS.filter(c => c.slot === 'genome
   c.apply = (orig => function () { META.cdxMut = META.cdxMut || {}; if (!META.cdxMut[id]) { META.cdxMut[id] = 1; saveMeta(); } return orig.apply(this, arguments); })(c.apply);
   c.cdxLog = 1;
 }
+
+// Log each fusion the first time it is made (META.cdxWf), for the COMBOS tab.
+if (typeof wfFuse === 'function') wfFuse = (orig => function (f) { META.cdxWf = META.cdxWf || {}; if (f && !META.cdxWf[f.id]) { META.cdxWf[f.id] = 1; saveMeta(); } return orig.apply(this, arguments); })(wfFuse);

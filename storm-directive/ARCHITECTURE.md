@@ -186,7 +186,7 @@ Everything else hangs off these. `data.js` and `game.js` load first; `ui.js` loa
 |---|---|---|
 | **tutorial** | `tutorial.js`, `statusintro.js`, `intro.js`, `school.js` | Tutorial cards (25 s apart, skip link, `resetTutorial()`), status cards, first sightings, Level 0. |
 | **help** | `glossary.js`, `inspect.js`, `portraits.js`, `quirks.js` | Hold-to-read glossary, tap-to-inspect cards and Reaction chart (`RX_PAIR`), Field Guide portraits, hidden quirks. |
-| **field guide** | `codex10.js` | The Field Guide (replaces ui.js `UI.codexHtml`) and the damage type card (`INSPECTOR.elem`), built from live v10 tables only: the seven damage types with their bar or status (`CDX10_TYPES`, GLOSSARY text), the 21 v10 reactions (`RX10`/`FIGHT_RX`), defences and attack types, live combo twists, live enemies (`introLive`), boss signature lines, reachable secrets and mutations. |
+| **field guide** | `codex10.js` | The Field Guide (replaces ui.js `UI.codexHtml`) and the damage type card (`INSPECTOR.elem`), built from live v10 tables only: the seven damage types with their bar or status (`CDX10_TYPES`, GLOSSARY text), the 21 v10 reactions (`RX10`/`FIGHT_RX`), defences and attack types, weapon fusions (`WF_LIST`, the COMBOS tab), live enemies (`introLive`), boss signature lines, reachable secrets and mutations. |
 
 ## Presentation
 | System | Files | Role |
