@@ -56,7 +56,8 @@ function dirGate(req) {
   if (req.kind === 'fork' || req.kind === 'wupfork' || req.now || G.wave) return dirOpen(req);
   if (req.kind === 'slot' && G.weapons.filter(Boolean).length < 2) return dirOpen(req); // (the second weapon is never held back)
   if (D.chain != null && G.t - D.chain <= DIRECTOR.chain) { D.chain = null; D.t = G.t; return dirOpen(req); } // (the next of a stack, straight after the last)
-  if (D.t != null && G.t - D.t < dirGapNow()) return 'wait';
+  if (typeof paceLull === 'function' && paceLull()) G.stats.lullScr = (G.stats.lullScr || 0) + 1;
+  if (D.t != null && G.t - D.t < (typeof paceGap === 'function' ? paceGap(dirGapNow()) : dirGapNow())) return 'wait'; // (sooner in a lull, later at a peak: pacing.js)
   D.t = G.t;
   return dirOpen(req);
 }

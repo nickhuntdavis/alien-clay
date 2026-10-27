@@ -55,7 +55,7 @@ function waveSpawn(rate, dt, maxAlive, hostile) {
   const V = G.wave;
   if (V.camp) { campSpawn(dt, maxAlive, hostile); return; }
   if (!V.active || V.spawned >= V.budget) return;
-  G.spawnAcc += V.budget / V.dur * dt * (V.t < 4 ? 2 : 1); // a burst from the splash, then a steady feed
+  G.spawnAcc += V.budget / V.dur * dt * (typeof paceShape === 'function' ? paceShape(V) : (V.t < 4 ? 2 : 1)); // burst, steady, surge (pacing.js)
   while (G.spawnAcc >= 1 && V.spawned < V.budget) {
     G.spawnAcc--;
     if (hostile >= maxAlive) break;
@@ -88,7 +88,7 @@ function waveTick(dt) {
 }
 // Wave clear: everything you dropped flies to you, then the boxes open.
 function waveClear(V) {
-  V.active = false; V.restT = 1.6; V.best = V.n;
+  V.active = false; V.restT = typeof PACING !== 'undefined' ? PACING.rest : 1.6; V.best = V.n; // (a real breather: pacing.js)
   for (const g of G.gems) g.mag = true;
   for (const b of G.ebul) b.dead = true;
   for (const ev of G.ev.active) ev.left = 0;
@@ -104,7 +104,7 @@ function waveClear(V) {
 }
 
 // Upgrades are only applied between waves (user, 26 Oct): nothing opens during a wave, not even a 'now' request (a boss's
-// reward, a fusion, a DNA drop). Once the wave is clear, 'now' requests open at once; the rest wait out the 1.6 s rest.
+// reward, a fusion, a DNA drop). Once the wave is clear, 'now' requests open at once; the rest wait out the rest (PACING.rest, pacing.js).
 const waveHoldsLoot = () => wavesMode() && (G.wave.final || G.wave.active || G.wave.restT > 0 && !(G.lootQueue[0] && G.lootQueue[0].now));
 // Ready for the next drop: wave over, boxes all opened.
 const waveReady = () => wavesMode() && !G.wave.active && G.wave.restT <= 0 && !G.lootQueue.length && G.state === 'play';

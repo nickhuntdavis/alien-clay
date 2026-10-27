@@ -2726,7 +2726,7 @@ function update(dt) {
   // Director.
   // Dense swarms (each monster is weaker to match: see enemyScale).
   const T = PT(), maxAlive = Math.min(CAPS.enemies - 30, (24 + T * 0.5) * spawnK());
-  const rate = Math.min(9, (0.55 + T / 90 + Math.pow(T / 300, 2) * 0.9) * 1.7) * (typeof racePace === 'function' ? racePace() : PACE) * heatSpawn() * spawnK();
+  const rate = Math.min(9, (0.55 + T / 90 + Math.pow(T / 300, 2) * 0.9) * 1.7) * (typeof racePace === 'function' ? racePace() : PACE) * heatSpawn() * spawnK() * (typeof paceK === 'function' ? paceK() : 1); // (swell and lull: pacing.js)
   const hostile = G.enemies.reduce((n, e) => n + (e.charmed || e.rival || e.egg ? 0 : 1), 0);
   if (G.debug) { debugTick(); if (G.debug.sb) sbSpawn(rate, maxAlive, hostile, dt); } // the Lab Bench: only what you send in (Sandbox: a slow stream, sandbox.js)
   else if (G.lvl) lvTick(dt, maxAlive, hostile); // a campaign level: its own director (levels.js)
