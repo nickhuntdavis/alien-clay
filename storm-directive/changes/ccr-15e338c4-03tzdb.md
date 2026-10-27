@@ -1,4 +1,4 @@
-## 2026-10-27 Orbiting Link beam is a circle (v10.185)
+## 2026-10-27 Orbiting Link beam is a circle (v10.189)
 - Systems: Delivery forms (Orbiting), tests
 - Files: delivforms.js, tests/delivtest.js
 - What: Orbiting + Connecting's beam ran in straight lines between the bodies (a triangle with three). It now runs round the ring as a circle through the bodies, bending smoothly only where a body is pulled off the ring (Homing, Bounce); the damage follows the same curve (xdLinkPolar / xdLinkR), so an enemy inside the ring is no longer cut by a chord.
