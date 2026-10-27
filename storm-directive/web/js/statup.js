@@ -93,7 +93,7 @@ const ST_W = {
   v_arcane_proj:  { rof: 0.85, mag: 0.75, crit: 0.10, critX: 0.4, dmgK: 0.85 },  // Little Prick: precise (crits Bleed harder)
   v_soul_proj:    { rof: 0.9, reload: 1.1, crit: 0.05, critX: 0.2 },
   v_phys_spread:  { rof: 0.9, critX: 0.3 },
-  acro_spray:     { rof: 1.15, mag: 1.5, crit: 0.03 },
+  acro_spray:     { rof: 1.15, mag: 1.5, crit: 0.03, dmgK: 0.5 },
   s_parasite:     { rof: 1.1, mag: 1.25, reload: 1.15, crit: 0.04 },
   s_siphon:       { crit: 0.08, critX: 0.2 },
   s_seeker:       { mag: 1.33, reload: 0.9, crit: 0.06 },

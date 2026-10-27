@@ -33,7 +33,7 @@ const { chromium } = require('playwright');
     return { bad, out };
   });
   const shots = [];
-  for (let tier = 2; tier <= 4; tier++) {
+  for (let tier = 2; tier <= 3; tier++) { // (tier 4, the Lv 10 mastery, is gone: weapons stop at Lv 9 since v10.148, wmods.js MM.lvlCap)
     const head = await page.evaluate(() => {
       G.level = 4; G.lootQueue = []; G.state = 'play';
       UI.openLoot({ kind: 'wup', v10ok: true });
@@ -47,9 +47,11 @@ const { chromium } = require('playwright');
       await page.waitForTimeout(2600);
       const f = 'out/siv_' + tier + '_' + i + '.png'; await page.locator('#draft').screenshot({ path: f.replace('out/', '') }); shots.push(f);
     }
-    const lv = await page.evaluate(t => { UI.pickLoot(t === 2 ? 2 : 1); return SIV_W.lvl; }, tier); // Marked for Bonking, then Concussion, then Shell Shock
+    const lv = await page.evaluate(t => { UI.pickLoot(t === 2 ? 2 : 1); return SIV_W.lvl; }, tier); // Marked for Bonking, then Concussion
     if (lv !== [0, 0, 3, 6, 10][tier]) r.bad.push('tier ' + tier + ' pick left lvl ' + lv);
   }
+  const t4 = await page.evaluate(() => wupReady().length);
+  if (t4) r.bad.push('a tier 4 (Lv 10) upgrade is offered past the Lv 9 cap');
   console.log(JSON.stringify(r.out, null, 1));
   if (r.bad.length) console.log('FAIL', r.bad.join('; '));
   console.log('ERRORS ' + JSON.stringify(errors.slice(0, 5))); await b.close();
