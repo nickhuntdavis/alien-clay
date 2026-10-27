@@ -3,6 +3,40 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.192 (versionCode 471): 2026-10-27 Merge of `ccr-15e338c4-03tzdb`, `ccr-8bbc67d2-zjlnl4`, `ccr-64cf07a7-30asvl`, `ccr-5a800472-3464vq` (Orbiting Link circle, Field Guide COMBOS, measured weapon card bars, 27 fusion pairs)
+
+### 2026-10-27 Orbiting Link beam is a circle (v10.189)
+- Systems: Delivery forms (Orbiting), tests
+- Files: delivforms.js, tests/delivtest.js
+- What: Orbiting + Connecting's beam ran in straight lines between the bodies (a triangle with three). It now runs round the ring as a circle through the bodies, bending smoothly only where a body is pulled off the ring (Homing, Bounce); the damage follows the same curve (xdLinkPolar / xdLinkR), so an enemy inside the ring is no longer cut by a chord.
+- Save data: none.
+- Hooks: none.
+- Risk: Link hits the ring's band instead of the chords: enemies between you and the ring (the old triangle's edges) are no longer hit, enemies on the ring between bodies now are.
+
+### 2026-10-27 Six more fusion pairs and fusion copy (v10.189)
+- Systems: wfusion, wfusion5 (new), wfcopy (new), weapons
+- Files: wfusion5.js (new), wfcopy.js (new), wfusion2.js, wfusion3.js, wfusion4.js, index.html, tests/wfusiontest.js, ARCHITECTURE.md, NOTES.md
+- What: six more transforming fusions (27 in all). Split Ends (Standard Issue + Blowing Bubbles): shots pop trapped bubbles at full size and bullets split in bubbles. Group Hug (Maximum Gains + Ewww, Gross): pellets drag a taped bundle together and share the hit. Breeding Ground (Nocturnal Emission + Chest Burster): puddles infect, allies fire faster and leave puddles. Sympathy Sneeze (Enzyme Sneeze + Soulmate Signal): twins sneeze on their own (no knockback, which pushed the crowd off the beam). Induced Labour (Spark of Life + One of These Days): the Spark ends a countdown early at double payout, splashing. Blind Date (Enzyme Headbutt + Peekaboo): headbutts from hiding hit x3 and Fear; the BOO headbutts everything near. Names and descriptions for all 27 fusions written (Claude-drafted at the user's request) in wfcopy.js; no wf_ TODO_COPY left. Sim (400 HP crowd, 10 s, fused vs apart): Induced Labour 2.3x, Blind Date 2.3x, Group Hug 1.4x, Breeding Ground, Split Ends and Sympathy Sneeze about 1.1x.
+- Save data: none.
+- Hooks: none in shared files (hookOn proc, dmgMul, hit:before, tick; wraps duePop, peekBoo).
+- Risk: balance of the six; Split Ends and Sympathy Sneeze are the weakest fusions in the sim.
+
+### 2026-10-27 Weapon card bars measured (v10.189)
+- Systems: weapon card bars (new), ui
+- Files: wstars.js (new, generated), tests/tools/wstars.js (new), tests/wstarstest.js (new), index.html, tests/run.sh, ARCHITECTURE.md
+- What: POWER, FIRE RATE, REACH and CROWDS on weapon cards and details were a flat 3 of 5 for every v10 weapon. They are now measured per weapon in a fixed arena (Lv 1, no modifiers) and ranked in fifths across the 26 matrix weapons: power is damage a second to one enemy, fire rate is attacks a second, reach is the farthest hit, crowds is damage a second into a pack of 10.
+- Save data: none.
+- Hooks: none (wstars.js sets WEAPONS[id].stars at load).
+- Risk: the bars go stale after balance changes until tools/wstars.js is rerun.
+
+### 2026-10-27 Field Guide COMBOS tab shows the weapon fusions (v10.189)
+- Systems: help (Field Guide)
+- Files: codex10.js, ARCHITECTURE.md, tests/codex10test.js
+- What: the COMBOS tab lists the 21 weapon fusions (WF_LIST: name, the two weapons, what it does, fused this run) instead of the retired combos and super combos; the retired combo twists leave RULES. The header counts Fusions.
+- Save data: META.cdxWf added (fusion ids made, for the COMBOS tab).
+- Hooks: none in shared files (wraps wfusion.js wfFuse from codex10.js).
+- Risk: fusion counts start at 0 for everyone (no history before META.cdxWf). TODO_COPY:cdx_wf_hint open; the fusion names and text are still wfusion*.js placeholders.
+
 ## v10.191 (versionCode 470): 2026-10-27 Merge of `ccr-6a5eeab5-civjwp` (XP granules as specks of flowing light)
 
 ### 2026-10-27 XP specks smaller and dimmer (v10.190)

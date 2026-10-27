@@ -1,6 +1,7 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
+- Version v10.192 (versionCode 471): merge of four sessions: Orbiting Link beam runs as a circle; Field Guide COMBOS tab lists weapon fusions; weapon card bars measured in an arena (wstars.js); 27 fusion pairs with drafted copy (wfusion5.js, wfcopy.js).
 - Version v10.191 (versionCode 470): merge of `ccr-6a5eeab5-civjwp`: XP granules are drawn as tiny specks of flowing light (xpgems.js xpgDraw: white core, coloured glow by size, twinkle, slow idle loop, short tail; `XPG.light = false` restores the diamonds). Tuned smaller and dimmer after the first look.
 - (ccr-64cf07a7-30asvl, 27 Oct) Weapon card bars are measured: `node tests/tools/wstars.js` (about 1 minute) regenerates web/js/wstars.js; rerun after any weapon balance change. `--print` shows the raw numbers. Reach has only 1, 2 and 5 in practice: most guns stop at 300 at Lv 1.
 - (ccr-5a800472-3464vq, 27 Oct) Fusions: 27 pairs (wfusion2.js to wfusion5.js), all with Claude-drafted names and text (wfcopy.js), for the user's read-through. Weakest in the sim (about 1.1x fused vs apart): Split Ends, Sympathy Sneeze, Breeding Ground. spoontest flaky once (rank 1 returned nothing), passed on rerun.
