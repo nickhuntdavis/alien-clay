@@ -21,7 +21,7 @@
 //               throws everything within 280 (b x3.5) and stuns it for 1 s.
 //  - crossbeam  Red Flagship + Soulmate Signal: a live Static beam tethers you to each twin (a x2.5 to anything on it,
 //               5 a second), and every twin fires a Red Flagship beam of its own.
-// Names and card text: TODO_COPY:wf_<id>_name / _desc (the user writes them).
+// Names and card text: wfcopy.js.
 // Hooks: none in shared files. hookOn proc 'wf3:proc', kill 'wf3:kill', tick 'wf3:tick'; wraps modDraw. Loads right
 // after wfusion2.js.
 const WF3 = {
@@ -36,7 +36,6 @@ const WF3 = {
   panic: { n: 6, r: 280, k: 3.5, stun: 1 },
   tether: { every: 0.2, k: 2.5, w: 10, beamK: 2.5 }, // (Red Flagship's own hit is a 0.1 s tick, so these are per 0.2 s)
 };
-Object.assign(WF_TEXT, Object.fromEntries(['acidmess', 'hotcore', 'snotfire', 'tapezap', 'wormsibs', 'redlaser', 'possessed', 'gainsneeze', 'nervepanic', 'crossbeam'].map(id => [id, { name: `TODO_COPY:wf_${id}_name`, desc: `TODO_COPY:wf_${id}_desc` }])));
 
 // ---------------------------------------------------------------- helpers
 // Everything alive within wd of the segment (x1, y1) to (x2, y2).

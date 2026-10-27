@@ -13,7 +13,7 @@
 //  - eggbomb  Eggs + Nappy Mines: an egg goes off when an enemy grabs it (130, b x3.5).
 //  - peekhole Peekaboo + Family Ties: vanishing leaves a black hole where you were (pull 300, reach 150, 2.2 s) that
 //             implodes at the end (150, b x4 + a x1).
-// Names and card text: TODO_COPY:wf_<id>_name / _desc (the user writes them).
+// Names and card text: wfcopy.js.
 // Hooks: none in shared files. hookOn proc 'wf4:proc', kill 'wf4:kill', tick 'wf4:tick'; wraps toothTaken, peekFire.
 // Loads right after wfusion3.js.
 const WF4_LIST = [
@@ -24,7 +24,7 @@ const WF4_LIST = [
   { id: 'eggbomb', a: 's_toothfairy', b: 's_mines' },
   { id: 'peekhole', a: 's_peekaboo', b: 's_void' },
 ];
-for (const f of WF4_LIST) { WF_LIST.push(f); WF_BY[f.id] = f; WF_TEXT[f.id] = { name: `TODO_COPY:wf_${f.id}_name`, desc: `TODO_COPY:wf_${f.id}_desc` }; }
+for (const f of WF4_LIST) { WF_LIST.push(f); WF_BY[f.id] = f; }
 const WF4 = {
   ram: { every: 3, v: 650, t: 0.45, hitK: 3, landR: 90, landK: 3 },
   reap: { reach: 170, k: 14, jumps: 10, gap: 0.06, splashR: 45, splashT: 1.5, splashK: 1.2 },
