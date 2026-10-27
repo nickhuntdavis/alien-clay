@@ -15,7 +15,7 @@
 //  - lardmine Nappy Mines + Skill Issue: a mine blast throws its enemies at your nearest other mine (within 320); they
 //             hit whatever they fly through (b x1.5), and that mine goes off 0.22 s later, 25% bigger (x2.5 at most), so a
 //             minefield chains and swells.
-// Names and card text: TODO_COPY:wf_<id>_name / _desc (the user writes them).
+// Names and card text: wfcopy.js.
 // Hooks: none in shared files. hookOn fire:after 'wf2:home', fire 'wf2:storm', kill 'wf2:family', proc 'wf2:clock',
 // tick 'wf2:tick'. Wraps peekFire, toothLure, detonateMine, modDraw. Loads right after wfusion.js.
 const WF2 = {
@@ -25,7 +25,6 @@ const WF2 = {
   egg: { t: 2.5, lure: 340, r: 170, bK: 2.5, aK: 1, fear: 1.5 },
   mine: { reach: 320, blast: 120, t: 0.4, vMax: 760, dmgK: 1.5, gap: 0.22, grow: 1.25, growMax: 2.5 },
 };
-Object.assign(WF_TEXT, Object.fromEntries(['sibshot', 'pinclock', 'zapbub', 'peekegg', 'lardmine'].map(id => [id, { name: `TODO_COPY:wf_${id}_name`, desc: `TODO_COPY:wf_${id}_desc` }])));
 
 // ---------------------------------------------------------------- sibshot: the family
 function wf2Home(w, n0) {
