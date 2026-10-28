@@ -79,6 +79,7 @@ function tpOk(id) {
   if (!types.length || types.includes('*')) return true;
   const row = W24_BY[id]; if (!row) return true; // (not a roster weapon: not ours to filter)
   if (types.includes(row.type)) return true;
+  if (typeof podOk === 'function' && podOk(id)) return true; // (Alpha drafts Obligatory Podcast: podcast.js)
   const held = x => G.weapons.some(w => w && (w.sid || w.id) === x);
   if (held(id)) return true;
   // Every weapon of the allowed types is already held: open the rest rather than deal an empty draft.

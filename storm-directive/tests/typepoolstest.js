@@ -10,7 +10,7 @@ const { chromium } = require('playwright');
     const bad = [], out = {};
     const start = sid => { META.profile = 's10_' + sid; UI.sample = 's001'; newGame(); G.state = 'play'; return s10Start(); };
     // 1. Pool sizes
-    const want = { phys: 6, shock: 3, ice: 3, arcane: 3, fire: 3, soul: 4, flame: 8 };
+    const want = { phys: 7, shock: 3, ice: 3, arcane: 3, fire: 3, soul: 4, flame: 8 };
     out.sizes = {}; for (const t in want) { out.sizes[t] = tpPool(t).length; if (out.sizes[t] !== want[t]) bad.push('pool ' + t + ' ' + out.sizes[t]); }
     if (tpPool('*').length !== w24Live().length) bad.push('* pool');
     // 2. Private Schooled on hold
@@ -45,9 +45,10 @@ const { chromium } = require('playwright');
       if (o.length !== 3 || ids.some(id => W24_BY[id].type !== 'shock') || !ids.includes('v_shock_beam')) bad.push('alpha ' + ids); }
     // 6. Run pool filters drafts; tpAdd opens another type; a held weapon passes; alien takes everything
     start('alpha');
-    const types = () => new Set(v10Pool().map(id => W24_BY[id].type));
+    const types = () => new Set(v10Pool().filter(id => id !== 'v_phys_podcast').map(id => W24_BY[id].type)); // (Alpha also drafts Obligatory Podcast: podcast.js)
     out.alphaPool = [...types()].join(','); if (out.alphaPool !== 'shock') bad.push('alpha pool ' + out.alphaPool);
-    for (let k = 0; k < 20; k++) { const c = genLoot({ kind: 'slot' }); if (c.some(x => { const id = W24_IDS.find(i => WEAPONS[i] === x.def); return id && W24_BY[id].type !== 'shock'; })) { bad.push('slot draft off-type'); break; } }
+    if (!v10Pool().includes('v_phys_podcast')) bad.push('alpha pool lacks Obligatory Podcast');
+    for (let k = 0; k < 20; k++) { const c = genLoot({ kind: 'slot' }); if (c.some(x => { const id = W24_IDS.find(i => WEAPONS[i] === x.def); return id && id !== 'v_phys_podcast' && W24_BY[id].type !== 'shock'; })) { bad.push('slot draft off-type'); break; } }
     tpAdd('phys'); tpAdd('phys');
     if (tpRunTypes().join() !== 'shock,phys') bad.push('tpAdd ' + tpRunTypes());
     out.addedPool = [...types()].sort().join(','); if (out.addedPool !== 'phys,shock') bad.push('after tpAdd ' + out.addedPool);

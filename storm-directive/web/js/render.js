@@ -1550,7 +1550,7 @@ function render() {
   // Your shots go under the enemies (enemies and their bullets must stay readable), faded when busy.
   fxDim(true);
   for (const pr of orbShots()) { // (+ Orbiting bodies, drawn as shots: modifiers.js)
-    if (pr.mine || !vis(pr)) continue;
+    if (pr.mine || pr.pod || !vis(pr)) continue; // (Obligatory Podcast waves draw themselves: podcast.js)
     const x = sx(pr.x), y = sy(pr.y), hot = emits(pr.src && pr.src.elem) || pr.style === 'flame' || pr.style === 'void';
     ctx.globalCompositeOperation = hot ? 'lighter' : 'source-over';
     if (pr.lob) {

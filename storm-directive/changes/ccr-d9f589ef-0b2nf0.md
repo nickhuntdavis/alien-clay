@@ -1,3 +1,11 @@
+## 2026-10-28 Obligatory Podcast, enemy health rings back (v10.209)
+- Systems: weapons (podcast), samples (type pools), enemies (health rings), ui
+- Files: podcast.js (new), foes.js, render.js, typepools.js, matrixonly.js, wstars.js (regenerated), index.html, ARCHITECTURE.md, tests/typepoolstest.js
+- What: new Force weapon Obligatory Podcast: 3 sound waves a shot, each a widening 40-degree funnel that pierces and shoves; reach 300, crowd 116 dps into 10 (bars 1/2/5/3). In the Force pool, and Alpha drafts it too. Every hurt enemy shows a red health ring again (it needed the Anti-Immune Stain, retired in v9.11); rivals ring in their own colour. Weapon bars re-ranked with 31 weapons (a few other weapons' reach bars moved by one).
+- Save data: none.
+- Hooks: render.js shot loop skips pr.pod; typepools.js tpOk -> podOk; matrixonly.js MATRIX_ONLY.weapons + v_phys_podcast; wraps v10Draw; hookOn fire, tick.
+- Risk: one more arc stroke per hurt enemy (late-game draw cost); Alpha's drafts now include a Force weapon. Copy open: TODO_COPY:w_podcast_desc.
+
 ## 2026-10-28 Tougher race start (v10.208)
 - Systems: race (race early), enemies
 - Files: raceearly.js (new), index.html, ARCHITECTURE.md, tests/sim/early.js (new)

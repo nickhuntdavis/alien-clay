@@ -14,7 +14,8 @@ const MATRIX_ONLY = {
   weapons: ['v_phys_proj', 'v_phys_spread', 'v_phys_contact', 'v_phys_burst', 'v_fire_proj', 'v_shock_beam', 'v_ice_pool', 'v_arcane_proj',
     'v_soul_proj', 'v_flame_pool', 's_void', 's_lard', 's_mines', 's_twin', 's_tesla', 's_redtape', 's_bubble', 's_duedate',
     's_seeker', 's_peekaboo', 's_toothfairy', 's_parasite', 'acro_cap', 'acro_spray', 'acro_spark', 'v_flame_beam',
-    'v_flame_sword', 'v_flame_mines', 'v_flame_orbital', 's_mines_dfa'], // (the four Delivery weapons: dlvweap.js)
+    'v_flame_sword', 'v_flame_mines', 'v_flame_orbital', 's_mines_dfa', // (the four Delivery weapons: dlvweap.js)
+    'v_phys_podcast'], // (Obligatory Podcast: podcast.js)
   mods: ['range', 'upclose', 'rapid', 'charged', 'catalyst', 'kinship', 'knock', 'pull', 'sticky', 'piercing', 'explode', 'homing', 'ricochet',
     'focus', 'connecting', 'turncoat', 'primer', 'nth', 'extra', 'orbiting', 'returning'], // (returning: user, 25 Oct; its five Delivery forms are in delivforms.js, MODIFIER_MATRIX.md 5.11)
   held: [], samples: [], force: false,

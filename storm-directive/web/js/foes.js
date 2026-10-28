@@ -211,10 +211,10 @@ function drawStatusFx(e, x, y, r) {
 }
 
 // ================================================================ health and armour rings
-// Off by default. The Anti-Immune Stain puts rings round hurt enemies (and the Rival Dyes round rivals);
-// the GFP Tag puts one round you. A ring only shows below 100%: health on the inside, armour (when it's been
-// stripped) just outside it.
-const ringStain = e => (e === G.player ? grantOn('body') : e.rival || e.final ? !!(G.dyes.rival || G.dyes.immuno) : !!G.dyes.immuno);
+// Every hurt enemy wears a red ring (user, 28 Oct; it used to need the Anti-Immune Stain, retired with stains in v9.11);
+// rivals ring in their own colour. The GFP Tag puts one round you. A ring only shows below 100%: health on the inside,
+// armour (when it's been stripped) just outside it.
+const ringStain = e => (e === G.player ? grantOn('body') : true);
 function drawHealthRing(x, y, R, hpK, armK, color) {
   const a0 = ctx.globalAlpha, top = -Math.PI / 2, lw = Math.max(2, 2.2 * Math.min(1.6, S));
   if (hpK < 0.995) {
@@ -231,7 +231,7 @@ function enemyRing(e, x, y, r) {
   if (e.boss || e.egg || !ringStain(e)) return;
   const hpK = e.hp / e.maxHp, armK = e.armour > 0 ? effArmour(e) / (e.armour * (e.armK || 1)) : null;
   if (hpK >= 0.995 && !(armK != null && armK < 0.995)) return; // untouched: no ring at all
-  drawHealthRing(x, y, r + 7, hpK, armK, e.rival ? e.color : e.elite ? PAL.reward : hpK < 0.3 ? PAL.danger : '#ffffff');
+  drawHealthRing(x, y, r + 7, hpK, armK, e.rival ? e.color : PAL.danger);
 }
 function playerRing(px, py) {
   if (!ringStain(G.player)) return;
