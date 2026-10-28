@@ -9,7 +9,7 @@ const { chromium } = require('playwright');
   await page.evaluate(() => { window.TUT_OFF = 1; splashEnd(); }); await page.waitForTimeout(300);
   const r = await page.evaluate(() => {
     const bad = [], out = {};
-    META.s10 = { private: 1, ordered: 1, redtail: 1, prawn: 1, alien: 1, beta: 1 }; META.kinSeen = Object.assign({}, META.s10); // (only Alpha never rescued)
+    META.s10 = { ordered: 1, redtail: 1, prawn: 1, alien: 1, beta: 1, acro: 1 }; META.kinSeen = Object.assign({}, META.s10); // (only Alpha is still locked)
     META.profile = 's10_baseline'; UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 10;
     genLoot({ kind: 'start' }); G.weapons[0] = makeSlot(w24Starters('baseline')[0], false, 1); recomputeAll(); // (the start offer is random now: samplestart.js)
     if (!raceOn()) bad.push('not a race');
@@ -34,13 +34,14 @@ const { chromium } = require('playwright');
     if (G.kin.spirits.length) bad.push('not rescued on touch');
     if (!kinHas('alpha') || !s10Has('alpha') || !s10Has('baseline')) bad.push('passives ' + G.kin.has);
     if (META.s10 && META.s10.alpha) bad.push('a rescue unlocked Alpha (achievements do now: samplestart.js)');
+    if (!tpRunTypes().includes('shock')) bad.push('the rescue did not add Static to the run pool (kinall.js tpAdd)');
     if (!v10Pool().some(id => own(id) === 'alpha')) bad.push('alpha weapons not in pool');
     const q = G.lootQueue[0];
     if (!q || q.kind !== 'kindred' || draftBox(q) !== true) bad.push('no kindred screen ' + JSON.stringify(q));
     const cards = genLoot({ kind: 'slot', kin: q.id });
-    { const al = w24Starters('alpha').map(id => WEAPONS[id].name), mine = WEAPONS[w24Starters('baseline')[2]].name; if (cards.length !== 3 || cards[2].title !== mine || !cards.slice(0, 2).every(c => al.includes(c.title))) bad.push('cards ' + cards.map(c => c.title)); } // (three at most, user 26 Oct: two of its weapons, then one of your own sample's)
+    { const shock = tpPool('shock').map(id => WEAPONS[id].name); if (cards.length !== 3 || !cards.slice(0, 2).every(c => shock.includes(c.title))) bad.push('cards ' + cards.map(c => c.title)); } // (two of its type's weapons, then one wildcard: kinall.js)
     // Alpha's passive now runs: moving speeds up every weapon.
-    G.player.vx = 100; s10Tick(0.016); if (!(G.weapons[0].rateK > 1)) bad.push('alpha passive off');
+    G.player.vx = 100; s10Tick(0.016); if (!s10Has('alpha')) bad.push('alpha passive off'); if ((G.weapons[0].rateK || 1) > 1) bad.push('alpha fire rate boosted'); // (since specpass.js Alpha's passive is Charge, not fire rate)
     const n0 = G.weapons.filter(Boolean).length; cards[0].apply();
     if (G.weapons.filter(Boolean).length !== n0 + 1) bad.push('pick not equipped ' + G.weapons.map(w => w && w.id));
     // Open the real screen once.

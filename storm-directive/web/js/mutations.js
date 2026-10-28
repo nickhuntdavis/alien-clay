@@ -126,7 +126,7 @@ mutCard({ id: 'x_brain', title: 'Big Brain', icon: 'BR', family: 'mut:trade', co
 mutCard({ id: 'x_qty', title: 'Quantity Over Quality', icon: 'QQ', family: 'mut:trade', color: MUT_COL.trade, rarity: 2, flavour: 'One hundred little hits! That\'s basically one big hit. Right?',
   desc: 'You attack faster with an extra shot, but each hit does 30% less.', on: G => { G.P.haste *= 1.3; G.P.multishot += 1; G.P.might *= 0.7; } });
 mutCard({ id: 'x_still', title: 'Can\'t Sit Still', icon: 'CS', family: 'mut:trade', color: MUT_COL.trade, rarity: 2, flavour: 'Go go go! Wait. Why did you stop?',
-  desc: 'You attack 20% faster while swimming and 20% slower while still.', why: G => (typeof s10Is === 'function' && s10Is('alpha')) ? 'Alpha already has this' : '' });
+  desc: 'You attack 20% faster while swimming and 20% slower while still.', }); // (Alpha may take it again: its passive is Charge, not fire rate, since specpass.js)
 mutCard({ id: 'x_once', title: 'First Impressions', icon: 'AO', family: 'mut:trade', color: MUT_COL.trade, rarity: 2, flavour: 'SURPRISE! Oh. You\'re still there.',
   desc: 'Your first hit on a fresh enemy does 60% more, but your next hits on it do 20% less for a few seconds.' });
 mutCard({ id: 'x_hungry', title: 'Eating for Two', icon: 'HG', family: 'mut:trade', color: MUT_COL.trade, rarity: 2, flavour: 'More food! More friends! Wait, those aren\'t friends.',
