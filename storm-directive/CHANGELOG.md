@@ -3,7 +3,15 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
-## v10.194 (versionCode 473): 2026-10-28 Merge of `ccr-0567207f-iybojr` (Delivery weapons), `ccr-2faffc4b-4lg67n` (Lifesteal modifiers) and `ccr-15e338c4-03tzdb` (secret reroll)
+## v10.195 (versionCode 474): 2026-10-28 Merge of `ccr-0567207f-iybojr` (Delivery weapons), `ccr-2faffc4b-4lg67n` (Lifesteal modifiers) and `ccr-15e338c4-03tzdb` (secret reroll)
+
+### 2026-10-28 Merge fixes (v10.195)
+- Systems: modifier cards (stat bonuses), tests
+- Files: lifemods.js, tests/bodiestest.js
+- What: Bloodsucker and Umbilical Cord bank a stat like every other modifier card (Health Regeneration and Max Health; they fell back to a stat picked from a hash of the id, and statuptest failed). bodiestest no longer lets the spawner's enemies set its test mine off (the well's fling read 0 to 40 in about 1 run in 5 after the merge).
+- Save data: none.
+- Hooks: none.
+- Risk: the two Lifesteal cards show a different stat bonus than in their branch's own build.
 
 ### 2026-10-28 Delivery modifiers out; four Delivery weapons in (v10.193)
 - Systems: weapons, modifier cards, laser, weapon cells, tests

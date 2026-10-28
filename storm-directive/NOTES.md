@@ -1,7 +1,7 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
-- Version v10.194 (versionCode 473): merge of three sessions: Delivery modifiers (Melee, Ranged, Mines, Death from Above) are no longer modifier cards, and four of their forms are draft weapons (Laser Sword, Laser Mines, Orbital Laser, Nappy Mines artillery: dlvweap.js, dlvrun.js); Lifesteal is back as two modifiers (Bloodsucker, Umbilical Cord: lifemods.js); a secret endless reroll sits in the Weapon Draft's top-right corner (secretroll.js).
+- Version v10.195 (versionCode 474): merge of three sessions: Delivery modifiers (Melee, Ranged, Mines, Death from Above) are no longer modifier cards, and four of their forms are draft weapons (Laser Sword, Laser Mines, Orbital Laser, Nappy Mines artillery: dlvweap.js, dlvrun.js); Lifesteal is back as two modifiers (Bloodsucker, Umbilical Cord: lifemods.js); a secret endless reroll sits in the Weapon Draft's top-right corner (secretroll.js). Still red on main: wup2test (Little Prick Lv 6 Terminal Clause, also red before the merge).
 - Version v10.192 (versionCode 471): merge of four sessions: Orbiting Link beam runs as a circle; Field Guide COMBOS tab lists weapon fusions; weapon card bars measured in an arena (wstars.js); 27 fusion pairs with drafted copy (wfusion5.js, wfcopy.js).
 - Version v10.191 (versionCode 470): merge of `ccr-6a5eeab5-civjwp`: XP granules are drawn as tiny specks of flowing light (xpgems.js xpgDraw: white core, coloured glow by size, twinkle, slow idle loop, short tail; `XPG.light = false` restores the diamonds). Tuned smaller and dimmer after the first look.
 - (ccr-64cf07a7-30asvl, 27 Oct) Weapon card bars are measured: `node tests/tools/wstars.js` (about 1 minute) regenerates web/js/wstars.js; rerun after any weapon balance change. `--print` shows the raw numbers. Reach has only 1, 2 and 5 in practice: most guns stop at 300 at Lv 1.
@@ -124,7 +124,7 @@ Tone: Dungeon Crawler Carl. Dry, deadpan, nerdy, not self-aware; bodies, sex, co
 - Saves: full wipe on v10 (new META key, old `sd_meta` ignored).
 
 ## Recent changes (newest first)
-- v10.194: Delivery weapons, Lifesteal modifiers, secret Weapon Draft reroll. Details in CHANGELOG.md v10.194.
+- v10.195: Delivery weapons, Lifesteal modifiers, secret Weapon Draft reroll. Details in CHANGELOG.md v10.195.
 - v10.184: pacing intensity meter, late-wave GC churn cut, Enzyme Sneeze damage, five tests green. Details in CHANGELOG.md v10.184.
 - v10.181: Orbiting bodies look like the weapon's shots. Details in CHANGELOG.md v10.181.
 - v10.180: race course level (s011). Details in CHANGELOG.md v10.180.
