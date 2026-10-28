@@ -52,7 +52,21 @@ const { chromium } = require('playwright');
     { G.weapons = [makeSlot('v_soul_proj', false, 1), null, null, null]; recomputeAll(); const ww = G.weapons[0], n0 = G.proj.length; fireWeapon(ww, e);
       const shots = G.proj.slice(n0).filter(p => p.src && p.src.w === ww); out.shots = shots.length;
       if (!shots.length) bad.push('Rent Free fired no projectile'); else if (shots.some(p => p.pol !== -1 || p.color !== HOLY.damned.glow)) bad.push('Rent Free shots not Damned'); }
-    // 6. The type is shown as the pair, no stray Parasite in live type tables
+    // 6. Prawn Again's stance: Damned half deals and takes 10% more and refunds stamina on Damned deaths; Holy half heals on a Possession
+    fresh(); G.s10 = { id: 'prawn', run: 1, shiftT: 12, shiftI: 0 }; G.weapons = [makeSlot('s_toothfairy', false, 1), null, null, null]; recomputeAll(); stamInit();
+    G.t = HOLY.cycle * 20.5 + 0.1; if (holyStance() !== -1) bad.push('Prawn Again not in its Damned half: ' + holyStance());
+    { e = foe(); const h0 = e.hp; damageEnemy(e, 100, { elem: 'phys', atk: 'proj', noCrit: true, wname: 'test', noRx: true, w: G.weapons[0] }); out.stanceDealt = +(h0 - e.hp).toFixed(1);
+      if (Math.abs(out.stanceDealt - 110) > 1) bad.push('Damned half dealt: ' + out.stanceDealt); }
+    { const take = () => { G.player.iframes = 0; pdef().mem.mem = 0; const hp0 = G.player.hp; hurtPlayer(100, 'test', null, 'test'); return hp0 - G.player.hp; };
+      const dm = take(); G.t = HOLY.cycle * 20; const hy = take(); G.t = HOLY.cycle * 20.5 + 0.1; out.stanceTaken = [+dm.toFixed(1), +hy.toFixed(1)];
+      if (!(hy > 0) || Math.abs(dm / hy - 1.1) > 0.02) bad.push('Damned half taken: ' + out.stanceTaken); }
+    { const d2 = foe(150); for (let i = 0; i < 8 && !(d2.damnT > G.t); i++) hit(d2, 100, -1); G.stam.cur = 5; killEnemy(d2, { elem: 'phys', wname: 'test' }); out.stam = G.stam.cur;
+      if (!(G.stam.cur >= 5 + HOLY.stance.stam - 0.01)) bad.push('Damned death did not refund stamina: ' + G.stam.cur); }
+    G.t = HOLY.cycle * 20; if (holyStance() !== 1) bad.push('Prawn Again not in its Holy half');
+    { e = foe(-120); G.player.hp = G.P.maxHp * 0.5; const hp0 = G.player.hp; for (let i = 0; i < 8 && !e.charmed; i++) hit(e, 100, 1); if (!(G.player.hp > hp0)) bad.push('Holy half Possession did not heal'); }
+    { G.holySt = null; const fl = HOOKS.tick.find(h => h.name === 'holy:flip').fn; G.t = HOLY.cycle * 20 + 1; fl(0.016); G.t = HOLY.cycle * 20.5 + 1; try { fl(0.016); } catch (x) { bad.push('flip threw: ' + x.message); } if (!(G.holySt && G.holySt.last === -1 && G.holySt.said[-1])) bad.push('flip did not announce'); }
+    G.s10 = null;
+    // 7. The type is shown as the pair, no stray Parasite in live type tables
     if (ELEMENTS.soul.name !== 'Holy/Damned') bad.push('type name: ' + ELEMENTS.soul.name);
     if (RW_TYPE_NAME.soul !== 'Holy/Damned' || CDX10_TYPES.soul.st.indexOf('Holy/Damned') < 0) bad.push('type tables still say Parasite');
     return { bad, out };

@@ -1,3 +1,11 @@
+## 28 Oct 2026 Prawn Again's stance, 30 s clock (v10.197)
+- Systems: samples, chemistry (damage types), look, voice
+- Files: holy.js, tests/holytest.js, redesign docs (DAMAGE_TYPES.md, COMBAT_MATRIX.md 69)
+- What: the shared Holy/Damned clock is 30 s (15 s a side at a 0.5 chance, was 6 s) and the halo or horns flicker in the last 2.5 s. Prawn Again makes every soul source it holds a coin, whatever its leaning, and the clock is its stance: Holy half glows white and gold and each Possession it causes heals 2% of max health; Damned half wears a dark shroud with red veins, deals and takes 10% more, and Damned deaths refund 6 stamina. Each flip rings and names the half; the first flip each way in a run gets a Scientist line (2 new TODO_COPY: prawn_flip_holy, prawn_flip_damned).
+- Save data: none (G.holySt is run state).
+- Hooks: tick (holy:flip) and hurtMul (holy:stance) registered from holy.js; voice10.js vxSay called with a forced line. No new lines in shared files.
+- Risk: Prawn Again's power swings with the clock (unsimmed); the 10% taken in the Damned half can tip a close fight.
+
 ## 28 Oct 2026 Holy/Damned replaces Parasite (v10.196)
 - Systems: chemistry (damage types), combat, mutations, samples, look
 - Files: holy.js (new), tests/holytest.js (new), combat.js, fight.js, render.js, typefx.js, typelook.js, chargefx.js, look10.js, style.css, data.js, codex10.js, inspect.js, rewardui.js, mutations.js, samples10.js, boss10.js, cellcopy.js, feats10.js, gifts10.js, glossary.js, tutorial.js, voice.js, wup3.js, wup6.js, index.html, ARCHITECTURE.md, redesign docs (DAMAGE_TYPES.md, COMBAT_MATRIX.md decision 69)
