@@ -1,3 +1,11 @@
+## 2026-10-28 Red bullet cores and preview health rings back (v10.211)
+- Systems: render, ui (weapon preview), tests (sims)
+- Files: render.js, preview.js, tests/sim/crowdbench.js
+- What: enemy bullets always have their red core again, and the weapon preview's hurt targets wear a red health ring; both needed the Anti-Immune Stain, retired in v9.11. crowdbench.js gains CRASH=1 (swim back and forth through a clump), RAM=n (Headstrong rank) and hits by source.
+- Save data: none.
+- Hooks: none.
+- Risk: one more fill pass over enemy bullets a frame (one path, cheap).
+
 ## 2026-10-28 Crowd frame bench
 - Systems: tests (sims), render
 - Files: tests/sim/crowdbench.js (new), render.js, ARCHITECTURE.md

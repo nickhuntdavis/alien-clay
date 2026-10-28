@@ -1954,7 +1954,7 @@ function render() {
   ctx.fillStyle = '#000000'; ctx.beginPath();
   for (const b of G.ebul) { if (!vis(b)) continue; const x = sx(b.x), y = sy(b.y), r = b.r * 0.8 * S; ctx.moveTo(x + r, y); ctx.arc(x, y, r, 0, TAU); }
   ctx.fill();
-  if (G.dyes && G.dyes.immuno) {
+  { // (red cores: the Anti-Immune Stain's, always on since stains retired in v9.11)
     ctx.fillStyle = PAL.danger; ctx.beginPath();
     for (const b of G.ebul) { if (!vis(b)) continue; const x = sx(b.x), y = sy(b.y), r = b.r * 0.45 * S; ctx.moveTo(x + r, y); ctx.arc(x, y, r, 0, TAU); }
     ctx.fill();

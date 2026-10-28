@@ -250,8 +250,8 @@ function drawPreview(pv) {
     g.fillStyle = t.flash > 0 ? '#ffffff' : t.frozen > 0 ? '#bde0fe' : '#5a6068';
     g.beginPath(); g.arc(X(t.x), Y(t.y), U * t.r, 0, TAU); g.fill();
     g.strokeStyle = t.burn > 0 ? '#ff8a3d' : '#c9d1d9'; g.lineWidth = 1.5; g.stroke();
-    // A thin health ring once it's hurt, and only with the Anti-Immune Stain (as in the run).
-    if (!pv.opts.mini && t.hp < 0.995 && G && G.dyes && G.dyes.immuno) { g.strokeStyle = '#e6e6e6'; g.lineWidth = 1.2; g.beginPath(); g.arc(X(t.x), Y(t.y), U * t.r + 5, -Math.PI / 2, -Math.PI / 2 + TAU * Math.max(0, t.hp)); g.stroke(); }
+    // A thin red health ring once it's hurt (as the run's: foes.js).
+    if (!pv.opts.mini && t.hp < 0.995) { g.strokeStyle = PAL.danger; g.lineWidth = 1.2; g.beginPath(); g.arc(X(t.x), Y(t.y), U * t.r + 5, -Math.PI / 2, -Math.PI / 2 + TAU * Math.max(0, t.hp)); g.stroke(); }
   }
   for (const m of pv.mines) { g.fillStyle = '#111'; g.beginPath(); g.arc(X(m.x), Y(m.y), U * 0.018, 0, TAU); g.fill(); g.fillStyle = m.arm > 0 || Math.floor(pv.t * 6) % 2 ? c : '#fff'; g.beginPath(); g.arc(X(m.x), Y(m.y), U * 0.009, 0, TAU); g.fill(); }
   // Spermy.
