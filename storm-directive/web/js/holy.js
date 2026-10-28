@@ -103,7 +103,7 @@ hookOn('kill', 'holy:spread', e => {
 
 // ---------------------------------------------------------------- shots carry their polarity (fire:after)
 hookOn('fire:after', 'holy:shots', (w, target, n0) => {
-  if (!G || !w || !w.def || w.def.elem !== 'soul') return;
+  if (!G || !w || !w.def || (w.typeOver || w.def.elem) !== 'soul') return; // (typeOver: a Prawn Again run, prawndamned.js)
   const pol = holyPolW(w), c = holyCol(pol);
   for (let i = n0; i < G.proj.length; i++) { const pr = G.proj[i]; if (pr.src && pr.src.w === w) { pr.pol = pol; pr.src = Object.assign({}, pr.src, { pol }); pr.color = c; } }
 });
@@ -129,7 +129,7 @@ hookOn('tick', 'holy:flip', dt => {
 function holyYouPol() {
   if (!G || !G.weapons) return 0;
   let p = null;
-  for (const w of G.weapons.concat(G.spells || [])) if (w && w.def && w.def.elem === 'soul') { const q = holyP(w); if (q > 0 && q < 1) { p = q; break; } }
+  for (const w of G.weapons.concat(G.spells || [])) if (w && w.def && (w.typeOver || w.def.elem) === 'soul') { const q = holyP(w); if (q > 0 && q < 1) { p = q; break; } }
   if (p == null) return 0;
   if (holyPrawn() && typeof prawnPol === 'function') return prawnPol(); // (Prawn Again: the intensity meter, not the clock)
   return holyPhase(p) ? 1 : -1;
@@ -138,7 +138,7 @@ function holyDrawYou(px, py) {
   const pol = holyYouPol(); if (!pol) return;
   if (holyStance()) return; // (Prawn Again's whole body changes instead: prawndamned.js)
   const p = G.player, r = (p.r || 12) * S, t = G.realT, rc = RAW_COL; RAW_COL = true;
-  let mixP = 0.5; for (const w of G.weapons.concat(G.spells || [])) if (w && w.def && w.def.elem === 'soul') { const q = holyP(w); if (q > 0 && q < 1) { mixP = q; break; } }
+  let mixP = 0.5; for (const w of G.weapons.concat(G.spells || [])) if (w && w.def && (w.typeOver || w.def.elem) === 'soul') { const q = holyP(w); if (q > 0 && q < 1) { mixP = q; break; } }
   const left = holyFlipIn(mixP), flick = left < HOLY.tell ? (Math.floor(t * 12) % 2 ? 0.35 : 1) : 1; // (the tell: it flickers before the flip)
   ctx.save();
   if (holyStance()) { // Prawn Again's whole body changes with the half: a soft light, or a dark shroud with red veins

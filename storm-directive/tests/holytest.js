@@ -75,6 +75,10 @@ const { chromium } = require('playwright');
     // 6c. Type lock: a Prawn Again run deals no Switched at Birth card, and a switch does nothing
     { const w0 = G.weapons[0], e0 = w0.def.elem; sabSwitch(w0, 'fire'); if (w0.def.elem !== e0) bad.push('Prawn Again weapon switched to ' + w0.def.elem);
       if (sabCard()) bad.push('sabCard dealt on Prawn Again'); if (modDraftCands('level').some(c => c.fam === 'switch')) bad.push('switch offered on Prawn Again'); }
+    // 6d. Every weapon on a Prawn Again run deals Holy/Damned
+    { G.weapons[1] = makeSlot(Object.keys(WEAPONS).find(k => WEAPONS[k].elem === 'arcane' && WEAPONS[k].w24), false, 1); HOOKS.tick.find(h => h.name === 'prawnd:soul').fn(0.016);
+      const ws = G.weapons.filter(Boolean); out.prawnTypes = ws.map(w => w.typeOver); if (ws.some(w => w.typeOver !== 'soul')) bad.push('Prawn Again weapon not Holy/Damned: ' + out.prawnTypes);
+      const e2 = foe(-90); damageEnemy(e2, 50, { elem: ws[1].def.elem, atk: 'proj', noCrit: true, wname: 'test', w: ws[1] }); if (!(e2.cd && e2.cd.bars.soul > 0)) bad.push('blood weapon did not fill the Holy/Damned bar'); }
     G.s10 = null;
     // 7. The type is shown as the pair, no stray Parasite in live type tables
     if (ELEMENTS.soul.name !== 'Holy/Damned') bad.push('type name: ' + ELEMENTS.soul.name);

@@ -28,7 +28,7 @@ const wAtk = w => {
   return 'other';
 };
 const ownedWeapons = () => (G.weapons || []).filter(w => w && !w.isSpell);
-const hasType = t => ownedWeapons().concat((G.spells || []).filter(Boolean)).some(w => w.def && w.def.elem === MUT_INT[t]);
+const hasType = t => ownedWeapons().concat((G.spells || []).filter(Boolean)).some(w => w.def && (w.typeOver === 'soul' && G.s10 && G.s10.id === 'prawn' ? 'soul' : w.def.elem) === MUT_INT[t]); // (a Prawn Again run: every weapon is Holy/Damned, prawndamned.js)
 
 function mutSt() {
   if (!G) return null;

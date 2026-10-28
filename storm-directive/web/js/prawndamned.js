@@ -15,6 +15,8 @@
 //    Again is Damned its Possessed allies take the evil colours instead. A Damned-verdict enemy wears a dark red aura.
 // Hooks: render.js enemy draw -> holyCharmCol (tag and rim colour), holyFoeMark (label and aura); holy.js holyPolW and
 //   holyYouPol -> prawnPol, holyDrawYou skips Prawn Again. hookOn tick, kill, hurt, fire:after. Save data: none.
+//  - ALL HOLY/DAMNED: on a Prawn Again run every weapon it takes deals Holy/Damned (w.typeOver = 'soul', as Not of This
+//    World's shifts do: fight.js reads it for the hit's type, the shot colour and wtags.js the card), from the frame it is taken.
 //  - TYPE LOCK: a Prawn Again run never changes a weapon's damage type (user, 28 Oct): no Switched at Birth card is dealt
 //    (modDraftCands, sabCard) and a switch from anywhere else does nothing (sabSwitch).
 // Loads after samplelooks.js, pacing.js, holy.js and sabtiers.js (the last file to wrap sabCard and modDraftCands).
@@ -162,3 +164,4 @@ const prawnRun = () => !!(G && G.s10 && G.s10.id === 'prawn');
 modDraftCands = (orig => function () { const out = orig.apply(this, arguments); return prawnRun() ? out.filter(c => c.fam !== 'switch') : out; })(modDraftCands);
 sabCard = (orig => function () { return prawnRun() ? null : orig.apply(this, arguments); })(sabCard);
 sabSwitch = (orig => function () { if (!prawnRun()) return orig.apply(this, arguments); })(sabSwitch);
+hookOn('tick', 'prawnd:soul', () => { if (prawnRun()) for (const w of G.weapons) if (w && !w.isSpell && w.typeOver !== 'soul') w.typeOver = 'soul'; });

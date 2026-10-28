@@ -3,6 +3,14 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.204 (versionCode 483): 2026-10-28 Every Prawn Again weapon is Holy/Damned (`ccr-8a075440-cbkv62`)
+- Systems: samples, holy, mutations
+- Files: prawndamned.js, holy.js, mutations.js (hasType), tests/holytest.js
+- What: on a Prawn Again run every weapon it takes deals Holy/Damned (w.typeOver = 'soul', set from the frame it is taken): its hits fill the Holy/Damned bar, follow the stance, and draw in Holy/Damned colours; weapon tags show it. Card eligibility (hasType) counts them as Holy/Damned. Feats keep their own types.
+- Save data: none.
+- Hooks: holy.js holyYouPol, holyDrawYou and fire:after read typeOver; mutations.js hasType reads it on a Prawn Again run; hookOn tick 'prawnd:soul'.
+- Risk: Blood weapons on Prawn Again lose Bleed (and its healing pools); Blood-only cards stop being offered to it.
+
 ## v10.203 (versionCode 482): 2026-10-28 Prawn Again keeps its damage types (`ccr-8a075440-cbkv62`)
 - Systems: samples, modifier cards (Switched at Birth)
 - Files: prawndamned.js, index.html (prawndamned.js now loads after sabtiers.js), ARCHITECTURE.md, tests/holytest.js
