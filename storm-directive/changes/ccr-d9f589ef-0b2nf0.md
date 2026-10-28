@@ -1,3 +1,11 @@
+## 2026-10-28 Run clock on the HUD (v10.210)
+- Systems: ui (HUD)
+- Files: render.js
+- What: a small run clock (m:ss) at the top centre between the AUTO/speed and pause buttons. It reads G.t, which runs at the set game speed, so it matches the race's 15:00 egg and the run log's times. The top bar that used to hold the clock is never drawn (Immersive is the only HUD).
+- Save data: none.
+- Hooks: none (one line in render.js drawHud).
+- Risk: none.
+
 ## 2026-10-28 Obligatory Podcast, enemy health rings back (v10.209)
 - Systems: weapons (podcast), samples (type pools), enemies (health rings), ui
 - Files: podcast.js (new), foes.js, render.js, typepools.js, matrixonly.js, wstars.js (regenerated), index.html, ARCHITECTURE.md, tests/typepoolstest.js
