@@ -988,7 +988,7 @@ Every weapon and Feat has one. Switched at Birth changes it.
 | **Oil** | lubricated | Highly reactive. Lubricated enemies lose their grip, so knockback sends them much further, and every reaction on them is 50% stronger. Hits leave slicks that lubricate whatever swims through. |
 | **Water** | soaking wet | Crowd control. Every hit shoves enemies away and splashes their other statuses onto two neighbours at half strength. Soaking-wet enemies carry Static twice as well. |
 | **Blood** | bleeding | Bleeds them. Bleeding enemies take damage over time, but only while they move. Five deep, the blood clots and drags its neighbours into one slow lump. Bleeding kills sometimes leave a pool that heals you. |
-| **Holy/Damned** | cursed | TODO_COPY:type_soul_blurb |
+| **Holy/Damned** | cursed | Every hit is Holy or Damned, depending on where it came from. Fill the bar Holy and the enemy is Possessed and fights its mates. Fill it Damned and it takes 30% more damage for 4 s, and passes some of that on when it dies. |
 
 ## Unstable reactions
 

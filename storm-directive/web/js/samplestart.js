@@ -10,8 +10,8 @@
 // (the locked card's line). Save data: META.achEver { id: 1 }. Loads after matrixonly.js.
 
 S10_ALL = false;
-for (const s of SAMPLES10) s.unlock = s.id === 'baseline' || s.v9 ? null : { txt: 'TODO_COPY:kin_lock_txt', secret: s.unlock && s.unlock.secret }; // (the locked card's text: kinall.js; the v9 samples have no lock, as before)
-const s10LockTxt = s => (typeof kaLockTxt === 'function' ? kaLockTxt() : 'TODO_COPY:kin_lock_txt'); // (kinall.js owns the line)
+for (const s of SAMPLES10) s.unlock = s.id === 'baseline' || s.v9 ? null : { txt: 'Rescue it in a run, then finish that run.', secret: s.unlock && s.unlock.secret }; // (the locked card's text: kinall.js; the v9 samples have no lock, as before)
+const s10LockTxt = s => (typeof kaLockTxt === 'function' ? kaLockTxt() : 'Rescue it in a run, then finish that run.'); // (kinall.js owns the line)
 achieve = (orig => function (id) {
   const first = G && !(G.show && G.show.achieved && G.show.achieved[id]);
   orig(id);

@@ -24,13 +24,13 @@ const CRS = {
   tangle: 0.55, barge: 0.35,
 };
 const COURSE = {
-  id: 'course', no: 'R', name: 'TODO_COPY:crs_name', course: true,
+  id: 'course', no: 'R', name: 'Motility Test', course: true,
   pt: [12, 150], par: 1e9, // (no bristles: the rivals are the clock)
   zones: [ // by row, far end first
-    { name: 'TODO_COPY:crs_zone_4', to: 30, floor: '#f4bccb', mix: { crawler: 6, wisp: 3, bomber: 2 }, rate: 1.0, max: 18 },
-    { name: 'TODO_COPY:crs_zone_3', to: 60, floor: '#eba3b4', mix: { crawler: 6, wisp: 4, spitter: 2 }, rate: 1.1, max: 20 },
-    { name: 'TODO_COPY:crs_zone_2', to: 103, floor: '#e8909a', mix: { crawler: 7, wisp: 3, spitter: 2, bomber: 1 }, rate: 1.1, max: 20 },
-    { name: 'TODO_COPY:crs_zone_1', to: 999, floor: '#f0a6b8', mix: { crawler: 8, wisp: 3 }, rate: 0.6, max: 12 },
+    { name: 'THE STARTING BLOCKS', to: 30, floor: '#f4bccb', mix: { crawler: 6, wisp: 3, bomber: 2 }, rate: 1.0, max: 18 },
+    { name: 'THE OBSTACLES', to: 60, floor: '#eba3b4', mix: { crawler: 6, wisp: 4, spitter: 2 }, rate: 1.1, max: 20 },
+    { name: 'THE BACK STRAIGHT', to: 103, floor: '#e8909a', mix: { crawler: 7, wisp: 3, spitter: 2, bomber: 1 }, rate: 1.1, max: 20 },
+    { name: 'THE HOME STRAIGHT', to: 999, floor: '#f0a6b8', mix: { crawler: 8, wisp: 3 }, rate: 0.6, max: 12 },
   ],
   arenas: [], boss: null,
   map: [
@@ -159,7 +159,7 @@ const COURSE = {
 };
 LEVELS.push(COURSE);
 LV_SAMPLE.s011 = LEVELS.length - 1;
-SAMPLES.push({ id: 's011', no: '011', order: 3, name: 'TODO_COPY:crs_name', tag: 'TODO_COPY:crs_tag', open: true, desc: 'TODO_COPY:crs_desc' });
+SAMPLES.push({ id: 's011', no: '011', order: 3, name: 'Motility Test', tag: 'RACE COURSE', open: true, desc: 'You and five rivals on one obstacle course. First over the line, alive, wins.' });
 const courseOn = () => !!(G && G.lvl && G.lvl.L.course);
 const CRS_GRID = [-8, -5, 3, 5, 8]; // (rivals' places on the start line, in cells either side of you)
 
@@ -188,7 +188,7 @@ function courseInit(V) {
   const set = shuffle(RIVALS.slice()).slice(0, CRS.racers);
   set.forEach((R, k) => C.racers.push({ R, name: R.name, color: R.color, x: p.x + CRS_GRID[k] * LV_C, y: p.y + (k % 2 ? 0.4 : -0.2) * LV_C, vx: 0, vy: 0, face: -Math.PI / 2,
     skill: rand(CRS.skill[0], CRS.skill[1]) * (R.skill ? 0.9 + R.skill * 0.1 : 1), stunT: 0, boostT: 0, slowT: 0, band: 1, done: false, wob: k * 1.7 }));
-  sysMsg('SYSTEM MESSAGE', 'TODO_COPY:crs_intro', COURSE_COL, true);
+  sysMsg('SYSTEM MESSAGE', 'Five rivals, one lane, one finish line. First over it alive wins. Second place is not recorded.', COURSE_COL, true);
   return C;
 }
 const crsCell = (x, y) => lvIdx(x, y);
@@ -205,7 +205,7 @@ function courseTick(dt) {
     p.x = C.sx; p.y = C.sy; p.vx = 0; p.vy = 0;
     const now = Math.ceil(C.cd - 0.6);
     if (now !== was && now > 0) { sfx('hit'); vibrate(30); } // (the number itself: courseTrack)
-    if (C.cd <= 0) { C.t0 = G.t; banner('TODO_COPY:crs_go', COURSE_COL); sfx('boss'); vibrate(80); }
+    if (C.cd <= 0) { C.t0 = G.t; banner('GO', COURSE_COL); sfx('boss'); vibrate(80); }
     return;
   }
   const t = G.t - C.t0;
@@ -225,9 +225,9 @@ function courseTick(dt) {
   if (p.y < C.fy) crsWin(p);
   // First sight of each obstacle.
   const row = Math.floor(p.y / LV_C), near = (y, k) => y < row && row - y < 8 && !C.msg[k];
-  if (C.sweeps.some(s => near(s.y / LV_C, 'sw'))) { C.msg.sw = 1; sysMsg('SYSTEM MESSAGE', 'TODO_COPY:crs_sweep_msg', COURSE_COL, true); }
-  if (C.valves.some(v => near(v.y, 'va'))) { C.msg.va = 1; sysMsg('SYSTEM MESSAGE', 'TODO_COPY:crs_valve_msg', COURSE_COL, true); }
-  if (!C.msg.fork && V.L.map[row] && V.L.map[row - 3] && V.L.map[row - 3].includes('####.')) { C.msg.fork = 1; sysMsg('SYSTEM MESSAGE', 'TODO_COPY:crs_fork_msg', COURSE_COL, true); }
+  if (C.sweeps.some(s => near(s.y / LV_C, 'sw'))) { C.msg.sw = 1; sysMsg('SYSTEM MESSAGE', 'Sweepers ahead. The bar hurts you and stuns anyone else. Time it.', COURSE_COL, true); }
+  if (C.valves.some(v => near(v.y, 'va'))) { C.msg.va = 1; sysMsg('SYSTEM MESSAGE', 'Valves ahead. They open and shut on a cycle, and flicker just before they shut.', COURSE_COL, true); }
+  if (!C.msg.fork && V.L.map[row] && V.L.map[row - 3] && V.L.map[row - 3].includes('####.')) { C.msg.fork = 1; sysMsg('SYSTEM MESSAGE', 'The course forks. The short side is walled with plaque: the rivals go round, you can shoot through.', COURSE_COL, true); }
 }
 // Valves: each row opens and shuts on its own beat (shut cells are gates, so routes and collisions follow).
 function crsValves(V, C, t) {
@@ -251,7 +251,7 @@ function crsSweeps(C, t, dt, p) {
     const shove = (o, r) => { const dn = o.y >= s.y ? 1 : -1; o.y = s.y + dn * (r + 12); o.vy = dn * 380; };
     if (hit(p, p.r) && C.hitT < G.t) {
       C.hitT = G.t + 0.8; shove(p, p.r);
-      hurtPlayer(G.P.maxHp * CRS.sweepHurt, 'TODO_COPY:crs_sweeper', null, 'other');
+      hurtPlayer(G.P.maxHp * CRS.sweepHurt, 'Sweeper', null, 'other');
       cam.shake = Math.max(cam.shake, 5); spawnPart(p.x, s.y, '#ffffff', 8, 160, 0.4, 2.5);
     }
     for (const r of C.racers) if (!r.done && hit(r, 13) && r.stunT < G.t) { r.stunT = G.t + CRS.sweepStun; shove(r, 13); spawnPart(r.x, s.y, '#ffffff', 6, 140, 0.4, 2.5); }
@@ -297,7 +297,7 @@ lvSlow = function (x, y) {
 function crsLose(r) {
   const C = G.lvl.crs;
   C.over = true; G.rivalWinner = r.name; G.stats.lastHit = r.name;
-  banner('TODO_COPY:crs_lost', PAL.danger); sfx('boss'); vibrate([80, 40, 80]);
+  banner('BEATEN TO THE LINE', PAL.danger); sfx('boss'); vibrate([80, 40, 80]);
   after(1.4, () => { if (G && G.lvl && G.state === 'play') gameOver(); });
 }
 function crsWin(p) {
@@ -309,15 +309,15 @@ function crsWin(p) {
   for (const e of G.enemies) if (!e.dead && !e.charmed) { e.dead = true; spawnPart(e.x, e.y, '#ffffff', 3, 70, 0.4); }
   spawnPart(p.x, p.y, COURSE_COL, 36, 260, 1.1, 4); ring(p.x, p.y, 220, PAL.reward, 0.9, 6);
   cam.shake = 8; sfx('level'); vibrate([60, 40, 120]);
-  banner('TODO_COPY:crs_win', PAL.reward);
+  banner('FIRST OVER THE LINE', PAL.reward);
   after(2.6, () => { if (G && G.lvl && G.state === 'play') { G.state = 'won'; if (typeof UI !== 'undefined') UI.showVictory(); } });
 }
 // lvWin's own exit check (near the middle of the line) is not the finish: the line is.
 function courseWin(at) { crsWin(me()); }
-function courseTitle(won) { return won ? 'TODO_COPY:crs_t_win' : G.rivalWinner ? 'TODO_COPY:crs_t_lose' : 'TODO_COPY:crs_t_dead'; }
+function courseTitle(won) { return won ? 'FIRST PAST THE POST' : G.rivalWinner ? 'ALSO RAN' : 'DID NOT FINISH'; }
 function courseEulogy(won) {
   const C = G.lvl.crs, t = C && C.time != null ? C.time : C && C.t0 != null ? G.t - C.t0 : 0, best = META.courseBest;
-  const line = won ? 'TODO_COPY:crs_e_win' : G.rivalWinner ? 'TODO_COPY:crs_e_lose' : 'TODO_COPY:crs_e_dead';
+  const line = won ? 'First over the line, alive. The time has been written down.' : G.rivalWinner ? 'Someone else crossed first. The result stands. There is no appeals process.' : 'Did not finish. The course has been reset for the next one.';
   return `<div class="eulogy">${line}</div><div class="big${won ? ' born' : ''}">${fmtTime(t)}</div>`
     + `<div class="hint">${G.rivalWinner ? `<b style="color:${PAL.danger}">${esc(G.rivalWinner)}</b> | ` : ''}${C ? C.place : '-'}/${CRS.racers + 1}${best ? ' | ' + fmtTime(best) : ''}</div>`;
 }

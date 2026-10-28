@@ -17,12 +17,12 @@
 
 // Each v10 damage type: the GLOSSARY entry for what it builds on a target, and its one-line summary.
 const CDX10_TYPES = {
-  phys:   { st: 'Poise',        blurb: 'TODO_COPY:type_phys_blurb' },
-  fire:   { st: 'Corrosion',    blurb: 'TODO_COPY:type_fire_blurb' },
-  shock:  { st: 'Charged',      blurb: 'TODO_COPY:type_shock_blurb' },
-  ice:    { st: 'Snared',       blurb: 'TODO_COPY:type_ice_blurb' },
-  arcane: { st: 'Bleeding',     blurb: 'TODO_COPY:type_arcane_blurb' },
-  soul:   { st: 'Holy/Damned bar', blurb: 'TODO_COPY:type_soul_blurb' },
+  phys:   { st: 'Poise',        blurb: 'Plain physics. Builds Poise: fill the bar and the enemy staggers. No status damage and no reactions.' },
+  fire:   { st: 'Corrosion',    blurb: 'Eats armour. Fills Corrosion, and each full bar strips one Shell layer for good.' },
+  shock:  { st: 'Charged',      blurb: 'Spreads. Charged enemies take 20% more Static and pass arcs on to their neighbours.' },
+  ice:    { st: 'Snared',       blurb: 'Gums them up. Snared enemies slow right down, and it puts out Burning.' },
+  arcane: { st: 'Bleeding',     blurb: 'Bleeds them. Kill one while it Bleeds and you heal a little, and it leaves a pool.' },
+  soul:   { st: 'Holy/Damned bar', blurb: 'Every hit is Holy or Damned, depending on where it came from. Fill the bar Holy and the enemy is Possessed and fights its mates. Fill it Damned and it takes 30% more damage for 4 s, and passes some of that on when it dies.' },
   flame:  { st: 'Burn bar',     blurb: null }, // (ELEMENTS.flame.blurb is already v10)
 };
 const CDX10_DEFS = ['Membrane', 'Shell', 'Squishy', 'Thorns', 'Evasion'];
@@ -82,10 +82,10 @@ UI.codexHtml = function () {
       const prog = !open ? `<em>LOCKED: ${esc(u.text)} (${fmtNum(Math.min(u.have(), u.need))}/${fmtNum(u.need)})</em>` : `<em>Rank ${r}${next ? ` | ${fmtNum(profKills(id))}/${fmtNum(next)} kills to Rank ${r + 1}` : ' (max)'}</em>`;
       return `<div class="li ${run && genesOn(id) ? 'on' : ''}"><b>${esc(Pr.name)}</b> <span class="brole">${esc(Pr.trait.toUpperCase())}</span><br><span>${esc(Pr.desc)}</span><br>${prog}</div>`;
     };
-    h += box(`Epigenetic Profiles (${pu.length}/${pids.length} unlocked)`, uiList(pids.map(row).join('')), 'TODO_COPY:cdx_seq_hint');
+    h += box(`Epigenetic Profiles (${pu.length}/${pids.length} unlocked)`, uiList(pids.map(row).join('')), 'Every sample on the rack. Rescue one in a run and finish that run to unlock it.');
   }
   if (show('muts')) {
-    h += box(`Mutations found (${mf.length}/${mids.length})`, uiList(mids.map(id => { const k = META.cdxMut && META.cdxMut[id], M = cdx10Card(id); return `<div class="li ${run && G.muts && G.muts[id] ? 'on' : ''}"><b style="color:${k ? cyan : 'inherit'}">${k ? esc(M.title) : '???'}</b><br><span>${k ? esc(M.desc) : 'Not stapled to your genome yet.'}</span></div>`; }).join('')), 'TODO_COPY:cdx_mut_hint');
+    h += box(`Mutations found (${mf.length}/${mids.length})`, uiList(mids.map(id => { const k = META.cdxMut && META.cdxMut[id], M = cdx10Card(id); return `<div class="li ${run && G.muts && G.muts[id] ? 'on' : ''}"><b style="color:${k ? cyan : 'inherit'}">${k ? esc(M.title) : '???'}</b><br><span>${k ? esc(M.desc) : 'Not stapled to your genome yet.'}</span></div>`; }).join('')), 'Cards that change the sperm itself. Take one in a run to log it.');
   }
   if (show('pairs')) {
     let lc = '';
@@ -93,7 +93,7 @@ UI.codexHtml = function () {
       const known = META.cdxWf && META.cdxWf[f.id], on = run && wfOn(f.id), T = WF_TEXT[f.id];
       lc += `<div class="li cdxw ${on ? 'on' : ''}"><span class="bico">${defPicto(WEAPONS[f.a], known ? elemCol(WEAPONS[f.a].elem) : '') || iconSVG(WEAPONS[f.a], 22, known ? elemCol(WEAPONS[f.a].elem) : '#ffffff40')}</span><div><b style="color:${known ? '#ff3df2' : 'inherit'}">${esc(T.name)}</b>${on ? ' (FUSED)' : known ? '' : ' (not fused yet)'}<br><span>${esc(WEAPONS[f.a].name)} + ${esc(WEAPONS[f.b].name)}: ${esc(T.desc)}</span></div></div>`;
     }
-    h += box(`Fusions (${cf.length}/${wfs.length} fused)`, uiList(lc), 'TODO_COPY:cdx_wf_hint');
+    h += box(`Fusions (${cf.length}/${wfs.length} fused)`, uiList(lc), 'Some pairs of weapons fuse into something else. Hold both in a run to find out which.');
     let l = '';
     for (const q of wl_pairs()) {
       const known = META.pairs[q.id], on = run && G.pair && G.pair[q.id];
@@ -143,9 +143,9 @@ UI.codexHtml = function () {
       if (s) seen++;
       rl += `<div class="li"><b${s ? ` style="color:${R.color}"` : ''}>${s ? esc(R.name) : '???'}</b> <em>${esc(ELEMENTS[a].name)} + ${esc(ELEMENTS[b].name)}</em>${run && G.stats.reactBy[rid] ? ' x' + G.stats.reactBy[rid] : ''}<br><span>${s ? esc(how) : 'Not seen yet. Set it off in a run.'}</span></div>`;
     }
-    h += box(`Unstable reactions (${seen}/${Object.keys(RX10).length} found)`, uiList(rl), 'TODO_COPY:cdx_rx_hint');
-    h += box('TODO_COPY:cdx_def_title', uiList(CDX10_DEFS.map(n => `<div class="li"><b>${esc(n)}</b><br><span>${esc(cdx10Gloss(n))}</span></div>`).join('')), 'TODO_COPY:cdx_def_hint');
-    h += box('TODO_COPY:cdx_atk_title', uiList(CDX10_ATKS.map(n => `<div class="li"><b>${esc(n)}</b><br><span>${esc(cdx10Gloss(n))}</span></div>`).join('')), 'TODO_COPY:cdx_atk_hint');
+    h += box(`Unstable reactions (${seen}/${Object.keys(RX10).length} found)`, uiList(rl), 'Two different damage types on one enemy set off an unstable reaction. Each is logged the first time it goes off.');
+    h += box('Defences', uiList(CDX10_DEFS.map(n => `<div class="li"><b>${esc(n)}</b><br><span>${esc(cdx10Gloss(n))}</span></div>`).join('')), 'What enemies wear to keep you out.');
+    h += box('Attack types', uiList(CDX10_ATKS.map(n => `<div class="li"><b>${esc(n)}</b><br><span>${esc(cdx10Gloss(n))}</span></div>`).join('')), 'How each attack lands, and what can dodge it.');
   }
   return h;
 };

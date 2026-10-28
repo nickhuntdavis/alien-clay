@@ -116,7 +116,7 @@ mutCard({ id: 't_static', title: 'Pass It On', icon: 'PI', type: 'static', famil
 mutCard({ id: 't_blood', title: 'Bad Blood', icon: 'BB', type: 'blood', family: MUT_TF('blood'), color: MUT_COL.blood, rarity: 1, maxRank: 3, why: needType('blood', 'Blood'), flavour: 'Oh. That\'s going everywhere.',
   desc: 'Blood pools from bleeding deaths are bigger, and anything in them Bleeds.' });
 mutCard({ id: 't_soul', title: 'Come Out of There', icon: 'CO', type: 'soul', family: MUT_TF('soul'), color: MUT_COL.soul, rarity: 2, maxRank: 3, why: needType('soul', 'Holy/Damned'), flavour: 'There\'s something inside! I want it.',
-  desc: 'TODO_COPY:t_soul_desc' });
+  desc: 'Enemies killed by Holy/Damned may leave a wisp that heals you or speeds up your attacks.' });
 mutCard({ id: 't_wires', title: 'Crossed Wires', icon: 'CW', family: 'mut:type:any', color: MUT_COL.rare, rarity: 2, start: true, flavour: 'Oh! They did a thing together!',
   desc: 'Every unstable reaction you have discovered hits harder and goes off a second time.' });
 
@@ -167,7 +167,7 @@ for (const id of Object.keys(FIGHT_RX)) {
 
 // ---------------------------------------------------------------- Concentration: a build-up bar fills faster / drains slower
 const MUT_CONC = { acid: ['Eaten Away', 'Corrosion fills 25% faster and drains 25% slower.', 'EA'], fire: ['Slow Burn', 'Burn fills 25% faster and drains 25% slower.', 'SB'],
-  soul: ['Thin Veil', 'TODO_COPY:conc_soul_desc', 'TV'], force: ['Off Balance', 'Poise fills 25% faster and drains 25% slower.', 'OB'] };
+  soul: ['Thin Veil', 'The Holy/Damned bar fills 25% faster and drains 25% slower.', 'TV'], force: ['Off Balance', 'Poise fills 25% faster and drains 25% slower.', 'OB'] };
 for (const t of Object.keys(MUT_CONC)) {
   const [title, desc, icon] = MUT_CONC[t];
   const c = {

@@ -17,6 +17,12 @@ const DLVW = [ // id, copy id (TODO_COPY:<copy>, <copy>_desc), base weapon, buil
   { id: 'v_flame_orbital', copy: 'w_orbital', base: 'v_flame_beam', dlv: 'dfa', icon: 'comet', badge: 'OL', lz: 1, xok: [] },
   { id: 's_mines_dfa', copy: 'w_artillery', base: 's_mines', dlv: 'dfa', icon: 'mortar', badge: 'NA', xok: ['extra'] },
 ];
+const DLVW_COPY = { // copy id -> [name, description]
+  w_sword: ['Laser Sword', 'A laser blade swung through an arc in front of you. It hits everything it passes through.'],
+  w_lzmines: ['Laser Mines', 'Lays laser mines where you swim. When an enemy gets close, a mine spins out beams for a second, then it is spent.'],
+  w_orbital: ['Orbital Laser', 'Marks a target, then a beam from above follows it for a second, hitting it and whatever crowds it.'],
+  w_artillery: ['Nappy Rash', 'Shells land among the enemies. Each blast fills a Burn bar and leaves a burning patch. From Lv 3, a carpet of them goes off across their path.'],
+};
 const DLVW_BY = Object.fromEntries(DLVW.map(r => [r.id, r]));
 
 (function dlvJoin() {
@@ -24,7 +30,7 @@ const DLVW_BY = Object.fromEntries(DLVW.map(r => [r.id, r]));
     const b = WEAPONS[r.base], row = W24_BY[r.base];
     if (!b || !row) { console.warn('dlvweap: missing ' + r.base); continue; }
     const d = Object.assign({}, b, { base: JSON.parse(JSON.stringify(b.base || {})), lv: JSON.parse(JSON.stringify(b.lv || {})),
-      stars: (b.stars || []).slice(), name: 'TODO_COPY:' + r.copy, desc: 'TODO_COPY:' + r.copy + '_desc', icon: r.badge,
+      stars: (b.stars || []).slice(), name: DLVW_COPY[r.copy][0], desc: DLVW_COPY[r.copy][1], icon: r.badge,
       role: MODS10[r.dlv] ? MODS10[r.dlv].name : b.role, dlv: r.dlv, dlvBase: r.base, w24: 1, archived: 0 });
     d.play = d.desc;
     if (r.lz) d.lzKin = 1;

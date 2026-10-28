@@ -27,7 +27,7 @@ const SPASS = {
   if (typeof SAMPLES10 === 'undefined' || typeof S10_BY === 'undefined') return;
 
   // ------------------------------------------------------------ copy (the user writes these lines)
-  const COPY = { alpha: 'TODO_COPY:pas_alpha_desc', beta: 'TODO_COPY:pas_beta_desc', redtail: 'TODO_COPY:pas_redtail_desc',
+  const COPY = { alpha: 'While moving, Static hits keep enemies Charged for 4.5 s with stronger arcs, and every other hit Charges them for 1 s.', beta: 'Below 40% health, Bleed damage heals it: 25% of the damage, rising to 50% near death.', redtail: 'Anything it touches starts Burning.',
     prawn: 'Enemies it Possesses hit their old friends twice as hard.' }; // (Prawn Again: the existing Private Schooled line)
   for (const id in COPY) {
     const s = S10_BY[id]; if (!s) continue;

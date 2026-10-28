@@ -13,9 +13,10 @@
 const LSM = { blood: [0.02, 0.03, 0.04, 0.06], cord: 0.05, cordCap: 4, cordW: 0.5, drop: '#ff4d6d' };
 MODS10.bloodsucker = { name: 'Bloodsucker', desc: 'Hits heal you a little (within the lifesteal limit).', atk: MOD_ALL.slice(), max: 3, cap: {} };
 MODS10.umbilical = { name: 'Umbilical Cord', desc: 'Hits heal you (up to four times the usual lifesteal limit).', atk: MOD_ALL.slice(), max: 1, cap: {} };
-MODUP.bloodsucker = ['TODO_COPY:mod_bloodsucker_r2', 'TODO_COPY:mod_bloodsucker_r3'];
+MODUP.bloodsucker = ['Hits heal 3% of the damage dealt.', 'Hits heal 4% of the damage dealt.'];
 MODUP.umbilical = [];
-MM_GROUP.bloodsucker = MM_GROUP.umbilical = 'lifesteal'; MM_GNAME.lifesteal = 'TODO_COPY:mm_group_lifesteal';
+if (typeof SLICE_COPY !== 'undefined') SLICE_COPY.mastery_bloodsucker = 'Mastery: hits heal 6% of the damage dealt. One weapon mastery a build.';
+MM_GROUP.bloodsucker = MM_GROUP.umbilical = 'lifesteal'; MM_GNAME.lifesteal = 'Lifesteal';
 for (const L of [typeof MATRIX_ONLY !== 'undefined' && MATRIX_ONLY.mods, typeof SLICE !== 'undefined' && SLICE.mods]) if (L) L.push('bloodsucker', 'umbilical');
 if (typeof SLICE !== 'undefined') SLICE.muts.push('vt_leech', 'hp_slurp');
 if (typeof ST_MOD !== 'undefined') Object.assign(ST_MOD, { bloodsucker: 'regen', umbilical: 'hp' }); // (the stat each card banks: statup.js)

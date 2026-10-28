@@ -33,9 +33,9 @@ const WSTARS = {
   acro_spray: [1, 3, 2, 1], // Enzyme Sneeze: 8 dps, 1.0/s, reach 152, 23 dps into 10
   acro_spark: [4, 5, 2, 2], // Spark of Life: 35 dps, 6.7/s, reach 187, 41 dps into 10
   v_flame_beam: [2, 5, 5, 1], // Laser: 21 dps, 7.2/s, reach 300, 27 dps into 10
-  v_flame_sword: [5, 5, 1, 5], // TODO_COPY:w_sword: 40 dps, 7.9/s, reach 121, 259 dps into 10
-  v_flame_mines: [2, 5, 1, 3], // TODO_COPY:w_lzmines: 14 dps, 8.2/s, reach 60, 118 dps into 10
-  v_flame_orbital: [3, 5, 5, 3], // TODO_COPY:w_orbital: 22 dps, 7.4/s, reach 300, 88 dps into 10
-  s_mines_dfa: [5, 3, 5, 5], // TODO_COPY:w_artillery: 49 dps, 0.9/s, reach 521, 267 dps into 10
+  v_flame_sword: [5, 5, 1, 5], // Laser Sword: 40 dps, 7.9/s, reach 121, 259 dps into 10
+  v_flame_mines: [2, 5, 1, 3], // Laser Mines: 14 dps, 8.2/s, reach 60, 118 dps into 10
+  v_flame_orbital: [3, 5, 5, 3], // Orbital Laser: 22 dps, 7.4/s, reach 300, 88 dps into 10
+  s_mines_dfa: [5, 3, 5, 5], // Nappy Rash: 49 dps, 0.9/s, reach 521, 267 dps into 10
 };
 for (const id in WSTARS) if (typeof WEAPONS !== 'undefined' && WEAPONS[id]) WEAPONS[id].stars = WSTARS[id];

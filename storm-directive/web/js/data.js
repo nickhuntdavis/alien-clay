@@ -10,7 +10,7 @@ const ELEMENTS = {
   oxi:    { name: 'Oil',     color: '#d99a2b', status: 'lubricated', blurb: 'Highly reactive. Lubricated enemies lose their grip, so knockback sends them much further, and every reaction on them is 50% stronger. Hits leave slicks that lubricate whatever swims through.' },
   salt:   { name: 'Water',   color: '#3d8bff', status: 'soaking wet', blurb: 'Crowd control. Every hit shoves enemies away and splashes their other statuses onto two neighbours at half strength. Soaking-wet enemies carry Static twice as well.' },
   arcane: { name: 'Blood',   color: TYPE_PAL.arcane, status: 'bleeding', blurb: 'Bleeds them. Bleeding enemies take damage over time, but only while they move. Five deep, the blood clots and drags its neighbours into one slow lump. Bleeding kills sometimes leave a pool that heals you.' },
-  soul:   { name: 'Holy/Damned', color: TYPE_PAL.soul, status: 'cursed',  blurb: 'TODO_COPY:type_soul_blurb' },
+  soul:   { name: 'Holy/Damned', color: TYPE_PAL.soul, status: 'cursed',  blurb: 'Every hit is Holy or Damned, depending on where it came from. Fill the bar Holy and the enemy is Possessed and fights its mates. Fill it Damned and it takes 30% more damage for 4 s, and passes some of that on when it dies.' },
 };
 
 // Targeting directives. Each weapon/spell runs one of these.

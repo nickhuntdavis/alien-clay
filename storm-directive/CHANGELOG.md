@@ -3,6 +3,14 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.199 (versionCode 478): 2026-10-28 Every open TODO_COPY written (`ccr-8a075440-cbkv62`)
+- Systems: copy (holy, samples, kindred, lifesteal modifiers, Field Guide, race course, Delivery weapons)
+- Files: holy.js, mutations.js, samples10.js, samplestart.js, specpass.js, kinall.js, lifemods.js, codex10.js, data.js, course.js, dlvweap.js (DLVW_COPY), wstars.js (comments)
+- What: Claude-drafted at the user's request, for their read-through: Holy/Damned cards and Prawn Again's flip lines, Alpha, Beta, Redtail and Not of This World passives, rescue and unlock lines, Bloodsucker ranks and mastery, the Lifesteal group, Field Guide damage-type blurbs and box hints, every Motility Test (race course) line, and the four Delivery weapons (Laser Sword, Laser Mines, Orbital Laser, Nappy Rash). No TODO_COPY string is left in the loaded game.
+- Save data: none.
+- Hooks: none.
+- Risk: none (text only).
+
 ## v10.198 (versionCode 477): 2026-10-28 Merge of `ccr-f66e39de-z06y45` (Holy/Damned damage type), `ccr-a595ab0d-mak514` (one damage type per sample, rescues in every mode), `ccr-15e338c4-03tzdb` (wup2test fix)
 
 ### 28 Oct 2026 Prawn Again's stance, 30 s clock (v10.197)

@@ -29,10 +29,10 @@ const KINALL = { odds: { alpha: 4, beta: 4, ordered: 3, redtail: 3, acro: 2, pra
 
 // ---------------------------------------------------------------- copy placeholders
 const KINALL_COPY = {
-  kin_unlocked: 'TODO_COPY:kin_unlocked', // {name}
-  kin_lock_txt: 'TODO_COPY:kin_lock_txt',
-  kin_type_note: 'TODO_COPY:kin_type_note', // {n} {type}
-  kin_type_note_any: 'TODO_COPY:kin_type_note_any', // {n}
+  kin_unlocked: 'Unlocked for future runs: {name}.', // {name}
+  kin_lock_txt: 'Rescue it in a run, then finish that run.',
+  kin_type_note: 'Two of these are from its {type} pool. Absorb it and {type} weapons join your drafts.', // {n} {type}
+  kin_type_note_any: 'It never settled on a damage type. These could be anything.', // {n}
 };
 // (While a line is still a placeholder the values are appended, so a test or a screenshot shows what would be filled in.)
 function kaCopy(id, vars) {

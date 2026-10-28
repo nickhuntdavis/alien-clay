@@ -37,10 +37,10 @@ const SAMPLES10 = [
     pdesc: 'Static hits also add double their damage to the target\'s burn.', line: 'What\'s that? Can we touch it? We touched it. Oh, it\'s hot. OH, EVERYONE\'S HOT. DO IT AGAIN!',
     sci: 'Sample {id} was discovered outside the laboratory. The door was locked. Eleven minutes of footage are missing.', unlock: { txt: 'Survive one of the slide\'s rare big hazards.' } },
   { id: 'prawn', name: 'Prawn Again', origin: 'Impossible', types: ['soul', 'blood'], passive: 'Collateral Memory',
-    pdesc: 'TODO_COPY:prawn_pdesc', line: 'There you are. You were here before. Keep going. The ending is different this time.',
-    sci: 'Sample {id} was not introduced to the slide. The count is correct. No amendment is required.', unlock: { txt: 'TODO_COPY:prawn_unlock', secret: true } },
+    pdesc: 'Enemies it Possesses hit their old friends twice as hard.', line: 'There you are. You were here before. Keep going. The ending is different this time.',
+    sci: 'Sample {id} was not introduced to the slide. The count is correct. No amendment is required.', unlock: { txt: 'Rescue it in a run, then finish that run.', secret: true } },
   { id: 'alien', name: 'Not of This World', origin: 'Extraterrestrial', types: ['fire', 'soul', 'static'], passive: 'Adaptive Biology',
-    pdesc: 'TODO_COPY:alien_pdesc', line: 'The egg is there. The egg has always been there. We are late to our appointment. Proceed with the arriving.',
+    pdesc: 'Every 12 s its weapons switch damage type (Fire, Holy/Damned, Static, in turn) and hit 30% harder for 3 s after each switch.', line: 'The egg is there. The egg has always been there. We are late to our appointment. Proceed with the arriving.',
     sci: 'Sample {id} has responded to the target. The target has not yet been introduced.', unlock: { txt: 'Beat the campaign\'s furthest level.' }, shift: ['flame', 'soul', 'shock'], shield: true },
 ];
 for (const s of SAMPLES10) s.weapons = w24Starters(s.id); // (the sample's three starters: weapons24.js)
@@ -149,7 +149,7 @@ function s10Modes(id) {
     + (S10_PETRI ? card('s002', '002', 'Iteration', 'Twenty drops into the dish, a boss every fifth.', 'WAVE MODE') : '')
     + (S10_ENDLESS ? card('s006', '006', 'Endless', 'The dish keeps topping itself up. Nobody has found the bottom.', 'NO END') : '')
     + (S10_LEVELS ? card('s007', '007', typeof lvName === 'function' && typeof LEVELS !== 'undefined' ? lvName(LEVELS[LV_SAMPLE.s007]) : 'Level 1', 'The first stretch of the way in. Mapped by nobody who came back.', 'CAMPAIGN') : '')
-    + (typeof COURSE !== 'undefined' ? card('s011', '011', COURSE.name, 'TODO_COPY:crs_card', 'TODO_COPY:crs_tag') : '') // (the race course: course.js)
+    + (typeof COURSE !== 'undefined' ? card('s011', '011', COURSE.name, 'Six swimmers, one lane, a lot of furniture.', 'RACE COURSE') : '') // (the race course: course.js)
     + uiButton('BACK', { attrs: 'id="s10Back"' });
   $('sampleList').querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => { UI.sample = b.dataset.mode; META.profile = 's10_' + id; saveMeta(); UI.startGame(true); }));
   $('s10Back').addEventListener('click', s10Samples);
