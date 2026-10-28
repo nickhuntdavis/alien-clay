@@ -12,7 +12,7 @@ const WID = process.argv[2] || 'v_shock_beam', NE = +(process.argv[3] || 80), N 
   await page.addInitScript(() => { let s = 12345; Math.random = () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; });
   if (process.env.DEFS) await page.addInitScript(d => { window.__DEFS = d.split(','); }, process.env.DEFS);
   await page.goto('file://' + require('path').resolve(__dirname, '../../web/index.html'));
-  await page.evaluate(([L, nd, cr, rm]) => { window.TUT_OFF = 1; splashEnd(); if (L && typeof LOD_ON_SCREEN !== 'undefined') LOD_ON_SCREEN = +L; if (nd) window.__NODRAW = 1; if (cr) window.__CRASH = 1; if (rm) window.__RAM = +rm; }, [process.env.LOD || '', process.env.NODRAW || '', process.env.CRASH || '', process.env.RAM || '']);
+  await page.evaluate(([L, nd, cr, rm, hs]) => { window.TUT_OFF = 1; splashEnd(); if (L && typeof LOD_ON_SCREEN !== 'undefined') LOD_ON_SCREEN = +L; if (nd) window.__NODRAW = 1; if (cr) window.__CRASH = 1; if (rm) window.__RAM = +rm; if (hs) window.HS_FORCE = 1; }, [process.env.LOD || '', process.env.NODRAW || '', process.env.CRASH || '', process.env.RAM || '', process.env.HS || '']);
   await page.evaluate(([WID, NE]) => {
     META.seenSt = {}; for (const k in STATUS_INTRO) META.seenSt[k] = 1; META.seen = {}; for (const k in ENEMY_INTRO) META.seen[k] = 1; for (const R of RIVALS) META.seen['rival_' + R.id] = 1; META.eggMet = 1;
     META.profile = 's10_alpha'; SET.auto = true; UI.sample = 's001'; newGame(); UI.show('hud'); G.state = 'play'; G.lootQueue = [];
@@ -21,7 +21,7 @@ const WID = process.argv[2] || 'v_shock_beam', NE = +(process.argv[3] || 80), N 
     G.enemies.length = 0; RACE.spawn = 0;
     const p = G.player, defs = (window.__DEFS || ['crawler', 'krill', 'skitter', 'wisp', 'brute', 'splitter']).map(k => ENEMIES[k]).filter(Boolean);
     const cx = window.__CRASH ? p.x + 260 : p.x, cy = p.y; window.__CX = cx; // (CRASH=1: a clump ahead that you swim through, back and forth)
-    for (let i = 0; i < NE; i++) { const a = i * 2.399, r = (window.__CRASH ? 10 : 60) + 110 * Math.sqrt(i / NE), d = defs[i % defs.length]; const e = makeEnemy(d, cx + Math.cos(a) * r, cy + Math.sin(a) * r); G.enemies.push(e); }
+    window.__SPAWN = () => { for (let i = 0; i < NE; i++) { const a = i * 2.399, r = (window.__CRASH ? 10 : 60) + 110 * Math.sqrt(i / NE), d = defs[i % defs.length]; const e = makeEnemy(d, cx + Math.cos(a) * r, cy + Math.sin(a) * r); G.enemies.push(e); } }; __SPAWN();
     if (window.__RAM) { G.P.ram = +window.__RAM; }
   }, [WID, NE]);
   const cdp = await page.context().newCDPSession(page);
@@ -43,6 +43,7 @@ const WID = process.argv[2] || 'v_shock_beam', NE = +(process.argv[3] || 80), N 
     for (let f = 0; f < n; f++) {
       G.state = 'play'; G.lootQueue.length = 0; G.player.hp = G.P.maxHp; const h0 = hits;
       if (window.__RAM) G.P.ram = +window.__RAM;
+      if (window.__CRASH && f === (n >> 1)) { G.player.x = __CX - 260; window.__DIR = 1; __SPAWN(); } // (a second crash into a fresh clump, halfway)
       if (window.__CRASH) { const p = G.player; if (p.x > __CX + 200) window.__DIR = -1; if (p.x < __CX - 200) window.__DIR = 1; const v = 420 * (window.__DIR || 1); p.vx = v; p.vy = 0; p.x += v / 60; }
       const a = performance.now(); update(1 / 60); const m = performance.now(); if (!window.__NODRAW) render(); U.push(m - a); D.push(performance.now() - m);
       Hs.push(hits - h0); Tx.push(G.texts.length); Pa.push(G.parts.length); E.push(G.enemies.length);
@@ -50,7 +51,8 @@ const WID = process.argv[2] || 'v_shock_beam', NE = +(process.argv[3] || 80), N 
     }
     const avg = a => +(a.reduce((x, y) => x + y, 0) / a.length).toFixed(1), mx = a => +Math.max(...a).toFixed(1);
     const top = U.map((v, i) => [v, i]).sort((a, b) => b[0] - a[0]).slice(0, 5).map(([v, i]) => i + ':' + v.toFixed(0) + 'ms/' + Hs[i] + 'hits');
-    return { upd: avg(U), updMax: mx(U), updTop: top.join(' '), draw: avg(D), drawMax: mx(D), calls: Math.round(calls / n), hitsPerFrame: avg(Hs), texts: mx(Tx), parts: mx(Pa), enemiesEnd: E[E.length - 1],
+    const h2 = U.slice(n >> 1), top2 = h2.map((v, i) => [v, i + (n >> 1)]).sort((a, b) => b[0] - a[0]).slice(0, 4).map(([v, i]) => i + ':' + v.toFixed(0) + 'ms/' + Hs[i] + 'hits');
+    return { upd: avg(U), updMax: mx(U), updTop: top.join(' '), second: top2.join(' '), secondAvg: avg(h2.slice(0, 30)), draw: avg(D), drawMax: mx(D), calls: Math.round(calls / n), hitsPerFrame: avg(Hs), texts: mx(Tx), parts: mx(Pa), enemiesEnd: E[E.length - 1],
       first30: { upd: avg(U.slice(0, 30)), draw: avg(D.slice(0, 30)) },
       hitsBy: Object.entries(__HB).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([k, v]) => k + ' ' + (v / n).toFixed(1)).join(' | '),
       ms: Object.entries(__TM).sort((a, b) => b[1] - a[1]).map(([k, v]) => k + ' ' + (v / n).toFixed(1) + 'ms/' + Math.round(__TN[k] / n)).join(' | '),

@@ -1,3 +1,11 @@
+## 2026-10-28 Sharp player sperm, hit bursts spread over frames (v10.212)
+- Systems: render, combat (hits), tests (sims)
+- Files: youhd.js (new), hitspread.js (new), render.js, index.html, ARCHITECTURE.md, tests/sim/crowdbench.js
+- What: your body (sperm, Holy/Damned halo or horns, body mods) draws on its own canvas at up to 2x resolution, so it stays sharp when the quality steps drop the slide to 1x or 0.75x; Lab view greys it. Past 12 hits in a frame, further hits are held and land over the next frames, oldest first (a Headstrong shockwave plays out over 2 to 4 frames); damage, kills and credit unchanged. crowdbench.js: HS=1 forces hit spreading, a second crash halfway (the first crash's 40 to 90 ms is one-off code warm-up; repeats cost 10 to 30 ms on a desktop).
+- Save data: none.
+- Hooks: render.js player draw wrapped in youHd(fn); hitspread hookOn hit:before (order 0) and tick; youhd wraps render. Both off under window.TUT_OFF (tests, sims) unless HS_FORCE / YOU_HD_FORCE.
+- Risk: a held hit returns 0 to its caller (damage-dealt stats undercount bursts slightly); the sharp canvas sits above the canvas-drawn HUD (rings and chips near you draw under your body); hitspread and youhd are off in tests, so tests do not cover them.
+
 ## 2026-10-28 Red bullet cores and preview health rings back (v10.211)
 - Systems: render, ui (weapon preview), tests (sims)
 - Files: render.js, preview.js, tests/sim/crowdbench.js

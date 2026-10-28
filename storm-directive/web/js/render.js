@@ -1750,9 +1750,11 @@ function render() {
   }
   ctx.globalAlpha = 1;
   rebornDrawOOB(); // (Out of Body: your empty body)
-  drawShip(px, py, p.hd != null ? p.hd : p.face, p.flash > 0 ? '#ff4d6d' : PAL.you, (G.oob ? 0.5 : p.iframes > 0 && Math.floor(G.realT * 20) % 2 ? 0.4 : 1) * (G.peek && G.peek.t > G.t ? 0.2 : 1) * finaleYouAlpha() * nfYouAlpha(), playerScale(), p, shipLook()); // (a dry husk instead: newfeats.js)
-  if (typeof holyDrawYou === 'function') holyDrawYou(px, py); // (halo or horns: holy.js)
-  drawSeqMods(px, py, p.hd != null ? p.hd : p.face, (G.peek && G.peek.t > G.t ? 0.2 : 1) * finaleYouAlpha(), playerScale(), p, shipLook());
+  youHd(() => { // (your body on its own sharp canvas, whatever the quality step: youhd.js)
+    drawShip(px, py, p.hd != null ? p.hd : p.face, p.flash > 0 ? '#ff4d6d' : PAL.you, (G.oob ? 0.5 : p.iframes > 0 && Math.floor(G.realT * 20) % 2 ? 0.4 : 1) * (G.peek && G.peek.t > G.t ? 0.2 : 1) * finaleYouAlpha() * nfYouAlpha(), playerScale(), p, shipLook()); // (a dry husk instead: newfeats.js)
+    if (typeof holyDrawYou === 'function') holyDrawYou(px, py); // (halo or horns: holy.js)
+    drawSeqMods(px, py, p.hd != null ? p.hd : p.face, (G.peek && G.peek.t > G.t ? 0.2 : 1) * finaleYouAlpha(), playerScale(), p, shipLook());
+  }, px, py, 220 * S * playerScale());
   drawSizzle(px, py); // touching acid (terrain.js)
   playerRing(px, py); // only with the GFP Tag, and only when you're hurt
   drawPlates(px, py); // Rubber Johnny plates, just outside the armour ring (bodymods.js)
