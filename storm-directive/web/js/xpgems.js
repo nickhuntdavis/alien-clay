@@ -11,7 +11,7 @@
 //    soft coloured glow that twinkles, idles in a slow lazy loop and pulls a short tail of light behind it (longer while it
 //    is flying to you). Colour by size, same four tiers as before. XPG.light = false brings the diamonds back.
 // Hooks: game.js updatePickups -> xpDrift; render.js gem pass reads XPG and calls xpgDraw. Wraps statup.js stNow. Loads after buildbtn.js.
-const XPG = { size: 1.8, halo: true, light: true, wave: { r: 0, v: 0 }, race: { r: 700, v: 110 }, driftV: 85 };
+const XPG = { size: 1.8, halo: true, light: true, wave: { r: 0, v: 0 }, race: { r: 0, v: 0 }, driftV: 85 }; // (race: no drift either, user 28 Oct: XP comes to you only with Gem Drift or the 105 px pickup range; was 700 px at 110)
 ST_DEF.magnet = { name: 'Pickup Range', k: 0.15, fmt: 'pct', P: 'magnet' };
 ST_DEF.drift = { name: 'Gem Drift', k: 100, fmt: 'flat' };
 ST_MOD.gravity = 'magnet'; ST_MOD.trail = 'drift'; // (a modifier way into each: Gravity Well pulls, Trail leaves a wake; both had a fallback weapon stat)

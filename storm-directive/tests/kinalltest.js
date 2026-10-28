@@ -13,7 +13,7 @@ const { chromium } = require('playwright');
     // 1. Locks: only Baseline on a fresh save
     META.s10 = {}; META.devAll = 0; META.achEver = {};
     out.open = SAMPLES10.map(s => s10Open(s.id) ? 1 : 0).join('');
-    const want = SAMPLES10.map(s => (s.id === 'baseline' || s.v9) ? 1 : 0).join(''); // (the v9 samples were never locked)
+    const want = SAMPLES10.map(s => s.id === 'baseline' ? 1 : 0).join(''); // (Baseline only: the v9 samples are locked too since 28 Oct, progress.js)
     if (S10_ALL !== false || out.open !== want || out.open[0] !== '1' || SAMPLES10.filter(s => !s.v9 && s10Open(s.id)).length !== 1) bad.push('locks ' + out.open);
     if (s10LockTxt(S10_BY.alpha) !== KINALL_COPY.kin_lock_txt) bad.push('lock text ' + s10LockTxt(S10_BY.alpha));
     // 2. The odds

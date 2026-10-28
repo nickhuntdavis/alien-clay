@@ -1,3 +1,11 @@
+## 2026-10-28 First-play progression, no XP drift, sperm button opens YOU (v10.215)
+- Systems: samples (unlocks), modes, xp, ui (HUD)
+- Files: progress.js (new), xpgems.js, buildbtn.js, index.html, ARCHITECTURE.md, tests/kinalltest.js
+- What: a new player sees only The Race and The Petri Dish; Endless opens after beating the Dish, Level 1 and the race course after winning The Race (META.modeWon; developer Unlock Everything opens all). Only Baseline is open on the rack: the v9 samples are locked too (rescues do not offer them). The Race's mode tag is TODO_COPY:mode_race_tag while it is renamed. XP no longer drifts to you in the race (was 700 px at 110; Gem Drift cards still add drift). The HUD sperm button pauses on YOU instead of BUILD.
+- Save data: META.modeWon { <mode>: 1 } added.
+- Hooks: none in shared files (wraps game.js victory and samples10.js s10Modes).
+- Risk: more XP left on the floor in the race (slower levelling, the level curve and BEHIND PACE chip will read further behind); v9 samples are unreachable outside developer mode.
+
 ## 2026-10-28 Rarity chip on every loot card; straight to the weapon draft (v10.214)
 - Systems: ui (loot cards, start flow)
 - Files: dsheads.js, eink.css, lab.js, ui.js

@@ -1,12 +1,12 @@
 'use strict';
-// Spawn Prawn - a sperm button on the HUD, left of RUN (user, 26 Oct): one tap pauses on the BUILD tab (buildpanel.js),
-// where the pause button lands on YOU.
+// Spawn Prawn - a sperm button on the HUD, left of RUN (user, 26 Oct): one tap pauses on the YOU tab (user, 28 Oct; it
+// opened BUILD before).
 // Hooks: none in shared files. Adds #spermBtn before uikit.js #moveBtn at load; ui.js togglePause, renderPause.
 const UI_ICON_SPERM = '<svg viewBox="0 0 24 24" width="22" height="22"><ellipse cx="16.6" cy="7.4" rx="4.6" ry="3.5" transform="rotate(-35 16.6 7.4)" fill="currentColor"/><path d="M13.2 10.2c-2.2 1.8-1.4 3.6-3.4 5.1s-3.4-.1-5 1.5-1.1 3.4-2.6 4.9" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><ellipse cx="17.6" cy="6.6" rx="1.3" ry="1" transform="rotate(-35 17.6 6.6)" fill="#000" opacity=".45"/></svg>';
 function buildBtnTap() {
   if (!G || G.state !== 'play') return;
-  UI.togglePause();
-  UI.pauseTab = 'build'; UI.renderPause(); const p = document.getElementById('pause'); if (p) p.scrollTop = 0;
+  UI.togglePause(); // (lands on YOU)
+  const p = document.getElementById('pause'); if (p) p.scrollTop = 0;
 }
 {
   const mv = document.getElementById('moveBtn');
