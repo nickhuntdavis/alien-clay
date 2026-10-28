@@ -15,7 +15,7 @@ const { chromium } = require('playwright');
       for (const [id, n] of mods) for (let i = 0; i < n; i++) if (!modAdd(w, id)) w.m10.push(id);
       computeStats(w); G.mwAny = true; return w;
     };
-    const tick = t => { for (let f = 0; f < Math.round(t * 60); f++) update(1 / 60); };
+    const tick = t => { for (let f = 0; f < Math.round(t * 60); f++) { G.enemies.length = 0; update(1 / 60); } }; // (no spawns: a stray enemy sets a test mine off)
     const mine = (w, x, y) => { const q = { w, x, y, t: G.t + 600, armed: G.t + 1e6, src: weaponSrc(w), big: 1, rearm: 0 }; mwS().mines.push(q); return q; };
     const pool = (w, x, y, src) => { const z = { x, y, r: 30, life: 5, max: 5, dps: 0, elem: 'phys', pull: 0, color: '#fff', tick: 0, src: src || weaponSrc(w) }; G.zones.push(z); return z; };
     const cx = 1000, cy = 1000, dist = (o, x, y) => Math.hypot(o.x - x, o.y - y);

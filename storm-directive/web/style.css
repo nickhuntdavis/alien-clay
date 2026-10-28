@@ -622,6 +622,7 @@ body.land .pwrap, body.land .owrap, body.land .lwrap { max-width: 760px; }
 /* ---------------------------------------------------------------- weapon draft and upgrade paths */
 #draft.screen { --wc: var(--color-status-info); background: radial-gradient(circle at 50% 18%, color-mix(in srgb, var(--wc) 18%, var(--color-bg-sheet)) 0%, var(--color-bg-sheet) 60%) !important; }
 #draft .dwrap { width: min(560px, calc(100% - 32px)); padding: calc(18px + env(safe-area-inset-top)) 0 140px; }
+#draft #dSecretRoll { position: fixed; top: env(safe-area-inset-top); right: env(safe-area-inset-right); width: 56px; height: 56px; padding: 0; border: 0; background: none; opacity: 0; z-index: 6; } /* (secretroll.js: invisible) */
 #draft .dflash { position: fixed; inset: 0; background: var(--wc); opacity: 0; pointer-events: none; z-index: 5; }
 #draft.opening .dflash { animation: dFlash 0.6s ease-out; }
 @keyframes dFlash { 0% { opacity: 0.55; } 100% { opacity: 0; } }

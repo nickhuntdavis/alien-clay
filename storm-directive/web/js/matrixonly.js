@@ -3,7 +3,8 @@
 //  - WEAPONS: the matrix's 27 (MATRIX_ONLY.weapons), less There Is No Spoon (a sperm passive now: spoon.js). Every other weapon is put on hold (weapons24.js W24_HOLD), so no
 //    draft, starting pick, rescue or Sandbox offers it. The v9 samples stay on the Sample Rack (user, 24 Oct): like every
 //    sample they start with an offer from the matrix's weapons (samplestart.js), not their v9 starters.
-//  - MODIFIERS: the matrix's 25 (MATRIX_ONLY.mods, plus Switched at Birth's card). The others are never offered;
+//  - MODIFIERS: the matrix's 21 (MATRIX_ONLY.mods, plus Switched at Birth's card). The others are never offered;
+//    Melee, Ranged, Mines and Death from Above left the list on 28 Oct (user): their best forms are weapons now (dlvweap.js);
 //    a slot that already holds one keeps it.
 // To undo: MATRIX_ONLY.on = false before this file runs, or matrixRestore() at runtime (tests that need the full roster).
 // Hooks: none in shared files. Wraps modmatrix.js modOk. Loads after samples9.js.
@@ -12,9 +13,10 @@ const MATRIX_ONLY = {
   on: true,
   weapons: ['v_phys_proj', 'v_phys_spread', 'v_phys_contact', 'v_phys_burst', 'v_fire_proj', 'v_shock_beam', 'v_ice_pool', 'v_arcane_proj',
     'v_soul_proj', 'v_flame_pool', 's_void', 's_lard', 's_mines', 's_twin', 's_tesla', 's_redtape', 's_bubble', 's_duedate',
-    's_seeker', 's_peekaboo', 's_toothfairy', 's_parasite', 'acro_cap', 'acro_spray', 'acro_spark', 'v_flame_beam'],
+    's_seeker', 's_peekaboo', 's_toothfairy', 's_parasite', 'acro_cap', 'acro_spray', 'acro_spark', 'v_flame_beam',
+    'v_flame_sword', 'v_flame_mines', 'v_flame_orbital', 's_mines_dfa'], // (the four Delivery weapons: dlvweap.js)
   mods: ['range', 'upclose', 'rapid', 'charged', 'catalyst', 'kinship', 'knock', 'pull', 'sticky', 'piercing', 'explode', 'homing', 'ricochet',
-    'focus', 'connecting', 'turncoat', 'melee', 'ranged', 'mines', 'dfa', 'primer', 'nth', 'extra', 'orbiting', 'returning'], // (returning: user, 25 Oct; its five Delivery forms are in delivforms.js, MODIFIER_MATRIX.md 5.11)
+    'focus', 'connecting', 'turncoat', 'primer', 'nth', 'extra', 'orbiting', 'returning'], // (returning: user, 25 Oct; its five Delivery forms are in delivforms.js, MODIFIER_MATRIX.md 5.11)
   held: [], samples: [], force: false,
 };
 function matrixApply() {
