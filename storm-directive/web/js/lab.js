@@ -105,7 +105,7 @@ function drawTitleLab() {
 }
 
 // ---------------------------------------------------------------- the opening shot
-const INTRO = { t: 0, dur: 2.9, on: false };
+const INTRO = { t: 0, dur: 2.9, on: false, skip: true }; // (skip: runs go straight to the weapon draft, user 28 Oct; the dive showed the plain sperm before the sample's look was applied)
 function startIntro() { INTRO.t = 0; INTRO.on = true; G.state = 'intro'; introSound(); }
 
 // The intro's sound, scheduled against the picture: focus-knob ticks during the focus pull, a glass slide

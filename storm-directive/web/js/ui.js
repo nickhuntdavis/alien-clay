@@ -150,7 +150,7 @@ const UI = {
     initAudio();
     newGame();
     UI.msgT = 0; $('sysmsg').classList.remove('on');
-    if (intro) { startIntro(); UI.show('none'); return; }
+    if (intro && !INTRO.skip) { startIntro(); UI.show('none'); return; }
     UI.afterIntro();
   },
   afterIntro() {

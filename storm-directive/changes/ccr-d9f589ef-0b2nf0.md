@@ -1,3 +1,11 @@
+## 2026-10-28 Rarity chip on every loot card; straight to the weapon draft (v10.214)
+- Systems: ui (loot cards, start flow)
+- Files: dsheads.js, eink.css, lab.js, ui.js
+- What: loot cards without a pictogram (stat cards and others) show their rarity as a chip above the title, as pictogram cards do under theirs. Starting a run skips the 2.9 s microscope dive (INTRO.skip), which showed the plain sperm before the sample's look was applied: the weapon draft opens at once.
+- Save data: none.
+- Hooks: ui.js startGame reads INTRO.skip (one condition).
+- Risk: the dive's sound and the fade into the slide are gone from every run start.
+
 ## 2026-10-28 Meet a new sample on rescue; weapon name on upgrade screens (v10.213)
 - Systems: kindred (rescues), ui (draft screen, loot cards)
 - Files: meetsample.js (new), upweap.js (new), style.css, index.html, ARCHITECTURE.md

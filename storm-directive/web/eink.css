@@ -685,6 +685,8 @@ canvas.cdxp { box-shadow: 0 0 0 2px var(--color-border-edge); }
 .card .cico.pk { overflow: visible; top: 14px !important; transform: none !important; }
 .card .cico .rchip { position: absolute; left: calc(-1 * var(--rule)); right: calc(-1 * var(--rule)); top: 100%; padding: 2px 0; text-align: center; font: var(--t-label-chip); letter-spacing: var(--ls-label-chip); text-transform: uppercase;
   background: color-mix(in srgb, var(--rar, var(--color-rarity-common)) 80%, var(--ink-mix)); color: var(--color-bg-sheet); }
+.card .rchip.solo { display: inline-block; margin: 0 0 6px; padding: 2px 8px; font: var(--t-label-chip); letter-spacing: var(--ls-label-chip); text-transform: uppercase;
+  background: color-mix(in srgb, var(--rar, var(--color-rarity-common)) 80%, var(--ink-mix)); color: var(--color-bg-sheet); } /* (cards without a pictogram, as stat cards: dsheads.js) */
 .card .cfoot { display: flex; align-items: center; gap: 6px; margin-top: 8px; font: var(--t-label-micro); letter-spacing: 0.06em; text-transform: uppercase; color: color-mix(in srgb, var(--ic, var(--color-text-muted)) 70%, var(--ink-mix)); }
 .card .cfoot .sw { width: 8px; height: 8px; background: color-mix(in srgb, var(--ic, var(--color-text-muted)) 75%, var(--ink-mix)); }
 .card:has(.cico.pk) { min-height: 112px; }

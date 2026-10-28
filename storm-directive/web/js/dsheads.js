@@ -106,6 +106,7 @@ if (typeof UI !== 'undefined' && UI.renderLootCards) {
       if (rb) rb.remove();
       const cat = tag.textContent.trim();
       if (ico && rar) { const chip = document.createElement('div'); chip.className = 'rchip'; chip.textContent = rar; ico.appendChild(chip); }
+      else if (rar) { const chip = document.createElement('div'); chip.className = 'rchip solo'; chip.textContent = rar; c.insertBefore(chip, c.querySelector(':scope > .ctitle')); } // (no pictogram, as stat cards: the chip above the title, user 28 Oct)
       tag.innerHTML = `<i class="sw"></i>${esc(dsSentence(cat))}`; tag.classList.add('cfoot');
       c.appendChild(tag);
     });
