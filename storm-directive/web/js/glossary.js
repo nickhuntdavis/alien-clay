@@ -4,7 +4,7 @@
 
 const GLOSSARY = [
   [/\bpoise|stagger/i, 'Poise', 'Force builds a Poise bar on what it hits. Fill it and the enemy staggers (stops for under a second; bosses barely at all). The bar drains if you stop hitting.'],
-  [/\b(alien|parasite) bar|possess/i, 'Parasite bar', 'Parasite hits fill this bar. Fill it and the enemy is Possessed: it fights its own mates for a few seconds, then cannot be Possessed again for a while. Bosses resist.'],
+  [/\b(alien|parasite) bar|possess/i, 'Holy/Damned bar', 'Holy/Damned hits fill this bar. Fill it and the enemy is Possessed: it fights its own mates for a few seconds, then cannot be Possessed again for a while. Bosses resist.'],
   [/\bburn bar|ignit|burning/i, 'Burn bar', 'Fire fills this bar, and a burning enemy takes a short damage over time. Fill it and it Ignites: one flare on that enemy, then the bar resets. Becoming Snared puts it out.'],
   [/\bcorro(sion|ded)/i, 'Corrosion', 'Acid fills this bar. Fill it and one Shell layer is stripped for good. With no Shell, the enemy is just visibly Corroded for 4 seconds. No damage over time.'],
   [/\bmembrane/i, 'Membrane', 'A second health pool (half of max health) that soaks hits first. It recharges after 2 seconds without being hit. Force does only half damage to it; Static recharges it.'],
@@ -40,7 +40,7 @@ const GLOSSARY = [
   [/\bpairing/i, 'Pairing', 'Two weapons that work better together just by both being yours.'],
   [/\btwist/i, 'Combo twist', 'A combo whose weapons are not on their usual damage types also gets an effect from its new pair of damage types.'],
   [/\b(modifier|mod slot)/i, 'Modifier', 'Installs into one weapon (three slots each) and changes how its shots behave.'],
-  [/\bswitched at birth|damage type/i, 'Damage type', 'Force, Acid, Mucus, Static, Cooties, Oil, Water, Blood or Parasite. Each leaves a status on what it hits, and two different ones set off an unstable reaction.'],
+  [/\bswitched at birth|damage type/i, 'Damage type', 'Force, Acid, Mucus, Static, Cooties, Oil, Water, Blood or Holy/Damned. Each leaves a status on what it hits, and two different ones set off an unstable reaction.'],
   [/\breaction/i, 'Reaction', 'An unstable reaction: one damage type landing on an enemy that already carries another\'s status. See the Field Guide for all of them.'],
   [/\bmount/i, 'Weapon mount', 'A slot for a weapon. You get three a run, plus up to two from combos.'],
   [/\belite/i, 'Elite', 'A tougher version of an enemy that drops a loot box.'],
@@ -74,7 +74,7 @@ GLOSSARY.push(
   [/\bburst\b/i, 'Burst', 'A short delay, then a blast that hits everything in an area. It cannot be evaded.'],
   [/\bbeam\b/i, 'Beam', 'A rapid line of small hits along its length that passes through everything. It cannot be evaded.'],
   [/\bpool\b/i, 'Pool', 'A lobbed attack that lands a patch that keeps hurting whatever stands in it for a few seconds. It cannot be evaded.'],
-  [/\bbars?\b/i, 'Bars', 'Poise, Burn, Corrosion and the Parasite bar fill with each matching hit. Elites fill them 1.5 times slower and bosses 3 times slower. A bar drains if you stop hitting for 2 seconds, and resets after it pays off.'],
+  [/\bbars?\b/i, 'Bars', 'Poise, Burn, Corrosion and the Holy/Damned bar fill with each matching hit. Elites fill them 1.5 times slower and bosses 3 times slower. A bar drains if you stop hitting for 2 seconds, and resets after it pays off.'],
   [/\bsperm count/i, 'Sperm count', 'How many swimmers are left in the race. At 1 (or at Lv 60) the egg opens. At 6, the Final Five fight it out.'],
   [/\bthe egg\b|\begg\b/i, 'The egg', 'The goal. Swim into it and its membrane fights back (150,000 health). If a rival gets through first, you lose.'],
   [/\bfinal five\b/i, 'Final Five', 'You and the five strongest swimmers, left when the sperm count falls to 6.'],

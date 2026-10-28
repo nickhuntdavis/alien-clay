@@ -350,7 +350,7 @@ wupReg('v_soul_proj', {
   A: { name: 'Ghost Through', tag: 'pass through the crowd', costs: '-15% damage to the first target.', shows: 'The ghost passes through bodies, leaving a faint wisp in each.', modes: 'KITE lines pursuers up',
     lv3: { desc: 'The ghost passes through up to 4 enemies, a little weaker after each one. First hit 15% weaker.', apply(w) { w3TypeFeed(w); w3On(w, 'stats', (w, s) => { s.pierce = Math.max(s.pierce || 0, 3); }); w3On(w, 'tick', rfGhost); } },
     lv6: [
-      { name: 'Cold Spot', desc: 'Every enemy the ghost passes through also gains Parasite build-up, so a long line fills several bars at once.', apply(w) { w3On(w, 'tick', rfColdSpot); } },
+      { name: 'Cold Spot', desc: 'Every enemy the ghost passes through also gains Holy/Damned build-up, so a long line fills several bars at once.', apply(w) { w3On(w, 'tick', rfColdSpot); } },
       { name: 'Second Sighting', desc: 'At full range the ghost fades and re-forms where it started, then flies the same line again.', apply(w) { w3On(w, 'tick', rfSecond); } }],
     wild: { name: 'Nine-Tenths of the Law', desc: 'A Possessed enemy fires your ghost shots at its own mates.', apply(w) { w3On(w, 'tick', rfNineTenths); } } },
   B: { name: 'Revolving Door', tag: 'twice the haunting', costs: 'The shot is 30% slower.', shows: 'A translucent ghost reversing along its trail.', modes: 'ORBIT keeps enemies on both legs of the path',
@@ -371,7 +371,7 @@ wupReg('v_soul_proj', {
       { name: 'Friendly Ghost', desc: 'The spirit of an elite or big enemy fights for you for a few seconds instead of bursting.', apply(w) { w3S(w).pet = true; w3On(w, 'tick', (w, dt) => w3PetTick(w, dt, (q, t) => { w3Hit(t, w.s.dmg * 0.9, w, { atk: 'contact' }); ring(t.x, t.y, t.r + 4, w.def.color, 0.25, 3); })); } }],
     wild: { name: 'Seance', desc: 'Every few seconds your last few kills flicker back as ghosts that draw enemy fire.', apply(w) { w3On(w, 'tick', rfSeance); } } },
   lv10: [
-    { name: 'Mass Possession', best: 'AC', desc: 'Every hit fills half a Parasite bar, and Possession lasts twice as long.', apply(w) { w3On(w, 'hit', (w, e, res, src) => { if (!src.wupEcho) w3BarFrac(e, 'soul', 0.5, w); }); w3On(w, 'tick', rfMassPossession); } },
+    { name: 'Mass Possession', best: 'AC', desc: 'Every hit fills half a Holy/Damned bar, and Possession lasts twice as long.', apply(w) { w3On(w, 'hit', (w, e, res, src) => { if (!src.wupEcho) w3BarFrac(e, 'soul', 0.5, w); }); w3On(w, 'tick', rfMassPossession); } },
     { name: 'Poltergeist', best: 'AB', desc: 'Ghosts never stop at a target: they wander for a while, hitting up to 6 things they touch.', apply(w) { w3On(w, 'tick', rfPoltergeist); } },
     { name: 'Ghost Army', best: 'C', desc: 'Each kill raises a ghost that fires ghost shots for a few seconds.', apply(w) { w3On(w, 'kill', (w, e) => { const q = w3PetAdd(w, e.x, e.y, 5); if (q) floatText(e.x, e.y - 14, 'RECRUITED', w.def.color, 11, 0.8); }); w3On(w, 'tick', rfGhostArmy); } }],
 });

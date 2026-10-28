@@ -13,7 +13,7 @@ The seven canonical damage types: what each one is for, how it looks and sounds,
 | **Static** | Chain through crowds and disrupt | Discharge | Medium burst, high multi-target potential | Charge |
 | **Mucus** | Control movement and set up | Snare | Very low burst, no damage over time | Snared, Conjoined |
 | **Blood** | Wounds and the health economy | Bleed | Medium to high, scaling through wounds | Bleed, Extraction |
-| **Parasite** | Turn enemies against each other | Possess | Low to medium; the payoff is the turned enemy | Possessed |
+| **Holy/Damned** | Judge: turn an enemy (Holy) or mark it for the pit (Damned) | Possess or Damn | Low to medium; the payoff is the verdict | Possessed, Damned |
 | **Fire** | Ignite and consume setups | Ignite | Moderate hits, a short burn, a flare at Ignition | Burning |
 
 ---
@@ -128,25 +128,32 @@ Blood owns Bleed, blood pools and Extraction. Acid weakens defences; Mucus contr
 
 ---
 
-# Parasite
+# Holy/Damned
 
-**Haunt. Possess. Turn.** (Renamed from Alien, user, 26 Oct 2026; the internal id stays `soul`.)
+**Judge. Convert or condemn.** (Replaced Parasite, user, 28 Oct 2026; the internal id stays `soul`. Shown as the pair "Holy/Damned" everywhere a type is named.)
 
-Parasite is mind control. Enough Parasite on an enemy makes it fight its own mates for a few seconds (Possessed), and every Parasite reaction plays off a Possessed enemy. It is not a defence bypass, and Fear is a separate status, not a synonym for Parasite.
+One damage type with two faces. Every Holy/Damned hit carries a polarity: **Holy** (white and gold) or **Damned** (black with a red-purple glow). The soul bar fills from either and keeps a signed total of what filled it; when it is full the total decides the verdict (`holy.js`):
+
+- **Holy verdict: Possessed.** The enemy fights its own mates for a few seconds (4 s, elites 2.5, bosses 1.5), exactly the old Parasite payoff. Mercy and control.
+- **Damned verdict: Damned.** The enemy takes +30% damage from everything for 4 s (bosses +15% for 1.5 s), and if it dies while Damned every mate within 90 units gains 0.35 of Damned bar. Hell spreads through a crowd.
+
+Every reaction "on a Possessed enemy" fires on either verdict. It is not a defence bypass, and Fear is a separate status.
+
+**Where polarity comes from.** Each weapon and Feat has a Holy chance (`HOLY_P`): 1 is always Holy (Eggs, Premature Evangelation, Vanishing Twin, Recount), 0 always Damned (Rent Free, Chest Burster, Peekaboo, Jump Scare, Toddler Gravity). A mixed source (Prawn Again's kit, chance 0.5) does not roll per shot: it flips on a shared 6 s clock, Holy for its chance's share of it, so the bar's total can actually tip. Two bias cards move every source's chance by 0.25 a rank (`h_devout` up, `h_heretic` down). The three soul enemies deal Damned.
 
 ## Visual language
 
-**Mysterious, sparkly, translucent purple.** Use shimmering particles, translucent wisps, softly drifting motes and a subdued airy sound rather than Force's hard impact flash. The purple sparkle and drifting motion keep it apart from Acid's solid, wet pink splashes and Force's sharp directional impact. Possessed enemies carry the purple sparkle for as long as they are turned.
+**Holy: a white core with a gold glow; Damned: a black core with a dim red-purple halo.** Holy shots, wisps and bars read as light; Damned ones as a hole in the slide with heat round it. The two survive Lab view's greyscale as white against black, which no other type can do. A Possessed enemy keeps its pale double and wisp (now gold); a Damned one wears two small horns and a dark shroud. While you hold a mixed source you wear a halo or horns for the half of the clock you are in.
 
 ## Strengths and limits
 
-**Strong against:** dense groups (a turned enemy has mates to fight) and tough enemies in the middle of a pack.
+**Strong against:** dense groups (Holy gives a turned enemy mates to fight; Damned spreads through deaths) and tough enemies in the middle of a pack (Damned's +30% stacks with everything).
 
-**Weak against:** lone targets (nobody to fight), bosses (a reduced Possessed only), and fast fights where Possessed is not followed up. Not an answer to Shell or Membrane.
+**Weak against:** lone targets (nobody to fight, nobody to spread to), bosses (a reduced Possessed, a short Damned, no spread), and fast fights where a verdict is not followed up. Not an answer to Shell or Membrane.
 
 ## Boundaries
 
-Parasite owns Possessed. Force owns impact; Static owns interruption; Blood owns wounds and extraction.
+Holy/Damned owns Possessed and Damned. Force owns impact; Static owns interruption; Blood owns wounds and extraction.
 
 ---
 

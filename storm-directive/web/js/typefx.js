@@ -364,12 +364,12 @@ function drawTypeFx() {
 const SHOT_FX = { // [particle, colour, per second, speed, life, size, direction (null: any), spread]
   fire: ['drop', '#c6ff3d', 6, 25, 0.45, 2, Math.PI / 2, 0.3], ice: ['drop', '#a8b84a', 4, 10, 0.6, 2.2, null, 0], shock: ['spark', '#ffe94a', 10, 60, 0.18, 1.5, null, 0],
   poison: ['bubble', '#ff5fa2', 4, 15, 0.6, 2, -Math.PI / 2, 0.6], oxi: ['spark', '#f2c879', 3, 10, 0.3, 1.5, null, 0], salt: ['drop', '#3d8bff', 5, 30, 0.35, 1.8, null, 0],
-  arcane: ['drop', '#c9184a', 6, 20, 0.5, 2, Math.PI / 2, 0.2], soul: ['smoke', '#bff4ff', 6, 8, 0.6, 3, -Math.PI / 2, 0.5],
+  arcane: ['drop', '#c9184a', 6, 20, 0.5, 2, Math.PI / 2, 0.2], soul: ['smoke', '#ffcf5a', 6, 8, 0.6, 3, -Math.PI / 2, 0.5], // (Damned shots: HOLY.damned.dk, below)
 };
 function typeShotFx(pr, dt) {
   const el = pr.src && pr.src.elem, F = el && SHOT_FX[el];
   if (!F || pr.mine || G.parts.length > 260 || Math.random() > F[2] * dt) return;
-  fxParts(F[0], pr.x, pr.y, F[1], 1, F[3], F[4], F[5], F[6] == null ? Math.random() * TAU : F[6], F[7]);
+  fxParts(F[0], pr.x, pr.y, el === 'soul' && pr.pol < 0 ? HOLY.damned.dk : F[1], 1, F[3], F[4], F[5], F[6] == null ? Math.random() * TAU : F[6], F[7]); // (Holy or Damned: holy.js)
 }
 
 // ---------------------------------------------------------------- Lab view: the real microscope

@@ -22,7 +22,7 @@ const CDX10_TYPES = {
   shock:  { st: 'Charged',      blurb: 'TODO_COPY:type_shock_blurb' },
   ice:    { st: 'Snared',       blurb: 'TODO_COPY:type_ice_blurb' },
   arcane: { st: 'Bleeding',     blurb: 'TODO_COPY:type_arcane_blurb' },
-  soul:   { st: 'Parasite bar', blurb: 'TODO_COPY:type_soul_blurb' },
+  soul:   { st: 'Holy/Damned bar', blurb: 'TODO_COPY:type_soul_blurb' },
   flame:  { st: 'Burn bar',     blurb: null }, // (ELEMENTS.flame.blurb is already v10)
 };
 const CDX10_DEFS = ['Membrane', 'Shell', 'Squishy', 'Thorns', 'Evasion'];

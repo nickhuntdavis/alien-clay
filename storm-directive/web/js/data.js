@@ -10,7 +10,7 @@ const ELEMENTS = {
   oxi:    { name: 'Oil',     color: '#d99a2b', status: 'lubricated', blurb: 'Highly reactive. Lubricated enemies lose their grip, so knockback sends them much further, and every reaction on them is 50% stronger. Hits leave slicks that lubricate whatever swims through.' },
   salt:   { name: 'Water',   color: '#3d8bff', status: 'soaking wet', blurb: 'Crowd control. Every hit shoves enemies away and splashes their other statuses onto two neighbours at half strength. Soaking-wet enemies carry Static twice as well.' },
   arcane: { name: 'Blood',   color: TYPE_PAL.arcane, status: 'bleeding', blurb: 'Bleeds them. Bleeding enemies take damage over time, but only while they move. Five deep, the blood clots and drags its neighbours into one slow lump. Bleeding kills sometimes leave a pool that heals you.' },
-  soul:   { name: 'Parasite',    color: TYPE_PAL.soul, status: 'cursed',  blurb: 'Not of this world. Parasite shots pass through walls, shields and armour. Cursed enemies sometimes turn on their mates, and bosses get spooked. A cursed enemy that dies comes back as a ghost that fights for you for 4s.' },
+  soul:   { name: 'Holy/Damned', color: TYPE_PAL.soul, status: 'cursed',  blurb: 'TODO_COPY:type_soul_blurb' },
 };
 
 // Targeting directives. Each weapon/spell runs one of these.
@@ -91,7 +91,7 @@ const WEAPONS = {
     desc: 'A slow orb that drags everything into its mouth. Everything.',
     base: { dmg: 8, cd: 1.8, mag: 2, reload: 2.5, count: 1, spread: 0.2, speed: 115, pierce: 99, range: 400, size: 15, aura: 72, pull: 95 },
     lv: { 3: { area: 0.3 }, 6: { count: 1 }, 9: { dmg: 0.5 } }, sig: { 5: ['horizon', 'nomnom'], 8: ['supermassive', 'crushdepth'], 10: ['bigbang', 'parking'] } },
-  orbit: { name: 'Premature Evangelation', stars: [3, 4, 1, 3], play: 'Guardian angels circle you and swat whatever comes close. Some eat bullets.', icon: 'OB', elem: 'soul', kind: 'orbit', color: '#c9184a', dir: 'nearest', role: 'Bodyguard',
+  orbit: { name: 'Premature Evangelation', stars: [3, 4, 1, 3], play: 'Guardian angels circle you and swat whatever comes close. Some eat bullets.', icon: 'OB', elem: 'soul', kind: 'orbit', color: '#ffcf5a', dir: 'nearest', role: 'Bodyguard',
     desc: 'Guardian angels circle you and hit whatever comes close. They always start too soon.',
     base: { dmg: 23, count: 3, dur: 4.5, reload: 2.2, radius: 72, spin: 3.6, size: 10, range: 100 },
     lv: { 3: { count: 1 }, 6: { area: 0.3 }, 9: { count: 1 } }, sig: { 5: ['nan', 'clingy'], 8: ['smite', 'martyr'], 10: ['extended', 'guilttrip'] } },
