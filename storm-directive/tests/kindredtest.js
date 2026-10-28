@@ -40,7 +40,7 @@ const { chromium } = require('playwright');
     const cards = genLoot({ kind: 'slot', kin: q.id });
     { const al = w24Starters('alpha').map(id => WEAPONS[id].name), mine = WEAPONS[w24Starters('baseline')[2]].name; if (cards.length !== 3 || cards[2].title !== mine || !cards.slice(0, 2).every(c => al.includes(c.title))) bad.push('cards ' + cards.map(c => c.title)); } // (three at most, user 26 Oct: two of its weapons, then one of your own sample's)
     // Alpha's passive now runs: moving speeds up every weapon.
-    G.player.vx = 100; s10Tick(0.016); if (!(G.weapons[0].rateK > 1)) bad.push('alpha passive off');
+    G.player.vx = 100; s10Tick(0.016); if (!s10Has('alpha')) bad.push('alpha passive off'); if ((G.weapons[0].rateK || 1) > 1) bad.push('alpha fire rate boosted'); // (since specpass.js Alpha's passive is Charge, not fire rate)
     const n0 = G.weapons.filter(Boolean).length; cards[0].apply();
     if (G.weapons.filter(Boolean).length !== n0 + 1) bad.push('pick not equipped ' + G.weapons.map(w => w && w.id));
     // Open the real screen once.

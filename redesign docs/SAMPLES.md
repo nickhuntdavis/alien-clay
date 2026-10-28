@@ -85,7 +85,7 @@ Persona, tell and sample line: `CONSCIOUSNESS.md` section 1.
 
 **Passive: No Days Off**
 
-Its fire rate increases while moving and falls back to normal when stationary. One simple rule that makes the player want to keep swimming. The grind never stops.
+While moving, its hits add extra Charge (a Static hit keeps the target Charged 50% longer and its arcs hit 50% harder; other hits Charge it for a second), and it goes back to normal when stationary. Keep swimming and the Static keeps chaining.
 
 **Unique Feat: Personal Best**
 
@@ -128,7 +128,7 @@ Persona, tell and sample line: `CONSCIOUSNESS.md` section 2.
 
 **Passive: Not Dead Yet**
 
-Below 30% health, gain increased damage and lifesteal, scaling with missing health. The closer it gets to death, the more dangerous it becomes.
+Below 40% health, the Bleed damage its enemies take heals it (25% of each tick, rising to 50% at 10% health). The closer it gets to death, the more its wounds feed it.
 
 **Unique Feat: Second Wind**
 
@@ -233,7 +233,7 @@ Persona, tell and sample line: `CONSCIOUSNESS.md` section 5.
 
 **Passive: Touch Everything**
 
-Static hits also apply Burn. The more enemies its attacks chain through, the more likely a crowd is to become a collection of little ticking fire hazards.
+Anything its body touches Ignites (Burning on body contact, once a second per enemy). Swim through a crowd and it becomes a collection of little ticking fire hazards.
 
 **Unique Feat: Reply All**
 
@@ -268,7 +268,7 @@ Persona, tell and sample line: `CONSCIOUSNESS.md` section 6.
 
 **Passive: Collateral Memory**
 
-Enemies Possessed by this sample cause Bleed when they damage other enemies. Their betrayal becomes a source of Blood damage.
+Enemies it Possesses hit their old friends twice as hard (the same rule as Private Schooled's second line). Their betrayal is the whole point.
 
 **Unique Feat: Recount**
 

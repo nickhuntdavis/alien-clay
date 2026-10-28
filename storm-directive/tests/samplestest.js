@@ -36,7 +36,7 @@ const { chromium } = require('playwright');
     G.player.vx = 100; for (let i = 0; i < 30; i++) s10Tick(1 / 30);
     if (!G.zones.some(z => z.s10trail)) bad.push('no Mucus trail');
     const ow = run('alpha'); G.player.vx = 100; s10Tick(0.016); const fast = ow.rateK; G.player.vx = 0; G.player.vy = 0; s10Tick(0.016);
-    if (!(fast > 1) || ow.rateK !== 1) bad.push('Alpha rate ' + fast + '/' + ow.rateK);
+    if ((fast || 1) > 1 || (ow.rateK || 1) !== 1) bad.push('Alpha rate ' + fast + '/' + ow.rateK); // (since specpass.js: no fire-rate bonus; its Charge is tested in specpasstest.js)
     // Not of This World: the type changes, the weapon ids do not; all held weapons shift; hits use the override.
     const oh = run('alien'), id0 = oh.id, sid0 = oh.sid; G.s10.shiftT = 0.01; s10Tick(0.02);
     const w2 = G.weapons.find(Boolean);
@@ -51,7 +51,7 @@ const { chromium } = require('playwright');
     if (w2.typeOver !== 'flame') bad.push('shift cycle did not return to Fire ' + w2.typeOver);
     run('redtail'); const e = makeEnemy(ENEMIES.crawler, G.player.x + 90, G.player.y); e.hp = e.maxHp = 1000; G.enemies.push(e);
     damageEnemy(e, 20, { elem: 'shock', atk: 'proj', noCrit: true, wname: 't' });
-    if (!(e.cd && e.cd.burnT > 0)) bad.push('Redtail: Static did not burn');
+    if (e.cd && e.cd.burnT > 0) bad.push('Redtail: Static still burns (since specpass.js it is body contact; see specpasstest.js)');
     // Only an achievement unlocks a sample now (samplestart.js S10_ACH): not waves, not a bare s10Unlock.
     S10_ALL = false; META.s10 = {}; META.achEver = {}; const keepDev = META.devAll; META.devAll = 0;
     run('baseline'); G.wave.n = 10; s10Tick(0.016);
