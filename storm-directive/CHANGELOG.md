@@ -3,6 +3,16 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.193 (versionCode 472): 2026-10-28 Merge of `ccr-2faffc4b-4lg67n` (lifesteal back in the v10 draft)
+
+### 2026-10-28 Lifesteal back in the v10 draft (v10.193)
+- Systems: modifier cards, draft cards, healing
+- Files: lifemods.js (new), index.html, ARCHITECTURE.md, tests/lifemodstest.js (new), tests/modstest.js
+- What: two new weapon modifiers in their own Lifesteal group: Bloodsucker (hits heal 2/3/4% of damage dealt, mastery 6%, within the lifesteal pool) and Umbilical Cord (one rank, Epic, half weight: 5%, may draw four times the pool). Leech and Slurp were blocked for real players by the slice filter (spslice.js) and are now on its card list. In slice drafts about 1 level-up in 3 offers a lifesteal card.
+- Save data: none
+- Hooks: none in shared files (hookOn proc 'lsmProc'; wraps modmatrix.js modCard and modDraftCands; adds wmods.js WMV_SCENE loops; pushes to MODS10, MODUP, MM_GROUP, MM_GNAME, MATRIX_ONLY.mods, SLICE.mods, SLICE.muts).
+- Risk: more healing in real runs: wave20 8 mortal (slice on) went from 2 to 4 bot wins. Copy open: TODO_COPY:mod_bloodsucker_r2, mod_bloodsucker_r3, mm_group_lifesteal, mastery_bloodsucker.
+
 ## v10.192 (versionCode 471): 2026-10-27 Merge of `ccr-15e338c4-03tzdb`, `ccr-8bbc67d2-zjlnl4`, `ccr-64cf07a7-30asvl`, `ccr-5a800472-3464vq` (Orbiting Link circle, Field Guide COMBOS, measured weapon card bars, 27 fusion pairs)
 
 ### 2026-10-27 Orbiting Link beam is a circle (v10.189)
