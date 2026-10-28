@@ -1,5 +1,13 @@
 # ccr-a595ab0d-mak514: one damage type per sample
 
+## 28 Oct Rescues in every mode, weighted odds, type-pool rescue drafts, rescue-and-finish unlocks
+- Systems: kindred, samples (unlocks), waves, levels, tests
+- Files: kinall.js (new), kindred.js (kinTick reads kinOn()), samplestart.js (achievement unlocks removed, s10LockTxt), index.html, ARCHITECTURE.md, tests (kinalltest.js new; kindredtest, samplestarttest, samplestest updated; run.sh list)
+- What: stranded samples now also appear in the Petri Dish and Endless after each boss wave (5, 10, 15; Endless every 5th) and in Level 1 after each arena clear (placed on a reachable floor cell). Which one is weighted: alpha 4, beta 4, ordered 3, redtail 3, acro 2, prawn 1, alien 0.5 (never baseline or Private Schooled), from samples not yet unlocked and not carried. The rescue draft is two weapons from the rescued sample's type pool plus one wildcard, with a type swatch and note on the screen; absorbing adds that type to the run's drafts (tpAdd). Only Baseline is open on a fresh save: a sample unlocks when it was rescued in a run that was finished (Race: the egg; Dish: wave 20 beaten; Endless: wave 20 reached; Level 1: cleared). Achievements no longer unlock samples. In the Dish and Endless the next wave waits up to 30 s for a waiting spirit. Placeholders: `TODO_COPY:kin_lock_txt`, `kin_unlocked`, `kin_type_note`, `kin_type_note_any`.
+- Save data: META.s10 (unlocks, same key, now set on a finished run); META.achEver still recorded.
+- Hooks: none in game.js, render.js, ui.js or bosses.js. Wraps waveClear, kinChoose, kinCards, kinAbsorb, victory, lvWin, waveBegin; hookOn tick.
+- Risk: the Dish's 30 s wave hold changes pacing slightly at waves 5, 10 and 15; acro's old unlock line and the Shell-strip unlock are inert; wup2test is flaky on main (Terminal Clause scene), unrelated.
+
 ## 28 Oct Alpha may take Can't Sit Still again
 - Systems: mutations
 - Files: mutations.js
