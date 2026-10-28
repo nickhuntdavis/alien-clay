@@ -23,7 +23,7 @@ const { chromium } = require('playwright');
     const bad = [], out = {};
     out.seq = G.genes.primary; out.sample = UI.sample; out.mode = !!G.wave;
     if (out.seq !== 's10_baseline' || out.sample !== 's001' || G.wave) bad.push('run: ' + JSON.stringify(out));
-    const ids = Object.keys(WEAPONS).filter(id => WEAPONS[id].v10 && !WEAPONS[id].sig);
+    const ids = Object.keys(WEAPONS).filter(id => WEAPONS[id].v10 && !WEAPONS[id].sig && !WEAPONS[id].dlv); // (not the Delivery weapons: dlvweap.js)
     if (ids.length !== (typeof S10_BY.acro !== 'undefined' ? 45 : 42)) bad.push('weapons: ' + ids.length); // (PROPOSED Sample 9 brings three starters: acro.js)
     const st = genLoot({ kind: 'start' });
     const stIds = st.map(o => W24_IDS.find(k => WEAPONS[k] === o.def || WEAPONS[k] === Object.getPrototypeOf(o.def)));

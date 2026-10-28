@@ -15,11 +15,11 @@ const WSTARS = {
   v_shock_beam: [4, 5, 5, 4], // Red Flagship: 37 dps, 7.5/s, reach 301, 179 dps into 10
   v_ice_pool: [3, 2, 5, 4], // Nocturnal Emission: 33 dps, 0.7/s, reach 300, 224 dps into 10
   v_arcane_proj: [5, 4, 5, 2], // Little Prick: 42 dps, 1.4/s, reach 300, 44 dps into 10
-  v_soul_proj: [5, 3, 5, 2], // Rent Free: 40 dps, 1.2/s, reach 299, 40 dps into 10
+  v_soul_proj: [4, 3, 5, 2], // Rent Free: 40 dps, 1.2/s, reach 299, 40 dps into 10
   v_flame_pool: [4, 2, 5, 5], // Hot Mess: 37 dps, 0.8/s, reach 300, 288 dps into 10
   s_void: [2, 1, 3, 4], // Family Ties: 20 dps, 0.4/s, reach 261, 203 dps into 10
   s_lard: [3, 1, 5, 5], // Skill Issue: 33 dps, 0.6/s, reach 300, 291 dps into 10
-  s_mines: [1, 3, 1, 5], // Nappy Mines: 7 dps, 1.0/s, reach 121, 400 dps into 10
+  s_mines: [1, 3, 1, 5], // Nappy Mines: 7 dps, 1.0/s, reach 121, 414 dps into 10
   s_twin: [4, 1, 5, 4], // Soulmate Signal: 34 dps, 0.4/s, reach 301, 126 dps into 10
   s_tesla: [2, 3, 5, 2], // Unwanted Contact: 19 dps, 1.1/s, reach 301, 40 dps into 10
   s_redtape: [2, 1, 5, 1], // Ewww, Gross: 20 dps, 0.5/s, reach 301, 27 dps into 10
@@ -32,10 +32,10 @@ const WSTARS = {
   acro_cap: [5, 3, 1, 3], // Enzyme Headbutt: 59 dps, 1.1/s, reach 79, 67 dps into 10
   acro_spray: [1, 3, 2, 1], // Enzyme Sneeze: 8 dps, 1.0/s, reach 152, 23 dps into 10
   acro_spark: [4, 5, 2, 2], // Spark of Life: 35 dps, 6.7/s, reach 187, 41 dps into 10
-  v_flame_beam: [2, 5, 5, 1], // Laser: 21 dps, 7.2/s, reach 300, 28 dps into 10
-  v_flame_sword: [4, 5, 1, 5], // TODO_COPY:w_sword: 35 dps, 7.4/s, reach 121, 243 dps into 10
-  v_flame_mines: [2, 5, 1, 3], // TODO_COPY:w_lzmines: 14 dps, 7.4/s, reach 60, 116 dps into 10
+  v_flame_beam: [2, 5, 5, 1], // Laser: 21 dps, 7.2/s, reach 300, 27 dps into 10
+  v_flame_sword: [5, 5, 1, 5], // TODO_COPY:w_sword: 40 dps, 7.9/s, reach 121, 259 dps into 10
+  v_flame_mines: [2, 5, 1, 3], // TODO_COPY:w_lzmines: 14 dps, 8.2/s, reach 60, 118 dps into 10
   v_flame_orbital: [3, 5, 5, 3], // TODO_COPY:w_orbital: 22 dps, 7.4/s, reach 300, 88 dps into 10
-  s_mines_dfa: [5, 3, 5, 5], // TODO_COPY:w_artillery: 50 dps, 0.9/s, reach 521, 345 dps into 10
+  s_mines_dfa: [5, 3, 5, 5], // TODO_COPY:w_artillery: 49 dps, 0.9/s, reach 521, 267 dps into 10
 };
 for (const id in WSTARS) if (typeof WEAPONS !== 'undefined' && WEAPONS[id]) WEAPONS[id].stars = WSTARS[id];
