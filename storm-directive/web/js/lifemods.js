@@ -18,6 +18,7 @@ MODUP.umbilical = [];
 MM_GROUP.bloodsucker = MM_GROUP.umbilical = 'lifesteal'; MM_GNAME.lifesteal = 'TODO_COPY:mm_group_lifesteal';
 for (const L of [typeof MATRIX_ONLY !== 'undefined' && MATRIX_ONLY.mods, typeof SLICE !== 'undefined' && SLICE.mods]) if (L) L.push('bloodsucker', 'umbilical');
 if (typeof SLICE !== 'undefined') SLICE.muts.push('vt_leech', 'hp_slurp');
+if (typeof ST_MOD !== 'undefined') { ST_MOD.bloodsucker = 'regen'; ST_MOD.umbilical = 'hp'; } // (the stat each card banks: statup.js)
 
 function lsmProc(e, dmg, src, d) {
   const w = src.w; if (!w || !w.m10 || !(d > 0) || !(G.lsBudget > 0)) return;

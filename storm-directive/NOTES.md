@@ -1,7 +1,7 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
-- Version v10.193 (versionCode 472): merge of `ccr-2faffc4b-4lg67n`: lifesteal back in real drafts: Bloodsucker and Umbilical Cord weapon modifiers (lifemods.js, own Lifesteal group); Leech and Slurp on the slice list.
+- Version v10.194 (versionCode 473): merge of `ccr-2faffc4b-4lg67n`: lifesteal back in real drafts: Bloodsucker and Umbilical Cord weapon modifiers (lifemods.js, own Lifesteal group); Leech and Slurp on the slice list.
 - Version v10.192 (versionCode 471): merge of four sessions: Orbiting Link beam runs as a circle; Field Guide COMBOS tab lists weapon fusions; weapon card bars measured in an arena (wstars.js); 27 fusion pairs with drafted copy (wfusion5.js, wfcopy.js).
 - Version v10.191 (versionCode 470): merge of `ccr-6a5eeab5-civjwp`: XP granules are drawn as tiny specks of flowing light (xpgems.js xpgDraw: white core, coloured glow by size, twinkle, slow idle loop, short tail; `XPG.light = false` restores the diamonds). Tuned smaller and dimmer after the first look.
 - (ccr-64cf07a7-30asvl, 27 Oct) Weapon card bars are measured: `node tests/tools/wstars.js` (about 1 minute) regenerates web/js/wstars.js; rerun after any weapon balance change. `--print` shows the raw numbers. Reach has only 1, 2 and 5 in practice: most guns stop at 300 at Lv 1.
@@ -124,7 +124,7 @@ Tone: Dungeon Crawler Carl. Dry, deadpan, nerdy, not self-aware; bodies, sex, co
 - Saves: full wipe on v10 (new META key, old `sd_meta` ignored).
 
 ## Recent changes (newest first)
-- v10.193: lifesteal back in the v10 draft (Bloodsucker, Umbilical Cord, Leech, Slurp). Details in CHANGELOG.md v10.193.
+- v10.194: lifesteal back in the v10 draft (Bloodsucker, Umbilical Cord, Leech, Slurp). Details in CHANGELOG.md v10.194.
 - v10.184: pacing intensity meter, late-wave GC churn cut, Enzyme Sneeze damage, five tests green. Details in CHANGELOG.md v10.184.
 - v10.181: Orbiting bodies look like the weapon's shots. Details in CHANGELOG.md v10.181.
 - v10.180: race course level (s011). Details in CHANGELOG.md v10.180.

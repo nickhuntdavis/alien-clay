@@ -3,7 +3,15 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
-## v10.193 (versionCode 472): 2026-10-28 Merge of `ccr-2faffc4b-4lg67n` (lifesteal back in the v10 draft)
+## v10.194 (versionCode 473): 2026-10-28 Merge of `ccr-2faffc4b-4lg67n` (lifesteal back in the v10 draft)
+
+### 2026-10-28 Lifesteal modifiers bank a stat (v10.194)
+- Systems: modifier cards
+- Files: lifemods.js
+- What: Bloodsucker cards bank Regeneration and Umbilical Cord cards bank Max Health (statup.js ST_MOD), like every other modifier card; statuptest was failing without it.
+- Save data: none
+- Hooks: none
+- Risk: none
 
 ### 2026-10-28 Lifesteal back in the v10 draft (v10.193)
 - Systems: modifier cards, draft cards, healing
