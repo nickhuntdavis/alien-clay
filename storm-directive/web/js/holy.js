@@ -53,7 +53,7 @@ const holyBaseP = w => {
 const holyPrawn = () => !!(G && G.s10 && typeof s10Has === 'function' && s10Has('prawn'));
 const holyP = w => Math.max(0, Math.min(1, (holyPrawn() ? 0.5 : holyBaseP(w)) + holyBias()));
 const holyPhase = p => (G ? G.t % HOLY.cycle : 0) < p * HOLY.cycle;
-const holyPolW = w => { const p = holyP(w); return p >= 1 ? 1 : p <= 0 ? -1 : holyPhase(p) ? 1 : -1; };
+const holyPolW = w => { const p = holyP(w); return p >= 1 ? 1 : p <= 0 ? -1 : holyPrawn() && typeof prawnPol === 'function' ? prawnPol() : holyPhase(p) ? 1 : -1; }; // (Prawn Again: its stance, prawndamned.js)
 // The polarity of one hit (fight.js fightHit): the source's own, else its weapon's, else the clock at a coin.
 function holyPol(src) {
   if (!src) return holyPolW(null);
@@ -77,7 +77,7 @@ function holyPayoff(e, cd, src) {
   const pol = cd && cd.polSum < 0 ? -1 : 1;
   if (cd) cd.polSum = 0;
   if (pol > 0) { // HOLY: Possessed, as before
-    if (!(e.possNextT > G.t)) { e.possNextT = G.t + 12; curseFoe(e, e.boss ? 1.5 : e.elite ? 2.5 : 4); if (holyStance() > 0) healPlayer(G.P.maxHp * HOLY.stance.heal); }
+    if (!(e.possNextT > G.t)) { e.possNextT = G.t + 12; curseFoe(e, e.boss ? 1.5 : e.elite ? 2.5 : 4); if (e.charmed) e.holyConv = true; if (holyStance() > 0) healPlayer(G.P.maxHp * HOLY.stance.heal); }
     return;
   }
   if (e.damnNextT > G.t) return;
@@ -131,10 +131,12 @@ function holyYouPol() {
   let p = null;
   for (const w of G.weapons.concat(G.spells || [])) if (w && w.def && w.def.elem === 'soul') { const q = holyP(w); if (q > 0 && q < 1) { p = q; break; } }
   if (p == null) return 0;
+  if (holyPrawn() && typeof prawnPol === 'function') return prawnPol(); // (Prawn Again: the intensity meter, not the clock)
   return holyPhase(p) ? 1 : -1;
 }
 function holyDrawYou(px, py) {
   const pol = holyYouPol(); if (!pol) return;
+  if (holyStance()) return; // (Prawn Again's whole body changes instead: prawndamned.js)
   const p = G.player, r = (p.r || 12) * S, t = G.realT, rc = RAW_COL; RAW_COL = true;
   let mixP = 0.5; for (const w of G.weapons.concat(G.spells || [])) if (w && w.def && w.def.elem === 'soul') { const q = holyP(w); if (q > 0 && q < 1) { mixP = q; break; } }
   const left = holyFlipIn(mixP), flick = left < HOLY.tell ? (Math.floor(t * 12) % 2 ? 0.35 : 1) : 1; // (the tell: it flickers before the flip)

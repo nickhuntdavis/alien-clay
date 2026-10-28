@@ -1,6 +1,7 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
+- Version v10.201 (versionCode 480): Prawn Again turns Damned at 80% of the intensity meter and back once it eases (prawndamned.js; own meter copy in wave modes and Level 1); full Damned body, red and purple shots, gold CONVERTED enemies. Open: how much of a Dish wave it spends Damned (unsimmed).
 - Version v10.200 (versionCode 479): developer mode (tap the samples title 5 times) has an Unlock Everything card (two taps; META.devAll).
 - Version v10.199 (versionCode 478): every open TODO_COPY written by Claude at the user's request (Holy/Damned, sample passives, rescues, Lifesteal, Field Guide, Motility Test race course, Delivery weapon names), awaiting the user's read-through.
 - Version v10.198 (versionCode 477): merge of three sessions: Holy/Damned replaces the Parasite damage type, and Prawn Again's stance flips on a 30 s clock (holy.js); each sample has one damage type with weapon pools by type, specialist passives for Alpha, Beta, Redtail and Prawn Again, and rescues in every mode decide unlocks (kinall.js, typepools, specpass); wup2test green. Still red on main: statuptest (times out, also on v10.195). slicetest's hula hoop check failed once under parallel load and passed alone.

@@ -3,6 +3,14 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.201 (versionCode 480): 2026-10-28 Prawn Again turns Damned under pressure (`ccr-8a075440-cbkv62`)
+- Systems: holy (Holy/Damned), samples, pacing, look
+- Files: prawndamned.js (new), holy.js, render.js, index.html, ARCHITECTURE.md, tests/holytest.js, tests/specpasstest.js
+- What: Prawn Again's Holy/Damned stance follows the invisible intensity meter instead of the 30 s clock: Damned at 0.8, Holy again once it eases off (relaxing and down to 0.5). Modes without a meter (Petri Dish, Endless waves, Level 1, Lab Bench) run their own copy of it with pacing.js's numbers. Damned changes the whole body (dark plum, red veins, bat wings, horns, red eyes, purple smoke, red tail) and every shot to red and purple, with a flash, shake and burst on each flip. Enemies Possessed while you hold Holy/Damned are gold and labelled CONVERTED (red ALLY while Prawn Again is Damned); Damned-verdict enemies wear a dark red aura. HOLY.damned.glow is brighter (#d01c5c).
+- Save data: none (G.prawnD, G.prawnPace are run state).
+- Hooks: render.js enemy draw -> holyCharmCol (tag, rim), holyFoeMark (label, aura); holy.js holyPolW / holyYouPol -> prawnPol, holyDrawYou skips Prawn Again; hookOn tick, kill, hurt, fire:after. Wraps samplelooks.js SL_TAIL/SL_HEAD/SL_UNDER/SL_OVER prawn.
+- Risk: how long Damned lasts per peak is unsimmed (about 15 to 25 s a peak in the free modes); in the Dish its own meter fills fast in busy waves, so Prawn Again may sit Damned (10% more taken) for much of a wave. Beams and pools keep their own colours.
+
 ## v10.200 (versionCode 479): 2026-10-28 Developer mode: Unlock Everything (`ccr-8a075440-cbkv62`)
 - Systems: samples, debug
 - Files: samples10.js (s10Samples)

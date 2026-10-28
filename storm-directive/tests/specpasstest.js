@@ -13,7 +13,7 @@ const { chromium } = require('playwright');
     const foe = (x, y) => { const e = makeEnemy(ENEMIES.crawler, G.player.x + x, G.player.y + y); e.hp = e.maxHp = 1e7; e.speed = 0; G.enemies.push(e); fightCd(e); gridBuild(); return e; };
     const src = w => ({ elem: 'shock', atk: 'proj', noCrit: true, wname: 't', w });
     const stand = () => { G.player.vx = 0; G.player.vy = 0; }, swim = () => { G.player.vx = 120; G.player.vy = 0; };
-    if (SAMPLES10.length && S10_BY.alpha.pdesc !== 'TODO_COPY:pas_alpha_desc') bad.push('alpha pdesc ' + S10_BY.alpha.pdesc);
+    if (SAMPLES10.length && (!S10_BY.alpha.pdesc || /TODO_COPY/.test(S10_BY.alpha.pdesc))) bad.push('alpha pdesc ' + S10_BY.alpha.pdesc);
     if (S10_BY.prawn.pdesc !== 'Enemies it Possesses hit their old friends twice as hard.') bad.push('prawn pdesc ' + S10_BY.prawn.pdesc);
 
     // ---- Alpha: a moving Static hit Charges longer and arcs harder; a moving Force hit Charges briefly; no fire-rate bonus

@@ -2065,7 +2065,7 @@ function drawEnemy(e, lod) {
     // Swimmers are drawn like you: real sperm with dragging tails. Rivals carry their fluorescent dye.
     if (e.tailV == null) { e.tailV = 0; e.px = e.x; e.py = e.y; }
     const fdt = Math.max(1e-3, G.realT - (e.tailT || G.realT)); e.tailV = Math.hypot(e.x - e.px, e.y - e.py) / fdt; e.px = e.x; e.py = e.y;
-    const tag = e.flash > 0 ? '#ffffff' : e.frozen > 0 ? '#bde0fe' : e.charmed ? PAL.you : e.rival ? e.color : e.elite ? '#ffd23f' : fastDyed(e) ? DYE_FAST : fst ? e.color : null;
+    const tag = e.flash > 0 ? '#ffffff' : e.frozen > 0 ? '#bde0fe' : e.charmed ? (typeof holyCharmCol === 'function' ? holyCharmCol(e) : PAL.you) : e.rival ? e.color : e.elite ? '#ffd23f' : fastDyed(e) ? DYE_FAST : fst ? e.color : null;
     const lk = enemyLook(e);
     if (lk && lk.flicker && Math.random() < 0.08) ctx.globalAlpha = 0.3; // Quantum Swimmer: not entirely here
     drawShip(x, y, face, tag, e.phased || e.phTell ? phFlick(e) : ctx.globalAlpha, e.r * squash * e.vs / 8, e, lk);
@@ -2121,7 +2121,7 @@ function drawEnemy(e, lod) {
     }
     if (e.elite || e.charmed) {
       // Immunostained: a fluorescent rim marks elites (gold) and your allies (pink).
-      ctx.strokeStyle = e.charmed ? PAL.you : PAL.reward; ctx.lineWidth = 3; ctx.stroke();
+      ctx.strokeStyle = e.charmed ? (typeof holyCharmCol === 'function' ? holyCharmCol(e) : PAL.you) : PAL.reward; ctx.lineWidth = 3; ctx.stroke();
     } else if (!(lod && plain)) pcHalo(e.boss ? 4.5 : Math.max(2.5, r * 0.16), e.boss ? 0.95 : 0.85);
   }
   if (sh !== 'sperm' && !e.boss && !(lod && plain)) drawEnemyDetail(e, x, y, r, rot);
@@ -2157,7 +2157,7 @@ function drawEnemy(e, lod) {
     // Other temporary effects you put on them: each its own colour (STATUS_RINGS).
     for (const R of STATUS_RINGS) if (R.on(e)) st(R.c);
   });
-  if (e.charmed) { ctx.fillStyle = PAL.you; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('ALLY ' + Math.ceil(e.charmT), x, y - r - 12); }
+  if (!(typeof holyFoeMark === 'function' && holyFoeMark(e, x, y, r)) && e.charmed) { ctx.fillStyle = PAL.you; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('ALLY ' + Math.ceil(e.charmT), x, y - r - 12); } // (Converted and Damned marks: prawndamned.js)
   if (e === G.grudge) {
     // Grudge target: a rotating red crosshair.
     ctx.strokeStyle = '#ff4d6d'; ctx.lineWidth = 2.5;
