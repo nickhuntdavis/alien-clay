@@ -1,3 +1,11 @@
+## 2026-10-28 Meet a new sample on rescue; weapon name on upgrade screens (v10.213)
+- Systems: kindred (rescues), ui (draft screen, loot cards)
+- Files: meetsample.js (new), upweap.js (new), style.css, index.html, ARCHITECTURE.md
+- What: rescuing a sample you have never played (no kills on its profile, not met before) pauses on a full-screen MEET card first: live portrait, origin, damage types, its line, passive and a play-style tip (TODO_COPY:meet_<id>_style, TODO_COPY:meet_go); once per sample. Upgrade and modifier screens in the Weapon Draft layout show the weapon's icon and name in big letters above the title (dsheads.js had trimmed it from the kicker); the preview badge and the DNA cards' "For weapon" line are larger.
+- Save data: META.s10met { <sample id>: 1 } added.
+- Hooks: none in shared files (wraps kindred.js kinRescue and UI.openDraft).
+- Risk: the MEET card is skipped under window.TUT_OFF, so tests do not cover it; open copy: 8 meet_*_style lines and meet_go.
+
 ## 2026-10-28 Sharp player sperm, hit bursts spread over frames (v10.212)
 - Systems: render, combat (hits), tests (sims)
 - Files: youhd.js (new), hitspread.js (new), render.js, index.html, ARCHITECTURE.md, tests/sim/crowdbench.js
