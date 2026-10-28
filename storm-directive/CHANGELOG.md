@@ -3,6 +3,64 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.198 (versionCode 477): 2026-10-28 Merge of `ccr-f66e39de-z06y45` (Holy/Damned damage type), `ccr-a595ab0d-mak514` (one damage type per sample, rescues in every mode), `ccr-15e338c4-03tzdb` (wup2test fix)
+
+### 28 Oct 2026 Prawn Again's stance, 30 s clock (v10.197)
+- Systems: samples, chemistry (damage types), look, voice
+- Files: holy.js, tests/holytest.js, redesign docs (DAMAGE_TYPES.md, COMBAT_MATRIX.md 69)
+- What: the shared Holy/Damned clock is 30 s (15 s a side at a 0.5 chance, was 6 s) and the halo or horns flicker in the last 2.5 s. Prawn Again makes every soul source it holds a coin, whatever its leaning, and the clock is its stance: Holy half glows white and gold and each Possession it causes heals 2% of max health; Damned half wears a dark shroud with red veins, deals and takes 10% more, and Damned deaths refund 6 stamina. Each flip rings and names the half; the first flip each way in a run gets a Scientist line (2 new TODO_COPY: prawn_flip_holy, prawn_flip_damned).
+- Save data: none (G.holySt is run state).
+- Hooks: tick (holy:flip) and hurtMul (holy:stance) registered from holy.js; voice10.js vxSay called with a forced line. No new lines in shared files.
+- Risk: Prawn Again's power swings with the clock (unsimmed); the 10% taken in the Damned half can tip a close fight.
+
+### 28 Oct 2026 Holy/Damned replaces Parasite (v10.196)
+- Systems: chemistry (damage types), combat, mutations, samples, look
+- Files: holy.js (new), tests/holytest.js (new), combat.js, fight.js, render.js, typefx.js, typelook.js, chargefx.js, look10.js, style.css, data.js, codex10.js, inspect.js, rewardui.js, mutations.js, samples10.js, boss10.js, cellcopy.js, feats10.js, gifts10.js, glossary.js, tutorial.js, voice.js, wup3.js, wup6.js, index.html, ARCHITECTURE.md, redesign docs (DAMAGE_TYPES.md, COMBAT_MATRIX.md decision 69)
+- What: the Parasite damage type is now Holy/Damned (internal id still `soul`). Every soul hit is Holy or Damned by its source (HOLY_P; Prawn Again's kit flips on a shared 6 s clock, the player wears a halo or horns); the soul bar keeps a signed total and pays out Possessed (Holy, as before) or Damned (+30% damage taken 4 s, bosses +15% 1.5 s, spreads 0.35 of Damned bar to mates within 90 units on death). The six soul reactions fire on either verdict. Two bias cards (h_devout, h_heretic) move the chance 0.25 a rank. Type colour gold (#ffcf5a); Damned draws black with a red-purple glow. 13 TODO_COPY placeholders; "Parasite" swapped for "Holy/Damned" in 20 existing lines (user to read through).
+- Save data: none (META.offered keys unchanged; `G.muts.h_devout` / `h_heretic` are run state).
+- Hooks: combat.js resolveHit -> holyBar; fight.js fightHit -> holyPol, fightPayoff 'possess' -> holyPayoff, f_possessed -> holyDamned, bar colour -> holyBarCol; render.js after drawShip -> holyDrawYou; hooks fire:after, dmgMul, kill registered from holy.js.
+- Risk: Damned's +30% and the death spread are unsimmed (Prawn Again and Rent Free builds get stronger); reactions on Damned enemies (Erosion bursts when Damned ends, Interference extends Damned) are new interactions; any code reading ELEMENTS.soul.color now gets gold.
+
+### 28 Oct Rescues in every mode, weighted odds, type-pool rescue drafts, rescue-and-finish unlocks
+- Systems: kindred, samples (unlocks), waves, levels, tests
+- Files: kinall.js (new), kindred.js (kinTick reads kinOn()), samplestart.js (achievement unlocks removed, s10LockTxt), index.html, ARCHITECTURE.md, tests (kinalltest.js new; kindredtest, samplestarttest, samplestest updated; run.sh list)
+- What: stranded samples now also appear in the Petri Dish and Endless after each boss wave (5, 10, 15; Endless every 5th) and in Level 1 after each arena clear (placed on a reachable floor cell). Which one is weighted: alpha 4, beta 4, ordered 3, redtail 3, acro 2, prawn 1, alien 0.5 (never baseline or Private Schooled), from samples not yet unlocked and not carried. The rescue draft is two weapons from the rescued sample's type pool plus one wildcard, with a type swatch and note on the screen; absorbing adds that type to the run's drafts (tpAdd). Only Baseline is open on a fresh save: a sample unlocks when it was rescued in a run that was finished (Race: the egg; Dish: wave 20 beaten; Endless: wave 20 reached; Level 1: cleared). Achievements no longer unlock samples. In the Dish and Endless the next wave waits up to 30 s for a waiting spirit. Placeholders: `TODO_COPY:kin_lock_txt`, `kin_unlocked`, `kin_type_note`, `kin_type_note_any`.
+- Save data: META.s10 (unlocks, same key, now set on a finished run); META.achEver still recorded.
+- Hooks: none in game.js, render.js, ui.js or bosses.js. Wraps waveClear, kinChoose, kinCards, kinAbsorb, victory, lvWin, waveBegin; hookOn tick.
+- Risk: the Dish's 30 s wave hold changes pacing slightly at waves 5, 10 and 15; acro's old unlock line and the Shell-strip unlock are inert; wup2test is flaky on main (Terminal Clause scene), unrelated.
+
+### 28 Oct Alpha may take Can't Sit Still again
+- Systems: mutations
+- Files: mutations.js
+- What: the "Alpha already has this" gate on the Can't Sit Still trade-off is gone, since Alpha's passive is no longer a fire-rate bonus.
+- Save data: none.
+- Hooks: none.
+- Risk: none.
+
+### 28 Oct Weapon pools by type, one type per sample, Private Schooled on hold
+- Systems: samples, weapons24, kindred (kinPool), tests
+- Files: typepools.js (new), index.html, ARCHITECTURE.md, tests (typepoolstest.js new; samplestest, weapons24test, v9armstest, kindredtest, v10test updated)
+- What: every sample is a specialist of one damage type (baseline Force, alpha Static, beta Blood, ordered Mucus, redtail Fire, prawn Parasite, acro Acid, alien all). Each type's pool is its live weapons (Force 6, Static 3, Mucus 3, Blood 3, Acid 3, Parasite 4, Fire 8). The opening draft is the sample's signature weapon plus two random others from its pool. Every later draft offers only the run's types (`G.tp.types`: the sample's, plus any a rescue adds with `tpAdd`). Private Schooled is off the rack (`S10_BY.private` stays; its weapons stay in their pools).
+- Save data: none.
+- Hooks: none in shared files. Wraps samplekit.js s10Start and kindred.js kinPool (sample runs now gate drafts by type, so kinAbsorb no longer adds weapons by itself: the rescue task calls tpAdd).
+- Risk: rack count 19 (strain 004 is a gap); four pools have exactly three weapons, so their opening draft is fixed; Dish, Endless and Level 1 runs need rescues (next entry) to get a second type.
+
+### 28 Oct Specialist passives for Alpha, Beta, Redtail and Prawn Again
+- Systems: samples, chemistry (Charge, Bleed, Burning), tests
+- Files: specpass.js (new), index.html, ARCHITECTURE.md, redesign docs/SAMPLES.md, tests (specpasstest.js new; samplestest, kindredtest updated)
+- What: Alpha: while moving, Static hits keep Charge 4.5 s (was 3) with 1.5x arcs and other hits Charge for 1 s (the +50% fire rate is gone). Beta: below 40% health, Bleed damage heals it (25%, up to 50% at 10% health; the damage bonus and plain lifesteal are gone). Redtail: body contact Ignites (1 s per-enemy cooldown; Static no longer adds burn). Prawn Again: Possessed enemies hit their old friends twice as hard (its Bleed line is gone). Three pdescs are `TODO_COPY:pas_alpha_desc`, `pas_beta_desc`, `pas_redtail_desc`.
+- Save data: none.
+- Hooks: none in shared files. Wraps s10Tick, s10DmgMul, s10Hit, fightStatus; hookOn hit:late and tick.
+- Risk: not sim-tuned (Alpha is likely weaker on non-Static builds; Redtail's dose is a guess). The masks depend on the shape of the old branches in samples10.js.
+
+### 2026-10-28 wup2test green: Parasite Terminal Clause scene
+- Systems: tests
+- Files: tests/wup2test.js
+- What: the Parasite pass of Little Prick's Terminal Clause failed because Parasite needles kill the stock scene's 40 to 80 health enemies in one hit, so none was ever hit while low and alive. The Parasite pass now uses tougher enemies (100 to 200 of 1,000 health). No change in play.
+- Save data: none.
+- Hooks: none.
+- Risk: none.
+
 ## v10.195 (versionCode 474): 2026-10-28 Merge of `ccr-0567207f-iybojr` (Delivery weapons), `ccr-2faffc4b-4lg67n` (Lifesteal modifiers) and `ccr-15e338c4-03tzdb` (secret reroll)
 
 ### 2026-10-28 Merge fixes (v10.195)
