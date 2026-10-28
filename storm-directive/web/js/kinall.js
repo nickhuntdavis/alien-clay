@@ -146,7 +146,7 @@ function kaNote(id) {
   if (!id) { el.style.display = 'none'; return; }
   const sm = S10_BY[id], any = tpOf(id) === '*';
   const sw = sm.types.map(t => { const c = ELEMENTS[S10_TYPES[t]].color; return `<i style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${typeof pictoInk === 'function' && !pictoInk(c) ? 'var(--color-text-primary)' : c}"></i>`; }).join('');
-  const nm = sm.types[0].charAt(0).toUpperCase() + sm.types[0].slice(1);
+  const nm = sm.types.map(t => t.charAt(0).toUpperCase() + t.slice(1)).join(' and '); // (Ordered Online has two)
   el.innerHTML = `${sw}<span>${esc(any ? kaCopy('kin_type_note_any', { n: 2 }) : kaCopy('kin_type_note', { n: 2, type: nm }))}</span>`;
   el.style.display = 'flex';
 }

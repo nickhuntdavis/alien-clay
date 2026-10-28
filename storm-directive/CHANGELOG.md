@@ -3,6 +3,14 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.205 (versionCode 484): 2026-10-28 Ordered Online is Static and Fire, Laser always in its first draft (`ccr-8a075440-cbkv62`)
+- Systems: samples (type pools), kindred
+- Files: typepools.js (TP_TYPE may be a list; tpPool takes a list), kinall.js (rescue note names both types), tests (samplestest, kinalltest, samplestarttest)
+- What: Ordered Online drafts from the Static and Fire pools (was Mucus) and shows both types; its signature is the Laser, so the opening draft always holds the Laser plus two others from those pools (20 of 20 in a check). Rescuing it adds both types to the run. Its passive (Mucus trail, 30% Evasion) is unchanged. kinalltest and samplestarttest now check the written lock and unlock lines.
+- Save data: none.
+- Hooks: none.
+- Risk: Ordered Online's pool is 11 weapons (7 Fire) instead of the Mucus three.
+
 ## v10.204 (versionCode 483): 2026-10-28 Every Prawn Again weapon is Holy/Damned (`ccr-8a075440-cbkv62`)
 - Systems: samples, holy, mutations
 - Files: prawndamned.js, holy.js, mutations.js (hasType), tests/holytest.js

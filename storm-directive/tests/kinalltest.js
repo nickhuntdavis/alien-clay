@@ -15,7 +15,7 @@ const { chromium } = require('playwright');
     out.open = SAMPLES10.map(s => s10Open(s.id) ? 1 : 0).join('');
     const want = SAMPLES10.map(s => (s.id === 'baseline' || s.v9) ? 1 : 0).join(''); // (the v9 samples were never locked)
     if (S10_ALL !== false || out.open !== want || out.open[0] !== '1' || SAMPLES10.filter(s => !s.v9 && s10Open(s.id)).length !== 1) bad.push('locks ' + out.open);
-    if (s10LockTxt(S10_BY.alpha) !== 'TODO_COPY:kin_lock_txt') bad.push('lock text ' + s10LockTxt(S10_BY.alpha));
+    if (s10LockTxt(S10_BY.alpha) !== KINALL_COPY.kin_lock_txt) bad.push('lock text ' + s10LockTxt(S10_BY.alpha));
     // 2. The odds
     run('s001');
     { const n = {}; for (let i = 0; i < 2000; i++) { const id = kinChoose(); n[id] = (n[id] || 0) + 1; } out.odds = n;
@@ -95,7 +95,7 @@ const { chromium } = require('playwright');
     if (!META.s10.alpha || !META.s10.ordered || META.s10.beta) bad.push('race win: ' + JSON.stringify(META.s10));
     if (!s10Open('alpha') || s10Open('beta')) bad.push('s10Open after the win');
     G.state = 'won'; UI.showVictory(); out.over = document.getElementById('overBody').textContent.slice(0, 60);
-    if (!/TODO_COPY:kin_unlocked/.test(document.getElementById('overBody').textContent)) bad.push('no unlock notice on the end screen ' + out.over);
+    if (!/Unlocked for future runs/.test(document.getElementById('overBody').textContent)) bad.push('no unlock notice on the end screen ' + out.over);
     UI.show('hud');
     META.s10 = {};
     run('s002'); kinAbsorb('prawn'); campWin(); if (!META.s10.prawn) bad.push('dish win did not unlock');

@@ -14,7 +14,7 @@ const { chromium } = require('playwright');
     if (typeof S10_BY.acro !== 'undefined') IDS.push('acro'); // (PROPOSED Sample 9, acrosample.js: a ninth sample while it is loaded)
     if (SAMPLES10.filter(s => !s.v9).map(s => s.id).join() !== IDS.join()) bad.push('ids ' + SAMPLES10.filter(s => !s.v9).map(s => s.id));
     if (SAMPLES10.slice(0, 7).map(s => s.name).join('|') !== 'Baseline|Alpha|Beta|Ordered Online|Redtail|Prawn Again|Not of This World') bad.push('names');
-    if (S10_BY.ordered.types.join() !== 'mucus') bad.push('Ordered Online types ' + S10_BY.ordered.types);
+    if (S10_BY.ordered.types.join() !== 'static,fire') bad.push('Ordered Online types ' + S10_BY.ordered.types);
     for (const s of SAMPLES10) if (!(S10_FIT[s.id] || []).every(id => MATRIX_ONLY.weapons.includes(id))) bad.push(s.id + ' fit off the matrix');
     for (const s of SAMPLES10.filter(s => !s.v9)) { // (the v9 samples: v9armstest)
       META.profile = 's10_' + s.id; UI.sample = 's002'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100;

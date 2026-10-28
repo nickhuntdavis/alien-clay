@@ -15,7 +15,7 @@ const { chromium } = require('playwright');
     out.open = rack.map(s => s10Open(s.id) ? 1 : 0).join('');
     if (out.open !== '1' + '0'.repeat(rack.length - 1)) bad.push('locks ' + out.open);
     s10Samples(); const list = document.getElementById('sampleList').textContent;
-    out.lockTxt = /TODO_COPY:kin_lock_txt/.test(list); if (!out.lockTxt) bad.push('lock text');
+    out.lockTxt = list.includes(KINALL_COPY.kin_lock_txt); if (!out.lockTxt) bad.push('lock text');
     // 2. Neither an achievement nor a direct unlock opens a sample; the earned achievement is still recorded
     META.profile = 's10_baseline'; UI.sample = 's001'; newGame(); G.state = 'play';
     s10Unlock('alpha'); if (s10Open('alpha')) bad.push('s10Unlock opened a sample');

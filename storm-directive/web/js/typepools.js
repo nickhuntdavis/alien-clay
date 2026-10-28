@@ -1,6 +1,8 @@
 'use strict';
 // Spawn Prawn - one damage type per sample, and weapon pools by type (user decision).
-//  - Each sample is a specialist of ONE damage type (TP_TYPE; internal ids phys, fire, shock, ice, arcane, soul, flame).
+//  - Each sample is a specialist of ONE damage type (TP_TYPE; internal ids phys, fire, shock, ice, arcane, soul, flame),
+//    except Ordered Online: Static and Fire (user, 28 Oct; TP_TYPE holds a list, its pool is both types, its signature
+//    and guaranteed opening weapon is the Laser).
 //    Baseline Force, Alpha Static, Beta Blood, Ordered Online Mucus, Redtail Fire, Prawn Again Parasite, the Acrobat
 //    Acid. Not of This World ('*') drafts from every pool and keeps its three shifting display types.
 //  - Private Schooled is ON HOLD: taken off SAMPLES10 (no screen lists it); S10_BY.private, its profile and its
@@ -16,14 +18,15 @@
 // Hooks: none in shared files. Wraps samplekit.js s10Start (its deal is replaced) and kindred.js kinPool (sigweap.js
 // v10Pool filters through it). Loads after samplekit.js. Save data: none.
 
-const TP_TYPE = { baseline: 'phys', alpha: 'shock', beta: 'arcane', ordered: 'ice', redtail: 'flame', prawn: 'soul', acro: 'fire', alien: '*' };
-const TP_SIG = { baseline: 'v_phys_proj', alpha: 'v_shock_beam', beta: 'v_arcane_proj', ordered: 's_bubble', redtail: 'v_flame_pool', prawn: 's_parasite', acro: 'acro_cap', alien: 's_void' };
+const TP_TYPE = { baseline: 'phys', alpha: 'shock', beta: 'arcane', ordered: ['shock', 'flame'], redtail: 'flame', prawn: 'soul', acro: 'fire', alien: '*' };
+const TP_SIG = { baseline: 'v_phys_proj', alpha: 'v_shock_beam', beta: 'v_arcane_proj', ordered: 'v_flame_beam', redtail: 'v_flame_pool', prawn: 's_parasite', acro: 'acro_cap', alien: 's_void' };
 // The single display name each specialist shows (samples10.js S10_TYPES names). Alien keeps its three.
-const TP_DISPLAY = { baseline: ['force'], alpha: ['static'], beta: ['blood'], ordered: ['mucus'], redtail: ['fire'], prawn: ['soul'], acro: ['acid'] };
+const TP_DISPLAY = { baseline: ['force'], alpha: ['static'], beta: ['blood'], ordered: ['static', 'fire'], redtail: ['fire'], prawn: ['soul'], acro: ['acid'] };
 
 const tpOf = sampleId => TP_TYPE[sampleId] || '*'; // (a sample with no entry, such as a v9 one, is unrestricted)
 function tpPool(type) {
   const live = typeof w24Live === 'function' ? w24Live() : [];
+  if (Array.isArray(type)) return live.filter(id => W24_BY[id] && type.includes(W24_BY[id].type)); // (a two-type sample: Ordered Online)
   return !type || type === '*' ? live : live.filter(id => W24_BY[id] && W24_BY[id].type === type);
 }
 
@@ -60,14 +63,14 @@ function tpInit(sampleId) {
   if (!G) return null;
   const sid = sampleId || (typeof s10Of === 'function' && s10Of()) || null;
   if (!sid && !(G.genes && G.genes.primary)) return null; // (the run has no profile yet: ask again later)
-  if (!G.tp || G.tp.sid !== (sid || null)) G.tp = { types: [tpOf(sid)], sid: sid || null };
+  if (!G.tp || G.tp.sid !== (sid || null)) G.tp = { types: [].concat(tpOf(sid)), sid: sid || null };
   return G.tp;
 }
 const tpRunTypes = () => (typeof G !== 'undefined' && G && (G.tp || tpInit()) ? G.tp.types : []);
 function tpAdd(type) {
   if (typeof G === 'undefined' || !G || !type) return;
   const t = G.tp || tpInit(); if (!t) return;
-  if (!t.types.includes(type)) t.types.push(type);
+  for (const x of [].concat(type)) if (!t.types.includes(x)) t.types.push(x);
 }
 function tpOk(id) {
   if (typeof G === 'undefined' || !G) return true;
