@@ -263,6 +263,7 @@ Tone: Dungeon Crawler Carl. Dry, deadpan, nerdy, not self-aware; bodies, sex, co
 - Campaign Level 1: difficulty clock `pt` [10, 200], par (bristles) 540 s, arena quotas 30/70/90/110, Tartar Colony with `campK` 0.65. A self-steering bot clears it in about 4 to 7 minutes.
 
 ## Open threads and ideas
+- (`ccr-2faffc4b-4lg67n`, v10.193) Lifesteal back (lifemods.js): Bloodsucker and Umbilical Cord modifiers; Leech and Slurp on the slice list (the other 13 health and Membrane 'up:' cards are still blocked by the slice). Slice drafts: 48 of 150 level-ups offer a lifesteal card. wave20 8 mortal with SLICE.force: 2 wins without, 4 with (25% -> 50%, top of the bot band). If too easy: Umbilical `LSM.cordW` or `DRAFT.groupW.up`.
 - (26 Oct, ccr-1ac49716) Fusion pairs 9 to 16 built (v10.158) except 13: There Is No Spoon is a sperm passive now, so it cannot fuse.
 - (26 Oct, ccr-1ac49716) Little Jacob built (ljacob.js, v10.157). Untested for balance.
 - (26 Oct, ccr-1ac49716) Material skin Feat built (matskin.js, v10.156). Iron and Keratin are parked material ideas.
