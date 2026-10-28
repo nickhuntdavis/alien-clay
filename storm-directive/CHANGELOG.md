@@ -3,6 +3,14 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.200 (versionCode 479): 2026-10-28 Developer mode: Unlock Everything (`ccr-8a075440-cbkv62`)
+- Systems: samples, debug
+- Files: samples10.js (s10Samples)
+- What: the samples screen's DEVELOPER section (tap the samples title five times) has an Unlock Everything card: two taps run debug.js devUnlockAll (META.devAll opens every sample, plus levels, records and 100,000 DNA). It had no button since the v10 samples screen.
+- Save data: META.devAll (existing key, now reachable).
+- Hooks: none.
+- Risk: none for players (developer mode only).
+
 ## v10.199 (versionCode 478): 2026-10-28 Every open TODO_COPY written (`ccr-8a075440-cbkv62`)
 - Systems: copy (holy, samples, kindred, lifesteal modifiers, Field Guide, race course, Delivery weapons)
 - Files: holy.js, mutations.js, samples10.js, samplestart.js, specpass.js, kinall.js, lifemods.js, codex10.js, data.js, course.js, dlvweap.js (DLVW_COPY), wstars.js (comments)

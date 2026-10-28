@@ -1,6 +1,7 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
+- Version v10.200 (versionCode 479): developer mode (tap the samples title 5 times) has an Unlock Everything card (two taps; META.devAll).
 - Version v10.199 (versionCode 478): every open TODO_COPY written by Claude at the user's request (Holy/Damned, sample passives, rescues, Lifesteal, Field Guide, Motility Test race course, Delivery weapon names), awaiting the user's read-through.
 - Version v10.198 (versionCode 477): merge of three sessions: Holy/Damned replaces the Parasite damage type, and Prawn Again's stance flips on a 30 s clock (holy.js); each sample has one damage type with weapon pools by type, specialist passives for Alpha, Beta, Redtail and Prawn Again, and rescues in every mode decide unlocks (kinall.js, typepools, specpass); wup2test green. Still red on main: statuptest (times out, also on v10.195). slicetest's hula hoop check failed once under parallel load and passed alone.
 - Version v10.195 (versionCode 474): merge of three sessions: Delivery modifiers (Melee, Ranged, Mines, Death from Above) are no longer modifier cards, and four of their forms are draft weapons (Laser Sword, Laser Mines, Orbital Laser, Nappy Mines artillery: dlvweap.js, dlvrun.js); Lifesteal is back as two modifiers (Bloodsucker, Umbilical Cord: lifemods.js); a secret endless reroll sits in the Weapon Draft's top-right corner (secretroll.js). Still red on main: wup2test (Little Prick Lv 6 Terminal Clause, also red before the merge).

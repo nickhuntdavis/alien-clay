@@ -133,9 +133,17 @@ function s10Samples() {
     return c.replace('<span class="sx-txt">', `<canvas data-slpic="${s.id}" style="position:relative;inset:auto;flex:none;display:block;width:100%;height:${s.id === 'alien' ? 120 : 96}px"></canvas><span class="sx-txt">`); // (its picture: samplelooks.js)
   }).join('');
   let dev = false; try { dev = localStorage.getItem('sd_dev') === '1'; } catch (e) { /* storage unavailable */ }
-  $('sampleList').innerHTML = `${uiSectionHead('SAMPLES')}${list}` + (dev ? `${uiSectionHead('DEVELOPER')}${card('data-v10="s000"', '000', 'Lab Bench (Debug)', 'Spawn anything, god mode.', '#9fb3c8', 'DEBUG')}${sbCards()}` : ''); // (Sandbox: sandbox.js)
+  $('sampleList').innerHTML = `${uiSectionHead('SAMPLES')}${list}` + (dev ? `${uiSectionHead('DEVELOPER')}${card('data-v10="s000"', '000', 'Lab Bench (Debug)', 'Spawn anything, god mode.', '#9fb3c8', 'DEBUG')}${card('data-devall="1"', '000', 'Unlock Everything', META.devAll ? 'Done: every sample, level and record is open on this save.' : 'Opens every sample, level and record on this save, plus 100,000 DNA. Tap twice. Cannot be undone.', '#ffcf5a', 'DEV')}${sbCards()}` : ''); // (Sandbox: sandbox.js)
   $('sampleList').querySelectorAll('[data-s10]').forEach(b => b.addEventListener('click', () => { if (s10Open(b.dataset.s10)) s10Modes(b.dataset.s10); }));
   $('sampleList').querySelectorAll('[data-v10]').forEach(b => b.addEventListener('click', () => { UI.sample = b.dataset.v10; META.profile = 's10_baseline'; saveMeta(); UI.startGame(true); }));
+  const ua = $('sampleList').querySelector('[data-devall]'); // (developer mode's UNLOCK EVERYTHING: debug.js devUnlockAll, two taps)
+  if (ua) ua.addEventListener('click', () => {
+    if (META.devAll) return;
+    if (!ua.dataset.arm) { ua.dataset.arm = '1'; const d = ua.querySelector('.sx-txt > span') || ua; d.textContent = 'Tap again to unlock everything.'; return; }
+    META.devAll = 1; saveMeta();
+    try { devUnlockAll(); } catch (e) { console.warn('devUnlockAll', e); saveMeta(); }
+    s10Samples();
+  });
   sbWire();
   if (typeof slPicStart === 'function') slPicStart(); // (samplelooks.js)
   UI.show('samples');
