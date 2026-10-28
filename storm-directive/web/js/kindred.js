@@ -1,6 +1,7 @@
 'use strict';
 // Spawn Prawn - kindred spirits (V11 brief, 21 Oct): rescue another sample mid-race and absorb it.
-//  - The Race only (raceOn). At KIN.at (02:00 and 05:00) a stranded sperm of another sample appears KIN.dist from you,
+//  - The timed marks are The Race only (raceOn); kinall.js also brings spirits after boss waves (Dish, Endless) and Level 1 arenas (kinOn),
+//    chooses who (weighted), builds the type-pool rescue draft and unlocks on a finished run. At KIN.at (02:00 and 05:00) a stranded sperm of another sample appears KIN.dist from you,
 //    and at every KIN.every-second mark after that (08:00, 11:00) one comes only if a weapon mount is empty; with every
 //    mount full, a Donor DNA strand (weapon modification) lies out instead, with the same beacon (kinDna).
 //    It is hard to miss (user, 21 Oct): sonar pings and a column of light where it is, a big arrow over it on screen, a
@@ -79,7 +80,7 @@ function kinSpawn() {
 
 // Every frame (wraps v10Tick).
 function kinTick(dt) {
-  if (!raceOn() || G.state !== 'play' || !G.s10) return;
+  if (!kinOn() || G.state !== 'play' || !G.s10) return; // (kinall.js: the Race, the Dish, Endless and Level 1; its wrapper switches the timed marks off outside the Race)
   kinInit();
   const K = G.kin, p = G.player;
   while (K.n < KIN.at.length && G.t >= KIN.at[K.n]) { K.n++; kinSpawn(); }
