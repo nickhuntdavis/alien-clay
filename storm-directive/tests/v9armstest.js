@@ -53,7 +53,7 @@ const { chromium } = require('playwright');
     // The rack.
     s10Samples();
     out.rack = document.querySelectorAll('#sampleList [data-s10]').length;
-    if (out.rack !== SAMPLES10.length || out.rack < 20) bad.push('rack ' + out.rack + '/' + SAMPLES10.length);
+    if (out.rack !== SAMPLES10.length || out.rack < 19) bad.push('rack ' + out.rack + '/' + SAMPLES10.length);
     if (document.querySelectorAll('canvas[data-slpic^="v9_"]').length < S9_IDS.length) bad.push('v9 body missing from the rack'); // (v9looks.js)
     // Each v9 sample.
     for (const pid of S9_IDS) {

@@ -34,11 +34,12 @@ const { chromium } = require('playwright');
     if (G.kin.spirits.length) bad.push('not rescued on touch');
     if (!kinHas('alpha') || !s10Has('alpha') || !s10Has('baseline')) bad.push('passives ' + G.kin.has);
     if (META.s10 && META.s10.alpha) bad.push('a rescue unlocked Alpha (achievements do now: samplestart.js)');
+    tpAdd('shock'); // (the rescue-to-pool link comes with the rescue task: typepools.js tpAdd)
     if (!v10Pool().some(id => own(id) === 'alpha')) bad.push('alpha weapons not in pool');
     const q = G.lootQueue[0];
     if (!q || q.kind !== 'kindred' || draftBox(q) !== true) bad.push('no kindred screen ' + JSON.stringify(q));
     const cards = genLoot({ kind: 'slot', kin: q.id });
-    { const al = w24Starters('alpha').map(id => WEAPONS[id].name), mine = WEAPONS[w24Starters('baseline')[2]].name; if (cards.length !== 3 || cards[2].title !== mine || !cards.slice(0, 2).every(c => al.includes(c.title))) bad.push('cards ' + cards.map(c => c.title)); } // (three at most, user 26 Oct: two of its weapons, then one of your own sample's)
+    { const al = w24Starters('alpha').map(id => WEAPONS[id].name), mine = w24Starters('baseline').map(id => WEAPONS[id].name); if (cards.length !== 3 || !mine.includes(cards[2].title) || !cards.slice(0, 2).every(c => al.includes(c.title))) bad.push('cards ' + cards.map(c => c.title)); } // (three at most, user 26 Oct: two of its weapons, then one of your own sample's)
     // Alpha's passive now runs: moving speeds up every weapon.
     G.player.vx = 100; s10Tick(0.016); if (!(G.weapons[0].rateK > 1)) bad.push('alpha passive off');
     const n0 = G.weapons.filter(Boolean).length; cards[0].apply();

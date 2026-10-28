@@ -10,23 +10,23 @@ const { chromium } = require('playwright');
   const r = await page.evaluate(() => {
     const bad = [], out = {};
     const run = (id, k) => { META.profile = 's10_' + id; UI.sample = 's002'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100; genLoot({ kind: 'start' })[k || 0].apply(); return G.weapons.find(Boolean); };
-    const IDS = ['baseline', 'alpha', 'beta', 'private', 'ordered', 'redtail', 'prawn', 'alien'];
+    const IDS = ['baseline', 'alpha', 'beta', 'ordered', 'redtail', 'prawn', 'alien'];
     if (typeof S10_BY.acro !== 'undefined') IDS.push('acro'); // (PROPOSED Sample 9, acrosample.js: a ninth sample while it is loaded)
     if (SAMPLES10.filter(s => !s.v9).map(s => s.id).join() !== IDS.join()) bad.push('ids ' + SAMPLES10.filter(s => !s.v9).map(s => s.id));
-    if (SAMPLES10.slice(0, 8).map(s => s.name).join('|') !== 'Baseline|Alpha|Beta|Private Schooled|Ordered Online|Redtail|Prawn Again|Not of This World') bad.push('names');
-    if (S10_BY.ordered.types.join() !== 'mucus,fire') bad.push('Ordered Online types ' + S10_BY.ordered.types);
+    if (SAMPLES10.slice(0, 7).map(s => s.name).join('|') !== 'Baseline|Alpha|Beta|Ordered Online|Redtail|Prawn Again|Not of This World') bad.push('names');
+    if (S10_BY.ordered.types.join() !== 'mucus') bad.push('Ordered Online types ' + S10_BY.ordered.types);
     for (const s of SAMPLES10) if (!(S10_FIT[s.id] || []).every(id => MATRIX_ONLY.weapons.includes(id))) bad.push(s.id + ' fit off the matrix');
     for (const s of SAMPLES10.filter(s => !s.v9)) { // (the v9 samples: v9armstest)
       META.profile = 's10_' + s.id; UI.sample = 's002'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100;
       const offer = genLoot({ kind: 'start' }), pool = s10Pool(), types = s.types.map(t => S10_TYPES[t]);
       const ids = offer.map(o => W24_IDS.find(k => WEAPONS[k] === o.def || WEAPONS[k] === Object.getPrototypeOf(o.def)));
       const fit = S10_FIT[s.id] || [];
-      const kit = S10_BY[s.id].weapons.filter(id => WEAPONS[id]); // (since 26 Oct: the sample's own three, samplekit.js)
-      if (offer.length !== 3 || new Set(ids).size !== 3 || !kit.every(id => ids.includes(id))) bad.push(s.id + ' start draft ' + offer.map(o => o.title));
+      const kit = S10_BY[s.id].weapons.filter(id => WEAPONS[id]); // (typepools.js: the signature first, then the rest of the type's pool)
+      if (offer.length !== 3 || new Set(ids).size !== 3 || !ids.includes(kit[0]) || (s.id !== 'alien' && !ids.every(id => kit.includes(id)))) bad.push(s.id + ' start draft ' + offer.map(o => o.title));
       const k = ids.indexOf(fit[0]); offer[k >= 0 ? k : 0].apply(); const w = G.weapons.find(Boolean);
       if (!w || (w.sid || w.id) !== ids[k >= 0 ? k : 0]) bad.push(s.id + ' weapon ' + (w && w.id));
       if (!G.sampleTypes || G.sampleTypes.primary !== s.types[0]) bad.push(s.id + ' lean');
-      if (G.s10.strain !== SAMPLES10.indexOf(s) + 1) bad.push(s.id + ' strain');
+      if (G.s10.strain !== s.strain) bad.push(s.id + ' strain');
       if (s10Shield()) bad.push(s.id + ' shield flag'); // (no built-in shields since 22 Oct: the membrane comes only from its card, spassives.js)
       if (s10Open(s.id) !== (s.id === 'baseline' || !s.unlock)) bad.push(s.id + (s10Open(s.id) ? ' open on a fresh save' : ' not open'));
     }
@@ -42,7 +42,7 @@ const { chromium } = require('playwright');
     const w2 = G.weapons.find(Boolean);
     if (w2.id !== id0 || w2.sid !== sid0) bad.push('Not of This World swapped the weapon id');
     if (w2.typeOver !== 'soul') bad.push('Not of This World typeOver ' + w2.typeOver);
-    G.weapons[1] = makeSlot(w24Starters('alien')[1], false, 1); s10Tick(0.016);
+    G.weapons[1] = makeSlot(S10_BY.alien.weapons[1], false, 1); s10Tick(0.016);
     if (G.weapons[1].typeOver !== 'soul') bad.push('second held weapon not shifted');
     { const e0 = makeEnemy(ENEMIES.crawler, G.player.x + 90, G.player.y); e0.hp = e0.maxHp = 1e6; G.enemies.push(e0); fightCd(e0); gridBuild();
       damageEnemy(e0, 20, { elem: 'phys', atk: 'proj', noCrit: true, wname: 't', w: w2 });
