@@ -1,3 +1,11 @@
+## 2026-10-28 Crowd frame bench
+- Systems: tests (sims), render
+- Files: tests/sim/crowdbench.js (new), render.js, ARCHITECTURE.md
+- What: crowdbench.js times frames when you swim into a packed crowd (DEFS=enemy ids, LOD=on-screen threshold, NODRAW=1 for update only). render.js counts enemies on screen and draws the plain crowd look above LOD_ON_SCREEN (999 for now: off, so nothing changes yet).
+- Save data: none.
+- Hooks: none.
+- Risk: none (threshold off).
+
 ## 2026-10-28 Run clock on the HUD (v10.210)
 - Systems: ui (HUD)
 - Files: render.js

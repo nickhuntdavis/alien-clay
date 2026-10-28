@@ -29,6 +29,7 @@ const COLOUR_CATS = {
 // Terrain's own stains (drawTerrain): let through when TERRAIN_ON.
 const TERRAIN_HEX = ['#b8604a', '#c97a62', '#8f4636', '#f3c6b8', '#6e2f24', '#7fbf2a', '#3d5a1f', '#c6f07a', '#9fd4e6', '#3a5560', '#f2b8c6', '#8a5866', '#c8b6ff', '#f4eeff', '#c9d6e6', '#5a6878'];
 const PAL_OFF = new Set();
+let LOD_ON_SCREEN = 999; // (enemies on screen above which they draw plain: drawWorld)
 let ELEM_ON = false, TERRAIN_ON = false, BG_TINT = 'earned';
 function refreshPalette() {
   PAL_OK.clear(); PAL_OFF.clear();
@@ -1676,7 +1677,8 @@ function render() {
   ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
   // Enemies. (Lower quality with a crowd: common enemies skip their halo and surface detail.)
   // (A crowd: common enemies drop their halo and surface detail, and status effects draw as a single tint.)
-  const lod = (QUAL.lv >= 1 && G.enemies.length > 60) || G.enemies.length > 80 || QUAL.lv >= 3;
+  let onScr = 0; for (const e of G.enemies) if (!e.egg && vis(e)) onScr++;
+  const lod = (QUAL.lv >= 1 && G.enemies.length > 60) || G.enemies.length > 80 || QUAL.lv >= 3 || onScr > LOD_ON_SCREEN; // (a crowd on screen: at once, not after the frame rate falls)
   STATUS_LOD = lod;
   RING_DEFER = true; // (enemy rings wait until the effects are drawn: ringtop.js)
   for (const e of G.enemies) if (vis(e) && !e.egg) { if (e.ghost) { typeGhostUnder(e); const ga = ctx.globalAlpha; ctx.globalAlpha = ga * (0.45 + 0.1 * Math.sin(G.realT * 5 + e.id)); drawEnemy(e, lod); ctx.globalAlpha = ga; } else drawEnemy(e, lod); } // (Parasite ghosts are see-through: chem.js)
