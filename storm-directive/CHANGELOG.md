@@ -3,6 +3,14 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.206 (versionCode 485): 2026-10-28 Vestigial Masses (`ccr-8a075440-cbkv62`)
+- Systems: loot (rewards), exploration, enemies (guardians)
+- Files: vestigial.js (new), render.js (one hook), index.html, ARCHITECTURE.md
+- What: hidden growths sit off the beaten track: Race up to 3 waiting (9 a run), Petri Dish and Endless up to 2 (6 a run), a new one every 110 s; Level 1 has 4 on floor cells off the shortest route. They are drawn small and dim with no pointer until you come within 620; then a banner, a glow and an edge pointer, and half of them wake 2 to 4 tougher (x2.5 health) guardians of a kind already on the slide. Touching one pops it: 30% a weapon draft (when a mount is free, in every mode, the Race included), otherwise a card screen whose stat cards roll Legendary 50%, Mythical 35% or Celestial 15%. Rewards go through the loot queue (wave mode opens them at the break).
+- Save data: none (G.vm run state; G.stats.masses).
+- Hooks: render.js drawHud -> vmPointers. Wraps v10Draw, v10Loot, draftBox, wmStatRar; hookOn tick.
+- Risk: more power for explorers (the bot does not seek them, so sims undercount it); guardians add pressure near the rim of the dish. Banners ('VESTIGIAL MASS', ': A NEW WEAPON', ': SOMETHING RARE') are Claude-drafted.
+
 ## v10.205 (versionCode 484): 2026-10-28 Ordered Online is Static and Fire, Laser always in its first draft (`ccr-8a075440-cbkv62`)
 - Systems: samples (type pools), kindred
 - Files: typepools.js (TP_TYPE may be a list; tpPool takes a list), kinall.js (rescue note names both types), tests (samplestest, kinalltest, samplestarttest)

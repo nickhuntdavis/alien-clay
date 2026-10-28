@@ -1,6 +1,7 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
+- Version v10.206 (versionCode 485): Vestigial Masses (vestigial.js): hidden growths that reveal within 620, may wake guardians, and pop into a weapon draft or a Legendary+ card screen. Autorun does not seek them. Open: tuning counts and odds after play.
 - Version v10.201 (versionCode 480): Prawn Again turns Damned at 80% of the intensity meter and back once it eases (prawndamned.js; own meter copy in wave modes and Level 1); full Damned body, red and purple shots, gold CONVERTED enemies. Open: how much of a Dish wave it spends Damned (unsimmed).
 - Version v10.200 (versionCode 479): developer mode (tap the samples title 5 times) has an Unlock Everything card (two taps; META.devAll).
 - Version v10.199 (versionCode 478): every open TODO_COPY written by Claude at the user's request (Holy/Damned, sample passives, rescues, Lifesteal, Field Guide, Motility Test race course, Delivery weapon names), awaiting the user's read-through.

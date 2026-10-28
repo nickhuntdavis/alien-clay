@@ -2542,6 +2542,7 @@ function drawHud() {
   for (const e of G.enemies) if (e.rival && !e.dead && (e.mode === 'egg' || e.mode === 'hunt')) pointer(e.x, e.y, e.color);
   if (!G.lvl && eggKnown()) { const go = G.fertile || G.eggE; pointer(c.x, c.y, go ? PAL.reward : '#ffb3d1', go ? 1.3 : 1); }
   if (typeof kinPointers === 'function') kinPointers(); // (kindred spirits: their own edge badge, kindred.js)
+  if (typeof vmPointers === 'function') vmPointers(); // (Vestigial Masses: vestigial.js)
   if (!imm) { drawEventBar(); drawMinimap(top); drawZoomGauge(); }
   ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0; ctx.shadowColor = 'rgba(0,0,0,0)';
   // Banner.
