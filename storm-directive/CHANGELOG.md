@@ -3,6 +3,14 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.203 (versionCode 482): 2026-10-28 Prawn Again keeps its damage types (`ccr-8a075440-cbkv62`)
+- Systems: samples, modifier cards (Switched at Birth)
+- Files: prawndamned.js, index.html (prawndamned.js now loads after sabtiers.js), ARCHITECTURE.md, tests/holytest.js
+- What: a Prawn Again run never deals a Switched at Birth card, and any other switch does nothing, so its weapons always keep their own damage type.
+- Save data: none.
+- Hooks: none in shared files. Wraps modDraftCands, sabCard, sabSwitch.
+- Risk: one fewer card family in Prawn Again drafts (the others fill the gap).
+
 ## v10.202 (versionCode 481): 2026-10-28 CONVERTED only when it turns (`ccr-8a075440-cbkv62`)
 - Systems: holy, chemistry
 - Files: prawndamned.js, holy.js, chem.js

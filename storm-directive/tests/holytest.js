@@ -72,6 +72,9 @@ const { chromium } = require('playwright');
       out.meterFlip = [a, b, c, d]; if (a !== 1 || b !== -1 || c !== -1 || d !== 1) bad.push('meter stance: ' + out.meterFlip);
       G.wave = { n: 1 }; G.prawnD = null; G.prawnPace = { meter: 0.81, st: 'build', stT: 0 }; pt(0.016); out.ownMeter = [prawnOwnMeter(), prawnPol()]; G.wave = null;
       if (!out.ownMeter[0] || out.ownMeter[1] !== -1) bad.push('own meter in wave mode: ' + out.ownMeter); }
+    // 6c. Type lock: a Prawn Again run deals no Switched at Birth card, and a switch does nothing
+    { const w0 = G.weapons[0], e0 = w0.def.elem; sabSwitch(w0, 'fire'); if (w0.def.elem !== e0) bad.push('Prawn Again weapon switched to ' + w0.def.elem);
+      if (sabCard()) bad.push('sabCard dealt on Prawn Again'); if (modDraftCands('level').some(c => c.fam === 'switch')) bad.push('switch offered on Prawn Again'); }
     G.s10 = null;
     // 7. The type is shown as the pair, no stray Parasite in live type tables
     if (ELEMENTS.soul.name !== 'Holy/Damned') bad.push('type name: ' + ELEMENTS.soul.name);

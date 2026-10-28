@@ -15,7 +15,9 @@
 //    Again is Damned its Possessed allies take the evil colours instead. A Damned-verdict enemy wears a dark red aura.
 // Hooks: render.js enemy draw -> holyCharmCol (tag and rim colour), holyFoeMark (label and aura); holy.js holyPolW and
 //   holyYouPol -> prawnPol, holyDrawYou skips Prawn Again. hookOn tick, kill, hurt, fire:after. Save data: none.
-// Loads after samplelooks.js, pacing.js and holy.js.
+//  - TYPE LOCK: a Prawn Again run never changes a weapon's damage type (user, 28 Oct): no Switched at Birth card is dealt
+//    (modDraftCands, sabCard) and a switch from anywhere else does nothing (sabSwitch).
+// Loads after samplelooks.js, pacing.js, holy.js and sabtiers.js (the last file to wrap sabCard and modDraftCands).
 
 const PRAWN_D = { on: 0.8, off: 0.5, floor: 0.3,
   evil: { body: '#160410', mid: '#3e0a2c', hi: '#7a1446', red: '#ff2a48', vein: '#e0203c', purple: '#9b30e0', smoke: '#3a0a4a' },
@@ -154,3 +156,9 @@ function holyFoeMark(e, x, y, r) {
   ctx.globalCompositeOperation = 'lighter'; glow(x, y, r * 1.8, damned ? E.purple : PRAWN_D.gold, 0.35); ctx.globalCompositeOperation = 'source-over';
   return true;
 }
+
+// ---------------------------------------------------------------- type lock: no Switched at Birth on a Prawn Again run
+const prawnRun = () => !!(G && G.s10 && G.s10.id === 'prawn');
+modDraftCands = (orig => function () { const out = orig.apply(this, arguments); return prawnRun() ? out.filter(c => c.fam !== 'switch') : out; })(modDraftCands);
+sabCard = (orig => function () { return prawnRun() ? null : orig.apply(this, arguments); })(sabCard);
+sabSwitch = (orig => function () { if (!prawnRun()) return orig.apply(this, arguments); })(sabSwitch);
