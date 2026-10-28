@@ -9,7 +9,7 @@ const { chromium } = require('playwright');
   const r = await page.evaluate(() => {
     const bad = [], out = {};
     const n = W24_IDS.length - (typeof V9_IDS !== 'undefined' ? V9_IDS.length : 0) - W24.filter(r => r[4] === 'acro').length; // (the 24 plus Sample 9's three, acro.js, and the v9 weapons, v9arms.js)
-    if (n !== 25 || W24_IDS.some(id => !WEAPONS[id])) bad.push('roster ' + n + ' ' + W24_IDS.filter(id => !WEAPONS[id])); // (the 24 plus the Laser, laser.js; The Runs is on hold)
+    if (n !== 29 || W24_IDS.some(id => !WEAPONS[id])) bad.push('roster ' + n + ' ' + W24_IDS.filter(id => !WEAPONS[id])); // (the 24 plus the Laser, laser.js, and the four Delivery weapons, dlvweap.js; The Runs is on hold)
     if (!W24_HOLD.includes('s_wake') || !W24_BY.v_flame_beam || !S10_BY.ordered.weapons.includes('v_flame_beam') || S10_BY.ordered.weapons.length !== 3) bad.push('Laser in / The Runs out');
     if (v10Pool().length !== W24_IDS.length - W24_HOLD.length || v10Pool().some(id => W24_HOLD.includes(id))) bad.push('pool ' + v10Pool().length); // (minus the weapons on hold)
     const def = Object.values(ENEMIES).find(d => d.ai === 'chase') || Object.values(ENEMIES)[0], rows = [];

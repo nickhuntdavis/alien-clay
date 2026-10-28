@@ -48,7 +48,7 @@ const LZ_KEEP = [0.35, 0.5, 0.65, 0.8]; // (Rank 1, 2, 3, mastery)
 const LZ_PKEEP = [0.3, 0.45, 0.6, 0.75];
 const lzPKeep = (w, both) => LZ_PKEEP[Math.max(0, Math.min(4, msR(w, 'piercing')) - 1)] * (both ? 0.6 : 1);
 const lzKeep = (w, both) => LZ_KEEP[Math.max(0, Math.min(4, msR(w, 'ricochet')) - 1)] * (both ? 0.6 : 1);
-const lzIs = w => !!(w && w.def && typeof LASER !== 'undefined' && (w.id === LASER.id || w.def.name === LASER.name));
+const lzIs = w => !!(w && w.def && typeof LASER !== 'undefined' && (w.id === LASER.id || w.def.name === LASER.name || w.def.lzKin)); // (lzKin: the Laser Sword, Laser Mines and Orbital Laser, dlvweap.js)
 const lzN = r => [0, 1, 3, 6, 12][Math.min(4, r || 0)];
 
 // The ramp: how strong the beam is on its current target (Focused Intensity: faster and higher).
