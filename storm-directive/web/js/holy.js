@@ -77,7 +77,7 @@ function holyPayoff(e, cd, src) {
   const pol = cd && cd.polSum < 0 ? -1 : 1;
   if (cd) cd.polSum = 0;
   if (pol > 0) { // HOLY: Possessed, as before
-    if (!(e.possNextT > G.t)) { e.possNextT = G.t + 12; curseFoe(e, e.boss ? 1.5 : e.elite ? 2.5 : 4); if (e.charmed) e.holyConv = true; if (holyStance() > 0) healPlayer(G.P.maxHp * HOLY.stance.heal); }
+    if (!(e.possNextT > G.t)) { e.possNextT = G.t + 12; e.holyConvNext = true; curseFoe(e, e.boss ? 1.5 : e.elite ? 2.5 : 4); e.holyConvNext = false; if (e.charmed) e.holyConv = true; if (holyStance() > 0) healPlayer(G.P.maxHp * HOLY.stance.heal); }
     return;
   }
   if (e.damnNextT > G.t) return;

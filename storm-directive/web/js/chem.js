@@ -27,7 +27,7 @@ const shove = (e, fx, fy, f) => { if (e.boss || e.rival || e.egg) return; const 
 const addSick = (n, k, dps, by) => { n.poison = 4; n.poisonStacks = Math.min(G.P.poisonCap, (n.poisonStacks || 0) + k); setPoison(n, dps, by); };
 const addBurn = (n, dps, by) => { n.burn = Math.max(n.burn || 0, 3); setBurn(n, dps, by); };
 function curseFoe(e, t) {
-  if (plainFoe(e) && !e.charmed) { e.charmed = true; e.charmT = t; e.frozen = 0; e.allyT = null; floatText(e.x, e.y - e.r - 12, 'POSSESSED', ELEMENTS.soul.color, 11, 0.7); }
+  if (plainFoe(e) && !e.charmed) { e.charmed = true; e.charmT = t; e.frozen = 0; e.allyT = null; if (e.holyConvNext) floatText(e.x, e.y - e.r - 12, 'CONVERTED', '#ffcf5a', 13, 1.1); else floatText(e.x, e.y - e.r - 12, 'POSSESSED', ELEMENTS.soul.color, 11, 0.7); } // (holyConvNext: a Holy verdict, holy.js)
 }
 const neighbours = (e, r, n) => acquireMany('nearest', r, e.x, e.y, n + 1).filter(o => o !== e && !o.dead);
 

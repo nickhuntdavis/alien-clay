@@ -140,7 +140,8 @@ const prawnFlipK = () => Math.max(0, 1 - (G.realT - ((G.prawnD && G.prawnD.flipT
 // ---------------------------------------------------------------- enemies: Converted (gold) and Damned (render.js)
 const holyConvd = e => !!(e.charmed && !e.zombie && (e.holyConv || (typeof hasType === 'function' && hasType('soul')))); // (Possessed while you hold Holy/Damned)
 const holyCharmCol = e => (!holyConvd(e) ? PAL.you : prawnDamnedNow() ? PRAWN_D.evil.red : PRAWN_D.gold);
-// The mark over an enemy; true when it drew the charmed label (render.js then skips its own ALLY label).
+// The mark over an enemy: a glow only (the word pops once, when it turns: chem.js curseFoe). True for a Converted
+// enemy, so render.js skips its ALLY countdown label.
 function holyFoeMark(e, x, y, r) {
   const E = PRAWN_D.evil;
   if (e.damnT > G.t && !e.charmed) { // a Damned verdict: a dark red aura
@@ -149,10 +150,7 @@ function holyFoeMark(e, x, y, r) {
     return false;
   }
   if (!holyConvd(e)) return false;
-  const damned = prawnDamnedNow(), c = damned ? E.red : PRAWN_D.gold;
+  const damned = prawnDamnedNow();
   ctx.globalCompositeOperation = 'lighter'; glow(x, y, r * 1.8, damned ? E.purple : PRAWN_D.gold, 0.35); ctx.globalCompositeOperation = 'source-over';
-  const t = damned ? 'ALLY ' + Math.ceil(e.charmT) : 'CONVERTED';
-  ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = damned ? PRAWN_D.evil.body : '#5a3c00'; ctx.strokeText(t, x, y - r - 12);
-  ctx.fillStyle = c; ctx.fillText(t, x, y - r - 12);
   return true;
 }

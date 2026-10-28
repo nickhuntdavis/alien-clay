@@ -3,6 +3,14 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.202 (versionCode 481): 2026-10-28 CONVERTED only when it turns (`ccr-8a075440-cbkv62`)
+- Systems: holy, chemistry
+- Files: prawndamned.js, holy.js, chem.js
+- What: the CONVERTED label no longer sits over Possessed enemies; a Holy verdict that turns an enemy pops CONVERTED once (gold, in place of POSSESSED), and the enemy keeps a gold glow (red and purple while Prawn Again is Damned). Other charms still pop POSSESSED and show their ALLY countdown.
+- Save data: none.
+- Hooks: chem.js curseFoe reads e.holyConvNext (set by holy.js holyPayoff).
+- Risk: none.
+
 ## v10.201 (versionCode 480): 2026-10-28 Prawn Again turns Damned under pressure (`ccr-8a075440-cbkv62`)
 - Systems: holy (Holy/Damned), samples, pacing, look
 - Files: prawndamned.js (new), holy.js, render.js, index.html, ARCHITECTURE.md, tests/holytest.js, tests/specpasstest.js
