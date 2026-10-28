@@ -29,7 +29,7 @@
 //      nervepanic Nervous Wreck + Panic Button: a snap ends in a pulse that throws the crowd outward (every 0.6 s).
 //      crossbeam  Red Flagship + Soulmate Signal: every twin also fires a Red Flagship beam at its nearest enemy.
 //  Names and card text in WF_TEXT (Claude-drafted, 26 Oct). Pairs 9 to 16 and the Spoon pairing: Claude-drafted at the user's request, 26 Oct. The fused weapon shows its fused name everywhere (wfName).
-// Hooks: none in shared files. hookOn tick 'wfTick'; wraps v10Loot, draftTitle, availableCombos,
+// Hooks: none in shared files. hookOn tick 'wfTick'; wraps draftBox (the 'wfuse' box), v10Loot, draftTitle, availableCombos,
 // wupForkCards, sbSlotMark (hides the absorbed weapon's HUD slot), modOk. Loads after combos10.js, fusion.js, sandbox.js, modmatrix.js and moddead.js (right after moddead.js).
 const WF = { on: !(typeof window !== 'undefined' && window.V10_OFF), tier: 3, mount: 1 };
 const WF_LIST = [
@@ -146,6 +146,13 @@ function wfTick(dt) {
   // the fused powers: wfusion2.js (all 15 rebuilt as transforming fusions, 27 Oct)
 }
 hookOn('tick', 'wfTick', dt => wfTick(dt));
+// The box gate (draft.js draftBox drops kinds it does not know, so every fusion offer was thrown away): a fusion box
+// opens while its pair is still ready, through the Reward Director like a fork (req.now).
+draftBox = (orig => function (req) {
+  if (!req || req.kind !== 'wfuse') return orig.apply(this, arguments);
+  if (!wfReady().some(r => r.f.id === req.id)) return false;
+  return typeof dirGate === 'function' ? dirGate(req) : true;
+})(draftBox);
 
 (function wfWrap() {
   // (zapbub, peekegg and lardmine wrap their weapons in wfusion2.js)

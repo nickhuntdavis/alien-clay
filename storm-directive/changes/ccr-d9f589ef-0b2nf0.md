@@ -1,3 +1,11 @@
+## 2026-10-28 Weapon fusions offered again; locked samples are silhouettes (v10.216)
+- Systems: weapons (fusion), samples (rack)
+- Files: wfusion.js, progress.js, style.css
+- What: every weapon fusion offer was dropped: draft.js draftBox refuses box kinds it does not list, and 'wfuse' was never added (since the 26 Oct merge that brought both in). wfusion.js now gates its own box (open while the pair is still ready, through the Reward Director like a fork). All 27 pairs checked in the race and the Petri Dish: offered, opened and fused (0 of 54 before). Locked samples on the rack are a silhouette with ??? for the name.
+- Save data: none.
+- Hooks: wfusion.js wraps draftBox; progress.js wraps s10Samples.
+- Risk: fusions now happen in real runs for the first time (a weapon slot opens per fusion, so builds get bigger); other dropped box kinds remain: 'myth' (Achievement DNA) and 'vesicle' (Lateral Gene Transfer).
+
 ## 2026-10-28 First-play progression, no XP drift, sperm button opens YOU (v10.215)
 - Systems: samples (unlocks), modes, xp, ui (HUD)
 - Files: progress.js (new), xpgems.js, buildbtn.js, index.html, ARCHITECTURE.md, tests/kinalltest.js
