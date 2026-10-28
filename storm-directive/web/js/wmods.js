@@ -133,7 +133,7 @@ const WM_STAT = ['dmg', 'rof', 'crit', 'critX', 'mag', 'reload', 'range', 'feat'
 // stays about 2 steps, as before).
 function wmStatRar() {
   const q = typeof UI !== 'undefined' && UI.lootReq, min = q && RAR_SKIP[q.kind] != null ? RAR_SKIP[q.kind] + (q.boost || 0) : 0;
-  return Math.min(WM.statSteps.length - 1, rollRarity(Math.min(4, min)));
+  return Math.min(WM.statSteps.length - 1, rollRarity(Math.min(4, min), true)); // (true: the rare Mythical/Immaculate roll, game.js; mythdna.js, 28 Oct)
 }
 function wmStatCard(k) {
   const D = ST_DEF[k], rar = wmStatRar(), n = WM.statSteps[rar];

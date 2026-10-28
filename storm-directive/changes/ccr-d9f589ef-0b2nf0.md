@@ -1,3 +1,11 @@
+## 2026-10-28 Mythical and Immaculate cards drop again (v10.217)
+- Systems: loot (rarity), achievements (Achievement DNA)
+- Files: mythdna.js (new), wmods.js, index.html, ARCHITECTURE.md, tests/v10test.js
+- What: under v10 nothing reached Mythical or Immaculate (modifier cards are ranked Uncommon to Epic, stat cards rolled without the special roll, so Legendary was the ceiling; Achievement DNA was dropped by the box gate). Stat cards now take the special roll (0.47% Mythical, 0.26% Immaculate a card in a 20,000 roll check, three a run) with a boon each; Achievement DNA opens and deals three stat cards, all Mythical (69%) or Immaculate (31%). v10test updated: fresh-save modes, Achievement DNA no longer dropped, 46 roster weapons (the podcast, missed in v10.209).
+- Save data: none.
+- Hooks: wmods.js wmStatRar passes special=true to rollRarity; mythdna.js wraps wmStatCard, draftBox and v10Loot.
+- Risk: dropping Achievement DNA was a deliberate v10 choice (v10test asserted it), now reversed; boons come back into play with them.
+
 ## 2026-10-28 Weapon fusions offered again; locked samples are silhouettes (v10.216)
 - Systems: weapons (fusion), samples (rack)
 - Files: wfusion.js, progress.js, style.css

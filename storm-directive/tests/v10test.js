@@ -14,17 +14,17 @@ const { chromium } = require('playwright');
   const NAMES = ['Baseline', 'Alpha', 'Beta', 'Ordered Online', 'Redtail', 'Prawn Again', 'Not of This World'];
   const nine = await page.evaluate(() => typeof S10_BY.acro !== 'undefined'), v9n = await page.evaluate(() => SAMPLES10.filter(s => s.v9).length); // (the v9 samples follow: samples9.js) // (PROPOSED Sample 9, acrosample.js, is a ninth card while it is loaded)
   const secret = await page.evaluate(() => SAMPLES10.slice(0, 7).map(s => !!(s.unlock && s.unlock.secret)));
-  if (cards.length !== (nine ? 8 : 7) + v9n || NAMES.some((n, i) => !cards[i].includes(secret[i] ? '???' : n) || /LOCKED/.test(cards[i]) !== (i > 0))) bad.push('samples screen: ' + JSON.stringify(cards)); // (the eight samples: Baseline open, the rest locked until their achievement, samplestart.js)
+  if (cards.length !== (nine ? 8 : 7) + v9n || NAMES.some((n, i) => !cards[i].includes(i > 0 ? '???' : n) || /LOCKED/.test(cards[i]) !== (i > 0))) bad.push('samples screen: ' + JSON.stringify(cards)); // (the eight samples: Baseline open, the rest locked until their achievement, samplestart.js)
   await page.click('#sampleList [data-s10="baseline"]'); await page.waitForTimeout(300);
   const modes = await page.evaluate(() => [...document.querySelectorAll('#sampleList [data-mode]')].map(b => b.dataset.mode));
-  if (modes.join() !== 's001,s002,s006,s007,s011') bad.push('experiments: ' + modes); // (design system v2: The Race, the Petri Dish, Endless, Level 1 and the race course)
+  if (modes.join() !== 's001,s002') bad.push('experiments: ' + modes); // (a fresh save: The Race and the Petri Dish; the rest open by winning, progress.js, 28 Oct)
   await page.click('#sampleList [data-mode="s001"]'); await page.waitForTimeout(600);
   const r = await page.evaluate(() => {
     const bad = [], out = {};
     out.seq = G.genes.primary; out.sample = UI.sample; out.mode = !!G.wave;
     if (out.seq !== 's10_baseline' || out.sample !== 's001' || G.wave) bad.push('run: ' + JSON.stringify(out));
     const ids = Object.keys(WEAPONS).filter(id => WEAPONS[id].v10 && !WEAPONS[id].sig && !WEAPONS[id].dlv); // (not the Delivery weapons: dlvweap.js)
-    if (ids.length !== (typeof S10_BY.acro !== 'undefined' ? 45 : 42)) bad.push('weapons: ' + ids.length); // (PROPOSED Sample 9 brings three starters: acro.js)
+    if (ids.length !== (typeof S10_BY.acro !== 'undefined' ? 46 : 43)) bad.push('weapons: ' + ids.length); // (PROPOSED Sample 9 brings three starters: acro.js; + Obligatory Podcast, podcast.js)
     const st = genLoot({ kind: 'start' });
     const stIds = st.map(o => W24_IDS.find(k => WEAPONS[k] === o.def || WEAPONS[k] === Object.getPrototypeOf(o.def)));
     if (st.length !== 3 || !stIds.includes(TP_SIG.baseline) || stIds.some(id => W24_BY[id].type !== 'phys')) bad.push('start draft is not the signature plus two Force: ' + st.map(o => o.title)); // (typepools.js)
@@ -38,7 +38,7 @@ const { chromium } = require('playwright');
     const w1 = G.weapons.find(Boolean);
     if (w1.def.v10atk !== w0.def.v10atk || w1.def.v10type === w0.def.v10type) bad.push('switch: ' + w0.id + ' -> ' + w1.id);
     if (!v10Box({ kind: 'level' }) || !v10Box({ kind: 'level' })) bad.push('wave mode: level boxes queue for the break, none dropped');
-    for (const k of ['vesicle', 'splice', 'myth']) if (v10Box({ kind: k })) bad.push('box not dropped: ' + k);
+    for (const k of ['vesicle', 'splice']) if (v10Box({ kind: k })) bad.push('box not dropped: ' + k); // (Achievement DNA opens again since 28 Oct: mythdna.js)
     const sl = genLoot({ kind: 'slot' });
     if ((raceOn() ? !sl.length || sl.length > 3 : sl.length !== 3) || sl.some(o => !o.c10 && o.def.v10atk === w1.def.v10atk) || sl.filter(o => o.c10).length > 1) bad.push('slot draft: ' + sl.map(o => o.title + (o.c10 ? ' (combo partner)' : ''))); // (one card may be a combo partner of any attack type: combos10.js; a race offers only carried samples' weapons: kindred.js)
     // Every weapon deals damage on its own.
