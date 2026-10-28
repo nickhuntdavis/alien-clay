@@ -353,7 +353,7 @@ feat({ id: 'jump_scare', name: 'Jump Scare', icon: 'JS', ico: 'ghost', type: 'so
     floatText(p.x, p.y - 36, 'BOO', w.def.color, 20, 0.8); scare();
     if (f10Fk(w, 'again')) after(1, () => { if (G && G.state === 'play') scare(); });
   },
-  forks: { 3: [fk('look', 'Made You Look', 'Fleeing enemies also build Parasite.'), fk('again', 'Again!', 'A second BOO a second later.')],
+  forks: { 3: [fk('look', 'Made You Look', 'Fleeing enemies also build Holy/Damned.'), fk('again', 'Again!', 'A second BOO a second later.')],
     5: [fk('louder', 'Louder', 'A 30% wider shriek.'), fk('contagious', 'Contagious', 'Enemies flee for three seconds.')] } });
 
 feat({ id: 'kiss_it_better', name: 'Kiss It Better', icon: 'KB', ico: 'heart', trig: 1, ev: 1, start: 1, rar: 0,
@@ -699,7 +699,7 @@ feat({ id: 'second_wind', sample: 'beta', name: 'Second Wind', icon: 'SW', ico: 
     5: [fk('again', 'Catching Up', 'A much shorter cooldown.'), fk('plenty', 'Plenty More', 'It drains from two more enemies.')] } });
 
 feat({ id: 'pulling_strings', sample: 'private', name: 'Pulling Strings', icon: 'PS', ico: 'link', type: 'acid', atk: 'burst', rar: 0, stam: 20,
-  line: `"That one. The one in the good suit. Make it a problem."`, does: 'You mark the toughest enemy nearby. It melts fast while the enemies around it fill with Parasite, until its own entourage turns on it.',
+  line: `"That one. The one in the good suit. Make it a problem."`, does: 'You mark the toughest enemy nearby. It melts fast while the enemies around it fill with Holy/Damned, until its own entourage turns on it.',
   base: { dmg: 6, cd: 12, dur: 4, range: 380 },
   stat: (w, s) => { if (f10Fk(w, 'leash')) s.range *= 1.4; if (f10Fk(w, 'short')) s.cd *= 0.7; },
   when: w => { const p = me(); return f10Near(p.x, p.y, w.s.range).length ? {} : null; },
@@ -712,7 +712,7 @@ feat({ id: 'pulling_strings', sample: 'private', name: 'Pulling Strings', icon: 
       ring(e.x, e.y, e.r + 14, w.def.color, 0.5, 4); f10Hit(w, e, s.dmg, 'burst'); floatText(e.x, e.y - e.r - 14, 'That one.', w.def.color, 12, 0.9);
     }
   },
-  forks: { 3: [fk('entourage', 'Big Entourage', 'The Parasite spreads to enemies much further from the mark.'), fk('leash', 'Long Leash', 'A 40% longer reach for choosing the mark.')],
+  forks: { 3: [fk('entourage', 'Big Entourage', 'The Holy/Damned spreads to enemies much further from the mark.'), fk('leash', 'Long Leash', 'A 40% longer reach for choosing the mark.')],
     5: [fk('two', 'Two Marks', 'Mark the two toughest enemies.'), fk('short', 'Shorter Leash', 'A much shorter cooldown.')] } });
 
 feat({ id: 'shrink_wrap', sample: 'ordered', name: 'Shrink Wrap', icon: 'SH', ico: 'web', type: 'mucus', atk: 'burst', rar: 0, stam: 22,

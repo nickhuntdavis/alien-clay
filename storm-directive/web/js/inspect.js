@@ -57,7 +57,7 @@ function inspectFxList(e) {
   if (typeof charged === 'function' && charged(e)) L.push(['Charged', '#c9a400', sec(e.chargeT - now)]);
   if (e.corrodedT > now) L.push(['Corrosion', FIGHT_COL.corroded, sec(e.corrodedT - now), 'Corroded']);
   if (e.dazeT > now) L.push(['Stunned', '#8a94a6', sec(e.dazeT - now)]);
-  if (e.charmed) L.push(['Parasite bar', '#b06cff', '', 'Possessed']);
+  if (e.charmed) L.push(['Holy/Damned bar', '#ffcf5a', '', 'Possessed']);
   if (e.conjT > now && e.conjWith && !e.conjWith.dead) L.push(['Conjoined', FIGHT_COL.snared, sec(e.conjT - now)]);
   // the older statuses a few weapons and Feats still leave (chem.js)
   if (e.poison > 0 && e.poisonStacks > 0) L.push(['Sick', ELEMENTS.poison.color, `×${e.poisonStacks} · ${Math.round((e.poisonDps || 0) * e.poisonStacks)}/s · ${sec(e.poison)}${by(e.poisonBy)}`]);
@@ -67,7 +67,7 @@ function inspectFxList(e) {
   if (e.due && e.due.end > now && WEAPONS.s_duedate) L.push([WEAPONS.s_duedate.name, '#c9184a', sec(e.due.end - now)]);
   if (e.tape && WEAPONS.s_redtape) L.push([WEAPONS.s_redtape.name, ELEMENTS.ice.color, '']);
   // build-up bars, while they fill
-  if (c && c.bars) for (const [k, n, cc] of [['acid', 'Corrosion', FIGHT_COL.corroded], ['force', 'Poise', '#8a94a6'], ['fire', 'Burn bar', '#ff6a2a'], ['soul', 'Parasite bar', '#b06cff']]) {
+  if (c && c.bars) for (const [k, n, cc] of [['acid', 'Corrosion', FIGHT_COL.corroded], ['force', 'Poise', '#8a94a6'], ['fire', 'Burn bar', '#ff6a2a'], ['soul', 'Holy/Damned bar', typeof holyBarCol === 'function' ? holyBarCol(c) : '#ffcf5a']]) {
     const v = c.bars[k]; if (v > 0.02) L.push([n, cc, Math.round(Math.min(1, v) * 100) + '%']);
   }
   return L.map(([n, cc, d, label]) => ({ gl: glOr(n, null), label: label || n, colour: cc, detail: d }));

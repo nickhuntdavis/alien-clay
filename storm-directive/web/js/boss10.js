@@ -7,7 +7,7 @@
 // pdefTypes read B.v10def / B.v10dmg; bosses.js summon cap -> boss10SummonOk.
 
 const BOSS10_TEXT = {
-  squishy: ['Squishy: blunt Force hits lose a third and barely push it', 'Acid, Static, Fire, Blood and Parasite land in full'],
+  squishy: ['Squishy: blunt Force hits lose a third and barely push it', 'Acid, Static, Fire, Blood and Holy/Damned land in full'],
   membrane: ['Membrane: a blue pool that soaks hits first and refills if you let it rest', 'Keep up the pressure: it only refills after 2 s untouched. Force is poor into it'],
   shell: ['Shell: layers that take 3 off every hit', 'Acid strips layers for good; a heavy Force hit knocks one loose'],
   thorns: ['Thorns: touching it hurts you back', 'Ranged attacks never trigger it'],

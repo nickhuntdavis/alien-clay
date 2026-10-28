@@ -72,7 +72,7 @@ const ELEM_HEX = {
   oxi: ['#d99a2b', '#f2c879', '#8a5a14'], // Oil: amber
   salt: ['#3d8bff', '#9cc3ff', '#cfe2ff'], // Water: deep blue
   arcane: ['#c9184a', '#800f2f', '#6a0d25', '#f25c78', '#ff758f', '#a4133c', '#c77dff', '#7b2cbf', '#7209b7', '#d0a3ff', '#e0aaff', '#9d4edd', '#b8c0ff'], // (blood reds, and the old purples other things still use)
-  soul: ['#bff4ff', '#e8fbff', '#8fdcff'], // Parasite: ghostly pale blue
+  soul: ['#ffcf5a', '#fff6d6', '#c99a2e'], // Holy/Damned: gold (Damned shots recolour themselves: holy.js)
 };
 const STATIC_HEX = { '#9ef0ff': '#9fb0ff' }; // (a pale blue the dodge text and stamina ring use: always coloured)
 const ELEM_OF = new Map();
@@ -1749,6 +1749,7 @@ function render() {
   ctx.globalAlpha = 1;
   rebornDrawOOB(); // (Out of Body: your empty body)
   drawShip(px, py, p.hd != null ? p.hd : p.face, p.flash > 0 ? '#ff4d6d' : PAL.you, (G.oob ? 0.5 : p.iframes > 0 && Math.floor(G.realT * 20) % 2 ? 0.4 : 1) * (G.peek && G.peek.t > G.t ? 0.2 : 1) * finaleYouAlpha() * nfYouAlpha(), playerScale(), p, shipLook()); // (a dry husk instead: newfeats.js)
+  if (typeof holyDrawYou === 'function') holyDrawYou(px, py); // (halo or horns: holy.js)
   drawSeqMods(px, py, p.hd != null ? p.hd : p.face, (G.peek && G.peek.t > G.t ? 0.2 : 1) * finaleYouAlpha(), playerScale(), p, shipLook());
   drawSizzle(px, py); // touching acid (terrain.js)
   playerRing(px, py); // only with the GFP Tag, and only when you're hurt

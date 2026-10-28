@@ -29,7 +29,7 @@ const RW_MOD_ICO = { homing: 'seeker', piercing: 'nail', chaining: 'link', ricoc
   scaling: 'hourglass', multiplying: 'twins', summoned: 'drone', gravity: 'singularity', lunge: 'comet' };
 const RW_DEF_ICO = { latex: 'pill', thick: 'bubble', fast: 'clock', shell: 'shield', squishy: 'bubble', evasion: 'footprints', thorns: 'spike' };
 const RW_TYPE_ICO = { force: 'hammer', mucus: 'droplet', static: 'bolt', blood: 'syringe', soul: 'ghost', acid: 'flask', fire: 'flame', any: 'spray' };
-const RW_TYPE_NAME = { force: 'Force', mucus: 'Mucus', static: 'Static', blood: 'Blood', soul: 'Parasite', acid: 'Acid', fire: 'Fire' };
+const RW_TYPE_NAME = { force: 'Force', mucus: 'Mucus', static: 'Static', blood: 'Blood', soul: 'Holy/Damned', acid: 'Acid', fire: 'Fire' };
 
 const rwCard = o => (o && o.card && typeof CARDS !== 'undefined' ? CARDS.find(c => c.id === o.card) : null);
 const rwFeat = o => { const m = o && o.card && /^feat_(.+?)(_up)?$/.exec(o.card); return m && typeof F10 !== 'undefined' ? F10[m[1]] : null; };

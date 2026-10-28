@@ -341,6 +341,7 @@ Settled one by one after a cross-doc review (27 to 32 added later on 17 Oct). Ev
 | 66 | Collisions (25 Oct) | Any body moving faster than its base speed deals Force collision damage (40% of the launching hit at 2x, 100% at 4x) to both bodies on impact and trips ground objects; never echo, never leaves the struck body faster than the striker. Why: pull and push compose, and six masteries become one ramp (15.3) |
 | 67 | Objects hold hits (25 Oct) | A ground object hit by your attacks stores one hit and its status, then delivers its own attack plus the stored hit when it triggers; objects relay and never source (decision 46 holds). Why: any mine-layer can relay any damage type (15.4) |
 | 68 | Reach and proximity (25 Oct) | Range scales reach on every attack type and never damage; Up Close scales damage by the target's distance from you on every attack type; both stay Tempo, so a weapon takes one. Why: a puller can overinvest in Range and a hitter in Up Close (15.5) |
+| 69 | Holy/Damned replaces Parasite (28 Oct) | One type, two faces, internal id still `soul`. Every soul hit carries a polarity (Holy +1, Damned -1); the soul bar keeps a signed total and its payoff is the verdict: Holy = Possessed as before, Damned = +30% damage taken for 4 s (bosses +15%, 1.5 s) and 0.35 of Damned bar to mates within 90 units on death. Reactions on "a Possessed enemy" fire on either verdict. Polarity per source (`HOLY_P`), mixed sources flip on a shared 30 s clock (Prawn Again's whole kit is mixed, and the clock is its stance: Holy heals on Possession, Damned deals and takes 10% more and refunds stamina on Damned deaths), two bias cards move the chance 0.25 a rank. Shown as the pair "Holy/Damned" wherever a type is named (`DAMAGE_TYPES.md`, `holy.js`) |
 
 ## 11. Formulas and starting values (17 Oct 2026)
 
@@ -356,7 +357,7 @@ Starting points for the first build, chosen against today's code (player 120 hea
 6. **Crit** multiplies what is left (5% chance, ×1.6 today). Crits do not fill bars or make a hit heavy.
 7. Health takes the result; then status bars fill, Thorns retaliates, reactions check their triggers.
 
-### 11.2 Build-up bars (Corrosion, Burn, Parasite, Poise)
+### 11.2 Build-up bars (Corrosion, Burn, Holy/Damned, Poise)
 
 - `fill += raw damage of that type ÷ (bar size × target max health)`. A bar is full at 1.
 - **Bar sizes:** Corrosion 0.25 (per Shell layer), Burn 0.4, Poise 0.3, Parasite 0.6. Elites ×1.5, bosses ×3.

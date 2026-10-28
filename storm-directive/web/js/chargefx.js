@@ -11,7 +11,7 @@
 // (charge lane), newfoes.js (Matchstick, Static Sock), foes3.js (sneeze) each call drawChargeFx; modDraw is wrapped
 // here to draw the Charged modifier's wind-up (modwide.js: the last `wind` seconds of the cooldown) and the snaps.
 
-const CFX_LIGHT = { phys: '#ffffff', fire: '#ffc2e6', ice: '#d4f5bd', shock: '#ffffff', poison: '#ffd0e4', oxi: '#fff0b8', salt: '#cfe4ff', arcane: '#ff8fa8', soul: '#e6d4ff', flame: '#fff3b0' };
+const CFX_LIGHT = { phys: '#ffffff', fire: '#ffc2e6', ice: '#d4f5bd', shock: '#ffffff', poison: '#ffd0e4', oxi: '#fff0b8', salt: '#cfe4ff', arcane: '#ff8fa8', soul: '#fff6d6', flame: '#fff3b0' };
 const CFX_MAIN = { flame: '#ff6a2a' };
 const cfxMain = el => CFX_MAIN[el] || (ELEMENTS[el] && ELEMENTS[el].color) || '#e8eef8';
 const cfxN = (a, b, k) => Math.max(1, Math.round((a + (b - a) * k) * (QUAL.lv >= 2 ? 0.6 : 1) * (typeof FX !== 'undefined' ? 0.5 + 0.5 * FX.k : 1)));

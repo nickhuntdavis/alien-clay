@@ -18,7 +18,9 @@
 const TL_MAXP = 280, TL_MAXA = 40;
 const TL_FIRE = ['#802000', '#ff4d00', '#ffb000', '#fff3b0']; // (cool to hot; none of these is an ELEM_SWAP key)
 const TL_GOO = '#ff2fa8', TL_GOO2 = '#ffc2e6', TL_SNOT = '#7fd04a', TL_SNOT2 = '#d4f5bd', TL_BLOOD = '#c9184a', TL_BLOOD2 = '#5a0418';
-const TL_SOUL = '#b06cff', TL_SOUL2 = '#e6d4ff', TL_ZAP = '#ffe94a';
+const TL_SOUL = '#ffcf5a', TL_SOUL2 = '#fff6d6', TL_ZAP = '#ffe94a';
+const tlPolOf = o => (!o ? 1 : o.pol != null ? o.pol : o.src && o.src.pol != null ? o.src.pol : o.w && typeof holyPolW === 'function' ? holyPolW(o.w) : 1);
+const tlSoulC = o => (tlPolOf(o) < 0 ? HOLY.damned.glow : TL_SOUL), tlSoulC2 = o => (tlPolOf(o) < 0 ? HOLY.damned.col : TL_SOUL2); // (Holy or Damned: holy.js)
 const TL_OF = {}; // a type colour -> its type (rings, swings and lashes carry only a colour)
 for (const t in TYPE_PAL) if (t !== 'phys') TL_OF[TYPE_PAL[t].toLowerCase()] = t;
 const tlS = () => G.tlook || (G.tlook = { p: [], a: [] });
@@ -39,6 +41,7 @@ const tlOn = (x, y, m) => Math.abs(x - cam.x) * S < W / 2 + m && Math.abs(y - ca
 function tlPart(k, x, y, vx, vy, life, s, extra) {
   const T = tlS(); if (T.p.length >= TL_MAXP) return null;
   const q = { k, x, y, vx, vy, life, max: life, s, seed: Math.random() * 10 };
+  if (k === 'wisp' && typeof HOLY_HIT !== 'undefined') q.pol = HOLY_HIT; // (the hit being resolved: holy.js)
   if (extra) Object.assign(q, extra);
   T.p.push(q); return q;
 }
@@ -267,12 +270,12 @@ function tlBeam(f) {
   } else if (t === 'soul') { // a twisting ghost ribbon: two pale strands winding round each other, fading in and out
     ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round';
     const N = 36, turns = Math.max(2, L / (60 * S));
-    for (let s = 0; s < 2; s++) for (const [lw, c, al] of [[w * 0.9, TL_SOUL, 0.22], [Math.max(1, w * 0.22), TL_SOUL2, 0.75]]) {
+    for (let s = 0; s < 2; s++) for (const [lw, c, al] of [[w * 0.9, tlSoulC(f), 0.22], [Math.max(1, w * 0.22), tlSoulC2(f), 0.75]]) {
       ctx.strokeStyle = c; ctx.lineWidth = lw; ctx.beginPath();
       for (let i = 0; i <= N; i++) { const q = i / N, ph = q * turns * TAU - tm * 5 + s * Math.PI, amp = w * 0.9 * Math.sin(q * Math.PI) + w * 0.15, X = x1 + ux * L * q + nx * Math.sin(ph) * amp, Y = y1 + uy * L * q + ny * Math.sin(ph) * amp; i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }
       ctx.globalAlpha = al * k * (0.7 + 0.3 * Math.sin(tm * 9 + s * 2)); ctx.stroke();
     }
-    for (let i = 0; i < 4; i++) { const q = (tm * 0.8 + i / 4) % 1; glow(x1 + ux * L * q + nx * Math.sin(tm * 3 + i) * w, y1 + uy * L * q + ny * Math.sin(tm * 3 + i) * w, w * 1.2, TL_SOUL, 0.35 * k * Math.sin(q * Math.PI)); }
+    for (let i = 0; i < 4; i++) { const q = (tm * 0.8 + i / 4) % 1; glow(x1 + ux * L * q + nx * Math.sin(tm * 3 + i) * w, y1 + uy * L * q + ny * Math.sin(tm * 3 + i) * w, w * 1.2, tlSoulC(f), 0.35 * k * Math.sin(q * Math.PI)); }
   } else if (t === 'flame') { // a flamethrower plume: a cone of billowing fire, hot at the nozzle, smoke at the tip
     const N = 18;
     for (let i = 0; i < N; i++) {
@@ -323,7 +326,7 @@ function tlShots() {
       ctx.globalAlpha = 0.6; ctx.fillStyle = TL_SNOT2; ctx.beginPath(); ctx.arc(tx - r * 0.2, ty - r * 0.2, r * 0.18, 0, TAU); ctx.fill();
     } else if (t === 'soul') { // after-images, drifting off the line as they lag
       ctx.globalCompositeOperation = 'lighter';
-      for (let i = 1; i <= 3; i++) { const lag = i * r * 1.6, wob = Math.sin(tm * 8 + i * 1.7 + pr.x * 0.02) * r * 0.6 * i; glow(x - ux * lag - uy * wob, y - uy * lag + ux * wob, r * (1.6 - i * 0.2), TL_SOUL, 0.35 / i); }
+      for (let i = 1; i <= 3; i++) { const lag = i * r * 1.6, wob = Math.sin(tm * 8 + i * 1.7 + pr.x * 0.02) * r * 0.6 * i; glow(x - ux * lag - uy * wob, y - uy * lag + ux * wob, r * (1.6 - i * 0.2), tlSoulC(pr), 0.35 / i); }
     } else if (t === 'flame') { // tongues licking back off it
       ctx.globalCompositeOperation = 'source-over';
       for (let i = 0; i < 3; i++) { const lag = r * (1 + i * 1.2), j = Math.sin(tm * 25 + i * 2 + pr.y * 0.03) * r * 0.5; glow(x - ux * lag - uy * j, y - uy * lag + ux * j - i * r * 0.3, r * (1.8 - i * 0.3), tlFireCol(0.9 - i / 3), 0.75); }
@@ -381,7 +384,7 @@ function tlDraw() {
     if (!tlOn(q.x, q.y, 60)) continue;
     const k = Math.max(0, q.life / q.max), x = sx(q.x), y = sy(q.y), s = q.s * S;
     switch (q.k) {
-      case 'wisp': glow(x, y, s * (1.2 + (1 - k) * 1.2), TL_SOUL, 0.45 * Math.sin(k * Math.PI)); glow(x, y, s * 0.5, TL_SOUL2, 0.35 * k); break;
+      case 'wisp': glow(x, y, s * (1.2 + (1 - k) * 1.2), tlSoulC(q), 0.45 * Math.sin(k * Math.PI)); glow(x, y, s * 0.5, tlSoulC2(q), 0.35 * k); break;
       case 'tongue': ctx.save(); ctx.translate(x, y); ctx.scale(0.65, 1.4); glow(0, 0, s * (0.6 + 0.7 * k), tlFireCol(k * 0.9 + 0.05), Math.min(1, 1.3 * k)); ctx.restore(); break;
       case 'ember': ctx.globalAlpha = k; ctx.fillStyle = '#ff4d00'; ctx.beginPath(); ctx.arc(x, y, s * 0.9, 0, TAU); ctx.fill(); glow(x, y, s * 2.4, '#ffb000', 0.8 * k); break;
       case 'spark': ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = k; ctx.strokeStyle = TL_ZAP; ctx.lineWidth = Math.max(1, s); ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - q.vx * 0.03 * S, y - q.vy * 0.03 * S); ctx.stroke(); ctx.globalCompositeOperation = 'source-over'; break;

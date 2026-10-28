@@ -5,7 +5,7 @@
 //    strip / corrode / stagger / possess / ignite; Thorns hurts you back on Contact hits.
 //  - New statuses for the slice types (matrix 11.5): Acid builds Corrosion only (no damage over time),
 //    Mucus Snares (55% slow, 2.5 s, puts out Burning), Static Charges (3 s, +20% Static, arcs 3 x 110 at 70%).
-//  - Blood Bleeds (30% over 3 s, 3 at most), Extraction and blood pools on bleeding deaths; Parasite fills the Possess bar;
+//  - Blood Bleeds (30% over 3 s, 3 at most), Extraction and blood pools on bleeding deaths; Holy/Damned fills the soul bar (holy.js: Possessed or Damned);
 //    Fire adds to one shared burn (decision 36); Conjoined when two Snared enemies touch.
 //  - Twenty reactions (matrix section 1, decision 33). Shocking Impact waits for a dual-type weapon.
 //  - Run stats for tuning (G.fst): reactions, damage share, misses, Membrane soaked, layers shed, Thorns, staggers.
@@ -24,7 +24,7 @@ const FIGHT_RX = {
   oob: { name: 'Out-of-Body Experience', color: '#b06cff' },
   flashover: { name: 'Flashover', color: '#ff6a2a' },
   breach: { name: 'Caustic Breach', color: '#ff2fa8' },
-  erosion: { name: 'Parasite Erosion', color: '#ff2fa8' },
+  erosion: { name: 'Holy/Damned Erosion', color: '#ff2fa8' },
   evap: { name: 'Premature Evaporation', color: '#ff6a2a' },
   circuit: { name: 'Blood Circuit', color: '#ffe94a' },
   interference: { name: 'Interference Pattern', color: '#b06cff' },
@@ -67,7 +67,7 @@ const snared = e => e.snareT > G.t;
 const charged = e => e.chargeT > G.t;
 const f_burning = e => !!(e.cd && e.cd.burnT > 0);
 const f_bleeding = e => !!(e.bleeds && e.bleeds.length);
-const f_possessed = e => !!(e.charmed && !e.zombie);
+const f_possessed = e => !!(e.charmed && !e.zombie) || (typeof holyDamned === 'function' && holyDamned(e)); // (either verdict: holy.js)
 
 // ---------------------------------------------------------------- one hit (game.js damageEnemy)
 // Returns the damage that reaches health, or -1 for a miss. Damage-over-time ticks skip defences.
@@ -82,6 +82,7 @@ function fightHit(e, d, src, crit) {
   const atk = src.zoneHit ? 'pool' : IN_AOE ? 'burst' : src.atk || (src.w && src.w.def && src.w.def.v10atk) || 'proj';
   COMBAT.critMult = G.P.critDmg || 1.6;
   cd.hp = e.hp;
+  if (t === 'soul' && typeof holyPol === 'function') HOLY_HIT = holyPol(src); // (the hit's polarity: holy.js)
   const res = resolveHit(cd, { atk, comps: [{ type: t, amt: d }], crit, echo: !!src.echo, barK: mutBarK(e) }, Math.random);
   if (res.miss) {
     S.miss++;
@@ -106,7 +107,7 @@ function fightPayoff(e, p, res, src) {
   const S = fst();
   if (p === 'corrode') { S.corrode++; e.corrodedT = G.t + COMBAT.corrodedT; floatText(e.x, e.y - e.r - 10, 'CORRODED', FIGHT_COL.corroded, 11, 0.6); }
   else if (p === 'stagger') { S.stagger++; stun(e, e.boss ? 0.35 / 0.3 : e.elite ? 0.55 : 0.8); ring(e.x, e.y, e.r + 4, '#ffffff', 0.3, 4); }
-  else if (p === 'possess') { S.possess++; if (!(e.possNextT > G.t)) { e.possNextT = G.t + 12; curseFoe(e, e.boss ? 1.5 : e.elite ? 2.5 : 4); } }
+  else if (p === 'possess') { S.possess++; if (typeof holyPayoff === 'function') holyPayoff(e, e.cd, src); else if (!(e.possNextT > G.t)) { e.possNextT = G.t + 12; curseFoe(e, e.boss ? 1.5 : e.elite ? 2.5 : 4); } } // (Holy: Possessed; Damned: holy.js)
   else if (p === 'ignite') { S.ignite++; after(0, () => { if (!e.dead) { damageEnemy(e, res.raw * 1.5, { elem: 'flame', echo: true, noStatus: true, noCrit: true, atk: 'burst', wname: 'Ignition' }); ring(e.x, e.y, e.r + 10, '#ff6a2a', 0.4, 5); } }); }
   // ('strip' is done inside the resolver: the layer is already gone.)
 }
@@ -129,7 +130,7 @@ function fightStatus(e, elem, dmg, src) {
     b.push({ dps: dmg * 0.3 / 3, t: 3, by: dotName(src) });
     return true;
   }
-  if (t === 'soul') return true; // the Parasite bar Possesses (combat.js); nothing else on a hit
+  if (t === 'soul') return true; // the soul bar Possesses or Damns (combat.js, holy.js); nothing else on a hit
   if (t === 'fire') { burnAdd(fightCd(e), dmg); e.burnBy = dotName(src); return true; } // one shared burn (decision 36)
   return false;
 }
@@ -248,7 +249,7 @@ function fightReact2(e, t, raw, src, res) {
     }
   }
   // Static + Parasite: a Static hit on a Possessed enemy makes it last 2 s longer (once per Possession). No damage.
-  if (t === 'static' && f_possessed(e) && !e.interfered && !fightOnceDone()) { e.interfered = true; e.charmT += 2; rxFired('interference', e); }
+  if (t === 'static' && f_possessed(e) && !e.interfered && !fightOnceDone()) { e.interfered = true; if (e.charmed) e.charmT += 2; else e.damnT += 2; rxFired('interference', e); }
   // Static + Fire: a Static hit on a burning target arcs once to the nearest other enemy (60%).
   if (t === 'static' && f_burning(e) && !rxLocked(e, 'arcflash')) {
     const n = fightNearest(e, 140);
@@ -322,7 +323,7 @@ function fightTick(dt) {
     if (e.oobT > G.t) { // Out-of-Body Experience: the first mate it collides with takes the hit
       for (const o of G.enemies) if (o !== e && !o.dead && Math.hypot(o.x - e.x, o.y - e.y) < o.r + e.r) { e.oobT = 0; damageEnemy(o, e.oobDmg, rxSrc('oob', 'soul')); ring(o.x, o.y, o.r + 6, FIGHT_RX.oob.color, 0.3, 4); break; }
     }
-    if (!e.charmed && (e.erodeOnEnd || e.interfered || e.donated)) { // a Possession has ended
+    if (!f_possessed(e) && (e.erodeOnEnd || e.interfered || e.donated)) { // a Possession (or Damned) has ended
       if (e.erodeOnEnd) { const raw = e.erodeOnEnd; ring(e.x, e.y, 80, FIGHT_COL.corroded, 0.35, 3); forNear(e.x, e.y, 80, o => { if (o === e || o.dead) return; const c = fightCd(o); c.bars.acid = Math.min(0.99, c.bars.acid + 0.5); damageEnemy(o, raw * 0.6, rxSrc('erosion', 'fire')); }); }
       e.erodeOnEnd = 0; e.interfered = false; e.donated = false;
     }
@@ -389,11 +390,12 @@ function fightDraw() {
     if (charged(e)) { ctx.strokeStyle = col(FIGHT_COL.charged); ctx.globalAlpha = 0.9; ctx.lineWidth = 1.4; ctx.beginPath();
       for (let i = 0; i < 2; i++) { const a = rand(0, TAU); ctx.moveTo(x + Math.cos(a) * r, y + Math.sin(a) * r); ctx.lineTo(x + Math.cos(a + 0.3) * (r + 5 * S), y + Math.sin(a + 0.3) * (r + 5 * S)); } ctx.stroke(); }
     if (f_bleeding(e)) { ctx.fillStyle = col('#c9184a'); ctx.globalAlpha = 0.9; for (let i = 0; i < e.bleeds.length; i++) { const yy = y + r * 0.6 + ((now * 30 + i * 9) % 10) * S; ctx.beginPath(); ctx.arc(x + (i - 1) * r * 0.4, yy, 1.8 * S, 0, TAU); ctx.fill(); } }
+    if (typeof holyDamned === 'function' && holyDamned(e)) { ctx.fillStyle = HOLY.damned.glow; ctx.globalAlpha = 0.5 + 0.3 * Math.sin(now * 9 + e.id); for (const s of [-1, 1]) { ctx.beginPath(); ctx.moveTo(x + s * r * 0.45, y - r * 0.6); ctx.lineTo(x + s * r * 0.75, y - r * 1.25); ctx.lineTo(x + s * r * 0.2, y - r * 0.75); ctx.closePath(); ctx.fill(); } ctx.fillStyle = HOLY.damned.col; ctx.globalAlpha = 0.35; ctx.beginPath(); ctx.arc(x, y, r * 1.05, 0, TAU); ctx.fill(); }
     if (f_burning(e)) { ctx.fillStyle = col('#ff6a2a'); ctx.globalAlpha = 0.55 + 0.3 * Math.sin(now * 20 + e.id); for (let i = 0; i < 3; i++) { const a = -Math.PI / 2 + (i - 1) * 0.6; ctx.beginPath(); ctx.ellipse(x + Math.cos(a) * r * 0.8, y + Math.sin(a) * r * 0.8 - 2 * S, 2.5 * S, (5 + 2 * Math.sin(now * 15 + i)) * S, a + Math.PI / 2, 0, TAU); ctx.fill(); } }
     if (e.conjT > now && e.conjWith && !e.conjWith.dead && e.id < e.conjWith.id) { const o = e.conjWith; ctx.strokeStyle = col(FIGHT_COL.snared); ctx.globalAlpha = 0.6; ctx.lineWidth = Math.min(e.r, o.r) * S; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(sx(o.x), sy(o.y)); ctx.stroke(); }
     if (c) { // build-up bars: short arcs under the body, one per type that is filling
       let i = 0;
-      for (const [k, cc] of [['acid', FIGHT_COL.corroded], ['force', '#ffffff'], ['fire', '#ff6a2a'], ['soul', '#b06cff']]) {
+      for (const [k, cc] of [['acid', FIGHT_COL.corroded], ['force', '#ffffff'], ['fire', '#ff6a2a'], ['soul', typeof holyBarCol === 'function' ? holyBarCol(c) : '#b06cff']]) {
         const v = c.bars[k]; if (!(v > 0.02)) continue;
         ctx.strokeStyle = col(cc); ctx.globalAlpha = 0.9; ctx.lineWidth = 2.5;
         const rr = r + (9 + i * 4) * S; ctx.beginPath(); ctx.arc(x, y, rr, Math.PI * 0.75, Math.PI * 0.75 + Math.PI * 0.5 * Math.min(1, v)); ctx.stroke(); i++;
@@ -432,7 +434,7 @@ const RX10 = {
   'ice+flame': ['flammable', 'A Fire hit on a Mucus patch flares it: everything standing in it ignites (150%), then it is gone.'],
   'arcane+soul': ['donor', 'A Blood hit on a Possessed enemy heals you a little. Once per Possession.'],
   'arcane+flame': ['cauterise', 'A Fire hit on a bleeding target consumes the Bleed in one burst (150% plus the Bleed left).'],
-  'soul+flame': ['spectral', 'The Parasite Beam + Burning Ground Pairing (both Lv 5+) on a burning, Possessed enemy: it ignites and the Possession ends.'],
+  'soul+flame': ['spectral', 'The Holy/Damned Beam + Burning Ground Pairing (both Lv 5+) on a burning, Possessed enemy: it ignites and the Possession ends.'],
 };
 const rx10Pair = (a, b) => RX10[a + '+' + b] || RX10[b + '+' + a] || null;
 const rx10Seen = id => !!(META.rxSeen && META.rxSeen.includes(id));
