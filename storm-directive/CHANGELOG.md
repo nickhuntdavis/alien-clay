@@ -3,6 +3,14 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.207 (versionCode 486): 2026-10-28 Collision crash with timer enemies (`ccr-d9f589ef-0b2nf0`)
+- Systems: combat (collisions), enemies
+- Files: collide.js
+- What: collide.js kept its per-pair collision memory in `e.cdT`, which newfoes.js already uses as a number cooldown, so a knocked enemy hitting one of those threw "e.cdT.get is not a function" (seen in a v10.206 run log). The Map now lives in `e.cdPr`.
+- Save data: none.
+- Hooks: none.
+- Risk: none.
+
 ## v10.206 (versionCode 485): 2026-10-28 Vestigial Masses (`ccr-8a075440-cbkv62`)
 - Systems: loot (rewards), exploration, enemies (guardians)
 - Files: vestigial.js (new), render.js (one hook), index.html, ARCHITECTURE.md

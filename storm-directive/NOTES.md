@@ -1,6 +1,7 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
+- Version v10.207 (versionCode 486): merge of `ccr-d9f589ef-0b2nf0`: collision crash fixed (collide.js pair memory moved from e.cdT, which newfoes.js uses as a timer, to e.cdPr). Full suite 145 of 147: statuptest (known) and weapons24test "Laser in / The Runs out" (also red on origin/main before this merge). Open from the v10.206 run log (16:42 win, standard): fps falls from 60 to 30-46 avg from minute 6 with 150-200 ms frames and up to 273 frames over 50 ms a minute while enemies stay at 56-90 and quality is already at q0c, so something grows with run time (unprofiled); HP held at 100% for 15 of 16 minutes; Red Flagship 2272 dps and 55% of kills, Spark of Life 306 dps.
 - Version v10.206 (versionCode 485): Vestigial Masses (vestigial.js): hidden growths that reveal within 620, may wake guardians, and pop into a weapon draft or a Legendary+ card screen. Autorun does not seek them. Open: tuning counts and odds after play.
 - Version v10.201 (versionCode 480): Prawn Again turns Damned at 80% of the intensity meter and back once it eases (prawndamned.js; own meter copy in wave modes and Level 1); full Damned body, red and purple shots, gold CONVERTED enemies. Open: how much of a Dish wave it spends Damned (unsimmed).
 - Version v10.200 (versionCode 479): developer mode (tap the samples title 5 times) has an Unlock Everything card (two taps; META.devAll).
