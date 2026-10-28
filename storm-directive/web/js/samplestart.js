@@ -1,30 +1,23 @@
 'use strict';
-// Spawn Prawn - how a sample is unlocked and what it starts with (user, 23 Oct).
-//  - UNLOCKS: Baseline is open; every other sample unlocks the first time you earn its achievement (S10_ACH), in any run.
-//    Achievements are now remembered between runs (META.achEver). Rescues in The Race (kindred.js) no longer unlock
-//    samples. Developer mode (META.devAll) still opens everything.
+// Spawn Prawn - what a sample starts with (user, 23 Oct); how it unlocks moved to kinall.js.
+//  - UNLOCKS: Baseline is open; every other sample opens when you rescue it in a run and finish that run (kinall.js).
+//    Achievements and the Shell-strip no longer unlock samples (they used to: S10_ACH, retired). Developer mode
+//    (META.devAll) still opens everything. META.achEver stays as a record of achievements earned.
 //  - STARTING OFFER (user, 24 Oct): the two weapons that suit the sample best (S10_FIT, picked for its passive and damage
 //    types) plus two random others from the matrix's 27 (matrixonly.js), in a random order. (Was: three random, one of
-//    them Switched at Birth; s10SabOpt is kept for that.)
-// Hooks: none in shared files. Wraps samples10.js s10Start and s10Unlock; show.js achieve. samples10.js reads s10LockTxt
+//    them Switched at Birth; s10SabOpt is kept for that.) typepools.js replaces the deal at run start.
+// Hooks: none in shared files. Wraps samples10.js s10Start; show.js achieve. samples10.js reads s10LockTxt
 // (the locked card's line). Save data: META.achEver { id: 1 }. Loads after matrixonly.js.
 
-const S10_ACH = { alpha: 'survive5', beta: 'lowhp', private: 'boss', ordered: 'kills1000', redtail: 'survive10', prawn: 'wave5', alien: 'born', acro: 'flawless' };
 S10_ALL = false;
-for (const s of SAMPLES10) s.unlock = S10_ACH[s.id] ? { txt: 'Earn the achievement ' + ACHIEVEMENTS[S10_ACH[s.id]].name + ': ' + ACHIEVEMENTS[S10_ACH[s.id]].desc, ach: S10_ACH[s.id], secret: s.unlock && s.unlock.secret } : null;
-const s10LockTxt = s => 'LOCKED. ' + (s.unlock ? s.unlock.txt : '');
-
-let S10_ACH_UNLOCK = false; // (only an achievement unlocks a sample now)
-s10Unlock = (orig => function (id) { if (S10_ACH_UNLOCK) return orig(id); })(s10Unlock);
+for (const s of SAMPLES10) s.unlock = s.id === 'baseline' || s.v9 ? null : { txt: 'TODO_COPY:kin_lock_txt', secret: s.unlock && s.unlock.secret }; // (the locked card's text: kinall.js; the v9 samples have no lock, as before)
+const s10LockTxt = s => (typeof kaLockTxt === 'function' ? kaLockTxt() : 'TODO_COPY:kin_lock_txt'); // (kinall.js owns the line)
 achieve = (orig => function (id) {
   const first = G && !(G.show && G.show.achieved && G.show.achieved[id]);
   orig(id);
   if (!first || !ACHIEVEMENTS[id]) return;
   if (!(META.achEver && META.achEver[id])) { (META.achEver || (META.achEver = {}))[id] = 1; saveMeta(); }
-  for (const sid in S10_ACH) if (S10_ACH[sid] === id) { S10_ACH_UNLOCK = true; try { s10Unlock(sid); } finally { S10_ACH_UNLOCK = false; } }
 })(achieve);
-// Achievements earned before this build open their samples on load.
-for (const sid in S10_ACH) if (META.achEver && META.achEver[S10_ACH[sid]] && !(META.s10 && META.s10[sid])) (META.s10 || (META.s10 = {}))[sid] = 1;
 
 // ---------------------------------------------------------------- the starting offer
 function s10Pool() {

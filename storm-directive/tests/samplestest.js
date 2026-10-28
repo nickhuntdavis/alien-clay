@@ -52,12 +52,12 @@ const { chromium } = require('playwright');
     run('redtail'); const e = makeEnemy(ENEMIES.crawler, G.player.x + 90, G.player.y); e.hp = e.maxHp = 1000; G.enemies.push(e);
     damageEnemy(e, 20, { elem: 'shock', atk: 'proj', noCrit: true, wname: 't' });
     if (e.cd && e.cd.burnT > 0) bad.push('Redtail: Static still burns (since specpass.js it is body contact; see specpasstest.js)');
-    // Only an achievement unlocks a sample now (samplestart.js S10_ACH): not waves, not a bare s10Unlock.
+    // Only a rescue plus a finished run unlocks a sample now (kinall.js): not waves, not a bare s10Unlock, not an achievement.
     S10_ALL = false; META.s10 = {}; META.achEver = {}; const keepDev = META.devAll; META.devAll = 0;
     run('baseline'); G.wave.n = 10; s10Tick(0.016);
     if (s10Open('alpha')) bad.push('wave 10 still unlocks Alpha');
     s10Unlock('prawn'); if (s10Open('prawn')) bad.push('bare s10Unlock still unlocks');
-    achieve(S10_ACH.alpha); if (!s10Open('alpha')) bad.push('achievement did not unlock Alpha');
+    achieve('survive5'); if (s10Open('alpha')) bad.push('an achievement unlocked Alpha');
     META.devAll = keepDev;
     return { bad, out };
   });
