@@ -57,8 +57,8 @@ function cdFx(x, y) {
   ring(x, y, 14, '#fff', 0.2, 2);
   if (typeof fxParts === 'function') fxParts('spark', x, y, '#fff', 4, 120, 0.3, 2);
 }
-const cdPair = (e, o) => (e.cdT && e.cdT.get(o)) || -9;
-function cdMark(e, o) { (e.cdT || (e.cdT = new Map())).set(o, G.t); (o.cdT || (o.cdT = new Map())).set(e, G.t); }
+const cdPair = (e, o) => (e.cdPr && e.cdPr.get(o)) || -9;
+function cdMark(e, o) { (e.cdPr || (e.cdPr = new Map())).set(o, G.t); (o.cdPr || (o.cdPr = new Map())).set(e, G.t); }
 
 function cdTick(dt) {
   if (!cdOn() || G.state !== 'play') return;
