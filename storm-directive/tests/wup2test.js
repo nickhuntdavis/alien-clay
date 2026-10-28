@@ -137,6 +137,8 @@ const { chromium } = require('playwright');
     const VOO = { 'Bleeding Heart': ['voodoo'], 'Sutures': ['yank'], 'Terminal Clause': ['spirit'] };
     // (Parasite Possesses enemies by itself, so the Final Prick scene sees few low-health hits; Voodoo Doll trades the healing for pin bursts)
     const VOO_KEYS = { 'Final Prick': ['ding'], 'Exsanguinate': ['voodoo', 'pinburst'] };
+    // (Parasite needles kill the stock Terminal Clause scene's 40 to 80 health in one hit, so nothing is left low and alive: tougher enemies at 10 to 20%)
+    const VOO_SC = { 'Terminal Clause': { hp: 100, hpJit: 100, maxHp: 1000 } };
     // Pass 2: Acid Spit switched to Mucus (Snowball). Cards fitcheck.js hides for it are skipped.
     const SNOW = { 'Spit Take': ['snowball'], 'Battery Acid': ['battery', 'snowball'] }, SNOW_SKIP = ['Stripped Bare', 'Projectile Vomit'];
     // Pass 3: Nocturnal Emission switched to Parasite (Ectoplasm).
@@ -159,7 +161,7 @@ const { chromium } = require('playwright');
         if (!take(w, cs.lv, cs.name)) continue;
         w2s(w); w.w2.maxChill = 0; w.w2.maxTraps = 0; w.w2.maxStacks = 0; w.w2.maxHit = 0; w.w2.maxProj = 0; w.w2.sawDaze = false;
         let st = 0;
-        run(Object.assign({}, x.sc, x.frames ? { frames: x.frames } : {}), f => {
+        run(Object.assign({}, x.sc, x.frames ? { frames: x.frames } : {}, (pass === 1 && VOO_SC[cs.name]) || {}), f => {
           const wf = w.w2;
           for (const e of G.enemies) if (!e.dead) {
             if (e.chillAmt > wf.maxChill) wf.maxChill = e.chillAmt;
