@@ -169,7 +169,7 @@ const { chromium } = require('playwright');
     fresh(); w = wp('v_phys_proj', [], 0, 1); for (let i = 0; i < 5; i++) modWell(i * 50, 0, 100, 600, 3, w, true, true); if (modS().wells.length !== 3) bad.push('Wells: ' + modS().wells.length);
 
     // 21. Lunge: forwards through a Contact target, backwards from Spread; 160 a copy, two copies at most.
-    fresh(); w = wp('v_phys_contact', ['lunge']); foe(105); const x0 = G.player.x; step(30);
+    fresh(); w = wp('v_phys_contact', ['lunge']); foe(62); const x0 = G.player.x; step(30);
     out.lungeC = Math.round(G.player.x - x0); if (!(G.player.x - x0 > 60) || G.player.x - x0 > 165) bad.push('Contact lunge: ' + out.lungeC);
     fresh(); w = wp('v_phys_spread', ['lunge']); foe(150); const x1 = G.player.x; step(30);
     out.lungeS = Math.round(G.player.x - x1); if (!(x1 - G.player.x > 60) || x1 - G.player.x > 165) bad.push('Spread recoil: ' + out.lungeS);

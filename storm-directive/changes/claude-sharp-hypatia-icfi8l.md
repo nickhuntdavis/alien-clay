@@ -1,5 +1,13 @@
 # claude/sharp-hypatia-icfi8l
 
+## 2026-10-29 Baseline part 3: Hand-to-gland
+- Systems: baseline branches (Hand-to-gland), weapons24, tests
+- Files: web/js/baseline3.js (new), web/index.html, tests/baseline3test.js (new), tests/wup1test.js (old Nervous Wreck blocks removed), tests/modstest.js (Contact lunge foe now inside reach 70), ARCHITECTURE.md
+- What: Nervous Wreck is renamed Hand-to-gland (same slot id `v_phys_contact`; name, HG icon, description `TODO_COPY:hg_desc`) and retuned in a wupStats wrap to reach 70, 14 damage, 2.2 hits a second with no magazine. Its Lv 3 branches are now Kung fu (twice the hit rate at 70% damage, every 5th swing a knockback kick; Lv 6 Combo, Flying kick; wild: a double-hit enemy's next shot is reflected; mastery Thousand fists), Samurai (one triple-damage cut a second in a 160 degree arc, heavy first strike on a fresh enemy; Lv 6 Iaijutsu, Parry; wild: heavy cuts under 30% health; mastery Clean cut) and Biting (Bleed plus 4% lifesteal; Lv 6 Chew toy, Rabies; wild: a bite strips a Shell layer; mastery Jaws). Vice Grip, Shell Game and Back Off! are no longer reachable (code stays in wup1.js). Each branch wears a costume (circling fists, a blade and topknot, a row of teeth). Simplified: the kick counts swings, a reflected shot is cancelled and its damage lands on the shooter, Jaws heals 10% of max health. 31 TODO_COPY strings show on cards until the user writes them.
+- Save data: none.
+- Hooks: wupReg / wupOn from baseline3.js; hookOn('fire:after'); wraps wupStats (weapons24.js) and drawPlates (bodymods.js). No shared file edited.
+- Risk: Hand-to-gland's base is weaker per swing (14 against 27) but faster and magazine-free; every sample that drafts Nervous Wreck (beta's starter, v9_vanguard, v9_stealth) shifts. Modifiers and fusions keyed on `v_phys_contact` (fusions nervepanic and reel, Ranged, area) keep working on the new numbers.
+
 ## 2026-10-29 Baseline reimagined, part 1: Standard Issue's movie-cop branches (v10.221)
 - Systems: baseline branches (new), weapons24, feats, aim, render, tests/tools
 - Files: web/js/baseline1.js (new), web/index.html, web/js/fitcheck.js, tests/baseline1test.js (new), tests/wup1test.js, tests/fittest.js, tests/sivtest.js, tests/featstest.js, ARCHITECTURE.md, ideas.md, NOTES.md
