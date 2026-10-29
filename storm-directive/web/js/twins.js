@@ -37,7 +37,7 @@ PROFILES.twins = {
   desc: 'Found in a sealed jar at the back of the oldest cabinet in the lab. They never blink and they never let go. Your twin copies everything you do, and whatever hurts your twin, you feel.',
   weapons: ['doubletrouble', 'twin', 'seeker'],
 };
-if (typeof SEQ_LOOK !== 'undefined') SEQ_LOOK.twins = { short: 'Twins', color: TWINS.color, tag: 'COME PLAY WITH US', quote: 'Come and play with us. Forever. And ever. And ever.', stats: [3, 3, 3, 3] };
+if (typeof SEQ_LOOK !== 'undefined') SEQ_LOOK.twins = { short: 'Twins', color: TWINS.color, tag: 'SOLD AS A PAIR', quote: 'Two of them. One jar. Neither blinks.', stats: [3, 3, 3, 3] };
 PROFILE_SYNERGIES.push(
   { a: 'twins', b: 'vanguard', name: 'Two Heads Are Better', desc: 'When Head First charges, your twin charges too, at the enemy nearest to it.' },
   { a: 'twins', b: 'stealth', name: 'Something in the Corner', desc: 'Your twin passes through whatever it swims into, chilling it to the bone for your melee damage.' });

@@ -2614,7 +2614,7 @@ function openEgg(by) {
 function announceEgg(by) {
   const e = G.eggE;
   if (by) {
-    if (!e.openedBy) { e.openedBy = by.name; banner(by.name.toUpperCase() + ' IS BREAKING INTO THE EGG!', '#ff4d6d'); sysMsg('RACE UPDATE', `${by.name} is LV ${EGG.level} and at the egg. If they get through its membrane first, they fertilise it and you lose. Shoot them: they can't gnaw while you're hitting them.`, by.color, true); cam.shake = 10; sfx('boss'); }
+    if (!e.openedBy) { e.openedBy = by.name; banner(by.name.toUpperCase() + ' IS BREAKING INTO THE EGG', '#ff4d6d'); sysMsg('RACE UPDATE', `${by.name} is LV ${EGG.level} and at the egg. If they get through its membrane first, they fertilise it and you lose. Shoot them: they can't gnaw while you're hitting them.`, by.color, true); cam.shake = 10; sfx('boss'); }
     return;
   }
   if (e.woke) return;

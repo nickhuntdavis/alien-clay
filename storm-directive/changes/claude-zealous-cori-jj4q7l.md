@@ -1,3 +1,11 @@
+## 2026-10-29 Sequence stories trimmed, last narrator drift fixed (v10.223)
+- Systems: sequences, voice, ui, tutorials, bosses (float text only), campaign levels (banner only)
+- Files: seqreveal.js, reborn.js, redtail.js, twins.js, holy.js, spoon.js, dnadrop.js, ui.js, weird.js, intro.js, game.js, levels.js, statusintro.js, bosspack.js, render.js, rivals.js, voice_and_tone.md
+- What: the eleven v9 sequence stories are shorter and speakerless (no "my handwriting", no "Mine"); Prawn Again's gift line now matches the mechanic (every 45 s, not once a run). The three sequence quotes that spoke (Prawn Again, Redtail, Twins) are captions, and the Twins tag is SOLD AS A PAIR. The remaining first-person and "the scientist"/"the doctor" lines are captions, "bloke" is gone, and HUD alerts use a colon instead of "!". voice_and_tone.md 8B now lists what is left (enemy taunts as the deliberate exception, ENEMY_INTRO tips, the persona docs, dead Sample 9 lines).
+- Save data: none.
+- Hooks: none.
+- Risk: none in code paths; text only. seqtest fails before and after (pre-existing unlock-order check).
+
 ## 2026-10-29 Copy pass: speakerless captions (v10.222)
 - Systems: voice, ui (mutation cards, Meet card), campaign, data
 - Files: voice.js, data.js, waves.js, ui.js, campaign.js, rivals.js, tutorial.js, mutations.js, samples10.js, meetsample.js

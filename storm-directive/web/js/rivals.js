@@ -462,7 +462,7 @@ function updateShowdown() {
   if (!G.showdown && G.state === 'play' && countProgress() >= 1) startShowdown();
   if (G.showdown && !G.fertile && !G.enemies.some(e => e.final && !e.dead)) {
     G.fertile = true;
-    banner('SPERM COUNT: 1. BREAK INTO THE EGG!', PAL.reward);
+    banner('SPERM COUNT: 1. BREAK INTO THE EGG', PAL.reward);
     sysLine('eggReady', true); achieve('eggready');
     sfx('level'); vibrate(200);
   }

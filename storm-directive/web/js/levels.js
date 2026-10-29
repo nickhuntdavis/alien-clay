@@ -632,7 +632,7 @@ function lvHazards(dt, Z) {
       if (M.warn <= 0) { M.y = top; sfx('boom'); }
     } else if ((M.t -= dt) <= 0) {
       M.t = rand(H2.washEvery[0], H2.washEvery[1]); M.warn = H2.washWarn;
-      banner('THE RINSE! TAKE COVER', '#7ff0e0'); sfx('boss'); vibrate(60);
+      banner('THE RINSE: TAKE COVER', '#7ff0e0'); sfx('boss'); vibrate(60);
     }
   } else if (M.y >= 0 && !Z.wash) { M.y = -1; M.hit.clear(); }
   // The toothbrush.

@@ -224,20 +224,26 @@ Lines (all speakerless, all flat):
 10. **"Swimmer absorbed. Your DNA will be recycled into something more useful, like a toenail."** (`death`) The ceiling for a flat line.
 11. **"You have been eaten by the immune system. It was nothing personal. It was entirely personal."** (`death`)
 
-### B. Drift (character writing; revisit when auditing)
+### B. Exceptions and remaining drift (audited 29 Oct 2026, v10.223)
 
-| Shape | Examples in live copy | Direction |
+The persona cut and the copy pass (v10.221 to v10.223) removed the narrator personas, the inner voice, the card quips and every first-person caption. What is left falls into three groups.
+
+**Deliberate exception: enemies may speak.** Rival quotes and `KILL_LINES`, boss quotes (The Failed Experiment: "I know every move you are about to make. I made them first."), the joke-enemy decoy lines. The user kept these (29 Oct): an enemy taunting is a mechanic, not a narrator. The game itself still never says "I". Taunts stay short, in the enemy's own voice, and never address the player by name.
+
+**HUD alerts.** Banners and float text are caps, with a colon instead of an exclamation mark ("THE RINSE: TAKE COVER", "OVERSHOT: HIT ITS BACK"). Caps are already loud.
+
+**Remaining drift, ranked:**
+
+| Where | What is wrong | Direction |
 |---|---|---|
-| First-person Scientist | "Begin. I have a flask of tea and no expectations." / "Critical. I have started a new line on the death form." / "Contact. It made contact. Fourteen years. Fourteen. I am going to sit down." / "I would like it noted that I am not excited. The pen disagrees." | Rewrite as captions. "Flask of tea: full. Expectations: none." The paperwork stays, the person goes. |
-| Someone in the room | "Get me another one." / "We did. For science." / "Lab sweepstake: 61% of the staff..." / "upsets the ethics board" / viewers, sponsors, the Committee | Cut the people. Keep the form. "The ethics board has not been informed." is fine (an absence, not a person). |
-| The inner voice (`LONGING_LINES`, campaign) | "You have written the egg a poem in your head." / "The egg would want you to keep going. You have decided this on its behalf." | A persona, so off direction. Campaign levels take the standard register. Keep "Level N" secrecy. |
-| Per-sample consciousness personas (`CONSCIOUSNESS.md`, `cardvoice.js`, `giftvoice.js`, Alpha, Kevin, the Twins' jar) | "Hi. Sorry. I am Kevin." / "I am not moving. You are moving." / the 1887 jar backstory | Samples are vials, not people. Card lines for Feat gifts and sample passives go back to name plus plain effect. Lore paragraphs move to the codex or go. |
-| Announcer energy | "Level up! You are growing..." / "Congratulations! It's you! Everyone else can go home." / "Legendary load! The house always wins. Except, apparently, now." | Drop the "!" and the hype. "Legendary load." is already the joke; cut the rest. |
-| Addressing the swimmer by name | "Welcome, Spermy." / "Sample 1B" as a form of address | Plain description only ("the swimmer", "sample 1B" as a label on a screen, never spoken to). |
-| Tips on moment screens | `ENEMY_INTRO` `tip` lines | Move to the Field Guide. |
+| `ENEMY_INTRO` `tip` lines | Tactical advice still rides on the quiet first-sighting caption (intro.js) and the inspect card. Breaks section 5 ("tips belong in the Field Guide"). | Show the `what` line only on the caption; keep `tip` on the inspect card and in the Field Guide. A code change, no new copy. |
+| `redesign docs/VOICE_GUIDE.md`, `CONSCIOUSNESS.md`, `GIFT_LINES.md` | Still describe the Scientist and the eight consciousness personas as canon. An agent reading them will write persona lines. | Mark each as superseded by this guide at the top, or move them to `redesign docs/archive/`. |
+| Dead persona copy in code | `acrocopy.js` (Sample 9's `acro_line`, `acro_feat_line`, `acro_x9_line`), the `line` field in `samples9.js`, `Card_Copy_Draft_All.xlsx`. None of it is shown any more. | Leave it, or delete it when Sample 9 ships. Never copy from it. |
+| Caption header | Every caption box reads LAB LOG, which still hints at a log-keeper. | Fine as a label. Rename only if it starts to feel like a speaker. |
+| Loud lines | Tier 2 and 3 lines now exist (first egg win, first Spectral Combustion, Celestial drop, born). | Check in play that each fires under 2% of the time and is followed by its flat recovery. |
 
 ### Takeaways
 
 - The best names share one shape: **a real sex or contraception phrase, one word changed or one claim borrowed, and a mechanic that fits.**
 - The best lines share another: **flat setup, specific detail, no reaction, nobody speaking.**
-- The main gap is the opposite of the old one: there is too much character in the live narration pools, not too little. The audit is a cut, not a fill.
+- The live pools now hold one voice: captions with nobody speaking. Enemies are the only things allowed to talk.

@@ -121,7 +121,7 @@ hookOn('tick', 'holy:flip', dt => {
   const p = G.player, c = holyCol(pol);
   ring(p.x, p.y, 70, c, 0.6, 5); floatText(p.x, p.y - 36, pol > 0 ? 'HOLY' : 'DAMNED', c, 14, 1.2);
   if (typeof fxParts === 'function') fxParts(pol > 0 ? 'spark' : 'smoke', p.x, p.y, pol > 0 ? HOLY.holy.col : HOLY.damned.dk, 10, 90, 0.6, 3);
-  if (holyStance() && !st.said[pol] && typeof vxSay === 'function') { st.said[pol] = true; vxSay('holyFlip', 'sci', { force: true, line: { text: pol > 0 ? 'A halo has been observed. I am not writing that down.' : 'Horns. Filed under: other.', tier: 0 } }); }
+  if (holyStance() && !st.said[pol] && typeof vxSay === 'function') { st.said[pol] = true; vxSay('holyFlip', 'sci', { force: true, line: { text: pol > 0 ? 'A halo has been observed. It is not being written down.' : 'Horns. Filed under: other.', tier: 0 } }); }
 });
 
 // ---------------------------------------------------------------- the player's halo or horns (render.js, after drawShip)
@@ -163,8 +163,8 @@ function holyDrawYou(px, py) {
 // ---------------------------------------------------------------- the bias cards (mutations.js mutCard)
 if (typeof mutCard === 'function') {
   const why = () => (typeof hasType === 'function' && hasType('soul') ? '' : 'needs a Holy/Damned weapon or Feat');
-  mutCard({ id: 'h_devout', title: 'Born Again', icon: 'HO', type: 'soul', family: 'holy:bias', color: HOLY.holy.glow, rarity: 1, maxRank: 3, why, flavour: "I've seen the light. It's very bright in here.",
+  mutCard({ id: 'h_devout', title: 'Born Again', icon: 'HO', type: 'soul', family: 'holy:bias', color: HOLY.holy.glow, rarity: 1, maxRank: 3, why, flavour: 'Has seen the light. The light is very bright in here.',
     desc: 'Your Holy/Damned hits are 25% more likely to be Holy, per rank.' });
-  mutCard({ id: 'h_heretic', title: 'Lapsed', icon: 'DA', type: 'soul', family: 'holy:bias', color: HOLY.damned.glow, rarity: 1, maxRank: 3, why, flavour: 'I used to go. Then I stopped going.',
+  mutCard({ id: 'h_heretic', title: 'Lapsed', icon: 'DA', type: 'soul', family: 'holy:bias', color: HOLY.damned.glow, rarity: 1, maxRank: 3, why, flavour: 'Used to go. Stopped going. Attendance: noted.',
     desc: 'Your Holy/Damned hits are 25% more likely to be Damned, per rank.' });
 }

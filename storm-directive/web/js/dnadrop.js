@@ -17,7 +17,7 @@
 // autorun.js arPickups, v10Draw and UI.openLoot; hookOn('tick', 'ddTick'). Adds TUT_CARDS.dnadrop. Loads after levelbox.js.
 
 const DNADROP = { min: 300, max: 560, bossMin: 160, bossMax: 320, cellLo: 4, cellHi: 8, fall: 1.3, land: 0.72, pull: 2, others: 0.4, col: '#ffd23f' };
-const DD_COPY = { label: 'DNA', head: 'Note from the scientist' };
+const DD_COPY = { label: 'DNA', head: 'Lab note' };
 // The scientist's notes on the level-up screen, by moment (the first that applies). Lines by the user.
 const DD_NOTES = {
   low: ['Subject is faltering. Applying evolutionary pressure now.'],
@@ -192,4 +192,4 @@ UI.openLoot = (orig => function (req) { orig.call(this, req); try { ddNote(req);
 
 // ---------------------------------------------------------------- the tutorial card, on the first drop
 if (typeof TUT_CARDS !== 'undefined') TUT_CARDS.dnadrop = () => ({ title: 'SPECIAL DELIVERY', name: 'DNA DROPS', colour: DNADROP.col,
-  what: 'You levelled up. The scientist does not hand it over: a pipette drips your DNA onto the slide somewhere nearby. Swim into the gold drop to choose an upgrade.', head: 'HOW IT WORKS', tips: ['Off screen, a gold arrow at the edge points to it, with the distance.', 'More level-ups drip onto the same drop. Swim in once and take them all, one after another.'] });
+  what: 'You levelled up. Nobody hands it over: a pipette drips your DNA onto the slide somewhere nearby. Swim into the gold drop to choose an upgrade.', head: 'HOW IT WORKS', tips: ['Off screen, a gold arrow at the edge points to it, with the distance.', 'More level-ups drip onto the same drop. Swim in once and take them all, one after another.'] });
