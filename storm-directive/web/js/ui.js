@@ -155,8 +155,8 @@ const UI = {
   },
   afterIntro() {
     $('schoolSkip').classList.toggle('on', schoolOn()); // (Level 0's skip link)
-    if (G.wave && G.wave.camp) sysMsg('LAB LOG', `"Subject in the dish. Twenty drops. Every fifth one is something big. Survive them all and you get the egg." Clear a wave, open your DNA, then start the next.`, XR.dim, true);
-    else if (G.wave) sysMsg('LAB LOG', '"Subject in the dish. One drop at a time. Let us see what you become." Clear a wave, open your DNA, then start the next.', XR.dim, true);
+    if (G.wave && G.wave.camp) sysMsg('LAB LOG', `Subject in the dish. Twenty drops. Every fifth one is something big. Survive them all and the egg is yours. Clear a wave, open your DNA, then start the next.`, XR.dim, true);
+    else if (G.wave) sysMsg('LAB LOG', 'Subject in the dish. One drop at a time. What it becomes is the study. Clear a wave, open your DNA, then start the next.', XR.dim, true);
     else sysLine('start', true);
     if (G.heat) sysMsg('IMMUNE RESPONSE ' + G.heat, IMMUNE.slice(0, G.heat).map(x => x.name).join(', ') + '. +' + Math.round(IMMUNE_DNA * G.heat * 100) + '% DNA if you survive it.', PAL.danger, true);
     UI.show('hud');

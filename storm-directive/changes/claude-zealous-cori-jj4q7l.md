@@ -1,3 +1,11 @@
+## 2026-10-29 Copy pass: speakerless captions (v10.222)
+- Systems: voice, ui (mutation cards, Meet card), campaign, data
+- Files: voice.js, data.js, waves.js, ui.js, campaign.js, rivals.js, tutorial.js, mutations.js, samples10.js, meetsample.js
+- What: every narration line that spoke in the first person, named a person in the room or shouted now reads as a flat log caption (voice_and_tone.md). About 55 voice.js lines, 20 SYSTEM_LINES, the waves.js SCIENTIST pool, the quoted dish intros, all 35 mutation flavour lines, two STATUS_HINT lines and five sighting lines were rewritten; the loud Tier 2 and 3 lines keep their volume without a speaker. The Meet card's play-style line and button are filled (MEET_STYLE, "TO THE SLIDE"). Copy written by Claude at the user's request.
+- Save data: none.
+- Hooks: none.
+- Risk: tests that match exact narration text (none found) would break; voicetest, mutstest, samplestest, drafttest, quick pass.
+
 ## 2026-10-29 Persona cut: one caption voice, no characters (v10.221)
 - Systems: voice, settings, ui (cards, sample screens), campaign, data
 - Files: cardvoice.js (deleted), giftvoice.js (deleted), tests/tools/copy/cardvoice.py and giftvoice.py (deleted), index.html, voice.js, voice10.js, show.js, settings.js, data.js, feats10.js, samples10.js, meetsample.js, weapons24.js, ui.js, campaign.js, rivals.js, tutorial.js, waves.js, tests/voicetest.js, tests/wstest.js, tests/veilshot.js, tests/tools/guide.js, voice_and_tone.md, ARCHITECTURE.md, CLAUDE.md

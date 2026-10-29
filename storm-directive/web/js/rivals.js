@@ -47,7 +47,7 @@ function rivalArrive() {
   e.clock = G.wave ? rivalClockFor(Math.max(1, G.level - 1)) : G.t * R.skill;
   e.lvl = Math.max(1, rivalLevelAt(e.clock)); e.maxHp = 0; rivalStats(e, 1);
   G.enemies.push(e);
-  if (G.wave) sysMsg('LAB LOG', `"Another subject for the dish: ${R.name}. Let us see which of you is fitter."`, R.color, true);
+  if (G.wave) sysMsg('LAB LOG', `Another subject for the dish: ${R.name}. Fitness to be determined the usual way.`, R.color, true);
   else rivalNews(e, `${R.name} has joined the race (LV ${e.lvl}).`, true);
   return e;
 }

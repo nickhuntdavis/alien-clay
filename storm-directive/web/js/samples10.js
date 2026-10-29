@@ -29,7 +29,7 @@ const SAMPLES10 = [
     sci: 'Sample {id} was initially classified as sluggish. Its subsequent behaviour has made that classification difficult to defend.', unlock: { txt: 'Recover from below 10% health to full health in one run.' } },
   { id: 'private', name: 'Private Schooled', origin: 'Human (paperwork sealed)', types: ['acid', 'soul'], passive: 'Who Do You Think You\'re Dealing With?',
     pdesc: 'Acid builds Corrosion twice as fast. Enemies it Possesses hit their old friends twice as hard.',
-    sci: 'Sample {id} arrived with complete documentation. The donor\'s identity remains confidential. The accompanying note was written in familiar handwriting.', unlock: { txt: 'Beat the Petri Dish with any sample.' }, shield: true },
+    sci: 'Sample {id} arrived with complete documentation. The donor\'s identity remains confidential. The documentation is very complete.', unlock: { txt: 'Beat the Petri Dish with any sample.' }, shield: true },
   { id: 'ordered', name: 'Ordered Online', origin: 'Synthetic (nanobot)', types: ['mucus', 'fire'], passive: 'Nothing Sticks',
     pdesc: 'Leaves a wide Mucus trail while moving that Snares whatever follows. 30% Evasion, built in.',
     sci: 'Sample {id} arrived in an anti-static bag. It is not biological. It has been filed as biological, as the form has no other box.', unlock: { txt: 'Open a Mythical box.' }, evasion: 0.3 },
