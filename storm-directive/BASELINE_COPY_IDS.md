@@ -1,0 +1,100 @@
+# Baseline copy: every placeholder id and its brief
+
+Write each id into `web/js/baselinecopy.js` as `BL_COPY[id]`. Limits are characters. A `_tag` is the one-line hook under a promise name (like "Play into packed groups"); `_costs` completes "Costs: ..." (like "the first hit is 15% weaker."); `_desc` is the card text; `_name` a card or fork name; `_float` an uppercase flash over an enemy or you (like BONK, DENTED); `_line` a gift line in quotes; `_does` a Feat description; `_flavour` a passive's one-line quip.
+
+## Part 1: Standard Issue (built, baseline1.js)
+
+- `dir_fin` (name, max 22): The FINISHER aim directive: name is an aim-menu chip (uppercase, like REVENGE or SHOOTERS FIRST); desc like "Whatever hurt you last. Otherwise nearest.": nearest, but anything in range under 15% health comes first.
+- `dir_fin_desc` (desc, max 150): The FINISHER aim directive: name is an aim-menu chip (uppercase, like REVENGE or SHOOTERS FIRST); desc like "Whatever hurt you last. Otherwise nearest.": nearest, but anything in range under 15% health comes first.
+- `feat_ab_bigger_desc` (desc, max 150): Acid bath Lv 3 fork: the pool is 50% wider.
+- `feat_ab_bigger_name` (name, max 22): Acid bath Lv 3 fork: the pool is 50% wider.
+- `feat_ab_full_desc` (desc, max 150): Acid bath Lv 3 fork: 90% of the Corrosion bar instead of 60%.
+- `feat_ab_full_name` (name, max 22): Acid bath Lv 3 fork: 90% of the Corrosion bar instead of 60%.
+- `feat_ab_longer_desc` (desc, max 150): Acid bath Lv 5 fork: the pool lasts 14 s instead of 8.
+- `feat_ab_longer_name` (name, max 22): Acid bath Lv 5 fork: the pool lasts 14 s instead of 8.
+- `feat_ab_two_desc` (desc, max 150): Acid bath Lv 5 fork: a second target, the next Elite.
+- `feat_ab_two_name` (name, max 22): Acid bath Lv 5 fork: a second target, the next Elite.
+- `feat_acidbath_does` (does, max 130): Acid bath Feat (only dealt on Robocop): tap, 14 stamina, 9 s cooldown; the most-Shelled enemy within 350 is sprayed with Acid: a hit plus 60% of its Corrosion bar, and an Acid pool for 8 s.
+- `feat_acidbath_line` (line, max 45): Acid bath Feat (only dealt on Robocop): tap, 14 stamina, 9 s cooldown; the most-Shelled enemy within 350 is sprayed with Acid: a hit plus 60% of its Corrosion bar, and an Acid pool for 8 s.
+- `feat_qd_fast_desc` (desc, max 150): Quick draw Lv 5 fork: cooldown 2.4 s instead of 4.
+- `feat_qd_fast_name` (name, max 22): Quick draw Lv 5 fork: cooldown 2.4 s instead of 4.
+- `feat_qd_reach_desc` (desc, max 150): Quick draw Lv 3 fork: reach 450 instead of 300.
+- `feat_qd_reach_name` (name, max 22): Quick draw Lv 3 fork: reach 450 instead of 300.
+- `feat_qd_triple_desc` (desc, max 150): Quick draw Lv 3 fork: a triple crit instead of double.
+- `feat_qd_triple_name` (name, max 22): Quick draw Lv 3 fork: a triple crit instead of double.
+- `feat_qd_two_desc` (desc, max 150): Quick draw Lv 5 fork: two shots instead of one.
+- `feat_qd_two_name` (name, max 22): Quick draw Lv 5 fork: two shots instead of one.
+- `feat_quickdraw_does` (does, max 130): Quick draw Feat (only dealt on Dirty Harry): performs itself; when an enemy within 300 starts winding up a shot, you shoot it first with a double crit; 10 stamina, 4 s cooldown. line = the gift line in quotes (the consciousness talking, like "I made you a little safe."); does = what it does; float = the text that flashes over you when it fires.
+- `feat_quickdraw_float` (float, max 12): Quick draw Feat (only dealt on Dirty Harry): performs itself; when an enemy within 300 starts winding up a shot, you shoot it first with a double crit; 10 stamina, 4 s cooldown. line = the gift line in quotes (the consciousness talking, like "I made you a little safe."); does = what it does; float = the text that flashes over you when it fires.
+- `feat_quickdraw_line` (line, max 45): Quick draw Feat (only dealt on Dirty Harry): performs itself; when an enemy within 300 starts winding up a shot, you shoot it first with a double crit; 10 stamina, 4 s cooldown. line = the gift line in quotes (the consciousness talking, like "I made you a little safe."); does = what it does; float = the text that flashes over you when it fires.
+- `si_beltfed_desc` (desc, max 150): Lv 9 mastery, best with Rambo: no reload, ever; shots 30% weaker.
+- `si_beltfed_name` (name, max 22): Lv 9 mastery, best with Rambo: no reload, ever; shots 30% weaker.
+- `si_doa_desc` (desc, max 150): Lv 9 mastery, best with Robocop: the marked enemy takes triple damage and dies outright under 15% health; not bosses. The float shows over the executed enemy.
+- `si_doa_float` (float, max 12): Lv 9 mastery, best with Robocop: the marked enemy takes triple damage and dies outright under 15% health; not bosses. The float shows over the executed enemy.
+- `si_doa_name` (name, max 22): Lv 9 mastery, best with Robocop: the marked enemy takes triple damage and dies outright under 15% health; not bosses. The float shows over the executed enemy.
+- `si_faster_desc` (desc, max 150): Faster and faster (Lv 6): each shot in a magazine comes 5% sooner than the last, up to twice as fast; a reload resets it.
+- `si_feel_desc` (desc, max 150): Dirty Harry's wild card: a crit does double damage, your crit chance is halved.
+- `si_feel_name` (name, max 22): Dirty Harry's wild card: a crit does double damage, your crit chance is halved.
+- `si_firstblood_desc` (desc, max 150): First blood (Lv 6): hits Bleed (30% of the hit over 3 s); shots on a Bleeding enemy do 20% more.
+- `si_harry_costs` (costs, max 45): Dirty Harry promise card: magazine 6, reload 1.4 s, half the fire rate, 2.2x damage a shot, range +120, almost no spread; every weapon gets +10 crit chance while held.
+- `si_harry_desc` (desc, max 150): Dirty Harry promise card: magazine 6, reload 1.4 s, half the fire rate, 2.2x damage a shot, range +120, almost no spread; every weapon gets +10 crit chance while held.
+- `si_harry_tag` (tag, max 25): Dirty Harry promise card: magazine 6, reload 1.4 s, half the fire rate, 2.2x damage a shot, range +120, almost no spread; every weapon gets +10 crit chance while held.
+- `si_hot_desc` (desc, max 150): Rambo's wild card: the first shot of every magazine does double damage.
+- `si_hot_name` (name, max 22): Rambo's wild card: the first shot of every magazine does double damage.
+- `si_lucky_desc` (desc, max 150): Lucky shot (Lv 6): every hit on an Elite is a crit (1.6x). Bosses are not Elites.
+- `si_makeday_desc` (desc, max 150): Lv 9 mastery, best with Dirty Harry: a crit that kills refills the magazine, and the next shot is a crit.
+- `si_makeday_name` (name, max 22): Lv 9 mastery, best with Dirty Harry: a crit that kills refills the magazine, and the next shot is a crit.
+- `si_mark_float` (float, max 12): Float over an enemy when a Robocop mark lands on it (si_mark_float) and when the player tapped it to mark it (si_mark_tap_float).
+- `si_mark_tap_float` (float, max 12): 
+- `si_prime_desc` (desc, max 150): Robocop Lv 6 card: marks never fade; when the mark dies it passes to the next Elite at once.
+- `si_prime_name` (name, max 22): Robocop Lv 6 card: marks never fade; when the mark dies it passes to the next Elite at once.
+- `si_rambo_costs` (costs, max 45): Rambo promise card: magazine 20 (from 12), reload 0.7 s (from 1.1), fires 25% faster, each shot 15% weaker; while held every weapon fires 10% faster.
+- `si_rambo_desc` (desc, max 150): Rambo promise card: magazine 20 (from 12), reload 0.7 s (from 1.1), fires 25% faster, each shot 15% weaker; while held every weapon fires 10% faster.
+- `si_rambo_tag` (tag, max 25): Rambo promise card: magazine 20 (from 12), reload 0.7 s (from 1.1), fires 25% faster, each shot 15% weaker; while held every weapon fires 10% faster.
+- `si_rich_desc` (desc, max 150): Robocop's wild card: two marks at once.
+- `si_rich_name` (name, max 22): Robocop's wild card: two marks at once.
+- `si_robo_costs` (costs, max 45): Robocop promise card: every 6 s a mark lands on the nearest Elite in range (else the nearest enemy); shots stay on it and do 50% more to it; tap an enemy on the slide to mark it yourself; every 4th shot is a small Force rocket (150%, 40 area).
+- `si_robo_desc` (desc, max 150): Robocop promise card: every 6 s a mark lands on the nearest Elite in range (else the nearest enemy); shots stay on it and do 50% more to it; tap an enemy on the slide to mark it yourself; every 4th shot is a small Force rocket (150%, 40 area).
+- `si_robo_tag` (tag, max 25): Robocop promise card: every 6 s a mark lands on the nearest Elite in range (else the nearest enemy); shots stay on it and do 50% more to it; tap an enemy on the slide to mark it yourself; every 4th shot is a small Force rocket (150%, 40 area).
+- `si_six_desc` (desc, max 150): Dirty Harry Lv 6 card: the last round in each magazine hits 50% harder, knocks a Shell layer off and staggers.
+- `si_six_name` (name, max 22): Dirty Harry Lv 6 card: the last round in each magazine hits 50% harder, knocks a Shell layer off and staggers.
+- `si_targeting_desc` (desc, max 150): Improved targeting (Lv 6): adds the FINISHER rule to every weapon aim menu: nearest, but anything in range under 15% health comes first.
+
+## Part 2: Shotgun (baseline2.js) and Part 3: Hand-to-gland (baseline3.js)
+
+- `mg_desc` (desc, max 150): The Shotgun (Maximum Gains renamed) weapon description: a wide fan of blunt pellets, best up close.
+- `mg_sperm_tag` (tag, max 25), `mg_sperm_costs` (costs, max 45), `mg_sperm_desc` (desc, max 150): Sperminator promise: two Shell layers on you that regrow every 12 s; the first volley on an Elite marks it: +60% to it and your aim stays on it.
+- `mg_targ_desc` (desc, max 150): Improved targeting (Lv 6, Sperminator): adds the FINISHER rule to every weapon aim menu: nearest, but anything in range under 15% health first.
+- `mg_term_desc` (desc, max 150): Terminated (Lv 6): killing the mark heals 10% of max health and marks the next Elite.
+- `mg_sperm_wild_name` (name, max 22), `mg_sperm_wild_desc` (desc, max 150): Sperminator wild card: pellets that hit the mark bounce into its neighbours once at 70%.
+- `mg_judge_name` (name, max 22), `mg_judge_desc` (desc, max 150): Judgement Day (Lv 9, best with Sperminator): three Shell layers, and the mark explodes on death (Force, 120 area, three times a pellet).
+- `mg_evil_tag` (tag, max 25), `mg_evil_costs` (costs, max 45), `mg_evil_desc` (desc, max 150): Evil Dead promise: two weapons in one: the fan keeps firing at range, and a chainsaw on your head (reach 60, 6 damage every 0.15 s) runs whenever something is in reach.
+- `mg_groovy_desc` (desc, max 150): Groovy (Lv 6): chainsaw kills reload the shotgun.
+- `mg_boom_desc` (desc, max 150): Boomstick (Lv 6): a point-blank volley (target within 60) is a heavy hit with double knockback.
+- `mg_evil_wild_name` (name, max 22), `mg_evil_wild_desc` (desc, max 150): Evil Dead wild card: an enemy killed by the chainsaw rises as an ally for 3 s.
+- `mg_hail_name` (name, max 22), `mg_hail_desc` (desc, max 150): Hail to the King (Lv 9, best with Evil Dead): chainsaw reach 100, chainsaw hits Bleed, and a Bleeding enemy hit by pellets bursts (Blood, 60 area, twice a pellet).
+- `mg_ride_tag` (tag, max 25), `mg_ride_costs` (costs, max 45), `mg_ride_desc` (desc, max 150): Riding shotgun promise: damage +1% per 1% of swim speed over base, up to +60%; pellets fired while moving reach 30% further; sprinting while firing costs no stamina.
+- `mg_driveby_desc` (desc, max 150): Drive-by (Lv 6): passing within 60 of an enemy at speed fires a free volley at it, once a second.
+- `mg_handbrake_desc` (desc, max 150): Handbrake turn (Lv 6): stopping dead fires a full ring of pellets all round you, once every 3 s.
+- `mg_ride_wild_name` (name, max 22), `mg_ride_wild_desc` (desc, max 150): Riding shotgun wild card: a sidecar pet fires a second, weaker fan while you move.
+- `mg_getaway_name` (name, max 22), `mg_getaway_desc` (desc, max 150): Getaway (Lv 9, best with Riding shotgun): at full speed you take no Contact damage, and every volley kicks you forward.
+- `pass_comeback_desc` (desc, max 150), `pass_comeback_flavour` (flavour, max 60), `pass_comeback_float` (float, max 12): Come back (sperm passive, dealt only once Sperminator is taken): once a run, at 0 health you dry into an untouchable husk for 2 s and come back at 50% health with every status cleared, as a robot skeleton for the rest of the run. desc = card text, flavour = one-line quip, float = flash over you when it happens.
+- `mg_mark_float` (float, max 12): Flash over an Elite when the Sperminator mark lands.
+- `hg_desc` (desc, max 150): Hand-to-gland (Nervous Wreck renamed) weapon description: a Contact weapon that hits what gets too close; the name is a wrestling/sex pun the cards can play on.
+- `hg_kungfu_tag` (tag, max 25), `hg_kungfu_costs` (costs, max 45), `hg_kungfu_desc` (desc, max 150): Kung fu promise: twice the hit rate at 70% damage; every 5th hit is a kick that knocks back.
+- `hg_combo_desc` (desc, max 150): Combo (Lv 6): each hit on the same enemy +8%, up to +40%, reset when it dies or you switch.
+- `hg_flying_desc` (desc, max 150): Flying kick (Lv 6): the kick becomes a lunge through the target.
+- `hg_kungfu_wild_name` (name, max 22), `hg_kungfu_wild_desc` (desc, max 150): Kung fu wild card: an enemy hit twice within a second has its next shot reflected back at it.
+- `hg_fists_name` (name, max 22), `hg_fists_desc` (desc, max 150): Thousand fists (Lv 9, best with Kung fu): every hit lands on everything in reach.
+- `hg_samurai_tag` (tag, max 25), `hg_samurai_costs` (costs, max 45), `hg_samurai_desc` (desc, max 150): Samurai promise: one cut a second at triple damage in a 160 degree arc hitting all in reach; the first strike on a fresh enemy is a heavy hit.
+- `hg_iai_desc` (desc, max 150): Iaijutsu (Lv 6): a cut after 1.5 s of not cutting does double.
+- `hg_parry_desc` (desc, max 150): Parry (Lv 6): a cut destroys enemy shots in its arc.
+- `hg_samurai_wild_name` (name, max 22), `hg_samurai_wild_desc` (desc, max 150): Samurai wild card: under 30% health every cut is a heavy hit.
+- `hg_clean_name` (name, max 22), `hg_clean_desc` (desc, max 150): Clean cut (Lv 9, best with Samurai): cuts strip a Shell layer and stagger.
+- `hg_biting_tag` (tag, max 25), `hg_biting_costs` (costs, max 45), `hg_biting_desc` (desc, max 150): Biting promise: bites Bleed and heal you 4% of the damage dealt. (The user wrote: "Fist and masturbation jokes" for Kung fu; keep the sex jokes on these cards.)
+- `hg_chew_desc` (desc, max 150): Chew toy (Lv 6): a bitten enemy is held for half a second.
+- `hg_rabies_desc` (desc, max 150): Rabies (Lv 6): Bleeding enemies you bite spread Bleed to neighbours within 60.
+- `hg_biting_wild_name` (name, max 22), `hg_biting_wild_desc` (desc, max 150): Biting wild card: a bite on a Shelled enemy strips a layer.
+- `hg_jaws_name` (name, max 22), `hg_jaws_desc` (desc, max 150): Jaws (Lv 9, best with Biting): bites on enemies under 20% health kill outright (not bosses) and heal 10%.
+- `hg_kick_float` (float, max 12): Flash over an enemy on the Kung fu kick.
+- `hg_iai_float` (float, max 12): Flash over an enemy on an Iaijutsu cut.
