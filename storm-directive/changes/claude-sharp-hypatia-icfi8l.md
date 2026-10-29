@@ -1,5 +1,13 @@
 # claude/sharp-hypatia-icfi8l
 
+## 2026-10-29 ideas.md second batch (folded from the planner database); planner double-save guard
+- Systems: docs, tests/tools
+- Files: ideas.md, tests/tools/planner/template.html
+- What: 19 ideas saved from the planner (Standard Issue branches Rambo / Dirty harry / Robocop with follow-ons, Maximum Gains renamed Shotgun with Sperminator / Evild Dead / Riding shotgun, Hand-to-gland with Kung fu / Samurai / Biting) folded into ideas.md and marked filed in the artifact database. The planner refuses a second Save while one is still writing (the first save ran twice and wrote 38 rows for 19 ideas).
+- Save data: none.
+- Hooks: none.
+- Risk: none.
+
 ## 2026-10-29 Planner: Feats, sperm passives and branch gates
 - Systems: tests/tools
 - Files: tests/tools/planner/planner.js, tests/tools/planner/template.html

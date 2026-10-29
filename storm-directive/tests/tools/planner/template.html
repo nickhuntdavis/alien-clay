@@ -847,11 +847,14 @@ const unsavedNodes = () => ideaNodes().filter(n => { const o = n.c || n.ov || n.
   CAPS = true; saveUi();
 })();
 function saveUi() { const b = $('#saveall'), u = unsavedNodes().length; b.innerHTML = 'Save to ideas.md' + (u ? `<span class="n">${u}</span>` : ''); b.disabled = CAPS && !DB; b.title = !CAPS ? '' : DB ? 'Writes your blocks to the planner\'s list and asks Claude to fold them into ideas.md' : 'Sign in to claude.ai to save. Copy ideas still works.'; }
+let SAVING = false;
 async function saveIdeas(nodes) {
+  if (SAVING) { toast('Still saving the last batch.'); return; }
   if (!DB) { toast(CAPS ? 'Saving needs a claude.ai sign-in. Use Copy ideas and paste it to Claude instead.' : 'Still connecting. Try again in a moment.'); return; }
   const miss = nodes.find(n => n.c && !n.c.type);
   if (miss) { S.sel = miss.id; save(); render(); toast('State what "' + (miss.c.name || 'Untitled') + '" is first: Type, in the panel below.'); return; }
   const smp = sampleOf(), now = new Date().toISOString(); let n = 0;
+  SAVING = true;
   try {
     for (const nd of nodes) {
       const o = nd.c || nd.ov || nd.g, path = []; for (let p = nd.parent; p && p.kind !== 'root'; p = p.parent) path.unshift(p.title);
@@ -862,8 +865,8 @@ async function saveIdeas(nodes) {
       await DB.collection('ideas').doc(id).set(row);
       o.sid = id; o.savedAt = now; o.savedSig = ideaSig(nd); n++;
     }
-  } catch (e) { save(); render(); toast('Saved ' + n + ' before the list refused: ' + (e && e.code || e && e.message || 'unknown error') + '.'); return; }
-  save(); render();
+  } catch (e) { SAVING = false; save(); render(); toast('Saved ' + n + ' before the list refused: ' + (e && e.code || e && e.message || 'unknown error') + '.'); return; }
+  SAVING = false; save(); render();
   if (!n) { toast('Nothing new to save.'); return; }
   let sent = false;
   try {
