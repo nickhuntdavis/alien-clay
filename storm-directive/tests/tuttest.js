@@ -2,7 +2,7 @@ const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 400, height: 860 } });
   const errors = []; page.on('pageerror', e => errors.push(e.message + ' ' + (e.stack || '').split('\n')[1]));
-  await page.goto('file://' + require('path').resolve(__dirname, '../web/index.html')); await page.evaluate(() => splashEnd()); await page.waitForTimeout(400);
+  await page.goto('file://' + require('path').resolve(__dirname, '../web/index.html')); await page.evaluate(() => { META.obDone = 1; splashEnd(); }); await page.waitForTimeout(400); // (obDone: no first-run setup, onboard.js)
   const r1 = await page.evaluate(() => {
     SET.auto = false; SET.autoWaves = true; SET.intros = 'auto'; META.seen = {}; for (const k in ENEMY_INTRO) META.seen[k] = 1;
     UI.sample = 's002'; newGame(); UI.show('hud'); if (G.state !== 'intro') G.state = 'play';

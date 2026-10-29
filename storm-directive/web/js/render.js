@@ -1967,7 +1967,8 @@ function render() {
   drawOverkill();
   puDraw(); redDraw(); twinsDraw();
   if (FULL_COL) technicolourWash(0.32);
-  // Floating texts.
+  // Floating texts. Never through the darkfield inversion: a black outline must stay black on the black slide.
+  WORLD_DF = false;
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   for (const t of G.texts) {
     ctx.globalAlpha = Math.min(1, t.life / t.max * 2);

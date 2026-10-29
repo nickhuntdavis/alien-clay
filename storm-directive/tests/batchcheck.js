@@ -3,7 +3,7 @@ const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 400, height: 860 } });
   const errors = []; page.on('pageerror', e => errors.push(e.message));
-  await page.goto('file://' + require('path').resolve(__dirname, '../web/index.html')); await page.evaluate(() => splashEnd()); await page.waitForTimeout(400);
+  await page.goto('file://' + require('path').resolve(__dirname, '../web/index.html')); await page.evaluate(() => { META.obDone = 1; splashEnd(); }); await page.waitForTimeout(400); // (obDone: no first-run setup, onboard.js)
   const r = await page.evaluate(() => {
     const out = {};
     SET.auto = false; META.seen = {}; for (const k in ENEMY_INTRO) META.seen[k] = 1; META.tutWave = 1; META.seenTut = {};
