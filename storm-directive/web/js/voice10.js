@@ -30,6 +30,7 @@ function vxEvSet(k) { (META.vxEv || (META.vxEv = {}))[k] = 1; saveMeta(); }
 
 // Put a line on the narrator strip (show.js msgQ, shown by ui.js while playing).
 function vxPush(who, text, head, hold) {
+  return; // (narration bubbles removed from the HUD; lines are still picked and logged)
   const q = G.show.msgQ;
   who = 'sci';
   q.push({ head: head || VX_HEAD.sci + (vxSid() ? ' · ' + vxSid() : ''), body: text, color: VX_COL.sci, who, hold: hold || Math.min(6, 2.2 + text.length / 24) });

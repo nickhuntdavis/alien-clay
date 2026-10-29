@@ -11,8 +11,10 @@ function fmtViewers(v) { return (v >= 1e6 ? (v / 1e6).toFixed(1) + 'M' : v >= 1e
 // What the meter is called: the lab's funding, or (in the campaign) your devotion to the egg.
 const showWord = () => lvOn() ? 'Devotion' : 'Data';
 
-function sysMsg(head, body, color, force, who) { // who: 'sci' marks a voice line (whisper.js holds those in Immersive)
-  if (!G) return;
+// Narration is off the HUD (29 Oct 2026): voice lines (who 'sci') and narrator-headed messages are dropped; notices still show.
+const NARR_HEADS = { 'THE SCIENTIST': 1, 'THE LAB TECH': 1, 'LAB LOG': 1 };
+function sysMsg(head, body, color, force, who) { // who: 'sci' marks a voice line
+  if (!G || who === 'sci' || who === 'con' || NARR_HEADS[head]) return;
   const q = G.show.msgQ;
   if (!force && q.length >= 1) return;
   // Chatter (anything not forced) at most every 12s, so the narrator doesn't crowd the slide.
@@ -21,7 +23,7 @@ function sysMsg(head, body, color, force, who) { // who: 'sci' marks a voice lin
   if (q.length > 6) q.shift();
 }
 const sysPool = kind => SYSTEM_LINES[kind];
-function sysLine(kind, force) { if (typeof vxSysLine === 'function' && vxSysLine(kind)) return; const L = sysPool(kind); if (L) sysMsg('SYSTEM MESSAGE', pick(L), '#8dffc0', force, 'sci'); }
+function sysLine() {} // (narrator chatter removed from the HUD)
 
 function addViewers(n) {
   if (!G) return;
