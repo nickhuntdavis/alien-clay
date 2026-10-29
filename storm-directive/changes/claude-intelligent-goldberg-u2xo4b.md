@@ -1,0 +1,7 @@
+## 2026-10-29 Damage-type colour in text, rarity left bar, Feat upgrade line (v10.221)
+- Systems: ui (loot cards, Tackle Box, Armoury), weapons, feats, docs
+- Files: typetext.js (new), eink.css, style.css, index.html, tests/typetexttest.js (new), tests/run.sh, ARCHITECTURE.md, UI_PRINCIPLES.md, NOTES.md
+- What: words that speak to a damage type (Acid, Corrosion, Mucus, Snare, Charged, Bleed, Possessed, Burning, Force) take their type's e-ink colour in every screen; weapon and Feat names (loot card titles, the "For weapon:" line, Tackle Box rows, Armoury header) take the weapon's current type colour; the "For weapon:" line is one size; the Armoury sub line shows the type name in its colour instead of "weapon"; the loot card left bar is the rarity colour (was damage type); the rarity chip under the tile is 9 px; a Feat upgrade card leads with the Feat's own "what it does" line (F10 `does`, existing text), then the stat change. No new player-facing text.
+- Save data: none.
+- Hooks: none (a MutationObserver per `.screen` in typetext.js; no render function wrapped or edited).
+- Risk: other sessions editing loot cards (ui.js renderLootCards, style.css `#lootCards .card`) may touch the same left-border line; lit (`.sel`) elements are skipped so inverted buttons stay readable; a type word in prose that is not a damage type (capitalised "Force", "Static", "Fire" not before "rate") would be tinted.

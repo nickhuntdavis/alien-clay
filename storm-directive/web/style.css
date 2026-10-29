@@ -263,7 +263,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .fuse span { font-size: 11.5px; color: var(--color-text-secondary); }
 .btn.danger { color: var(--color-text-muted); }
 .card .cfor { margin-top: 6px; font-size: 15px; color: var(--color-text-secondary); }
-.card .cfor b { font-size: 17px; }
+.card .cfor b { font-size: inherit; font-weight: 700; } /* (same size as "For weapon:"; the name takes its type colour: typetext.js) */
 .card .cfor b { color: var(--color-text-strong); }
 
 /* Spawn Prawn: extra weapon slots, locked tabs, victory */
@@ -1318,7 +1318,7 @@ body #sysmsg.ws { pointer-events: auto; }
 /* Loot screen cards: neutral. Colour only on the rarity word, the reward-type label (top right) and a left border for damage type. */
 #lootCards .card, #lootCards .card.r-epic, #lootCards .card.r-legendary, #lootCards .card.r-mythical, #lootCards .card.r-celestial, #lootCards .card.fusion, #lootCards .card.cursed {
   background: var(--color-bg-sheet) !important; border: 1px solid var(--line) !important;
-  border-left: 4px solid var(--ec, var(--line)) !important; box-shadow: none !important; }
+  border-left: 4px solid color-mix(in srgb, var(--rar, var(--line)) 80%, var(--ink-mix, #1e1e1e)) !important; box-shadow: none !important; } /* (the left bar is the rarity colour, as the chip: user, 29 Oct) */
 #lootCards .card.mod { border-style: solid !important; }
 #lootCards .card .sheen, #lootCards .card .rrib, #lootCards .card::after { display: none !important; }
 #lootCards .card .cico { background: var(--color-bg-sheet) !important; border-color: var(--line) !important; }
