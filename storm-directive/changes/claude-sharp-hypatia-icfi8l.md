@@ -1,5 +1,13 @@
 # claude/sharp-hypatia-icfi8l
 
+## 2026-10-29 ideas.md: loadout ideas from the planner
+- Systems: docs only
+- Files: ideas.md (new), ARCHITECTURE.md
+- What: a kept list of the ideas pasted from the Loadout Planner's Copy ideas (dated batches, status per row). First batch: 9 ideas (Standard Issue and Maximum Gains upgrades, a Melee weapon with three follow-ons).
+- Save data: none.
+- Hooks: none.
+- Risk: none.
+
 ## 2026-10-29 Planner: edit cards as a copy, or overwrite on request
 - Systems: tests/tools (docs and tools only)
 - Files: tests/tools/planner/template.html
