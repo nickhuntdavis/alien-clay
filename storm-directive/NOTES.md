@@ -1,6 +1,7 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
+- Version v10.224 (versionCode 503): merge of `claude/zealous-cori-jj4q7l` (tone, not characters: voice_and_tone.md rewritten; card quips, narrator packs, inner voice and sample persona quotes removed; every caption speakerless; sequence stories trimmed; Feat page shows Lv x/5), `claude/intelligent-goldberg-u2xo4b` (damage-type colour in text and names: typetext.js) and `claude/focused-ramanujan-gzr4rp` (no narration on the HUD). Rival and boss taunts stay by the user's decision.
 - (claude/intelligent-goldberg-u2xo4b, 29 Oct) Type colour in text and the Card Atlas e-ink changes are in (typetext.js). Open: Force is plain ink in the e-ink palette, so Force names and the word "Force" look unchanged; the user may want a tint. The Armoury Upgrade Tree still lists the older perk names (Hot Load, Nappy Bag) at Lv 3: check against the wup branch names.
 - Version v10.220 (versionCode 499): first-run setup (onboard.js: View Lab/Arcade and Brightfield/Darkfield side by side on a live demo, then Sound sliders; copy written by Claude at the user's request, awaiting read-through) and damage numbers readable on Darkfield (floating texts skip the inversion).
 - Version v10.218 (versionCode 497): merge of `ccr-0a3df35b-hhv6r6` (Lv 30 runs: levelpace.js; reward screens only from level-ups, boss relics, Vestigial Masses and slower weapon kill bars; boss spoils, non-achievement DNA strands and Race milestones gone), `ccr-d9f589ef-0b2nf0` (v10.208 to v10.217: tougher Race start, Obligatory Podcast, run clock, first-play progression, no XP drift, fusions offered again, Mythical/Immaculate back) and the stale `ccr-b6a373a9-q8ofbd` build. Full suite 138 of 147, then bosstest updated for the retired spoils screen; still red and red before the merge: weapons24test (Laser in / The Runs out), v9lookshot (running undefined); newfoestest and pdeftest flaky (pass alone). Merged Race bot sim 0/5 wins (3 of 5 reached the egg at 15:00, Lv 17 to 26); before the merge 2/10, so the tougher start plus Lv 30 pace may be below the 20 to 50% bot band: needs a human Race.
@@ -134,6 +135,7 @@ Tone: Dungeon Crawler Carl. Dry, deadpan, nerdy, not self-aware; bodies, sex, co
 - Saves: full wipe on v10 (new META key, old `sd_meta` ignored).
 
 ## Recent changes (newest first)
+- v10.224: tone-only voice guide and copy pass, damage-type colour in text, HUD narration off. Details in CHANGELOG.md v10.224.
 - v10.195: Delivery weapons, Lifesteal modifiers, secret Weapon Draft reroll. Details in CHANGELOG.md v10.195.
 - v10.184: pacing intensity meter, late-wave GC churn cut, Enzyme Sneeze damage, five tests green. Details in CHANGELOG.md v10.184.
 - v10.181: Orbiting bodies look like the weapon's shots. Details in CHANGELOG.md v10.181.
