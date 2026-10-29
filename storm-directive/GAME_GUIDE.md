@@ -1511,7 +1511,7 @@ Rules the cards do not spell out, but that change what is worth picking.
 - **Dodge:** Capped at 75% when rolled. Cards that clamp their own bonus never lower dodge you already have.
 - **Crit overflow:** Crit chance above 100% is added to crit damage one for one.
 - **Extra projectiles:** Shots share damage: k times the projectiles deal (1 + (k^0.6 - 1)/2) in total, about +25% for one extra on a one-shot weapon.
-- **Level curve:** The game expects Lv 60 at 9:00. Each level you are ahead adds 5% enemy health and 3% enemy damage. Three or more levels behind, BEHIND PACE shows on the HUD.
+- **Level curve:** The game expects about Lv 29 at 9:00 (levels get dearer as you go: Lv 30 costs the XP the old Lv 60 did). Every bit of XP you are ahead of that adds enemy health and damage (about 5% health and 3% damage per old level). Three or more levels behind, BEHIND PACE shows on the HUD.
 - **Fever Pitch:** From 10:00 (difficulty minute 15) enemy health and damage compound every minute. Every win so far has finished in its first 2 minutes (10:15 to 11:35), so it is the final sprint, not a wall: the longer you stay in it, the harder every minute gets.
 - **Mythical and Immaculate:** A separate roll on every card, three a run at most.
 - **Weapon tuning:** Tuning cards only offer weapons the stat actually helps (no pierce for weapons that already pierce everything, no magazine for one-shot weapons).
