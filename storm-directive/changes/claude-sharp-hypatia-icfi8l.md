@@ -1,5 +1,13 @@
 # claude/sharp-hypatia-icfi8l
 
+## 2026-10-29 Planner: rules off lets anything hang off anything
+- Systems: tests/tools
+- Files: tests/tools/planner/template.html
+- What: with Game rules off, a chip or moved modifier the game would refuse lands as a card block (name, text, type filled in) under whatever it was dropped on, blocks included; unedited card blocks export as `[CARD]` and are not counted as ideas. Fixed: blocks older than their parent (after a move) were dropped at render; the capability probe ran before its helpers.
+- Save data: none.
+- Hooks: none.
+- Risk: none.
+
 ## 2026-10-29 Planner: Save to ideas.md, idea types, moving blocks
 - Systems: tests/tools, docs
 - Files: tests/tools/planner/template.html, ideas.md, NOTES.md

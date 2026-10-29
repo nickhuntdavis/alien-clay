@@ -204,7 +204,30 @@ function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.ad
 
 // ---------------------------------------------------------------- rules: what a drop does
 // Returns { ok, why, run } for a payload dropped on a tree node (or null node = the dish itself).
+// With Game rules off, anything the strict plan refuses lands as a block (a card copy) under whatever it was dropped on.
 function dropPlan(p, n) {
+  const r = (p.k === 'weapon' && !S.rules && n && n.kind !== 'root' && !(n.kind === 'hint' && !n.w)) ? { ok: false } : dropStrict(p, n);
+  if (r.ok || S.rules || !n || n.kind === 'hint' || p.k === 'blank') return r;
+  const cb = cardBlock(p); if (!cb) return r;
+  return { ok: true, free: true, run: () => {
+    const c = Object.assign({ u: S.seq++, parent: n.id, card: true }, cb); c.cardText = c.text; S.custom.push(c);
+    if (p.k === 'move') { const sn = NODES[p.id]; if (sn && sn.kind === 'mod') { const from = sn.w, m = sn.m; from.mods = from.mods.filter(x => x !== m);
+      for (const pre of ['m', 'mb', 'mm']) { const a = pre + from.u + '_' + m.id; for (const x of S.custom) if (x.parent === a) x.parent = 'c' + c.u; delete S.over[a]; } } }
+    S.sel = 'c' + c.u; } };
+}
+function cardBlock(p) { // what a game card looks like as a free block
+  if (p.k === 'weapon') { const w = W(p.id); return { tag: 'Weapon card', name: w.name, text: w.desc, type: 'Weapon', of: w.name }; }
+  if (p.k === 'mod') { const m = M(p.id); return { tag: m.gname + ' modifier card', name: m.name, text: m.ranks[0], type: 'Modifier', of: m.name }; }
+  if (p.k === 'sab') return { tag: 'Chemistry card', name: 'Switched at Birth', text: 'One fixed alternate damage type per weapon.', type: 'Switched at Birth', of: 'Switched at Birth' };
+  if (p.k === 'promise') { const P = W(p.w).promises.find(x => x.k === p.p); return P && { tag: 'Lv 3 branch card · ' + W(p.w).name, name: P.name, text: P.desc, type: 'Lv 3 branch', of: P.name }; }
+  if (p.k === 'wbranch') { const P = W(p.w).promises.find(x => x.k === p.p), o = P && (p.i === 'wild' ? P.wild : P.branches[p.i]); return o && { tag: 'Lv 6 branch card · ' + W(p.w).name, name: o.name, text: o.desc, type: 'Lv 6 branch', of: o.name }; }
+  if (p.k === 'wmast') { const x = W(p.w).masteries[p.i]; return x && { tag: 'Lv 9 mastery card · ' + W(p.w).name, name: x.name, text: x.desc, type: 'Lv 9 mastery', of: x.name }; }
+  if (p.k === 'mbranch') { const m = M(p.m), i = p.b === 'A' ? 0 : 1; return m.br && { tag: 'Fork card · ' + m.name, name: m.br[i], text: m.brText ? m.brText[i] : '', type: 'Modifier fork', of: m.br[i] }; }
+  if (p.k === 'mmast') { const m = M(p.m); return m.br && { tag: 'Mastery card · ' + m.name, name: m.br[MAST_IDX[p.x]], text: m.brText ? m.brText[MAST_TXT[p.x]] : '', type: 'Modifier mastery', of: m.br[MAST_IDX[p.x]] }; }
+  if (p.k === 'move') { const sn = NODES[p.id]; return sn && sn.kind === 'mod' && !sn.m.builtin ? { tag: sn.Md.gname + ' modifier card', name: sn.title, text: sn.desc, type: 'Modifier', of: sn.Md.name } : null; }
+  return null;
+}
+function dropStrict(p, n) {
   const R = S.rules;
   if (p.k === 'weapon') {
     if (S.weapons.some(w => w.id === p.id)) return { ok: false, why: W(p.id).name + ' is already on the sperm.' };
@@ -228,7 +251,7 @@ function dropPlan(p, n) {
       const tw = n.w; if (!tw) return { ok: false, why: 'Drop a modifier on a weapon.' };
       if (tw === sn.w) return { ok: false, why: 'Already there.' };
       if (tw.mods.find(x => x.id === sn.m.id)) return { ok: false, why: W(tw.id).name + ' already has ' + M(sn.m.id).name + '.' };
-      const r = dropPlan({ k: 'mod', id: sn.m.id }, NODES['w' + tw.u]); if (!r.ok) return r;
+      const r = dropStrict({ k: 'mod', id: sn.m.id }, NODES['w' + tw.u]); if (!r.ok) return r;
       return { ok: true, run: () => {
         const from = sn.w, m = sn.m; from.mods = from.mods.filter(x => x !== m); tw.mods.push(m);
         for (const pre of ['m', 'mb', 'mm']) { const a = pre + from.u + '_' + m.id, b = pre + tw.u + '_' + m.id; for (const c of S.custom) if (c.parent === a) c.parent = b; if (S.over[a]) { S.over[b] = S.over[a]; delete S.over[a]; } }
@@ -328,8 +351,10 @@ function buildTree() {
       }
     }
   }
-  const kept = [];
-  for (const c of S.custom.slice().sort((a, b) => a.u - b.u)) { const par = NODES[c.parent]; if (!par) continue; kept.push(c); par.children.push(mk('c' + c.u, { kind: 'custom', c, title: c.name || 'Untitled', ey: c.tag, desc: c.text, col: 'var(--idea)' })); }
+  const kept = []; let todo = S.custom.slice().sort((a, b) => a.u - b.u), moved = true;
+  while (todo.length && moved) { moved = false; const rest = [];
+    for (const c of todo) { const par = NODES[c.parent]; if (!par) { rest.push(c); continue; } moved = true; kept.push(c); par.children.push(mk('c' + c.u, { kind: 'custom', c, title: c.name || 'Untitled', ey: c.tag, desc: c.text, col: 'var(--idea)' })); }
+    todo = rest; }
   S.custom = kept; // (blocks whose parent went are dropped)
   for (const k of Object.keys(S.over)) if (!NODES[k]) delete S.over[k]; // (edits of nodes that went)
   for (const w of S.weapons) { const wn = NODES['w' + w.u]; if (!wn.children.length) wn.children.push(mk('h' + w.u, { kind: 'hint', w, title: 'Drop modifiers, a Lv 3 branch or a blank block here', ey: 'empty', desc: '', col: 'var(--line)' })); }
@@ -647,7 +672,7 @@ map.addEventListener('keydown', e => { if (e.target.matches('input, textarea')) 
 const sel = $('#sample');
 sel.innerHTML = D.samples.map(s => `<option value="${esc(s.id)}">${esc(s.name)} (strain ${s.strain})</option>`).join('');
 sel.value = S.sample; sel.onchange = () => { S.sample = sel.value; save(); render(); };
-$('#rules').checked = S.rules; $('#rules').onchange = e => { S.rules = e.target.checked; save(); renderRack(); toast(S.rules ? 'Game rules on: fit, one per group, 5 slots, forks in order.' : 'Game rules off: anything goes (like the no-limits setting).'); };
+$('#rules').checked = S.rules; $('#rules').onchange = e => { S.rules = e.target.checked; save(); renderRack(); toast(S.rules ? 'Game rules on: fit, one per group, 5 slots, forks in order.' : 'Game rules off: anything hangs off anything. What the game would refuse lands as a card block.'); };
 let clearArm = 0;
 $('#clear').onclick = () => { const b = $('#clear'); if (Date.now() - clearArm > 2500) { clearArm = Date.now(); b.textContent = 'Clear? Tap again'; setTimeout(() => b.textContent = 'Clear', 2500); return; } S.weapons = []; S.custom = []; S.over = {}; S.sel = null; b.textContent = 'Clear'; save(); render(); };
 const LABEL = n => {
@@ -659,6 +684,7 @@ const LABEL = n => {
   if (n.kind === 'mod') return `${n.title} R${n.m.rank}${n.m.mast ? ' (mastered)' : ''}${n.m.builtin ? ' (built in)' : ''}`;
   if (n.kind === 'mbranch') return `Fork ${n.m.br}: ${n.title}`;
   if (n.kind === 'mmast') return `Mastery ${n.m.mast}: ${n.title}`;
+  if (n.kind === 'custom' && n.c.card && n.c.name === n.c.of && n.c.text === cardText(n.c)) return `[CARD · ${n.c.tag}] ${n.c.name}`;
   if (n.kind === 'custom') return `[IDEA · ${n.c.tag || 'custom'}] ${n.c.name || 'Untitled'}${n.c.of ? ' (variant of ' + n.c.of + ')' : ''}${n.c.text ? ': ' + n.c.text.replace(/\s*\n\s*/g, ' / ') : ''}`;
   return n.title;
 };
@@ -692,13 +718,14 @@ $('#ideas').onclick = () => { const t = ideasText(); if (!t) { toast('Nothing of
 // Blocks and edits are written to the artifact's database (collection "ideas", status "queued"); a comment sent to Claude then asks
 // the session that owns the planner to fold them into storm-directive/ideas.md and mark them "filed".
 let DB = null, CM = null, CAPS = false;
+const ideaSig = n => { const o = n.c || n.ov; return [o.type || '', o.name || '', o.text || '', n.c ? o.tag : ''].join('|'); };
+const ideaNodes = () => (LAST ? LAST.all : []).filter(n => (n.c && !(n.c.card && n.c.name === n.c.of && n.c.text === cardText(n.c))) || n.ov);
+const cardText = c => c.cardText != null ? c.cardText : c.text; // (a card block's text as dealt; edits make it an idea)
+const unsavedNodes = () => ideaNodes().filter(n => { const o = n.c || n.ov; return !o.sid || o.savedSig !== ideaSig(n); });
 (async () => {
   try { if (window.claude && window.claude.use) { DB = await window.claude.use('db'); CM = await window.claude.use('comments'); } } catch (e) { }
   CAPS = true; saveUi();
 })();
-const ideaSig = n => { const o = n.c || n.ov; return [o.type || '', o.name || '', o.text || '', n.c ? o.tag : ''].join('|'); };
-const ideaNodes = () => (LAST ? LAST.all : []).filter(n => (n.c || n.ov));
-const unsavedNodes = () => ideaNodes().filter(n => { const o = n.c || n.ov; return !o.sid || o.savedSig !== ideaSig(n); });
 function saveUi() { const b = $('#saveall'), u = unsavedNodes().length; b.innerHTML = 'Save to ideas.md' + (u ? `<span class="n">${u}</span>` : ''); b.disabled = CAPS && !DB; b.title = !CAPS ? '' : DB ? 'Writes your blocks to the planner\'s list and asks Claude to fold them into ideas.md' : 'Sign in to claude.ai to save. Copy ideas still works.'; }
 async function saveIdeas(nodes) {
   if (!DB) { toast(CAPS ? 'Saving needs a claude.ai sign-in. Use Copy ideas and paste it to Claude instead.' : 'Still connecting. Try again in a moment.'); return; }
