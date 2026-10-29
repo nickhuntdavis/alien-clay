@@ -11,8 +11,10 @@ function fmtViewers(v) { return (v >= 1e6 ? (v / 1e6).toFixed(1) + 'M' : v >= 1e
 // What the meter is called: the lab's funding, or (in the campaign) your devotion to the egg.
 const showWord = () => lvOn() ? 'Devotion' : 'Data';
 
+// Narration is off the HUD: voice lines ('sci'/'con') and narrator-headed messages are dropped; notices still show.
+const NARR_HEADS = { 'THE SCIENTIST': 1, 'THE LAB TECH': 1 };
 function sysMsg(head, body, color, force, who) { // who: 'sci' (the Scientist) or 'con' (inner voice) picks the box's look
-  if (!G) return;
+  if (!G || who === 'sci' || who === 'con' || NARR_HEADS[head]) return;
   const q = G.show.msgQ;
   if (!force && q.length >= 1) return;
   // Chatter (anything not forced) at most every 12s, so the narrator doesn't crowd the slide.
@@ -22,7 +24,7 @@ function sysMsg(head, body, color, force, who) { // who: 'sci' (the Scientist) o
 }
 // In the campaign the default narrator gives way to your own inner voice (LONGING_LINES).
 const sysPool = kind => (lvOn() && SET.narrator === 'system' && LONGING_LINES[kind]) || SYSTEM_LINES[kind];
-function sysLine(kind, force) { if (typeof vxSysLine === 'function' && vxSysLine(kind)) return; const L = sysPool(kind); if (L) sysMsg('SYSTEM MESSAGE', pick(L), '#8dffc0', force, L === SYSTEM_LINES[kind] ? 'sci' : 'con'); }
+function sysLine() {} // (narrator chatter removed from the HUD)
 
 function addViewers(n) {
   if (!G) return;

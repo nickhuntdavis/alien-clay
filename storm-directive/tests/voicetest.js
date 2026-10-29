@@ -10,15 +10,17 @@ const { chromium } = require('playwright');
   const r = await page.evaluate(() => {
     const bad = [], out = {};
     const run = (id, mode) => { META.profile = 's10_' + id; UI.sample = mode || 's002'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 0; G.nextBoss = 1e9; G.ev.next = 1e9; G.enemies.length = 0; genLoot({ kind: 'start' })[0].apply(); G.P.maxHp = G.player.hp = 1e6; };
-    const q = () => G.show.msgQ.map(m => m.body);
+    const q = () => G.show.msgQ.map(m => m.body), lg = () => G.vx ? G.vx.log.map(l => l.text) : [];
+    const voiced = () => G.show.msgQ.filter(m => m.who === 'sci' || m.who === 'con').length; // (narration is off the HUD)
     META.s10runs = {}; META.seen = {}; META.vxSt = {}; META.vxEv = {};
     // 1. a run start produces a line, and the sample ID is 1A
     run('baseline'); out.sid1 = vxSid();
     G.t = 2; vxTick(0.3); vxTick(0.3);
-    out.start = q();
-    if (!q().length || !G.vx.log.some(l => l.event === 'runStart')) bad.push('no run start line');
+    out.start = lg();
+    if (voiced()) bad.push('narration reached the HUD: ' + q());
+    if (!G.vx.log.some(l => l.event === 'runStart')) bad.push('no run start line');
     if (out.sid1 !== '1A') bad.push('first run id ' + out.sid1);
-    if (!/1A/.test(q().join(' '))) bad.push('first run line does not name the sample: ' + q());
+    if (!/1A/.test(lg().join(' '))) bad.push('first run line does not name the sample: ' + lg());
     // 2. death: a Scientist line on the end screen, ID 1B on the second run, and the run log carries it
     run('baseline'); out.sid2 = vxSid();
     if (out.sid2 !== '1B') bad.push('second run id ' + out.sid2);
@@ -41,10 +43,8 @@ const { chromium } = require('playwright');
     run('baseline', 's001'); META.vxSt = {}; SET.intros = 'auto';
     const k = makeEnemy(ENEMIES.crawler, G.player.x + 80, G.player.y); G.enemies.push(k);
     G.t = 20; k.corrodedT = G.t + 60; vxHints();
-    const n1 = q().filter(t => t === STATUS_HINT.Corrosion).length;
     G.t = 40; vxHints(); G.t = 60; vxHints();
-    const n2 = q().filter(t => t === STATUS_HINT.Corrosion).length;
-    if (n1 !== 1 || n2 !== 1) bad.push('Corrosion hint shown ' + n1 + ' then ' + n2 + ' times');
+    if (voiced()) bad.push('status hint reached the HUD: ' + q());
     if (!META.vxSt.Corrosion) bad.push('hint not remembered');
     // 5. the rate limit: 60 s of events, no more than one line every 20 s
     run('baseline'); const S = vxs(); G.show.msgQ.length = 0; S.log.length = 0;
@@ -55,10 +55,10 @@ const { chromium } = require('playwright');
     for (let i = 1; i < S.log.length; i++) if (S.log[i].t - S.log[i - 1].t < 19.9) bad.push('lines ' + (S.log[i].t - S.log[i - 1].t) + ' s apart');
     // 6. Spectral Combustion: the Tier 3 line plus its recovery, once
     run('baseline'); G.show.msgQ.length = 0; vxSpectral();
-    if (q().length !== 2 || !/^Form 12B filed\./.test(q()[1])) bad.push('Spectral lines: ' + q());
+    if (voiced()) bad.push('Spectral lines on the HUD: ' + q());
     // 7. Tier 2 lines bring their recover line
     run('baseline'); G.show.msgQ.length = 0; vxSay('celestialDrop', 'sci', { force: true });
-    if (q().length !== 2) bad.push('celestial recover: ' + q());
+    if (voiced()) bad.push('celestial lines on the HUD: ' + q());
     // 8. boss intro: a line on the card
     run('baseline'); META.bosses = {}; spawnBoss(); const bi = document.getElementById('biReward');
     if (!bi || !/"/.test(bi.innerHTML)) bad.push('no boss intro line');

@@ -12,7 +12,6 @@ const SETTINGS_DEF = [
   { id: 'autoWaves', tab: 'game', label: 'Full Auto starts waves', hint: 'In the Petri Dish, Full Auto also starts the next wave for you.', opts: [[true, 'ON'], [false, 'OFF']], off: () => !SET.auto && 'Only with Full Auto on.' },
   { id: 'inspect', tab: 'game', label: 'Tap an enemy', hint: 'Tap an enemy for its card (health, weaknesses, a joke). PAUSE stops the game while the card is open; HALF SPEED keeps it running slowly.', opts: [['pause', 'PAUSE'], ['half', 'HALF SPEED']] },
   { id: 'intros', tab: 'game', label: 'New enemy introductions', hint: 'The first time you meet an enemy or rival. FULL stops the slide for its card; QUIET shows a short message and keeps playing; AUTO does the full card for your first five, then goes quiet; OFF says nothing. Everything still goes in your Field Guide. Bosses always get their full entrance.', opts: [['auto', 'AUTO'], ['full', 'FULL'], ['quiet', 'QUIET'], ['off', 'OFF']] },
-  { id: 'narrator', tab: 'game', label: 'Narrator', hint: 'Who comments on your life choices.', opts: [['system', 'THE LAB TECH'], ['documentary', 'DOCUMENTARY'], ['midwife', 'THE MIDWIFE'], ['mothers', 'THE MUMS']] },
   // SCREEN
   { id: 'view', tab: 'screen', label: 'View', hint: 'LAB: a real microscope. Nothing on the slide has colour, you included; effects show in each cell\'s body. ARCADE: everything in full colour, with coloured rings that drain as effects run out.', opts: [['lab', 'LAB'], ['arcade', 'ARCADE']] },
   { id: 'menus', tab: 'screen', label: 'Menus', hint: 'PAPER: grey e-ink, easy to read in daylight. INK: black, easier on the eyes in the dark. AUTO: follows your phone\'s dark setting. The slide has its own Darkfield setting.', opts: [['paper', 'PAPER'], ['ink', 'INK'], ['auto', 'AUTO']] },
@@ -149,6 +148,7 @@ const NARRATORS = {
 };
 const BASE_LINES = Object.assign({}, SYSTEM_LINES);
 function applyNarrator() {
+  SET.narrator = 'system'; // (the Narrator setting is gone: older saves fall back to the default pack)
   const pack = NARRATORS[SET.narrator] || NARRATORS.system;
   for (const k in BASE_LINES) SYSTEM_LINES[k] = pack.lines[k] || BASE_LINES[k];
 }
