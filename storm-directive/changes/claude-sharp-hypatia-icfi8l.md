@@ -1,5 +1,13 @@
 # claude/sharp-hypatia-icfi8l
 
+## 2026-10-29 Planner: edit cards as a copy, or overwrite on request
+- Systems: tests/tools (docs and tools only)
+- Files: tests/tools/planner/template.html
+- What: every card node on the map has Edit as a copy (a blank block beside it, prefilled with its name and text, tagged Variant of X; the original is untouched) and Overwrite the original (rewrites the node in place, keeping its slot, rank and branches; Revert restores it). Both appear in Copy build (`[EDITED, was X]`, `variant of X`) and Copy ideas (with the original text).
+- Save data: none.
+- Hooks: none.
+- Risk: none.
+
 ## 2026-10-29 Planner: blank idea blocks
 - Systems: tests/tools (docs and tools only)
 - Files: tests/tools/planner/template.html

@@ -101,6 +101,11 @@ details.wb.onmap { border-color: var(--accent); }
 .types { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
 .types span { font: 500 10px var(--mono); padding: 1px 6px; border-radius: 10px; border: 1px solid var(--tc); color: var(--tc); }
 .chip.blank { border-style: dashed; border-left-style: dashed; background: var(--idea-bg); --c: var(--idea); }
+.node.edited { background: var(--idea-bg); border-style: double; border-width: 3px; padding-left: 9px; }
+.node.edited input, .node.edited textarea { display: block; width: 100%; border: 0; background: transparent; padding: 0; margin: 0; resize: none; color: var(--ink); }
+.node.edited input:focus, .node.edited textarea:focus { outline: none; background: var(--hi); border-radius: 3px; }
+.node.edited .ct { font: 700 14.5px/1.15 var(--display); margin: 2px 0; }
+.node.edited .cx { font: 11.5px/1.35 var(--body); color: var(--dim); overflow: hidden; min-height: 32px; }
 .node.custom { border-style: dashed; background: var(--idea-bg); --c: var(--idea); cursor: text; }
 .node.custom input, .node.custom textarea { display: block; width: 100%; border: 0; background: transparent; padding: 0; margin: 0; resize: none; color: var(--ink); }
 .node.custom input:focus, .node.custom textarea:focus { outline: none; background: var(--hi); border-radius: 3px; }
@@ -176,9 +181,9 @@ const SAB_DESC = t => `Attacks switch to ${tname(t)} damage: 35% of them, then 7
 $('#ver').textContent = 'data from v' + D.version;
 
 // ---------------------------------------------------------------- state
-let S = { sample: D.samples[0].id, rules: true, sel: null, zoom: 1, weapons: [], custom: [], seq: 1 };
+let S = { sample: D.samples[0].id, rules: true, sel: null, zoom: 1, weapons: [], custom: [], over: {}, seq: 1 };
 let FOCUS = null;
-try { const s = JSON.parse(localStorage.getItem('sp_planner_v1') || 'null'); if (s && s.weapons) S = Object.assign(S, s); if (!S.custom) S.custom = []; } catch (e) { }
+try { const s = JSON.parse(localStorage.getItem('sp_planner_v1') || 'null'); if (s && s.weapons) S = Object.assign(S, s); if (!S.custom) S.custom = []; if (!S.over) S.over = {}; } catch (e) { }
 const save = () => { try { localStorage.setItem('sp_planner_v1', JSON.stringify(S)); } catch (e) { } };
 const sampleOf = () => D.samples.find(s => s.id === S.sample) || D.samples[0];
 const W = id => D.weapons[id], M = id => D.mods[id];
@@ -260,7 +265,7 @@ function applyDrop(p, n) { const r = dropPlan(p, n); if (!r.ok) { toast(r.why); 
 let NODES = {};
 function buildTree() {
   NODES = {};
-  const mk = (id, o) => (NODES[id] = Object.assign({ id, children: [] }, o));
+  const mk = (id, o) => { const n = NODES[id] = Object.assign({ id, children: [] }, o); const ov = S.over[id]; if (ov) { n.ov = ov; n.title = ov.name; n.desc = ov.text; } return n; };
   const smp = sampleOf();
   const root = mk('root', { kind: 'root', title: smp.name, ey: 'Strain ' + smp.strain + ' · ' + smp.origin, desc: smp.passive + ': ' + smp.pdesc, col: tvar(smp.types[0]), smp });
   for (const w of S.weapons) {
@@ -298,6 +303,7 @@ function buildTree() {
   const kept = [];
   for (const c of S.custom.slice().sort((a, b) => a.u - b.u)) { const par = NODES[c.parent]; if (!par) continue; kept.push(c); par.children.push(mk('c' + c.u, { kind: 'custom', c, title: c.name || 'Untitled', ey: c.tag, desc: c.text, col: 'var(--idea)' })); }
   S.custom = kept; // (blocks whose parent went are dropped)
+  for (const k of Object.keys(S.over)) if (!NODES[k]) delete S.over[k]; // (edits of nodes that went)
   for (const w of S.weapons) { const wn = NODES['w' + w.u]; if (!wn.children.length) wn.children.push(mk('h' + w.u, { kind: 'hint', w, title: 'Drop modifiers, a Lv 3 branch or a blank block here', ey: 'empty', desc: '', col: 'var(--line)' })); }
   if (S.weapons.length < MAXW) root.children.push(mk('hroot', { kind: 'hint', title: S.weapons.length ? 'Drop another weapon here' : 'Drop a weapon here (1 to 4)', ey: 'empty mount', desc: '', col: 'var(--line)' }));
   return root;
@@ -310,6 +316,11 @@ function nodeHtml(n) {
       <span class="ey"><i></i>${esc(n.ey)}</span><b>${esc(n.title)}</b><p>${esc(n.desc)}</p><div class="types">${s.types.map(t => `<span style="--tc:${tvar(t)}">${esc(tname(t))}</span>`).join('')}</div>`;
   }
   if (n.kind === 'custom') return `<input class="cg" value="${esc(n.c.tag)}" placeholder="Tag" aria-label="Tag"><input class="ct" value="${esc(n.c.name)}" placeholder="Name it" aria-label="Name"><textarea class="cx" rows="2" placeholder="What it does: numbers, trigger, feel." aria-label="Text">${esc(n.c.text)}</textarea>`;
+  if (n.ov) {
+    let h = `<span class="ey"><i></i>${esc(n.ey)} · edited</span><input class="ct" value="${esc(n.ov.name)}" placeholder="Name it" aria-label="Name"><textarea class="cx" rows="2" placeholder="What it does now" aria-label="Text">${esc(n.ov.text)}</textarea>`;
+    if (n.kind === 'mod') h += `<div class="pips">${[1, 2, 3].map(r => `<span class="${n.rank >= r ? 'on' : ''}"></span>`).join('')}<em>${n.m.mast ? 'mastery' : 'Rank ' + n.rank}</em></div>`;
+    return h;
+  }
   let h = `<span class="ey"><i></i>${esc(n.ey)}</span><b>${esc(n.title)}</b>`;
   if (n.desc) h += `<p>${esc(n.desc)}</p>`;
   if (n.kind === 'mod') h += `<div class="pips">${[1, 2, 3].map(r => `<span class="${n.rank >= r ? 'on' : ''}"></span>`).join('')}<em>${n.m.mast ? 'mastery' : 'Rank ' + n.rank}${n.Md.max < 3 ? ' · max ' + n.Md.max : ''}</em></div>`;
@@ -325,7 +336,7 @@ function render() {
   (function walk(n, d, par) { n.depth = d; n.parent = par; all.push(n); n.children.forEach(c => walk(c, d + 1, n)); })(root, 0, null);
   for (const n of all) {
     const el = document.createElement('div');
-    el.className = 'node ' + n.kind + (n.kind === 'root' ? ' root' : '') + (n.kind === 'hint' ? ' hintnode' : '') + (S.sel === n.id ? ' sel' : '');
+    el.className = 'node ' + n.kind + (n.kind === 'root' ? ' root' : '') + (n.kind === 'hint' ? ' hintnode' : '') + (n.ov ? ' edited' : '') + (S.sel === n.id ? ' sel' : '');
     el.dataset.n = n.id; el.style.setProperty('--c', n.col); el.tabIndex = n.kind === 'hint' ? -1 : 0;
     el.innerHTML = nodeHtml(n); stage.appendChild(el); n.el = el;
   }
@@ -366,11 +377,13 @@ function layout() {
 // typing into a blank block: keep the state, re-flow the map, never rebuild (that would drop the caret)
 let typeT = 0;
 $('#stage').addEventListener('input', e => {
-  const el = e.target.closest('.node.custom'); if (!el) return;
-  const n = NODES[el.dataset.n]; if (!n || !n.c) return;
-  if (e.target.classList.contains('cg')) n.c.tag = e.target.value;
-  if (e.target.classList.contains('ct')) n.c.name = e.target.value;
-  if (e.target.classList.contains('cx')) n.c.text = e.target.value;
+  const el = e.target.closest('.node.custom, .node.edited'); if (!el) return;
+  const n = NODES[el.dataset.n]; if (!n) return;
+  const o = n.c || n.ov; if (!o) return;
+  if (e.target.classList.contains('cg') && n.c) o.tag = e.target.value;
+  if (e.target.classList.contains('ct')) o.name = e.target.value;
+  if (e.target.classList.contains('cx')) o.text = e.target.value;
+  n.title = o.name || n.title; n.desc = o.text; // (exports read the node, not the DOM)
   layout(); clearTimeout(typeT); typeT = setTimeout(save, 300);
 });
 function applyZoom() {
@@ -391,7 +404,7 @@ function renderDetail() {
   let h = `<span class="ey">${esc(n.ey)}</span><h2>${esc(n.title)}</h2><p>${esc(n.desc)}</p>`;
   if (n.kind === 'custom') {
     h += `<div class="row"><small style="color:var(--dim)">Type straight into the block on the map. Blocks are kept with the build and listed by Copy ideas.</small></div>`;
-    h += `<div class="row">${B('Add a blank block under this', false, { k: 'blank' })}<button class="btn danger" data-act="rmc">Remove block</button></div>`;
+    h += `<div class="row">${B('Add a blank block under this', false, { k: 'blank' })}<button class="btn" data-act="copy">Duplicate</button><button class="btn danger" data-act="rmc">Remove block</button></div>`;
     d.innerHTML = h; return;
   }
   if (n.kind === 'root') {
@@ -429,6 +442,11 @@ function renderDetail() {
     if (!m.builtin) h += `<div class="row"><button class="btn danger" data-act="rmm">Remove modifier</button></div>`;
   }
   h += `<div class="row">${B('Add a blank block here', false, { k: 'blank' })}</div>`;
+  if (n.kind !== 'root') {
+    h += `<div class="row"><span class="lab">Edit</span><button class="btn" data-act="copy">Edit as a copy</button>` + (n.ov
+      ? `<button class="btn" data-act="revert">Revert to the original</button><small style="color:var(--dim)">Original: ${esc(n.ov.orig.name)}. ${esc(n.ov.orig.text)}</small>`
+      : `<button class="btn" data-act="over">Overwrite the original</button><small style="color:var(--dim)">A copy is a new block beside this one. Overwrite rewrites this one in place; it keeps its slot, rank and branches.</small>`) + `</div>`;
+  }
   d.innerHTML = h;
 }
 $('#detail').addEventListener('click', e => {
@@ -436,6 +454,9 @@ $('#detail').addEventListener('click', e => {
   const n = NODES[S.sel]; if (!n) return;
   if (b.dataset.p) { applyDrop(JSON.parse(b.dataset.p), n); return; }
   const a = b.dataset.act, w = n.w;
+  if (a === 'copy') { const orig = n.c ? null : (n.ov ? n.ov.orig.name : n.title); const c = { u: S.seq++, parent: n.c ? n.parent.id : (n.parent ? n.parent.id : 'root'), tag: n.c ? n.c.tag : 'Variant of ' + orig, name: n.c ? n.c.name : n.title, text: n.c ? n.c.text : n.desc, of: orig }; S.custom.push(c); S.sel = FOCUS = 'c' + c.u; }
+  if (a === 'over') { S.over[n.id] = { name: n.title, text: n.desc, orig: { name: n.title, text: n.desc } }; FOCUS = n.id; }
+  if (a === 'revert') { delete S.over[n.id]; }
   if (a === 'rmw') { S.weapons = S.weapons.filter(x => x !== w); S.sel = 'root'; }
   if (a === 'rmc') { S.custom = S.custom.filter(x => x !== n.c); S.sel = n.parent ? n.parent.id : 'root'; }
   if (a === 'rmp') { w.promise = null; w.wbr = null; w.wmast = null; S.sel = 'w' + w.u; }
@@ -572,7 +593,7 @@ sel.innerHTML = D.samples.map(s => `<option value="${esc(s.id)}">${esc(s.name)} 
 sel.value = S.sample; sel.onchange = () => { S.sample = sel.value; save(); render(); };
 $('#rules').checked = S.rules; $('#rules').onchange = e => { S.rules = e.target.checked; save(); renderRack(); toast(S.rules ? 'Game rules on: fit, one per group, 5 slots, forks in order.' : 'Game rules off: anything goes (like the no-limits setting).'); };
 let clearArm = 0;
-$('#clear').onclick = () => { const b = $('#clear'); if (Date.now() - clearArm > 2500) { clearArm = Date.now(); b.textContent = 'Clear? Tap again'; setTimeout(() => b.textContent = 'Clear', 2500); return; } S.weapons = []; S.custom = []; S.sel = null; b.textContent = 'Clear'; save(); render(); };
+$('#clear').onclick = () => { const b = $('#clear'); if (Date.now() - clearArm > 2500) { clearArm = Date.now(); b.textContent = 'Clear? Tap again'; setTimeout(() => b.textContent = 'Clear', 2500); return; } S.weapons = []; S.custom = []; S.over = {}; S.sel = null; b.textContent = 'Clear'; save(); render(); };
 const LABEL = n => {
   if (n.kind === 'weapon') { const Wd = W(n.w.id); return `${Wd.name} [${Wd.atk}, ${tname(Wd.type)}]`; }
   if (n.kind === 'promise') return `Lv 3 ${n.P.k}: ${n.title}`;
@@ -582,23 +603,25 @@ const LABEL = n => {
   if (n.kind === 'mod') return `${n.title} R${n.m.rank}${n.m.mast ? ' (mastered)' : ''}${n.m.builtin ? ' (built in)' : ''}`;
   if (n.kind === 'mbranch') return `Fork ${n.m.br}: ${n.title}`;
   if (n.kind === 'mmast') return `Mastery ${n.m.mast}: ${n.title}`;
-  if (n.kind === 'custom') return `[IDEA · ${n.c.tag || 'custom'}] ${n.c.name || 'Untitled'}${n.c.text ? ': ' + n.c.text.replace(/\s*\n\s*/g, ' / ') : ''}`;
+  if (n.kind === 'custom') return `[IDEA · ${n.c.tag || 'custom'}] ${n.c.name || 'Untitled'}${n.c.of ? ' (variant of ' + n.c.of + ')' : ''}${n.c.text ? ': ' + n.c.text.replace(/\s*\n\s*/g, ' / ') : ''}`;
   return n.title;
 };
+const LABEL2 = n => n.ov ? `${LABEL(n)} [EDITED${n.ov.orig.name !== n.ov.name ? ', was ' + n.ov.orig.name : ''}]: ${(n.ov.text || '').replace(/\s*\n\s*/g, ' / ')}` : LABEL(n);
 function buildText() {
   const smp = sampleOf(), L = [`${smp.name} (strain ${smp.strain}, ${smp.types.map(tname).join('/')}) · ${smp.passive}`];
-  (function walk(n) { for (const c of n.children) { if (c.kind === 'hint') continue; L.push('  '.repeat(c.depth - 1) + '- ' + LABEL(c)); walk(c); } })(NODES.root);
+  (function walk(n) { for (const c of n.children) { if (c.kind === 'hint') continue; L.push('  '.repeat(c.depth - 1) + '- ' + LABEL2(c)); walk(c); } })(NODES.root);
   if (L.length === 1) L.push('- (nothing on the dish yet)');
   return L.join('\n');
 }
 function ideasText() {
-  const smp = sampleOf(), ideas = LAST.all.filter(n => n.kind === 'custom');
+  const smp = sampleOf(), ideas = LAST.all.filter(n => n.kind === 'custom' || n.ov);
   if (!ideas.length) return '';
   const L = [`Loadout ideas (${ideas.length}) · ${smp.name}, v${D.version} data`];
   ideas.forEach((n, i) => {
     const path = []; for (let p = n.parent; p && p.kind !== 'root'; p = p.parent) path.unshift(p.title);
-    L.push(`${i + 1}. [${n.c.tag || 'custom'}] ${n.c.name || 'Untitled'}` + (path.length ? `   (under ${path.join(' > ')})` : '   (on the sperm)'));
-    if (n.c.text) L.push('   ' + n.c.text.replace(/\n/g, '\n   '));
+    const where = path.length ? `   (under ${path.join(' > ')})` : '   (on the sperm)';
+    if (n.c) { L.push(`${i + 1}. [${n.c.tag || 'custom'}] ${n.c.name || 'Untitled'}` + (n.c.of ? ` (variant of ${n.c.of})` : '') + where); if (n.c.text) L.push('   ' + n.c.text.replace(/\n/g, '\n   ')); }
+    else { L.push(`${i + 1}. [Edit of ${n.ov.orig.name}] ${n.ov.name || 'Untitled'}` + where); if (n.ov.text) L.push('   ' + n.ov.text.replace(/\n/g, '\n   ')); L.push('   (was: ' + n.ov.orig.text.replace(/\n/g, ' / ') + ')'); }
   });
   return L.join('\n');
 }
@@ -608,7 +631,7 @@ function copyText(t, what) {
   if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done, fail); else fail();
 }
 $('#copy').onclick = () => copyText(buildText(), 'Build');
-$('#ideas').onclick = () => { const t = ideasText(); if (!t) { toast('No blank blocks on the dish yet. Drag one from the rack.'); return; } copyText(t, 'Ideas'); };
+$('#ideas').onclick = () => { const t = ideasText(); if (!t) { toast('Nothing of yours on the dish yet: drop a blank block, or edit a card.'); return; } copyText(t, 'Ideas'); };
 // ---------------------------------------------------------------- boot
 try { if (window.claude && window.claude.hot && window.claude.hot.snapshot) window.claude.hot.snapshot(() => S); } catch (e) { }
 function start(hot) { if (hot && hot.weapons) S = Object.assign(S, hot); render(); if (!S.weapons.length) { S.sel = 'root'; render(); } }
