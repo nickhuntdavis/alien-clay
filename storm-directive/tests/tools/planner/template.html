@@ -127,6 +127,11 @@ details.wb.onmap { border-color: var(--accent); }
 .btn.opt { font-weight: 500; font-family: var(--body); max-width: 100%; white-space: normal; text-align: left; }
 .btn.opt.on { border-color: var(--accent); background: var(--hi); font-weight: 700; }
 .btn:disabled { opacity: .4; cursor: default; }
+.btn .n { display: inline-block; min-width: 16px; padding: 0 4px; border-radius: 8px; background: var(--accent); color: var(--bg); font: 700 10px/16px var(--mono); margin-left: 4px; }
+.node.moving { opacity: .35; }
+.node.custom .ty, .node.edited .ty { font: 500 10px var(--mono); color: var(--dim); margin-top: 3px; }
+.node.custom .ty.unset { color: var(--g-lifesteal); }
+.detail select { padding: 4px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
 .slots { display: flex; gap: 4px; align-items: center; }
 .slots span { width: 22px; height: 8px; border-radius: 4px; background: var(--line); }
 .slots span.on { background: var(--accent); }
@@ -154,6 +159,7 @@ details.wb.onmap { border-color: var(--accent); }
       <div class="zoom"><button class="btn" id="zout" title="Zoom out">−</button><button class="btn" id="zfit" title="Fit">Fit</button><button class="btn" id="zin" title="Zoom in">+</button></div>
       <button class="btn" id="copy">Copy build</button>
       <button class="btn" id="ideas">Copy ideas</button>
+      <button class="btn" id="saveall" title="Writes your blocks to the planner's list and asks Claude to fold them into ideas.md">Save to ideas.md</button>
       <button class="btn danger" id="clear">Clear</button>
     </div>
     <div class="map" id="map"><div class="sizer" id="sizer"><div class="stage" id="stage"></div></div></div>
@@ -177,6 +183,8 @@ const tname = t => (D.types[t] || {}).name || t;
 const tvar = t => `var(--t-${D.types[t] ? t : 'phys'})`;
 const gvar = g => `var(--g-${g})`;
 const MAST_IDX = { A1: 2, A2: 3, B1: 4, B2: 5 }, MAST_TXT = { A1: 4, A2: 5, B1: 6, B2: 7 };
+const IDEA_TYPES = ['Weapon', 'Lv 3 branch', 'Lv 6 branch', 'Lv 9 mastery', 'Modifier', 'Modifier fork', 'Modifier mastery', 'Switched at Birth', 'Feat', 'Sperm passive', 'Sample', 'Enemy', 'Other'];
+const KIND_TYPE = { weapon: 'Weapon', promise: 'Lv 3 branch', wbranch: 'Lv 6 branch', wmast: 'Lv 9 mastery', mod: 'Modifier', mbranch: 'Modifier fork', mmast: 'Modifier mastery', sab: 'Switched at Birth' };
 const SAB_DESC = t => `Attacks switch to ${tname(t)} damage: 35% of them, then 70%, then a fork at level 3 (fully switched, or Blend: the new type plus an echo of the original). Takes the Chemistry slot.`;
 $('#ver').textContent = 'data from v' + D.version;
 
@@ -207,6 +215,26 @@ function dropPlan(p, n) {
     if (!n || n.kind === 'hint') return { ok: false, why: 'Drop the blank on a node.' };
     const TAG = { root: 'Custom weapon', weapon: 'Custom upgrade', mod: 'Custom fork', mbranch: 'Custom mastery', promise: 'Custom Lv 6 branch', wbranch: 'Custom mastery', custom: 'Custom follow-on' };
     return { ok: true, run: () => { const c = { u: S.seq++, parent: n.id, tag: TAG[n.kind] || 'Custom', name: '', text: '' }; S.custom.push(c); S.sel = FOCUS = 'c' + c.u; } };
+  }
+  if (p.k === 'move') {
+    const sn = NODES[p.id]; if (!sn || !n || n.kind === 'hint') return { ok: false, why: 'Drop it on a node.' };
+    if (sn.kind === 'custom') {
+      for (let t = n; t; t = t.parent) if (t === sn) return { ok: false, why: 'A block cannot hang off itself.' };
+      if (sn.parent === n) return { ok: false, why: 'Already there.' };
+      return { ok: true, run: () => { sn.c.parent = n.id; S.sel = sn.id; } };
+    }
+    if (sn.kind === 'mod') {
+      if (sn.m.builtin) return { ok: false, why: M(sn.m.id).name + ' is built into ' + W(sn.w.id).name + '.' };
+      const tw = n.w; if (!tw) return { ok: false, why: 'Drop a modifier on a weapon.' };
+      if (tw === sn.w) return { ok: false, why: 'Already there.' };
+      if (tw.mods.find(x => x.id === sn.m.id)) return { ok: false, why: W(tw.id).name + ' already has ' + M(sn.m.id).name + '.' };
+      const r = dropPlan({ k: 'mod', id: sn.m.id }, NODES['w' + tw.u]); if (!r.ok) return r;
+      return { ok: true, run: () => {
+        const from = sn.w, m = sn.m; from.mods = from.mods.filter(x => x !== m); tw.mods.push(m);
+        for (const pre of ['m', 'mb', 'mm']) { const a = pre + from.u + '_' + m.id, b = pre + tw.u + '_' + m.id; for (const c of S.custom) if (c.parent === a) c.parent = b; if (S.over[a]) { S.over[b] = S.over[a]; delete S.over[a]; } }
+        S.sel = 'm' + tw.u + '_' + m.id; } };
+    }
+    return { ok: false, why: 'Only blank blocks and modifiers move. Branches belong to their weapon.' };
   }
   const w = n && n.w; if (!w) return { ok: false, why: n && n.kind === 'custom' ? 'Only blank blocks hang off a blank block.' : 'Drop that on a weapon.' };
   const Wd = W(w.id);
@@ -315,10 +343,11 @@ function nodeHtml(n) {
     return `<svg class="sperm" viewBox="0 0 120 60" aria-hidden="true"><defs><radialGradient id="hg" cx="35%" cy="35%" r="75%"><stop offset="0" stop-color="#ffffff" stop-opacity=".95"/><stop offset="1" style="stop-color:${n.col}"/></radialGradient></defs><g class="tail"><path d="M42 30 C 56 16, 66 44, 82 30 S 106 16, 118 30" fill="none" stroke="${n.col}" stroke-width="3" stroke-linecap="round"/></g><ellipse cx="26" cy="30" rx="19" ry="12.5" fill="url(#hg)" stroke="${n.col}" stroke-width="2"/><ellipse cx="21" cy="28.5" rx="7" ry="5" fill="${n.col}" opacity=".6"/></svg>
       <span class="ey"><i></i>${esc(n.ey)}</span><b>${esc(n.title)}</b><p>${esc(n.desc)}</p><div class="types">${s.types.map(t => `<span style="--tc:${tvar(t)}">${esc(tname(t))}</span>`).join('')}</div>`;
   }
-  if (n.kind === 'custom') return `<input class="cg" value="${esc(n.c.tag)}" placeholder="Tag" aria-label="Tag"><input class="ct" value="${esc(n.c.name)}" placeholder="Name it" aria-label="Name"><textarea class="cx" rows="2" placeholder="What it does: numbers, trigger, feel." aria-label="Text">${esc(n.c.text)}</textarea>`;
+  if (n.kind === 'custom') return `<input class="cg" value="${esc(n.c.tag)}" placeholder="Tag" aria-label="Tag"><input class="ct" value="${esc(n.c.name)}" placeholder="Name it" aria-label="Name"><textarea class="cx" rows="2" placeholder="What it does: numbers, trigger, feel." aria-label="Text">${esc(n.c.text)}</textarea><div class="ty ${n.c.type ? '' : 'unset'}">${n.c.type ? esc(n.c.type) : 'type not set'}${n.c.sid ? (ideaSig(n) === n.c.savedSig ? ' · saved' : ' · changed since saved') : ''}</div>`;
   if (n.ov) {
     let h = `<span class="ey"><i></i>${esc(n.ey)} · edited</span><input class="ct" value="${esc(n.ov.name)}" placeholder="Name it" aria-label="Name"><textarea class="cx" rows="2" placeholder="What it does now" aria-label="Text">${esc(n.ov.text)}</textarea>`;
     if (n.kind === 'mod') h += `<div class="pips">${[1, 2, 3].map(r => `<span class="${n.rank >= r ? 'on' : ''}"></span>`).join('')}<em>${n.m.mast ? 'mastery' : 'Rank ' + n.rank}</em></div>`;
+    h += `<div class="ty">${esc(n.ov.type || KIND_TYPE[n.kind] || 'Other')}${n.ov.sid ? (ideaSig(n) === n.ov.savedSig ? ' · saved' : ' · changed since saved') : ''}</div>`;
     return h;
   }
   let h = `<span class="ey"><i></i>${esc(n.ey)}</span><b>${esc(n.title)}</b>`;
@@ -344,6 +373,7 @@ function render() {
   layout();
   renderDetail();
   renderRack();
+  saveUi();
   if (FOCUS) { const f = stage.querySelector(`[data-n="${FOCUS}"] .ct`); FOCUS = null; if (f) { f.focus(); f.scrollIntoView({ block: 'nearest', inline: 'nearest' }); } }
 }
 function layout() {
@@ -404,6 +434,7 @@ function renderDetail() {
   let h = `<span class="ey">${esc(n.ey)}</span><h2>${esc(n.title)}</h2><p>${esc(n.desc)}</p>`;
   if (n.kind === 'custom') {
     h += `<div class="row"><small style="color:var(--dim)">Type straight into the block on the map. Blocks are kept with the build and listed by Copy ideas.</small></div>`;
+    h += typeRow(n.c, false) + saveRow(n.c);
     h += `<div class="row">${B('Add a blank block under this', false, { k: 'blank' })}<button class="btn" data-act="copy">Duplicate</button><button class="btn danger" data-act="rmc">Remove block</button></div>`;
     d.innerHTML = h; return;
   }
@@ -444,15 +475,23 @@ function renderDetail() {
   h += `<div class="row">${B('Add a blank block here', false, { k: 'blank' })}</div>`;
   if (n.kind !== 'root') {
     h += `<div class="row"><span class="lab">Edit</span><button class="btn" data-act="copy">Edit as a copy</button>` + (n.ov
-      ? `<button class="btn" data-act="revert">Revert to the original</button><small style="color:var(--dim)">Original: ${esc(n.ov.orig.name)}. ${esc(n.ov.orig.text)}</small>`
+      ? `<button class="btn" data-act="revert">Revert to the original</button><small style="color:var(--dim)">Original: ${esc(n.ov.orig.name)}. ${esc(n.ov.orig.text)}</small></div>` + typeRow(n.ov, KIND_TYPE[n.kind] || 'Other') + saveRow(n.ov) + `<div class="row">`
       : `<button class="btn" data-act="over">Overwrite the original</button><small style="color:var(--dim)">A copy is a new block beside this one. Overwrite rewrites this one in place; it keeps its slot, rank and branches.</small>`) + `</div>`;
   }
   d.innerHTML = h;
 }
+const typeRow = (o, dflt) => `<div class="row"><span class="lab">Type</span><select id="ideatype" aria-label="Type">${(dflt ? '' : '<option value="">State what it is…</option>') + IDEA_TYPES.map(t => `<option value="${esc(t)}" ${(o.type || dflt) === t ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select><small style="color:var(--dim)">What ideas.md should file it as.</small></div>`;
+const saveRow = o => `<div class="row"><span class="lab">ideas.md</span><button class="btn" data-act="saveone">Save to ideas.md</button><small style="color:var(--dim)">${o.sid ? (o.savedAt ? 'Saved ' + new Date(o.savedAt).toLocaleString() : 'Saved') + '.' : 'Not saved yet.'}</small></div>`;
+$('#detail').addEventListener('change', e => {
+  if (e.target.id !== 'ideatype') return;
+  const n = NODES[S.sel]; const o = n && (n.c || n.ov); if (!o) return;
+  o.type = e.target.value; save(); render();
+});
 $('#detail').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   const n = NODES[S.sel]; if (!n) return;
   if (b.dataset.p) { applyDrop(JSON.parse(b.dataset.p), n); return; }
+  if (b.dataset.act === 'saveone') { saveIdeas([n]); return; }
   const a = b.dataset.act, w = n.w;
   if (a === 'copy') { const orig = n.c ? null : (n.ov ? n.ov.orig.name : n.title); const c = { u: S.seq++, parent: n.c ? n.parent.id : (n.parent ? n.parent.id : 'root'), tag: n.c ? n.c.tag : 'Variant of ' + orig, name: n.c ? n.c.name : n.title, text: n.c ? n.c.text : n.desc, of: orig }; S.custom.push(c); S.sel = FOCUS = 'c' + c.u; }
   if (a === 'over') { S.over[n.id] = { name: n.title, text: n.desc, orig: { name: n.title, text: n.desc } }; FOCUS = n.id; }
@@ -564,7 +603,7 @@ window.addEventListener('pointermove', e => {
 function endDrag(e, cancelled) {
   if (!drag || e.pointerId !== drag.id) return;
   const d = drag; drag = null;
-  if (d.ghost) { d.ghost.remove(); const el = overEl; setOver(null); if (!cancelled && el) { const n = NODES[el.dataset.n]; applyDrop(d.p, n.kind === 'hint' ? (n.w ? NODES['w' + n.w.u] : NODES.root) : n); } return; }
+  if (d.ghost) { d.ghost.remove(); if (d.fromMap) d.el.classList.remove('moving'); const el = overEl; setOver(null); if (!cancelled && el) { const n = NODES[el.dataset.n]; applyDrop(d.p, n.kind === 'hint' ? (n.w ? NODES['w' + n.w.u] : NODES.root) : n); } return; }
   if (cancelled) return;
   const t = targetFor(d.p); // a tap: add to the selected node
   if (!t) { toast('Drop a weapon on the sperm first.'); return; }
@@ -576,11 +615,28 @@ window.addEventListener('pointercancel', e => endDrag(e, true));
 // select a node by tapping it; pan the map by dragging its background
 const map = $('#map');
 let pan = null;
+let nodeDrag = null, swallowClick = false;
+map.addEventListener('pointerdown', e => {
+  const el = e.target.closest('.node'); if (!el || e.button || e.target.matches('input, textarea, select, button')) return;
+  const n = NODES[el.dataset.n]; if (!n || !(n.kind === 'custom' || (n.kind === 'mod' && !n.m.builtin))) return;
+  nodeDrag = { n, el, sx: e.clientX, sy: e.clientY, id: e.pointerId };
+});
+window.addEventListener('pointermove', e => {
+  if (!nodeDrag || e.pointerId !== nodeDrag.id || drag) return;
+  if (Math.hypot(e.clientX - nodeDrag.sx, e.clientY - nodeDrag.sy) < 8) return;
+  const g = nodeDrag.el.cloneNode(true); g.classList.add('ghost'); g.classList.remove('sel'); g.style.width = nodeDrag.el.offsetWidth * S.zoom + 'px'; document.body.appendChild(g);
+  nodeDrag.el.classList.add('moving');
+  drag = { p: { k: 'move', id: nodeDrag.n.id }, el: nodeDrag.el, sx: nodeDrag.sx, sy: nodeDrag.sy, ghost: g, id: nodeDrag.id, fromMap: true };
+  try { nodeDrag.el.setPointerCapture(nodeDrag.id); } catch (x) { }
+  nodeDrag = null; swallowClick = true;
+}, { passive: true });
+window.addEventListener('pointerup', e => { if (nodeDrag && e.pointerId === nodeDrag.id) nodeDrag = null; });
 map.addEventListener('pointerdown', e => { if (e.target.closest('.node')) return; pan = { x: e.clientX, y: e.clientY, sl: map.scrollLeft, st: map.scrollTop, id: e.pointerId, moved: false }; map.classList.add('panning'); });
 map.addEventListener('pointermove', e => { if (!pan || e.pointerId !== pan.id) return; const dx = e.clientX - pan.x, dy = e.clientY - pan.y; if (Math.hypot(dx, dy) > 4) pan.moved = true; map.scrollLeft = pan.sl - dx; map.scrollTop = pan.st - dy; });
 const endPan = e => { if (!pan) return; const moved = pan.moved; pan = null; map.classList.remove('panning'); if (!moved && !e.target.closest('.node')) { S.sel = null; save(); render(); } };
 map.addEventListener('pointerup', endPan); map.addEventListener('pointercancel', () => { pan = null; map.classList.remove('panning'); });
 map.addEventListener('click', e => {
+  if (swallowClick) { swallowClick = false; return; }
   const el = e.target.closest('.node'); if (!el) return; const n = NODES[el.dataset.n]; if (n.kind === 'hint') return;
   if (e.target.matches('input, textarea')) { if (S.sel !== n.id) { S.sel = n.id; save(); map.querySelectorAll('.node.sel').forEach(x => x.classList.remove('sel')); el.classList.add('sel'); renderDetail(); } return; }
   S.sel = n.id; save(); render();
@@ -632,6 +688,47 @@ function copyText(t, what) {
 }
 $('#copy').onclick = () => copyText(buildText(), 'Build');
 $('#ideas').onclick = () => { const t = ideasText(); if (!t) { toast('Nothing of yours on the dish yet: drop a blank block, or edit a card.'); return; } copyText(t, 'Ideas'); };
+// ---------------------------------------------------------------- Save to ideas.md
+// Blocks and edits are written to the artifact's database (collection "ideas", status "queued"); a comment sent to Claude then asks
+// the session that owns the planner to fold them into storm-directive/ideas.md and mark them "filed".
+let DB = null, CM = null, CAPS = false;
+(async () => {
+  try { if (window.claude && window.claude.use) { DB = await window.claude.use('db'); CM = await window.claude.use('comments'); } } catch (e) { }
+  CAPS = true; saveUi();
+})();
+const ideaSig = n => { const o = n.c || n.ov; return [o.type || '', o.name || '', o.text || '', n.c ? o.tag : ''].join('|'); };
+const ideaNodes = () => (LAST ? LAST.all : []).filter(n => (n.c || n.ov));
+const unsavedNodes = () => ideaNodes().filter(n => { const o = n.c || n.ov; return !o.sid || o.savedSig !== ideaSig(n); });
+function saveUi() { const b = $('#saveall'), u = unsavedNodes().length; b.innerHTML = 'Save to ideas.md' + (u ? `<span class="n">${u}</span>` : ''); b.disabled = CAPS && !DB; b.title = !CAPS ? '' : DB ? 'Writes your blocks to the planner\'s list and asks Claude to fold them into ideas.md' : 'Sign in to claude.ai to save. Copy ideas still works.'; }
+async function saveIdeas(nodes) {
+  if (!DB) { toast(CAPS ? 'Saving needs a claude.ai sign-in. Use Copy ideas and paste it to Claude instead.' : 'Still connecting. Try again in a moment.'); return; }
+  const miss = nodes.find(n => n.c && !n.c.type);
+  if (miss) { S.sel = miss.id; save(); render(); toast('State what "' + (miss.c.name || 'Untitled') + '" is first: Type, in the panel below.'); return; }
+  const smp = sampleOf(), now = new Date().toISOString(); let n = 0;
+  try {
+    for (const nd of nodes) {
+      const o = nd.c || nd.ov, path = []; for (let p = nd.parent; p && p.kind !== 'root'; p = p.parent) path.unshift(p.title);
+      const id = o.sid || ('i' + Date.now().toString(36) + '_' + (nd.c ? nd.c.u : nd.id));
+      const row = { type: o.type || KIND_TYPE[nd.kind] || 'Other', name: o.name || 'Untitled', text: o.text || '', under: path.join(' > ') || '(on the sperm)', sample: smp.name, version: D.version, savedAt: now, status: 'queued',
+        kind: nd.c ? 'block' : 'edit', tag: nd.c ? nd.c.tag : nd.ey, variantOf: nd.c ? (nd.c.of || '') : '', orig: nd.ov ? nd.ov.orig : null };
+      await DB.collection('ideas').doc(id).set(row);
+      o.sid = id; o.savedAt = now; o.savedSig = ideaSig(nd); n++;
+    }
+  } catch (e) { save(); render(); toast('Saved ' + n + ' before the list refused: ' + (e && e.code || e && e.message || 'unknown error') + '.'); return; }
+  save(); render();
+  if (!n) { toast('Nothing new to save.'); return; }
+  let sent = false;
+  try {
+    if (CM && (await CM.canSendToClaude()) === 'available') {
+      const anchor = await CM.anchorFor($('#saveall'));
+      await CM.sendToClaude({ anchor, text: `Fold ${n} saved idea${n === 1 ? '' : 's'} from the planner into ideas.md (database collection "ideas", status "queued").` });
+      sent = true;
+    }
+  } catch (e) { }
+  toast(sent ? `Saved ${n}. Claude has been asked to fold ${n === 1 ? 'it' : 'them'} into ideas.md.` : `Saved ${n} to the planner's list. Ask Claude to fold the queued ideas into ideas.md.`);
+}
+$('#saveall').onclick = () => { const u = unsavedNodes(); if (!u.length) { toast(ideaNodes().length ? 'Everything is saved already.' : 'Nothing of yours on the dish yet: drop a blank block, or edit a card.'); return; } saveIdeas(u); };
+
 // ---------------------------------------------------------------- boot
 try { if (window.claude && window.claude.hot && window.claude.hot.snapshot) window.claude.hot.snapshot(() => S); } catch (e) { }
 function start(hot) { if (hot && hot.weapons) S = Object.assign(S, hot); render(); if (!S.weapons.length) { S.sel = 'root'; render(); } }

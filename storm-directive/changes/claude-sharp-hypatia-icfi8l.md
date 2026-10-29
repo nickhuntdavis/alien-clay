@@ -1,5 +1,13 @@
 # claude/sharp-hypatia-icfi8l
 
+## 2026-10-29 Planner: Save to ideas.md, idea types, moving blocks
+- Systems: tests/tools, docs
+- Files: tests/tools/planner/template.html, ideas.md, NOTES.md
+- What: each block or edit has a Type (Weapon, Lv 3 branch, Modifier fork and so on; required before saving); Save to ideas.md (toolbar: all unsaved; panel: one block) writes rows to the artifact database (collection `ideas`, status `queued`) and sends Claude a comment to fold them into ideas.md. Blank blocks and modifiers can be dragged from one node to another on the map (modifiers keep rank, fork and mastery, and obey the fit and group rules; branches stay with their weapon). The artifact is published with the `db` and `comments` capabilities.
+- Save data: none in the game.
+- Hooks: none.
+- Risk: none.
+
 ## 2026-10-29 ideas.md: loadout ideas from the planner
 - Systems: docs only
 - Files: ideas.md (new), ARCHITECTURE.md
