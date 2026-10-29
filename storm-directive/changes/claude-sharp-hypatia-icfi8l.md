@@ -1,5 +1,13 @@
 # claude/sharp-hypatia-icfi8l
 
+## 2026-10-29 Planner: Feats, sperm passives and branch gates
+- Systems: tests/tools
+- Files: tests/tools/planner/planner.js, tests/tools/planner/template.html
+- What: a Feats & more tab lists the 52 Feats (feats10.js F10, Unique Feats per sample, Lv 3 and Lv 5 forks) and the 29 sperm passives still dealt (mutations.js MUT_REG minus SP.cut, with spmast.js masteries). They drop on the sperm (3 Feat slots plus the sample's Unique; 5 passive slots). Gating: a Feat, modifier or passive dropped on a branch (Lv 3/6/9 branch, fork, mastery, Feat fork, passive mastery) becomes a gate node, only available once that branch is taken; gates drag between branches, export as a Gates list (Copy ideas, Copy build) and save to ideas.md as type Gate.
+- Save data: none.
+- Hooks: none.
+- Risk: none.
+
 ## 2026-10-29 Planner: rules off lets anything hang off anything
 - Systems: tests/tools
 - Files: tests/tools/planner/template.html

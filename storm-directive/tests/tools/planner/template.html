@@ -7,17 +7,17 @@
 :root {
   --bg: #e9eef0; --panel: #ffffff; --panel2: #f3f6f7; --ink: #15232a; --dim: #5e717a; --line: #c8d4d8; --accent: #0b7f8c; --hi: #0b7f8c22;
   --g-delivery: #2563c9; --g-flight: #d9480f; --g-crowd: #8e3fb0; --g-tempo: #c2185b; --g-chemistry: #1f8f4e; --g-area: #a07400; --g-lifesteal: #c0392b;
-  --t-phys: #5a6c7c; --t-fire: #d4168a; --t-ice: #3f8f1f; --t-shock: #a3850a; --t-arcane: #b5123f; --t-soul: #a37a00; --t-flame: #e04e10; --t-poison: #c2447f; --t-oxi: #9c6b16; --t-salt: #2a6fd6; --t-sab: #1f8f4e; --idea: #3b4a55; --idea-bg: #fbfcf8;
+  --t-phys: #5a6c7c; --t-fire: #d4168a; --t-ice: #3f8f1f; --t-shock: #a3850a; --t-arcane: #b5123f; --t-soul: #a37a00; --t-flame: #e04e10; --t-poison: #c2447f; --t-oxi: #9c6b16; --t-salt: #2a6fd6; --t-sab: #1f8f4e; --idea: #3b4a55; --idea-bg: #fbfcf8; --pass: #6b5bd6; --gate: #b7791f;
   --display: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif; --body: 'Atkinson Hyperlegible', system-ui, sans-serif; --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #0d1416; --panel: #151e21; --panel2: #1b2629; --ink: #e3ecee; --dim: #8ea3a9; --line: #283539; --accent: #4fd1e0; --hi: #4fd1e033;
   --g-delivery: #6ea2ff; --g-flight: #ff8a4d; --g-crowd: #c98cff; --g-tempo: #ff6fa8; --g-chemistry: #5fd68f; --g-area: #f0c24a; --g-lifesteal: #ff7b6b;
-  --t-phys: #dfe7f2; --t-fire: #ff5fc0; --t-ice: #8ee05a; --t-shock: #ffe94a; --t-arcane: #ff5a7e; --t-soul: #ffcf5a; --t-flame: #ff7a3a; --t-poison: #ff8ac0; --t-oxi: #e0a84a; --t-salt: #6fa6ff; --t-sab: #5fd68f; --idea: #c9d6dc; --idea-bg: #1a2226; color-scheme: dark; } }
+  --t-phys: #dfe7f2; --t-fire: #ff5fc0; --t-ice: #8ee05a; --t-shock: #ffe94a; --t-arcane: #ff5a7e; --t-soul: #ffcf5a; --t-flame: #ff7a3a; --t-poison: #ff8ac0; --t-oxi: #e0a84a; --t-salt: #6fa6ff; --t-sab: #5fd68f; --idea: #c9d6dc; --idea-bg: #1a2226; --pass: #a99bff; --gate: #f0c060; color-scheme: dark; } }
 :root[data-theme="dark"] {
   --bg: #0d1416; --panel: #151e21; --panel2: #1b2629; --ink: #e3ecee; --dim: #8ea3a9; --line: #283539; --accent: #4fd1e0; --hi: #4fd1e033;
   --g-delivery: #6ea2ff; --g-flight: #ff8a4d; --g-crowd: #c98cff; --g-tempo: #ff6fa8; --g-chemistry: #5fd68f; --g-area: #f0c24a; --g-lifesteal: #ff7b6b;
-  --t-phys: #dfe7f2; --t-fire: #ff5fc0; --t-ice: #8ee05a; --t-shock: #ffe94a; --t-arcane: #ff5a7e; --t-soul: #ffcf5a; --t-flame: #ff7a3a; --t-poison: #ff8ac0; --t-oxi: #e0a84a; --t-salt: #6fa6ff; --t-sab: #5fd68f; --idea: #c9d6dc; --idea-bg: #1a2226; color-scheme: dark; }
+  --t-phys: #dfe7f2; --t-fire: #ff5fc0; --t-ice: #8ee05a; --t-shock: #ffe94a; --t-arcane: #ff5a7e; --t-soul: #ffcf5a; --t-flame: #ff7a3a; --t-poison: #ff8ac0; --t-oxi: #e0a84a; --t-salt: #6fa6ff; --t-sab: #5fd68f; --idea: #c9d6dc; --idea-bg: #1a2226; --pass: #a99bff; --gate: #f0c060; color-scheme: dark; }
 html, body { height: 100%; }
 body { margin: 0; box-sizing: border-box; background: var(--bg); color: var(--ink); font: 14px/1.4 var(--body); display: flex; flex-direction: column; gap: 10px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 10px; }
@@ -106,6 +106,8 @@ details.wb.onmap { border-color: var(--accent); }
 .node.edited input:focus, .node.edited textarea:focus { outline: none; background: var(--hi); border-radius: 3px; }
 .node.edited .ct { font: 700 14.5px/1.15 var(--display); margin: 2px 0; }
 .node.edited .cx { font: 11.5px/1.35 var(--body); color: var(--dim); overflow: hidden; min-height: 32px; }
+.node.gate { border-style: dotted; border-width: 2px; }
+.node.gate .ey::before { content: ''; width: 9px; height: 11px; border: 2px solid var(--gate); border-radius: 3px 3px 2px 2px; border-top-width: 4px; flex: none; }
 .node.custom { border-style: dashed; background: var(--idea-bg); --c: var(--idea); cursor: text; }
 .node.custom input, .node.custom textarea { display: block; width: 100%; border: 0; background: transparent; padding: 0; margin: 0; resize: none; color: var(--ink); }
 .node.custom input:focus, .node.custom textarea:focus { outline: none; background: var(--hi); border-radius: 3px; }
@@ -148,6 +150,7 @@ details.wb.onmap { border-color: var(--accent); }
       <button role="tab" aria-selected="true" data-tab="weapons" id="tab-weapons">Weapons</button>
       <button role="tab" aria-selected="false" data-tab="mods" id="tab-mods">Modifiers</button>
       <button role="tab" aria-selected="false" data-tab="branches" id="tab-branches">Branches</button>
+      <button role="tab" aria-selected="false" data-tab="feats" id="tab-feats">Feats &amp; more</button>
     </div>
     <div class="rackbody" id="rack"></div>
   </section>
@@ -183,15 +186,25 @@ const tname = t => (D.types[t] || {}).name || t;
 const tvar = t => `var(--t-${D.types[t] ? t : 'phys'})`;
 const gvar = g => `var(--g-${g})`;
 const MAST_IDX = { A1: 2, A2: 3, B1: 4, B2: 5 }, MAST_TXT = { A1: 4, A2: 5, B1: 6, B2: 7 };
-const IDEA_TYPES = ['Weapon', 'Lv 3 branch', 'Lv 6 branch', 'Lv 9 mastery', 'Modifier', 'Modifier fork', 'Modifier mastery', 'Switched at Birth', 'Feat', 'Sperm passive', 'Sample', 'Enemy', 'Other'];
-const KIND_TYPE = { weapon: 'Weapon', promise: 'Lv 3 branch', wbranch: 'Lv 6 branch', wmast: 'Lv 9 mastery', mod: 'Modifier', mbranch: 'Modifier fork', mmast: 'Modifier mastery', sab: 'Switched at Birth' };
+const IDEA_TYPES = ['Weapon', 'Lv 3 branch', 'Lv 6 branch', 'Lv 9 mastery', 'Modifier', 'Modifier fork', 'Modifier mastery', 'Switched at Birth', 'Feat', 'Feat fork', 'Sperm passive', 'Passive mastery', 'Gate', 'Sample', 'Enemy', 'Other'];
+const FEAT_BY = {}; for (const f of D.feats) FEAT_BY[f.id] = f; const FEAT = id => FEAT_BY[id];
+const PASS_BY = {}; for (const p of D.passives) PASS_BY[p.id] = p; const PASS = id => PASS_BY[id];
+const FAM = f => ({ body: 'Body', trade: 'Trade-off', rare: 'Rare', rules: 'Rules', def: 'Defence', fire: 'Fire', 'type:any': 'Any damage type' }[f] || (f.startsWith('type:') ? tname({ force: 'phys', acid: 'fire', static: 'shock', mucus: 'ice', blood: 'arcane', soul: 'soul', fire: 'flame' }[f.slice(5)] || f.slice(5)) + ' type' : f));
+const GATE_KINDS = new Set(['promise', 'wbranch', 'wmast', 'mbranch', 'mmast', 'ffork', 'pmast']); // (branches: a Feat, modifier or passive dropped here is only available once the branch is taken)
+const gateCard = g => { // what a gate holds
+  if (g.k === 'mod') { const m = M(g.id); return m && { name: m.name, desc: m.ranks[0], kindName: 'modifier', col: gvar(m.group) }; }
+  if (g.k === 'feat') { const f = FEAT(g.id); return f && { name: f.name, desc: f.does, kindName: 'Feat', col: f.type ? tvar(f.type) : 'var(--accent)' }; }
+  if (g.k === 'pass') { const p = PASS(g.id); return p && { name: p.name, desc: p.desc, kindName: 'sperm passive', col: 'var(--pass)' }; }
+  return null;
+};
+const KIND_TYPE = { weapon: 'Weapon', promise: 'Lv 3 branch', wbranch: 'Lv 6 branch', wmast: 'Lv 9 mastery', mod: 'Modifier', mbranch: 'Modifier fork', mmast: 'Modifier mastery', sab: 'Switched at Birth', feat: 'Feat', ffork: 'Feat fork', pass: 'Sperm passive', pmast: 'Passive mastery', gate: 'Gate' };
 const SAB_DESC = t => `Attacks switch to ${tname(t)} damage: 35% of them, then 70%, then a fork at level 3 (fully switched, or Blend: the new type plus an echo of the original). Takes the Chemistry slot.`;
 $('#ver').textContent = 'data from v' + D.version;
 
 // ---------------------------------------------------------------- state
-let S = { sample: D.samples[0].id, rules: true, sel: null, zoom: 1, weapons: [], custom: [], over: {}, seq: 1 };
+let S = { sample: D.samples[0].id, rules: true, sel: null, zoom: 1, weapons: [], custom: [], over: {}, feats: [], pass: [], gates: [], seq: 1 };
 let FOCUS = null;
-try { const s = JSON.parse(localStorage.getItem('sp_planner_v1') || 'null'); if (s && s.weapons) S = Object.assign(S, s); if (!S.custom) S.custom = []; if (!S.over) S.over = {}; } catch (e) { }
+try { const s = JSON.parse(localStorage.getItem('sp_planner_v1') || 'null'); if (s && s.weapons) S = Object.assign(S, s); if (!S.custom) S.custom = []; if (!S.over) S.over = {}; for (const k of ['feats', 'pass', 'gates']) if (!S[k]) S[k] = []; } catch (e) { }
 const save = () => { try { localStorage.setItem('sp_planner_v1', JSON.stringify(S)); } catch (e) { } };
 const sampleOf = () => D.samples.find(s => s.id === S.sample) || D.samples[0];
 const W = id => D.weapons[id], M = id => D.mods[id];
@@ -224,6 +237,8 @@ function cardBlock(p) { // what a game card looks like as a free block
   if (p.k === 'wmast') { const x = W(p.w).masteries[p.i]; return x && { tag: 'Lv 9 mastery card · ' + W(p.w).name, name: x.name, text: x.desc, type: 'Lv 9 mastery', of: x.name }; }
   if (p.k === 'mbranch') { const m = M(p.m), i = p.b === 'A' ? 0 : 1; return m.br && { tag: 'Fork card · ' + m.name, name: m.br[i], text: m.brText ? m.brText[i] : '', type: 'Modifier fork', of: m.br[i] }; }
   if (p.k === 'mmast') { const m = M(p.m); return m.br && { tag: 'Mastery card · ' + m.name, name: m.br[MAST_IDX[p.x]], text: m.brText ? m.brText[MAST_TXT[p.x]] : '', type: 'Modifier mastery', of: m.br[MAST_IDX[p.x]] }; }
+  if (p.k === 'feat') { const f = FEAT(p.id); return f && { tag: 'Feat card', name: f.name, text: f.does, type: 'Feat', of: f.name }; }
+  if (p.k === 'pass') { const x = PASS(p.id); return x && { tag: 'Sperm passive card', name: x.name, text: x.desc, type: 'Sperm passive', of: x.name }; }
   if (p.k === 'move') { const sn = NODES[p.id]; return sn && sn.kind === 'mod' && !sn.m.builtin ? { tag: sn.Md.gname + ' modifier card', name: sn.title, text: sn.desc, type: 'Modifier', of: sn.Md.name } : null; }
   return null;
 }
@@ -246,6 +261,12 @@ function dropStrict(p, n) {
       if (sn.parent === n) return { ok: false, why: 'Already there.' };
       return { ok: true, run: () => { sn.c.parent = n.id; S.sel = sn.id; } };
     }
+    if (sn.kind === 'gate') {
+      if (S.rules && !GATE_KINDS.has(n.kind)) return { ok: false, why: 'Gates sit on branches: a Lv 3, 6 or 9 branch, a fork or a mastery.' };
+      if (sn.parent === n) return { ok: false, why: 'Already there.' };
+      for (let t = n; t; t = t.parent) if (t === sn) return { ok: false, why: 'A gate cannot hang off itself.' };
+      return { ok: true, run: () => { sn.g.parent = n.id; S.sel = sn.id; } };
+    }
     if (sn.kind === 'mod') {
       if (sn.m.builtin) return { ok: false, why: M(sn.m.id).name + ' is built into ' + W(sn.w.id).name + '.' };
       const tw = n.w; if (!tw) return { ok: false, why: 'Drop a modifier on a weapon.' };
@@ -257,8 +278,29 @@ function dropStrict(p, n) {
         for (const pre of ['m', 'mb', 'mm']) { const a = pre + from.u + '_' + m.id, b = pre + tw.u + '_' + m.id; for (const c of S.custom) if (c.parent === a) c.parent = b; if (S.over[a]) { S.over[b] = S.over[a]; delete S.over[a]; } }
         S.sel = 'm' + tw.u + '_' + m.id; } };
     }
-    return { ok: false, why: 'Only blank blocks and modifiers move. Branches belong to their weapon.' };
+    return { ok: false, why: 'Only blank blocks, modifiers and gates move. Branches belong to their weapon.' };
   }
+  // gating: a Feat, modifier or passive dropped on a branch is only available once that branch is taken
+  if ((p.k === 'feat' || p.k === 'mod' || p.k === 'pass') && n && GATE_KINDS.has(n.kind)) {
+    if (S.gates.some(g => g.parent === n.id && g.k === p.k && g.id === p.id)) return { ok: false, why: 'Already gated on this branch.' };
+    return { ok: true, run: () => { const g = { u: S.seq++, parent: n.id, k: p.k, id: p.id }; S.gates.push(g); S.sel = 'g' + g.u; } };
+  }
+  if (p.k === 'feat') {
+    const F = FEAT(p.id); if (!n || (n.kind !== 'root' && !(n.kind === 'hint' && !n.w))) return { ok: false, why: 'Feats go on the sperm, or on a branch to gate them.' };
+    if (S.feats.some(f => f.id === p.id)) return { ok: false, why: F.name + ' is already on the sperm.' };
+    if (R && F.sample && F.sample !== S.sample) return { ok: false, why: F.name + ' is ' + ((D.samples.find(x => x.id === F.sample) || {}).name || F.sample) + "'s Unique Feat." };
+    if (R && !F.sample && S.feats.filter(f => !FEAT(f.id).sample).length >= D.featSlots) return { ok: false, why: `${D.featSlots} Feat slots, plus the sample's Unique Feat.` };
+    return { ok: true, run: () => { const f = { u: S.seq++, id: p.id, f3: null, f5: null }; S.feats.push(f); S.sel = 'f' + f.u; } };
+  }
+  if (p.k === 'pass') {
+    const P = PASS(p.id); if (!n || (n.kind !== 'root' && !(n.kind === 'hint' && !n.w))) return { ok: false, why: 'Sperm passives go on the sperm, or on a branch to gate them.' };
+    const have = S.pass.find(x => x.id === p.id);
+    if (have) { if (have.rank >= P.maxRank) return { ok: false, why: P.name + ' is at its top rank.' }; return { ok: true, run: () => { have.rank++; S.sel = 'ps' + have.u; } }; }
+    if (R && S.pass.length >= D.passSlots) return { ok: false, why: `${D.passSlots} sperm passive slots (2 at the start, then one at run Lv 8, 16 and 24).` };
+    return { ok: true, run: () => { const x = { u: S.seq++, id: p.id, rank: 1, mast: null }; S.pass.push(x); S.sel = 'ps' + x.u; } };
+  }
+  if (p.k === 'ffork') { const f = S.feats.find(x => x.u === p.u); if (!f) return { ok: false, why: 'That Feat is gone.' }; return { ok: true, run: () => { f['f' + p.lv] = p.i; if (p.lv === 3 && p.i == null) f.f5 = null; S.sel = p.i == null ? 'f' + f.u : 'ff' + p.lv + '_' + f.u; } }; }
+  if (p.k === 'pmast') { const x = S.pass.find(y => y.u === p.u); if (!x) return { ok: false, why: 'That passive is gone.' }; return { ok: true, run: () => { x.mast = p.b; if (p.b != null) x.rank = Math.max(x.rank, 3); S.sel = p.b == null ? 'ps' + x.u : 'psm' + x.u; } }; }
   const w = n && n.w; if (!w) return { ok: false, why: n && n.kind === 'custom' ? 'Only blank blocks hang off a blank block.' : 'Drop that on a weapon.' };
   const Wd = W(w.id);
   if (p.k === 'mod') {
@@ -351,11 +393,31 @@ function buildTree() {
       }
     }
   }
-  const kept = []; let todo = S.custom.slice().sort((a, b) => a.u - b.u), moved = true;
+  for (const f of S.feats) {
+    const F = FEAT(f.id); if (!F) continue;
+    const col = F.type ? tvar(F.type) : 'var(--accent)';
+    const fn = mk('f' + f.u, { kind: 'feat', f, F, title: F.name, ey: 'Feat · ' + (F.atk ? tname(F.type) + ' ' + F.atk : 'utility') + (F.trig ? ' · trigger' : '') + (F.sample ? ' · unique' : ''), desc: F.does, col });
+    root.children.push(fn);
+    let last = fn;
+    for (const lv of [3, 5]) { const i = f['f' + lv]; const o = i != null && F.forks[lv][i]; if (!o) break; const x = mk('ff' + lv + '_' + f.u, { kind: 'ffork', f, F, lv, title: o.name, ey: 'Feat Lv ' + lv + ' fork', desc: o.desc, col }); last.children.push(x); last = x; }
+  }
+  for (const x of S.pass) {
+    const P = PASS(x.id); if (!P) continue;
+    const pn = mk('ps' + x.u, { kind: 'pass', p: x, P, title: P.name, ey: 'Sperm passive · ' + FAM(P.family), desc: P.desc, col: 'var(--pass)', rank: x.rank });
+    root.children.push(pn);
+    if (x.mast != null && P.mast && P.mast[x.mast]) pn.children.push(mk('psm' + x.u, { kind: 'pmast', p: x, P, title: P.mast[x.mast].name, ey: 'Passive mastery ' + (x.mast ? 'B' : 'A'), desc: P.mast[x.mast].desc, col: 'var(--pass)' }));
+  }
+  // blocks and gates hang off anything, so attach them in dependency order (a moved modifier's children can be older than their parent)
+  const kept = [], keptG = []; let todo = S.custom.map(c => ({ c })).concat(S.gates.map(g => ({ g }))).sort((a, b) => (a.c || a.g).u - (b.c || b.g).u), moved = true;
   while (todo.length && moved) { moved = false; const rest = [];
-    for (const c of todo) { const par = NODES[c.parent]; if (!par) { rest.push(c); continue; } moved = true; kept.push(c); par.children.push(mk('c' + c.u, { kind: 'custom', c, title: c.name || 'Untitled', ey: c.tag, desc: c.text, col: 'var(--idea)' })); }
+    for (const it of todo) {
+      const o = it.c || it.g, par = NODES[o.parent]; if (!par) { rest.push(it); continue; }
+      moved = true;
+      if (it.c) { kept.push(it.c); par.children.push(mk('c' + it.c.u, { kind: 'custom', c: it.c, title: it.c.name || 'Untitled', ey: it.c.tag, desc: it.c.text, col: 'var(--idea)' })); }
+      else { const card = gateCard(it.g); if (!card) continue; keptG.push(it.g); par.children.push(mk('g' + it.g.u, { kind: 'gate', g: it.g, title: card.name, ey: 'Unlocked here · ' + card.kindName, desc: card.desc, col: card.col })); }
+    }
     todo = rest; }
-  S.custom = kept; // (blocks whose parent went are dropped)
+  S.custom = kept; S.gates = keptG; // (blocks and gates whose parent went are dropped)
   for (const k of Object.keys(S.over)) if (!NODES[k]) delete S.over[k]; // (edits of nodes that went)
   for (const w of S.weapons) { const wn = NODES['w' + w.u]; if (!wn.children.length) wn.children.push(mk('h' + w.u, { kind: 'hint', w, title: 'Drop modifiers, a Lv 3 branch or a blank block here', ey: 'empty', desc: '', col: 'var(--line)' })); }
   if (S.weapons.length < MAXW) root.children.push(mk('hroot', { kind: 'hint', title: S.weapons.length ? 'Drop another weapon here' : 'Drop a weapon here (1 to 4)', ey: 'empty mount', desc: '', col: 'var(--line)' }));
@@ -378,6 +440,7 @@ function nodeHtml(n) {
   let h = `<span class="ey"><i></i>${esc(n.ey)}</span><b>${esc(n.title)}</b>`;
   if (n.desc) h += `<p>${esc(n.desc)}</p>`;
   if (n.kind === 'mod') h += `<div class="pips">${[1, 2, 3].map(r => `<span class="${n.rank >= r ? 'on' : ''}"></span>`).join('')}<em>${n.m.mast ? 'mastery' : 'Rank ' + n.rank}${n.Md.max < 3 ? ' · max ' + n.Md.max : ''}</em></div>`;
+  if (n.kind === 'pass') h += `<div class="pips">${[1, 2, 3].map(r => `<span class="${n.rank >= r ? 'on' : ''}"></span>`).join('')}<em>${n.p.mast != null ? 'mastery' : 'Rank ' + n.rank}</em></div>`;
   return h;
 }
 
@@ -484,6 +547,22 @@ function renderDetail() {
     h += `<div class="row"><button class="btn danger" data-act="rmb">Remove</button></div>`;
   }
   if (n.kind === 'wmast') h += `<div class="row"><button class="btn danger" data-act="rmx">Remove mastery</button></div>`;
+  if (n.kind === 'feat') {
+    if (n.F.line) h += `<p style="color:var(--dim);font-style:italic">${esc(n.F.line)}</p>`;
+    h += `<div class="row"><span class="lab">Costs</span><small style="color:var(--dim)">${n.F.stam ? n.F.stam + ' stamina' : 'free'}${n.F.trig ? ' · performs itself' : ' · tap to perform'}</small></div>`;
+    for (const lv of [3, 5]) if (n.F.forks[lv].length) h += `<div class="row"><span class="lab">Lv ${lv} fork</span>${n.F.forks[lv].map((o, i) => B(o.name + ': ' + o.desc, n.f['f' + lv] === i, { k: 'ffork', u: n.f.u, lv, i })).join('')}</div>`;
+    h += `<div class="row"><button class="btn danger" data-act="rmf">Remove Feat</button></div>`;
+  }
+  if (n.kind === 'ffork') h += `<div class="row"><button class="btn danger" data-act="rmff">Remove fork</button></div>`;
+  if (n.kind === 'pass' || n.kind === 'pmast') {
+    const x = n.p, P = n.P;
+    if (P.flavour) h += `<p style="color:var(--dim);font-style:italic">${esc(P.flavour)}</p>`;
+    h += `<div class="row"><span class="lab">Rank</span><button class="btn" data-act="prdown" ${x.rank <= 1 ? 'disabled' : ''}>−</button><b style="font-family:var(--mono)">${x.mast != null ? 'M' : x.rank}</b><button class="btn" data-act="prup" ${x.rank >= P.maxRank ? 'disabled' : ''}>+</button><small style="color:var(--dim)">up to ${P.maxRank}</small></div>`;
+    if (P.mast) h += `<div class="row"><span class="lab">Mastery</span>${P.mast.map((o, i) => B(o.name + ': ' + o.desc, x.mast === i, { k: 'pmast', u: x.u, b: i })).join('')}</div>`;
+    h += `<div class="row"><button class="btn danger" data-act="${n.kind === 'pass' ? 'rmps' : 'rmpsm'}">${n.kind === 'pass' ? 'Remove passive' : 'Remove mastery'}</button></div>`;
+  }
+  if (n.kind === 'gate') h += `<div class="row"><small style="color:var(--dim)">${esc(n.title)} is only available once <b>${esc(n.parent ? n.parent.title : '')}</b> is taken. Drag the gate to another branch to move it.</small></div><div class="row"><button class="btn danger" data-act="rmg">Remove gate</button></div>`;
+  if (GATE_KINDS.has(n.kind)) h += `<div class="row"><small style="color:var(--dim)">Drop a Feat, modifier or sperm passive on this branch to make it available only here.</small></div>`;
   if (n.kind === 'sab') h += `<div class="row"><button class="btn danger" data-act="rms">Remove</button></div>`;
   if (n.kind === 'mod' || n.kind === 'mbranch' || n.kind === 'mmast') {
     const m = n.m, Md = n.Md;
@@ -521,6 +600,13 @@ $('#detail').addEventListener('click', e => {
   if (a === 'copy') { const orig = n.c ? null : (n.ov ? n.ov.orig.name : n.title); const c = { u: S.seq++, parent: n.c ? n.parent.id : (n.parent ? n.parent.id : 'root'), tag: n.c ? n.c.tag : 'Variant of ' + orig, name: n.c ? n.c.name : n.title, text: n.c ? n.c.text : n.desc, of: orig }; S.custom.push(c); S.sel = FOCUS = 'c' + c.u; }
   if (a === 'over') { S.over[n.id] = { name: n.title, text: n.desc, orig: { name: n.title, text: n.desc } }; FOCUS = n.id; }
   if (a === 'revert') { delete S.over[n.id]; }
+  if (a === 'rmf') { S.feats = S.feats.filter(x => x !== n.f); S.sel = 'root'; }
+  if (a === 'rmff') { n.f['f' + n.lv] = null; if (n.lv === 3) n.f.f5 = null; S.sel = 'f' + n.f.u; }
+  if (a === 'rmps') { S.pass = S.pass.filter(x => x !== n.p); S.sel = 'root'; }
+  if (a === 'rmpsm') { n.p.mast = null; S.sel = 'ps' + n.p.u; }
+  if (a === 'prup') { n.p.rank = Math.min(n.P.maxRank, n.p.rank + 1); }
+  if (a === 'prdown') { n.p.rank = Math.max(1, n.p.rank - 1); if (n.p.rank < 3) n.p.mast = null; }
+  if (a === 'rmg') { S.gates = S.gates.filter(x => x !== n.g); S.sel = n.parent ? n.parent.id : 'root'; }
   if (a === 'rmw') { S.weapons = S.weapons.filter(x => x !== w); S.sel = 'root'; }
   if (a === 'rmc') { S.custom = S.custom.filter(x => x !== n.c); S.sel = n.parent ? n.parent.id : 'root'; }
   if (a === 'rmp') { w.promise = null; w.wbr = null; w.wmast = null; S.sel = 'w' + w.u; }
@@ -595,6 +681,25 @@ function renderRack() {
       h += '</details>';
     }
   }
+  if (TAB === 'feats') {
+    h += `<p class="hint">Feats and sperm passives go on the sperm. Drop a Feat, modifier or passive on a <b>branch</b> (Lv 3, 6 or 9, a fork, a mastery) to gate it: it is then only available once that branch is taken.</p>`;
+    const onF = S.feats.map(f => f.id), full = S.feats.filter(f => !FEAT(f.id).sample).length >= D.featSlots;
+    const fchip = f => chip({ k: 'feat', id: f.id }, f.name, f.does, f.type ? tvar(f.type) : 'var(--accent)', onF.includes(f.id) ? 'held' : (S.rules && ((f.sample && f.sample !== S.sample) || (!f.sample && full)) ? 'dim' : ''),
+      (f.atk ? tname(f.type) + ' ' + f.atk : 'Utility') + (f.trig ? ' · trigger' : '') + (f.stam ? ' · ' + f.stam + ' stamina' : '') + (f.forks[3].length ? ' · forks' : ''));
+    const uniq = D.feats.filter(f => f.sample && match(f.name + ' ' + f.does));
+    if (uniq.length) h += `<div class="sec"><h3>Unique Feats (one per sample)</h3><div class="chips">` + uniq.sort((a, b) => (b.sample === S.sample) - (a.sample === S.sample)).map(f => fchip(Object.assign({}, f, { does: ((D.samples.find(x => x.id === f.sample) || {}).name || f.sample) + ': ' + f.does }))).join('') + '</div></div>';
+    const groups = [['phys', 'Force'], ['fire', 'Acid'], ['ice', 'Mucus'], ['shock', 'Static'], ['arcane', 'Blood'], ['soul', 'Holy/Damned'], ['flame', 'Fire'], [null, 'Utility']];
+    for (const [t, label] of groups) {
+      const fs = D.feats.filter(f => !f.sample && f.type === t && match(f.name + ' ' + f.does)); if (!fs.length) continue;
+      h += `<div class="sec"><h3 style="--c:${t ? tvar(t) : 'var(--accent)'}"><i></i>${esc(t ? tname(t) : label)} Feats</h3><div class="chips">` + fs.map(fchip).join('') + '</div></div>';
+    }
+    const onP = S.pass.map(x => x.id), pfull = S.pass.length >= D.passSlots;
+    const fams = []; for (const x of D.passives) if (!fams.includes(x.family)) fams.push(x.family);
+    for (const fam of fams) {
+      const ps = D.passives.filter(x => x.family === fam && match(x.name + ' ' + x.desc)); if (!ps.length) continue;
+      h += `<div class="sec"><h3 style="--c:var(--pass)"><i></i>Sperm passives · ${esc(FAM(fam))}</h3><div class="chips">` + ps.map(x => { const have = S.pass.find(y => y.id === x.id); return chip({ k: 'pass', id: x.id }, x.name + (have ? ' R' + have.rank : ''), x.desc, 'var(--pass)', have ? 'held' : (S.rules && pfull ? 'dim' : ''), 'up to R' + x.maxRank + (x.mast ? ' · masteries' : '')); }).join('') + '</div></div>';
+    }
+  }
   r.innerHTML = h;
   const q = $('#q'); q.oninput = () => { Q = q.value.trim().toLowerCase(); const at = q.selectionStart; renderRack(); const q2 = $('#q'); q2.focus(); q2.setSelectionRange(at, at); };
 }
@@ -604,6 +709,8 @@ document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => { TAB =
 let drag = null, overEl = null;
 function targetFor(p) { // where a tap (no drag) sends a chip
   if (p.k === 'weapon') return NODES.root;
+  { const c = NODES[S.sel]; if ((p.k === 'feat' || p.k === 'pass' || p.k === 'mod') && c && GATE_KINDS.has(c.kind)) return c; }
+  if (p.k === 'feat' || p.k === 'pass') return NODES.root;
   if (p.k === 'blank') { const c = NODES[S.sel]; return c && c.kind !== 'hint' ? c : NODES.root; }
   const n = NODES[S.sel]; if (n && n.w) return n;
   const w = S.weapons[S.weapons.length - 1]; return w ? NODES['w' + w.u] : null;
@@ -643,7 +750,7 @@ let pan = null;
 let nodeDrag = null, swallowClick = false;
 map.addEventListener('pointerdown', e => {
   const el = e.target.closest('.node'); if (!el || e.button || e.target.matches('input, textarea, select, button')) return;
-  const n = NODES[el.dataset.n]; if (!n || !(n.kind === 'custom' || (n.kind === 'mod' && !n.m.builtin))) return;
+  const n = NODES[el.dataset.n]; if (!n || !(n.kind === 'custom' || n.kind === 'gate' || (n.kind === 'mod' && !n.m.builtin))) return;
   nodeDrag = { n, el, sx: e.clientX, sy: e.clientY, id: e.pointerId };
 });
 window.addEventListener('pointermove', e => {
@@ -674,7 +781,7 @@ sel.innerHTML = D.samples.map(s => `<option value="${esc(s.id)}">${esc(s.name)} 
 sel.value = S.sample; sel.onchange = () => { S.sample = sel.value; save(); render(); };
 $('#rules').checked = S.rules; $('#rules').onchange = e => { S.rules = e.target.checked; save(); renderRack(); toast(S.rules ? 'Game rules on: fit, one per group, 5 slots, forks in order.' : 'Game rules off: anything hangs off anything. What the game would refuse lands as a card block.'); };
 let clearArm = 0;
-$('#clear').onclick = () => { const b = $('#clear'); if (Date.now() - clearArm > 2500) { clearArm = Date.now(); b.textContent = 'Clear? Tap again'; setTimeout(() => b.textContent = 'Clear', 2500); return; } S.weapons = []; S.custom = []; S.over = {}; S.sel = null; b.textContent = 'Clear'; save(); render(); };
+$('#clear').onclick = () => { const b = $('#clear'); if (Date.now() - clearArm > 2500) { clearArm = Date.now(); b.textContent = 'Clear? Tap again'; setTimeout(() => b.textContent = 'Clear', 2500); return; } S.weapons = []; S.custom = []; S.over = {}; S.feats = []; S.pass = []; S.gates = []; S.sel = null; b.textContent = 'Clear'; save(); render(); };
 const LABEL = n => {
   if (n.kind === 'weapon') { const Wd = W(n.w.id); return `${Wd.name} [${Wd.atk}, ${tname(Wd.type)}]`; }
   if (n.kind === 'promise') return `Lv 3 ${n.P.k}: ${n.title}`;
@@ -684,11 +791,16 @@ const LABEL = n => {
   if (n.kind === 'mod') return `${n.title} R${n.m.rank}${n.m.mast ? ' (mastered)' : ''}${n.m.builtin ? ' (built in)' : ''}`;
   if (n.kind === 'mbranch') return `Fork ${n.m.br}: ${n.title}`;
   if (n.kind === 'mmast') return `Mastery ${n.m.mast}: ${n.title}`;
+  if (n.kind === 'feat') return `Feat: ${n.title} [${n.F.atk ? tname(n.F.type) + ' ' + n.F.atk : 'utility'}${n.F.stam ? ', ' + n.F.stam + ' stamina' : ''}]`;
+  if (n.kind === 'ffork') return `Lv ${n.lv} fork: ${n.title}`;
+  if (n.kind === 'pass') return `Passive: ${n.title} R${n.p.rank}${n.p.mast != null ? ' (mastered)' : ''}`;
+  if (n.kind === 'pmast') return `Passive mastery: ${n.title}`;
+  if (n.kind === 'gate') return `[GATE] ${n.title} (${gateCard(n.g).kindName}) only here`;
   if (n.kind === 'custom' && n.c.card && n.c.name === n.c.of && n.c.text === cardText(n.c)) return `[CARD · ${n.c.tag}] ${n.c.name}`;
   if (n.kind === 'custom') return `[IDEA · ${n.c.tag || 'custom'}] ${n.c.name || 'Untitled'}${n.c.of ? ' (variant of ' + n.c.of + ')' : ''}${n.c.text ? ': ' + n.c.text.replace(/\s*\n\s*/g, ' / ') : ''}`;
   return n.title;
 };
-const LABEL2 = n => n.ov ? `${LABEL(n)} [EDITED${n.ov.orig.name !== n.ov.name ? ', was ' + n.ov.orig.name : ''}]: ${(n.ov.text || '').replace(/\s*\n\s*/g, ' / ')}` : LABEL(n);
+const LABEL2 = n => n.ov && n.kind !== 'gate' ? `${LABEL(n)} [EDITED${n.ov.orig.name !== n.ov.name ? ', was ' + n.ov.orig.name : ''}]: ${(n.ov.text || '').replace(/\s*\n\s*/g, ' / ')}` : LABEL(n);
 function buildText() {
   const smp = sampleOf(), L = [`${smp.name} (strain ${smp.strain}, ${smp.types.map(tname).join('/')}) · ${smp.passive}`];
   (function walk(n) { for (const c of n.children) { if (c.kind === 'hint') continue; L.push('  '.repeat(c.depth - 1) + '- ' + LABEL2(c)); walk(c); } })(NODES.root);
@@ -696,8 +808,9 @@ function buildText() {
   return L.join('\n');
 }
 function ideasText() {
-  const smp = sampleOf(), ideas = LAST.all.filter(n => n.kind === 'custom' || n.ov);
-  if (!ideas.length) return '';
+  const smp = sampleOf(), ideas = ideaNodes().filter(n => !n.g), gates = LAST.all.filter(n => n.kind === 'gate');
+  if (!ideas.length && !gates.length) return '';
+  if (!ideas.length) return gatesText(gates);
   const L = [`Loadout ideas (${ideas.length}) · ${smp.name}, v${D.version} data`];
   ideas.forEach((n, i) => {
     const path = []; for (let p = n.parent; p && p.kind !== 'root'; p = p.parent) path.unshift(p.title);
@@ -705,6 +818,13 @@ function ideasText() {
     if (n.c) { L.push(`${i + 1}. [${n.c.tag || 'custom'}] ${n.c.name || 'Untitled'}` + (n.c.of ? ` (variant of ${n.c.of})` : '') + where); if (n.c.text) L.push('   ' + n.c.text.replace(/\n/g, '\n   ')); }
     else { L.push(`${i + 1}. [Edit of ${n.ov.orig.name}] ${n.ov.name || 'Untitled'}` + where); if (n.ov.text) L.push('   ' + n.ov.text.replace(/\n/g, '\n   ')); L.push('   (was: ' + n.ov.orig.text.replace(/\n/g, ' / ') + ')'); }
   });
+  if (gates.length) L.push('', gatesText(gates));
+  return L.join('\n');
+}
+const gatePath = n => { const path = []; for (let p = n.parent; p && p.kind !== 'root'; p = p.parent) path.unshift(p.title); return path.join(' > '); };
+function gatesText(gates) {
+  const L = [`Gates (${gates.length}): only available once the branch is taken`];
+  gates.forEach((n, i) => L.push(`${i + 1}. ${n.title} (${gateCard(n.g).kindName}) requires ${gatePath(n)}`));
   return L.join('\n');
 }
 function copyText(t, what) {
@@ -718,10 +838,10 @@ $('#ideas').onclick = () => { const t = ideasText(); if (!t) { toast('Nothing of
 // Blocks and edits are written to the artifact's database (collection "ideas", status "queued"); a comment sent to Claude then asks
 // the session that owns the planner to fold them into storm-directive/ideas.md and mark them "filed".
 let DB = null, CM = null, CAPS = false;
-const ideaSig = n => { const o = n.c || n.ov; return [o.type || '', o.name || '', o.text || '', n.c ? o.tag : ''].join('|'); };
-const ideaNodes = () => (LAST ? LAST.all : []).filter(n => (n.c && !(n.c.card && n.c.name === n.c.of && n.c.text === cardText(n.c))) || n.ov);
+const ideaSig = n => { if (n.g) return ['gate', n.g.k, n.g.id, gatePath(n)].join('|'); const o = n.c || n.ov; return [o.type || '', o.name || '', o.text || '', n.c ? o.tag : ''].join('|'); };
+const ideaNodes = () => (LAST ? LAST.all : []).filter(n => (n.c && !(n.c.card && n.c.name === n.c.of && n.c.text === cardText(n.c))) || n.ov || n.g);
 const cardText = c => c.cardText != null ? c.cardText : c.text; // (a card block's text as dealt; edits make it an idea)
-const unsavedNodes = () => ideaNodes().filter(n => { const o = n.c || n.ov; return !o.sid || o.savedSig !== ideaSig(n); });
+const unsavedNodes = () => ideaNodes().filter(n => { const o = n.c || n.ov || n.g; return !o.sid || o.savedSig !== ideaSig(n); });
 (async () => {
   try { if (window.claude && window.claude.use) { DB = await window.claude.use('db'); CM = await window.claude.use('comments'); } } catch (e) { }
   CAPS = true; saveUi();
@@ -734,9 +854,10 @@ async function saveIdeas(nodes) {
   const smp = sampleOf(), now = new Date().toISOString(); let n = 0;
   try {
     for (const nd of nodes) {
-      const o = nd.c || nd.ov, path = []; for (let p = nd.parent; p && p.kind !== 'root'; p = p.parent) path.unshift(p.title);
+      const o = nd.c || nd.ov || nd.g, path = []; for (let p = nd.parent; p && p.kind !== 'root'; p = p.parent) path.unshift(p.title);
       const id = o.sid || ('i' + Date.now().toString(36) + '_' + (nd.c ? nd.c.u : nd.id));
-      const row = { type: o.type || KIND_TYPE[nd.kind] || 'Other', name: o.name || 'Untitled', text: o.text || '', under: path.join(' > ') || '(on the sperm)', sample: smp.name, version: D.version, savedAt: now, status: 'queued',
+      const row = nd.g ? { type: 'Gate', name: nd.title, text: `${nd.title} (${gateCard(nd.g).kindName}) is only available once ${path.join(' > ')} is taken.`, under: path.join(' > '), sample: smp.name, version: D.version, savedAt: now, status: 'queued', kind: 'gate', tag: 'Gate', variantOf: '', orig: null }
+        : { type: o.type || KIND_TYPE[nd.kind] || 'Other', name: o.name || 'Untitled', text: o.text || '', under: path.join(' > ') || '(on the sperm)', sample: smp.name, version: D.version, savedAt: now, status: 'queued',
         kind: nd.c ? 'block' : 'edit', tag: nd.c ? nd.c.tag : nd.ey, variantOf: nd.c ? (nd.c.of || '') : '', orig: nd.ov ? nd.ov.orig : null };
       await DB.collection('ideas').doc(id).set(row);
       o.sid = id; o.savedAt = now; o.savedSig = ideaSig(nd); n++;

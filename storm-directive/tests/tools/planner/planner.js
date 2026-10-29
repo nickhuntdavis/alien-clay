@@ -40,7 +40,18 @@ const path = require('path'), fs = require('fs');
         br: MSB[id] || null, brText: sc ? sc.slice(3) : null };
     }
     const samples = SAMPLES10.filter(s => s.strain <= 9).map(s => ({ id: s.id, strain: s.strain, name: fix(s.name), origin: fix(s.origin), types: s.types.map(t => S10_TYPES[t]), passive: fix(s.passive), pdesc: fix(s.pdesc), weapons: s.weapons, fit: (typeof S10_FIT !== 'undefined' && S10_FIT[s.id]) || [] }));
-    return { version: APP_VERSION, types, samples, weapons, mods, maxW: MAX_WEAPONS, mmOpen: MM.open, gnames: MM_GNAME };
+    // Feats (feats10.js): the drafted pool in F10_ORDER plus each sample's Unique Feat; forks at levels 3 and 5.
+    const feat = f => ({ id: f.id, name: fix(f.name), type: F10_INT[f.type] || f.type || null, atk: f.atk ? (ATK[f.atk] || f.atk) : null, trig: !!f.trig, stam: f.stam || 0, does: fix(f.does), line: fix(f.line), sample: f.sample || null,
+      forks: { 3: (f.forks && f.forks[3] || []).map(o => ({ name: fix(o.title), desc: fix(o.desc) })), 5: (f.forks && f.forks[5] || []).map(o => ({ name: fix(o.title), desc: fix(o.desc) })) } });
+    const feats = F10_ORDER.filter(id => F10[id]).map(id => feat(F10[id]));
+    for (const [sid, fid] of Object.entries(F10_UNIQUE)) if (F10[fid] && !feats.some(f => f.id === fid)) feats.push(Object.assign(feat(F10[fid]), { sample: sid }));
+    // Sperm passives (spassives.js over mutations.js): genome cards still dealt, with their A/B masteries (spmast.js SPM_BR).
+    const cut = new Set(SP.cut);
+    const passives = MUT_REG.filter(m => m.slot === 'genome' && m.kind === 'acquire' && !cut.has(m.id) && m.family !== 'mut:weapon')
+      .map(m => ({ id: m.id, name: fix(m.title), desc: fix(m.desc), family: fix(m.family).replace('mut:', ''), maxRank: m.maxRank || 3, flavour: fix(m.flavour),
+        mast: SPM_BR[m.id] ? [{ name: fix(SPM_BR[m.id][0]), desc: fix(SPM_BR[m.id][1]) }, { name: fix(SPM_BR[m.id][2]), desc: fix(SPM_BR[m.id][3]) }] : null }));
+    const families = {}; for (const m of MUT_REG) families[m.family + '/' + m.slot + '/' + m.kind] = (families[m.family + '/' + m.slot + '/' + m.kind] || 0) + 1;
+    return { version: APP_VERSION, types, samples, weapons, mods, maxW: MAX_WEAPONS, mmOpen: MM.open, gnames: MM_GNAME, feats, featSlots: F10_SLOTS, passives, passSlots: SP.base + SP.at.length, families };
   });
   const out = path.resolve(__dirname, '../../out/loadout-planner.html'); fs.mkdirSync(path.dirname(out), { recursive: true });
   const tpl = fs.readFileSync(path.join(__dirname, 'template.html'), 'utf8');
@@ -51,5 +62,6 @@ const path = require('path'), fs = require('fs');
   for (const w of Object.values(D.weapons)) console.log(w.id.padEnd(16), (w.atk||'').padEnd(10), (w.type||'').padEnd(7), String(w.mods.length).padStart(2), 'mods', w.promises.length, 'prom', w.masteries.length, 'mast', w.dlv ? 'dlv:' + w.dlv : '', w.sab ? 'sab:' + w.sab : '', '|', w.name);
   console.log(Object.values(D.mods).map(m => m.id + ':' + m.group + (m.br ? '*' : '')).join(' '));
   console.log(D.samples.map(s => s.id + '(' + s.strain + ')').join(' '));
+  console.log('feats', D.feats.length, D.feats.filter(f => f.sample).length + ' unique', '| passives', D.passives.length, D.passives.filter(p => p.mast).length + ' with masteries', '| families', JSON.stringify(D.families));
   await b.close();
 })();
