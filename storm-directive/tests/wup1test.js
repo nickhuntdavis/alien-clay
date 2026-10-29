@@ -1,4 +1,4 @@
-// Weapon branches, batch 1 (wup1.js): Standard Issue, Maximum Gains, Nervous Wreck, Panic Button.
+// Weapon branches, batch 1 (wup1.js): Nervous Wreck and Panic Button (Standard Issue is baseline1test.js, Maximum Gains/Shotgun baseline2test.js).
 // For each weapon and each promise: take the Lv 3 card from the real fork screen, run 300 frames against a ring of
 // enemies (no errors), and check the promise's signature. Then each Lv 6 card and each mastery: apply it, run 300
 // frames, and check something measurable.
@@ -50,95 +50,8 @@ const { chromium } = require('playwright');
     // ================================================================ STANDARD ISSUE: its movie-cop branches are tested in baseline1test.js (baseline1.js)
     const SI = 'v_phys_proj';
 
-    // ================================================================ MAXIMUM GAINS
-    const MG = 'v_phys_spread';
-    block('MG base', () => { const sc = scene(MG, [[100, 0]]); const t3 = genLoot({ kind: 'fork', w: sc.w, lv: 3 }).map(c => c.title); chk('MG promises', t3.join() === 'Shotgun Wedding,More Is More,Get Off Me!', t3); });
-    block('MG A', () => {
-      const b = scene(MG, []); const sp0 = b.w.s.spread;
-      const s = scene(MG, [[100, 0], [180, 0]]); pick(s.w, 3, 0);
-      chk('MG A cone a third', Math.abs(s.w.s.spread - sp0 / 3) < 1e-6, [s.w.s.spread, sp0]); chk('MG A range 200', s.w.s.range <= 200, s.w.s.range);
-      const a = damageEnemy(s.es[0], 10, { elem: 'phys', w: s.w, atk: 'spread', noCrit: true }), c = damageEnemy(s.es[1], 10, { elem: 'phys', w: s.w, atk: 'spread', noCrit: true });
-      chk('MG A +60% inside 120', Math.abs(a / c - 1.6) < 0.05, [a, c]);
-      promise(MG, 0, 'MG A');
-    });
-    block('MG A kickback', () => {
-      const s = scene(MG, [[60, 0]], { r: 14 }); pick(s.w, 3, 0); pick(s.w, 6, 0); let k = 0, lg = 0;
-      run(120, () => { for (const v of G.w1.vol.values()) if (v.kicked) k = 1; if (modS().lunge && modS().lunge.left > 0) lg = 1; });
-      chk('MG Kickback fired', k === 1); chk('MG Kickback kicked me back', lg === 1);
-      ring12(card(MG, 0, 6, 0), 'MG Kickback');
-    });
-    block('MG A slug', () => {
-      const s = scene(MG, [[100, 0]], { quiet: 1 }); pick(s.w, 3, 0); pick(s.w, 6, 1); let sl = null, n = 0;
-      for (let i = 0; i < 3; i++) { G.proj.length = 0; fireWeapon(s.w, s.es[0]); n = G.proj.length; sl = G.proj.find(q => q.wslug); }
-      chk('MG Slug on the 3rd volley, one shot', sl && n === 1, n); chk('MG Slug pierces 3 and hits like the whole volley', sl && sl.pierce === 3 && sl.dmg > s.w.s.dmg * 3, sl && sl.dmg);
-            ring12(card(MG, 0, 6, 1), 'MG Slug');
-    });
-    block('MG A confetti', () => {
-      const s = scene(MG, [[400, 0]]); pick(s.w, 3, 0); pick(s.w, 6, 2);
-      spawnProj(s.w, s.p.x + 100, s.p.y + 100, 0, weaponSrc(s.w), { life: 0.01, max: 0.01 }); run(3);
-      chk('MG Confetti stuck', G.w1.pips.length === 1, G.w1.pips.length);
-      const e = makeEnemy(plain, G.w1.pips[0].x, G.w1.pips[0].y); e.hp = e.maxHp = 1e5; e.speed = 0; e.tst = 1; G.enemies.push(e); run(5);
-      chk('MG Confetti hit what swam over', hpLost(e) > 0, hpLost(e)); ring12(card(MG, 0, 6, 2), 'MG Confetti');
-    });
-    block('MG B', () => {
-      const b = scene(MG, []); const c0 = b.w.s.count, sp0 = b.w.s.spread;
-      const s = scene(MG, [[100, 0]]); pick(s.w, 3, 1);
-      chk('MG B +5 pellets', s.w.s.count === c0 + 5, [s.w.s.count, c0]); chk('MG B fan 50% wider', Math.abs(s.w.s.spread / sp0 - 1.5) < 1e-6);
-      fireWeapon(s.w, s.es[0]); const ds = G.proj.filter(q => q.w === s.w).map(q => q.dmg), lo = ds.filter(d => d < s.w.s.dmg * 0.7).length;
-      chk('MG B five at 60%', lo === 5 && ds.length === c0 + 5, [lo, ds.length]); promise(MG, 1, 'MG B');
-    });
-    block('MG B overspill', () => {
-      const s = scene(MG, [[400, 0]]); pick(s.w, 3, 1); pick(s.w, 6, 0);
-      spawnProj(s.w, s.p.x + 100, s.p.y + 100, 0, weaponSrc(s.w), { life: 0.01, max: 0.01 }); run(2);
-      const sp = G.proj.filter(q => q.w === s.w && q.wsplit);
-      chk('MG Overspill split in two', sp.length === 2, sp.length); ring12(card(MG, 1, 6, 0), 'MG Overspill');
-    });
-    block('MG B roundabout', () => {
-      const s = scene(MG, [[100, 0]]); pick(s.w, 3, 1); pick(s.w, 6, 1);
-      for (let i = 0; i < 4; i++) { G.proj.length = 0; fireWeapon(s.w, s.es[0]); }
-      const rn = G.proj.filter(q => q.w === s.w && q.src.atk === 'burst').length;
-      chk('MG Roundabout ring of 20 on the 4th', rn === 20, rn); ring12(card(MG, 1, 6, 1), 'MG Roundabout');
-    });
-    block('MG B rice', () => {
-      const s = scene(MG, [[100, 0]]); pick(s.w, 3, 1); pick(s.w, 6, 2);
-      G.proj.length = 0; fireWeapon(s.w, s.es[0]); const fwd = G.proj.filter(q => q.vx > 0).length;
-      G.proj.length = 0; fireWeapon(s.w, s.es[0]); const back = G.proj.filter(q => q.vx < 0).length;
-      chk('MG Wedding Rice second volley behind', fwd > 8 && back > 8, [fwd, back]); ring12(card(MG, 1, 6, 2), 'MG Wedding Rice');
-    });
-    block('MG C', () => {
-      const b = scene(MG, []); const d0 = b.w.s.dmg;
-      const s = scene(MG, [[80, 0]], { r: 14 }); pick(s.w, 3, 2);
-      chk('MG C -15%', Math.abs(s.w.s.dmg / d0 - 0.85) < 0.001, [s.w.s.dmg, d0]); chk('MG C knock', s.w.s.knock >= 70, s.w.s.knock);
-      let mh = 0; run(120, () => { for (const v of G.w1.vol.values()) for (const n of v.hits.values()) mh = Math.max(mh, n); });
-      chk('MG C 3+ pellets hit one enemy', mh >= 3, mh); chk('MG C shoved', Math.abs(s.es[0].x - (s.p.x + 80)) > 5, s.es[0].x - s.p.x);
-      promise(MG, 2, 'MG C');
-    });
-    block('MG C pile-up', () => {
-      const s = scene(MG, [[70, 0], [100, 0]], { r: 14 }); pick(s.w, 3, 2); pick(s.w, 6, 0); run(120);
-      chk('MG Pile-Up collision damage', echo(s.w) > 0 || (G.stats.dmg.Collision || 0) > 0, [echo(s.w), Math.round(G.stats.dmg.Collision || 0)]); ring12(card(MG, 2, 6, 0), 'MG Pile-Up');
-    });
-    block('MG C skittles', () => {
-      const s = scene(MG, [[70, 0], [100, 0], [130, 0]], { r: 14 }); pick(s.w, 3, 2); pick(s.w, 6, 1); let md = 0;
-      run(120, () => { for (const v of G.w1.vol.values()) md = Math.max(md, v.cap.n); });
-      chk('MG Skittles passes it on (two collisions)', md >= 2 || (G.cdN || 0) >= 2, [md, G.cdN]); chk('MG Skittles collision damage', echo(s.w) > 0 || (G.stats.dmg.Collision || 0) > 0, [echo(s.w), Math.round(G.stats.dmg.Collision || 0)]); ring12(card(MG, 2, 6, 1), 'MG Skittles');
-    });
-    block('MG C hiccups', () => {
-      const b = scene(MG, []); const cd0 = b.w.s.cd; const s = scene(MG, [[100, 0]]); pick(s.w, 3, 2); pick(s.w, 6, 2);
-      chk('MG Hiccups faster', Math.abs(s.w.s.cd / cd0 - 0.8) < 0.001, [s.w.s.cd, cd0]);
-      let dbl = 0, sum = 0; for (let i = 0; i < 4000; i++) { /* (4000 samples: the average is only about 4% under, so 400 failed by chance about 1 run in 20) */ s.w.cd = 0; G.proj.length = 0; fireWeapon(s.w, s.es[0]); const d = s.w.cd / s.w.s.cd; sum += d; if (d < -0.9) dbl++; }
-      chk('MG Hiccups sometimes fire twice, about 30% faster overall', dbl > 400 && dbl < 1300 && (s.w.s.cd * (1 + sum / 4000)) / cd0 < 0.8, [dbl, sum / 4000]); ring12(card(MG, 2, 6, 2), 'MG Hiccups');
-    });
-    block('MG masteries', () => {
-      const b = scene(MG, []); const c0 = b.w.s.count, cd0 = b.w.s.cd, d0 = b.w.s.dmg;
-      let s = scene(MG, [[80, 0]]); pick(s.w, 3, 0); pick(s.w, 10, 0);
-      chk('MG Baby Boom x3', s.w.s.count === c0 * 3, [s.w.s.count, c0]); let lg = 0; run(90, () => { if (modS().lunge && modS().lunge.left > 0) lg = 1; }); chk('MG Baby Boom recoil', lg === 1);
-      ring12(card(MG, 0, 10, 0), 'MG Baby Boom');
-      s = scene(MG, [[70, 0], [100, 0]], { r: 14 }); pick(s.w, 3, 2); pick(s.w, 10, 1); run(150);
-      chk('MG Riot Control collisions', echo(s.w) > 0 || (G.stats.dmg.Collision || 0) > 0, [echo(s.w), Math.round(G.stats.dmg.Collision || 0)]); ring12(card(MG, 2, 10, 1), 'MG Riot Control');
-      s = scene(MG, [[100, 0]]); pick(s.w, 3, 1); pick(s.w, 10, 2);
-      chk('MG Full Auto 4x', s.w.s.cd < cd0 * 0.26, [s.w.s.cd, cd0]); chk('MG Full Auto -40%', s.w.s.dmg < d0 * 0.61, [s.w.s.dmg, d0]); run(300);
-      chk('MG Full Auto no reload', s.w.w1.vn >= 10, s.w.w1.vn); ring12(card(MG, 1, 10, 2), 'MG Full Auto');
-    });
+    // ================================================================ MAXIMUM GAINS is the Shotgun now: its Sperminator / Evil Dead / Riding shotgun branches are tested in baseline2test.js (baseline2.js)
+    const MG = 'v_phys_spread'; // (the ring runs below still take its three new branches)
 
     // ================================================================ NERVOUS WRECK (now Hand-to-gland): its Kung fu / Samurai / Biting branches are tested in baseline3test.js (baseline3.js)
     const NW = 'v_phys_contact';
