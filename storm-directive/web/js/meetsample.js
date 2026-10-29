@@ -2,11 +2,22 @@
 // Spawn Prawn - meet a sample you have never played (user, 28 Oct). Rescuing a kindred spirit of a sample you have no
 // runs with (no kills on its profile, META.prof) and have not met before (META.s10met) pauses the run on a full-screen
 // card before its rescue screen: MEET <NAME>, the sample swimming (samplelooks.js slPicStart), its origin and damage
-// types, its line, its passive and a play-style tip (TODO_COPY:meet_<id>_style). A tap on the button closes it and
+// types, its passive and a play-style line (MEET_STYLE, one per sample). A tap on the button closes it and
 // the rescue carries on (its weapon screen, or the fusion when every mount is full). Once per sample, ever.
 //  - Skipped in tests and sims (window.TUT_OFF), as the tutorial cards are.
 // Hooks: none (wraps kindred.js kinRescue; loads after kinall.js). Save data: META.s10met { <sample id>: 1 }.
 
+// One play-style line per sample (Layer 2: what to do, never how much).
+const MEET_STYLE = {
+  baseline: 'Nothing special. Nothing missing. Take what the box offers and swim.',
+  alpha: 'Keep moving. Every second standing still is a second at half speed.',
+  beta: 'Let the health drop and stay there. It hits hardest with one foot in the sink.',
+  private: 'Acid first. Anything it turns gets turned on its friends.',
+  ordered: 'Swim past them, not through them. The trail does the holding.',
+  redtail: 'Set them alight, then add Static. Static on a burn is where the numbers are.',
+  prawn: 'Possess the biggest thing in the room and step back.',
+  alien: 'Watch the switch. The three seconds after each one are the ones that count.',
+};
 const MEET = { open: false, paused: false };
 const meetPlayed = id => !!((META.s10met || {})[id]) || ((META.prof && META.prof['s10_' + id] && META.prof['s10_' + id].kills) || 0) > 0;
 function meetEl() {
@@ -29,11 +40,11 @@ function meetShow(id) {
   const disp = (typeof TP_DISPLAY !== 'undefined' && TP_DISPLAY[id]) || s.types || [];
   document.getElementById('msTypes').innerHTML = disp.map(t => { const el2 = S10_TYPES[t] || t, nm = (ELEMENTS[el2] && ELEMENTS[el2].name) || t;
     return `<span class="mstype" style="--tc:${elemCol(el2)}">${esc(nm)}</span>`; }).join('');
-  document.getElementById('msLine').textContent = s.line ? '"' + s.line + '"' : '';
+  document.getElementById('msLine').textContent = '';
   document.getElementById('msPass').textContent = s.passive || '';
   document.getElementById('msPdesc').textContent = s.pdesc || '';
-  document.getElementById('msStyle').textContent = 'TODO_COPY:meet_' + id + '_style';
-  const go = document.getElementById('msGo'); go.textContent = 'TODO_COPY:meet_go';
+  document.getElementById('msStyle').textContent = MEET_STYLE[id] || '';
+  const go = document.getElementById('msGo'); go.textContent = 'TO THE SLIDE';
   const pic = document.getElementById('msPic'); pic.dataset.slpic = id; pic.width = pic.height = 0;
   el.className = 'on';
   MEET.open = true;

@@ -2494,7 +2494,7 @@ function drawHud() {
       ctx.fillText(M.woke ? "THE EGG'S MEMBRANE" : `${(M.openedBy || 'A RIVAL').toUpperCase()} IS BREAKING IN!`, mid, by - 8);
     } else if (G.fertile || (eggBreakable() && !G.wave && !G.lvl && !G.debug)) {
       ctx.globalAlpha = 0.7 + 0.3 * Math.sin(G.realT * 6);
-      ctx.fillStyle = PAL.reward; ctx.font = 'bold 13px ' + MONO; ctx.fillText(G.fertile ? 'SPERM COUNT: 1. SWIM INTO THE EGG!' : G.level >= EGG.level ? `LV ${EGG.level}: SWIM INTO THE EGG!` : 'TIME: SWIM INTO THE EGG!', mid, by - 4);
+      ctx.fillStyle = PAL.reward; ctx.font = 'bold 13px ' + MONO; ctx.fillText(G.fertile ? 'SPERM COUNT: 1. SWIM INTO THE EGG' : G.level >= EGG.level ? `LV ${EGG.level}: SWIM INTO THE EGG` : 'TIME: SWIM INTO THE EGG', mid, by - 4);
       ctx.globalAlpha = 1;
     } else if (G.showdown) {
       const fin = G.enemies.filter(e => e.final && !e.dead), hp = fin.reduce((a, e) => a + e.hp, 0), mx = fin.reduce((a, e) => a + e.maxHp, 0) || 1;

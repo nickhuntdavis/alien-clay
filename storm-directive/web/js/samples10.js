@@ -19,28 +19,28 @@ const S10_LEVELS = true; // Level 1 (s007, levels.js), not named until it has be
 let S10_ALL = true; // every sample open from the start for testing (the unlock rules below stay in code; set false to restore them)
 const SAMPLES10 = [
   { id: 'baseline', name: 'Baseline', origin: 'Human', types: ['force', 'blood'], passive: 'Within Normal Limits',
-    pdesc: '+15% to every base stat. No conditions, no caveats.', line: 'There. That\'s the egg. Go to the egg. We have one job.',
+    pdesc: '+15% to every base stat. No conditions, no caveats.',
     sci: 'Sample {id} established as control. It continues to be disappointingly difficult to kill.', unlock: null },
   { id: 'alpha', name: 'Alpha', origin: 'Human', types: ['static', 'force'], passive: 'No Days Off',
-    pdesc: 'Fires 50% faster while moving. Back to normal the moment it stops.', line: 'Real talk. Women, sorry, eggs, want a provider. Ninety-eight per cent of sperm are betas. Be the two per cent.',
+    pdesc: 'Fires 50% faster while moving. Back to normal the moment it stops.',
     sci: 'Sample {id} describes itself as the top 1% of specimens. It is one of approximately 250 million.', unlock: { txt: 'Reach wave 10 of the Petri Dish in one run.' } },
   { id: 'beta', name: 'Beta', origin: 'Human', types: ['blood', 'mucus'], passive: 'Not Dead Yet',
-    pdesc: 'Below 40% health: much more damage and some lifesteal, more the closer it is to death.', line: 'We meant to do that. Getting hit is how we learn. The egg isn\'t going anywhere. Neither are we, ideally.',
+    pdesc: 'Below 40% health: much more damage and some lifesteal, more the closer it is to death.',
     sci: 'Sample {id} was initially classified as sluggish. Its subsequent behaviour has made that classification difficult to defend.', unlock: { txt: 'Recover from below 10% health to full health in one run.' } },
   { id: 'private', name: 'Private Schooled', origin: 'Human (paperwork sealed)', types: ['acid', 'soul'], passive: 'Who Do You Think You\'re Dealing With?',
-    pdesc: 'Acid builds Corrosion twice as fast. Enemies it Possesses hit their old friends twice as hard.', line: 'That\'s the one in charge. Go say hello. Actually, don\'t bother. They\'ll come to us.',
-    sci: 'Sample {id} arrived with complete documentation. The donor\'s identity remains confidential. The accompanying note was written in familiar handwriting.', unlock: { txt: 'Beat the Petri Dish with any sample.' }, shield: true },
+    pdesc: 'Acid builds Corrosion twice as fast. Enemies it Possesses hit their old friends twice as hard.',
+    sci: 'Sample {id} arrived with complete documentation. The donor\'s identity remains confidential. The documentation is very complete.', unlock: { txt: 'Beat the Petri Dish with any sample.' }, shield: true },
   { id: 'ordered', name: 'Ordered Online', origin: 'Synthetic (nanobot)', types: ['mucus', 'fire'], passive: 'Nothing Sticks',
-    pdesc: 'Leaves a wide Mucus trail while moving that Snares whatever follows. 30% Evasion, built in.', line: 'Unit activated. Delivery address confirmed: egg. Threat level: everything. Thank you for choosing you.',
+    pdesc: 'Leaves a wide Mucus trail while moving that Snares whatever follows. 30% Evasion, built in.',
     sci: 'Sample {id} arrived in an anti-static bag. It is not biological. It has been filed as biological, as the form has no other box.', unlock: { txt: 'Open a Mythical box.' }, evasion: 0.3 },
   { id: 'redtail', name: 'Redtail', origin: 'Unknown', types: ['fire', 'static'], passive: 'Touch Everything',
-    pdesc: 'Static hits also add double their damage to the target\'s burn.', line: 'What\'s that? Can we touch it? We touched it. Oh, it\'s hot. OH, EVERYONE\'S HOT. DO IT AGAIN!',
+    pdesc: 'Static hits also add double their damage to the target\'s burn.',
     sci: 'Sample {id} was discovered outside the laboratory. The door was locked. Eleven minutes of footage are missing.', unlock: { txt: 'Survive one of the slide\'s rare big hazards.' } },
   { id: 'prawn', name: 'Prawn Again', origin: 'Impossible', types: ['soul', 'blood'], passive: 'Collateral Memory',
-    pdesc: 'Enemies it Possesses hit their old friends twice as hard.', line: 'There you are. You were here before. Keep going. The ending is different this time.',
+    pdesc: 'Enemies it Possesses hit their old friends twice as hard.',
     sci: 'Sample {id} was not introduced to the slide. The count is correct. No amendment is required.', unlock: { txt: 'Rescue it in a run, then finish that run.', secret: true } },
   { id: 'alien', name: 'Not of This World', origin: 'Extraterrestrial', types: ['fire', 'soul', 'static'], passive: 'Adaptive Biology',
-    pdesc: 'Every 12 s its weapons switch damage type (Fire, Holy/Damned, Static, in turn) and hit 30% harder for 3 s after each switch.', line: 'The egg is there. The egg has always been there. We are late to our appointment. Proceed with the arriving.',
+    pdesc: 'Every 12 s its weapons switch damage type (Fire, Holy/Damned, Static, in turn) and hit 30% harder for 3 s after each switch.',
     sci: 'Sample {id} has responded to the target. The target has not yet been introduced.', unlock: { txt: 'Beat the campaign\'s furthest level.' }, shift: ['flame', 'soul', 'shock'], shield: true },
 ];
 for (const s of SAMPLES10) s.weapons = w24Starters(s.id); // (the sample's three starters: weapons24.js)
@@ -152,7 +152,7 @@ function s10Samples() {
 function s10Modes(id) {
   const s = S10_BY[id], c = ELEMENTS[S10_TYPES[s.types[0]]].color;
   const card = (mode, no, name, desc, tag) => uiSampleCard({ cls: 'hero', attrs: `data-mode="${mode}"`, style: `--c:${c}`, art: typeof pictoSVG === 'function' ? pictoSVG({ s001: 'egg', s002: 'dish', s006: 'endless', s007: 'maze' }[mode] || 'egg') : null, kicker: `#${no}`, name: esc(name), desc: esc(desc), tag });
-  $('sampleList').innerHTML = `${uiSectionHead(esc(s.name.toUpperCase()))}<div class="sx-q">"${esc(s.line)}"</div>`
+  $('sampleList').innerHTML = `${uiSectionHead(esc(s.name.toUpperCase()))}`
     + card('s001', '001', 'Evolution', 'Four hundred million hopefuls, one egg.', 'RACE TO THE EGG')
     + (S10_PETRI ? card('s002', '002', 'Iteration', 'Twenty drops into the dish, a boss every fifth.', 'WAVE MODE') : '')
     + (S10_ENDLESS ? card('s006', '006', 'Endless', 'The dish keeps topping itself up. Nobody has found the bottom.', 'NO END') : '')

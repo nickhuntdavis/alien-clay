@@ -70,7 +70,7 @@ function f10UpText(d, w) {
 function feat(d) {
   d.key = 'f10_' + d.id; d.elem = d.type ? F10_INT[d.type] : 'phys';
   d.color = F10_COL[d.type || 'utility']; d.atk = d.type ? d.atk : null;
-  const text = d.does; // (the gift line is per sample now: cardvoice.js, shown as the card's quip)
+  const text = d.does; // (the card shows the name and what it does; the per-sample gift lines were retired, 29 Oct)
   SPELLS[d.key] = { name: d.name, icon: d.icon, elem: d.elem, kind: 'f10', f10: d, atk: d.atk, color: d.color, dir: 'nearest', noTarget: 1, passive: d.trig ? 1 : 0, desc: text,
     base: Object.assign({ dmg: 0, cd: 10, range: 0, area: 0, dur: 0 }, d.base), lv: {} };
   if (typeof ICON_OF !== 'undefined') ICON_OF[d.key] = d.ico || 'cross';
@@ -283,7 +283,7 @@ function f10Draw() {
 const fk = (id, title, desc) => ({ id, title, desc });
 
 feat({ id: 'little_bubble', name: 'Little Bubble', icon: 'LB', ico: 'bubble', type: 'force', atk: 'burst', trig: 1, ev: 1, start: 1, rar: 0, stam: 12,
-  line: `"I made you a little safe."`, does: 'A bubble takes the next big hit for you, then bursts and shoves nearby enemies back.',
+  does: 'A bubble takes the next big hit for you, then bursts and shoves nearby enemies back.',
   base: { dmg: 14, cd: 15, area: 100 },
   stat: (w, s) => { if (f10Fk(w, 'lasting')) s.cd *= 0.67; s.hits = f10Fk(w, 'thick') ? 2 : 1; },
   fire: w => { if (w.s.hits > 1) { f10().bub = { w, left: 1 }; floatText(me().x, me().y - 34, 'Safe.', w.def.color, 12, 0.8); } else f10Pop(w); },
@@ -291,7 +291,7 @@ feat({ id: 'little_bubble', name: 'Little Bubble', icon: 'LB', ico: 'bubble', ty
     5: [fk('echo', 'Echo Pop', 'A second, smaller burst half a second later.'), fk('lasting', 'Lasting Bubble', 'A third shorter cooldown.')] } });
 
 feat({ id: 'oopsie', name: 'Oopsie', icon: 'OO', ico: 'peek', trig: 1, start: 1, rar: 1,
-  line: `"Wrong way! No, wait. That way!"`, does: 'When you are surrounded, you lurch through the thinnest gap and leave a decoy behind for enemies to attack.',
+  does: 'When you are surrounded, you lurch through the thinnest gap and leave a decoy behind for enemies to attack.',
   base: { dmg: 12, cd: 12, area: 90 },
   stat: (w, s) => { if (f10Fk(w, 'brisk')) s.cd *= 0.7; },
   when: w => { const p = me(); return f10Near(p.x, p.y, 120).length >= 6 ? {} : null; },
@@ -308,14 +308,14 @@ feat({ id: 'oopsie', name: 'Oopsie', icon: 'OO', ico: 'peek', trig: 1, start: 1,
     5: [fk('brisk', 'Brisk', 'A shorter cooldown.'), fk('longhide', 'Long Hide', 'You stay hidden for two seconds.')] } });
 
 feat({ id: 'anhydrobiosis', name: 'Anhydrobiosis', icon: 'AN', ico: 'shield', type: 'force', atk: 'burst', trig: 1, ev: 1, start: 1, rar: 1, stam: 0,
-  line: `"Shh. Play dead. I'll wake you."`, does: 'A hit that would leave you nearly dead misses. You dry into an untouchable husk for a few seconds, then burst back and shove everything away.',
+  does: 'A hit that would leave you nearly dead misses. You dry into an untouchable husk for a few seconds, then burst back and shove everything away.',
   base: { dmg: 20, cd: 18, dur: 2.5, area: 160 },
   fire: w => { f10().husk = { w, end: G.t + w.s.dur }; floatText(me().x, me().y - 34, 'Shh.', w.def.color, 13, 1); },
   forks: { 3: [fk('vacuum', 'Vacuum Rated', 'The husk destroys enemy Projectile and Spread shots that touch it and fires them back.'), fk('rehydrate', 'Rehydration', 'The burst also heals 15% of your health.')],
     5: [fk('specialboy', 'Special Boy', 'Get through the husk and the next 3 seconds untouched and you move 30% faster for 5 seconds.'), fk('longhusk', 'Dry Spell', 'The burst hits half as hard again.')] } });
 
 feat({ id: 'big_feelings', name: 'BIG FEELINGS', icon: 'BF', ico: 'nova', type: 'force', atk: 'burst', trig: 1, start: 1, rar: 0, stam: 14,
-  line: `"Too much! TOO MUCH!"`, does: 'When enemies crowd you, a shove bursts out of you. The bigger the crowd, the harder the shove.',
+  does: 'When enemies crowd you, a shove bursts out of you. The bigger the crowd, the harder the shove.',
   base: { dmg: 12, cd: 8, area: 120 },
   stat: (w, s) => { if (f10Fk(w, 'meltdown')) s.area *= 1.4; if (f10Fk(w, 'tantrum')) s.cd *= 0.65; },
   when: w => { const p = me(), n = f10Near(p.x, p.y, 100).length; return n >= 5 ? { n } : null; },
@@ -330,7 +330,7 @@ feat({ id: 'big_feelings', name: 'BIG FEELINGS', icon: 'BF', ico: 'nova', type: 
     5: [fk('meltdown', 'Meltdown', 'A 40% wider burst.'), fk('tantrum', 'Tantrum', 'A much shorter cooldown.')] } });
 
 feat({ id: 'sticky_business', name: 'STICKY BUSINESS', icon: 'SB', ico: 'droplet', type: 'mucus', atk: 'burst', trig: 1, start: 1, rar: 0, stam: 12,
-  line: `"Stay! Stay with me!"`, does: 'When an elite, a boss or a charging enemy gets close, a glob hits it and everything near it, and they are Snared.',
+  does: 'When an elite, a boss or a charging enemy gets close, a glob hits it and everything near it, and they are Snared.',
   base: { dmg: 8, cd: 10, area: 80 },
   stat: (w, s) => { if (f10Fk(w, 'bigglob')) s.area *= 1.5; if (f10Fk(w, 'fingers')) s.cd *= 0.6; },
   when: w => { const p = me(); const e = f10Near(p.x, p.y, 90).find(o => o.boss || o.elite || o.def.ai === 'charge'); return e ? { e } : null; },
@@ -344,7 +344,7 @@ feat({ id: 'sticky_business', name: 'STICKY BUSINESS', icon: 'SB', ico: 'droplet
     5: [fk('bigglob', 'Bigger Glob', 'A 50% wider glob.'), fk('fingers', 'Sticky Fingers', 'A much shorter cooldown.')] } });
 
 feat({ id: 'jump_scare', name: 'Jump Scare', icon: 'JS', ico: 'ghost', type: 'soul', atk: 'burst', trig: 1, start: 1, rar: 1, stam: 12,
-  line: `"BOO! Did I get them? I got them."`, does: 'When several enemies get close at once, the consciousness shrieks and everything nearby flees for two seconds.',
+  does: 'When several enemies get close at once, the consciousness shrieks and everything nearby flees for two seconds.',
   base: { dmg: 6, cd: 10, area: 200 },
   stat: (w, s) => { if (f10Fk(w, 'louder')) s.area *= 1.3; },
   when: w => { const p = me(); return f10Near(p.x, p.y, 70).length >= 3 ? {} : null; },
@@ -357,7 +357,7 @@ feat({ id: 'jump_scare', name: 'Jump Scare', icon: 'JS', ico: 'ghost', type: 'so
     5: [fk('louder', 'Louder', 'A 30% wider shriek.'), fk('contagious', 'Contagious', 'Enemies flee for three seconds.')] } });
 
 feat({ id: 'kiss_it_better', name: 'Kiss It Better', icon: 'KB', ico: 'heart', trig: 1, ev: 1, start: 1, rar: 0,
-  line: `"Mwah. Better?"`, does: 'After a quick run of hits on you, a kiss mark pops on you and heals you a little.',
+  does: 'After a quick run of hits on you, a kiss mark pops on you and heals you a little.',
   base: { cd: 14 },
   stat: (w, s) => { if (f10Fk(w, 'extra')) s.cd = Math.min(s.cd, 12 * (w.lvl >= 4 ? 0.85 : 1)); },
   fire: w => {
@@ -370,7 +370,7 @@ feat({ id: 'kiss_it_better', name: 'Kiss It Better', icon: 'KB', ico: 'heart', t
     5: [fk('makeup', 'Kiss and Make Up', 'The kiss also keeps everything off you for a second.'), fk('lipstick', 'Lipstick', 'Double the healing when you are below a quarter of your health.')] } });
 
 feat({ id: 'more', name: 'More!', icon: 'MO', ico: 'pill', trig: 1, ev: 1, start: 1, rar: 1,
-  line: `"You need more. Everybody needs more."`, does: 'While you are hurt, every XP orb nearby flies to you, and the next one is worth triple.',
+  does: 'While you are hurt, every XP orb nearby flies to you, and the next one is worth triple.',
   base: { cd: 20, range: 250 },
   stat: (w, s) => { if (f10Fk(w, 'greedy')) s.cd = 30 * (w.lvl >= 4 ? 0.85 : 1); if (f10Fk(w, 'metabolism')) s.cd *= 0.6; },
   fire: w => { const p = me(); for (const g of G.gems) if (!g.dead && Math.hypot(g.x - p.x, g.y - p.y) < w.s.range) g.mag = true; f10().more = true; floatText(p.x, p.y - 36, 'More.', F10_COL.utility, 13, 0.8); },
@@ -378,7 +378,7 @@ feat({ id: 'more', name: 'More!', icon: 'MO', ico: 'pill', trig: 1, ev: 1, start
     5: [fk('fivefold', 'Third Helping', 'The next orb is worth five times as much.'), fk('metabolism', 'Fast Metabolism', 'A much shorter cooldown.')] } });
 
 feat({ id: 'and_another_thing', name: 'AND ANOTHER THING', icon: 'AT', ico: 'mine', type: 'force', atk: 'burst', trig: 1, ev: 1, start: 1, rar: 1, stam: 14,
-  line: `"You thought we were finished?!"`, does: 'After a quick triple kill, a marked pulse goes off a second later where most of them died.',
+  does: 'After a quick triple kill, a marked pulse goes off a second later where most of them died.',
   base: { dmg: 20, cd: 6, area: 120 },
   stat: (w, s) => { if (f10Fk(w, 'bigger')) s.area *= 1.4; },
   fire: (w, c) => {
@@ -396,7 +396,7 @@ feat({ id: 'and_another_thing', name: 'AND ANOTHER THING', icon: 'AT', ico: 'min
     5: [fk('bigger', 'Bigger Gap', 'A 40% wider pulse.'), fk('fuse', 'Short Fuse', 'It goes off after half a second.')] } });
 
 feat({ id: 'brown_fat', name: 'Brown Fat', icon: 'BR', ico: 'flask', type: 'fire', atk: 'burst', start: 1, rar: 1, stam: 22,
-  line: `"I saved you some fat. For burning. Wait for it."`, does: 'A fat globule lands in the crowd, marked, and goes off two seconds later: everything inside ignites at once.',
+  does: 'A fat globule lands in the crowd, marked, and goes off two seconds later: everything inside ignites at once.',
   base: { dmg: 30, cd: 9, area: 110, range: 460 },
   stat: (w, s) => { if (f10Fk(w, 'insulation')) s.area *= 1.5; if (f10Fk(w, 'slowburn')) s.dmg *= 1.8; },
   when: w => { const p = me(), t = acquire('cluster', w.s.range, p.x, p.y); return t ? { x: t.x, y: t.y } : null; },
@@ -411,7 +411,7 @@ feat({ id: 'brown_fat', name: 'Brown Fat', icon: 'BR', ico: 'flask', type: 'fire
     5: [fk('slowburn', 'Slow Burn', 'It waits three seconds and hits much harder.'), fk('again', 'Double Chin', 'It goes off a second time a second later, at half strength.')] } });
 
 feat({ id: 'sofa_crevice', name: 'Sofa Crevice', icon: 'SC', ico: 'spiral', type: 'force', atk: 'pool', start: 1, rar: 2, stam: 30,
-  line: `"I found where everything goes. Throw them in."`, does: 'A small singularity opens under the crowd. It drags enemies in, crushes them and bends shots towards it.',
+  does: 'A small singularity opens under the crowd. It drags enemies in, crushes them and bends shots towards it.',
   base: { dmg: 16, cd: 10, area: 125, dur: 3, range: 400, pull: 210 },
   stat: (w, s) => { if (f10Fk(w, 'deep')) s.pullK = 2; if (f10Fk(w, 'horizon')) s.area *= 1.35; if (f10Fk(w, 'linger')) s.dur *= 1.5; },
   when: w => { const p = me(), t = acquire('cluster', w.s.range, p.x, p.y); return t ? { x: t.x, y: t.y } : null; },
@@ -426,7 +426,7 @@ feat({ id: 'sofa_crevice', name: 'Sofa Crevice', icon: 'SC', ico: 'spiral', type
     5: [fk('horizon', 'Event Horizon', 'A 35% wider singularity.'), fk('linger', 'Stuck Cushion', 'It stays open half as long again.')] } });
 
 feat({ id: 'formic_acid', name: 'Formic Acid', icon: 'FA', ico: 'shard', type: 'acid', atk: 'beam', start: 1, rar: 1, stam: 26,
-  line: `"I asked an ant. It said yes. I think it said yes."`, does: 'A far-too-big ant snaps the most-Shelled enemy and sprays acid down the line behind it.',
+  does: 'A far-too-big ant snaps the most-Shelled enemy and sprays acid down the line behind it.',
   base: { dmg: 60, cd: 8, range: 360 },
   stat: (w, s) => { if (f10Fk(w, 'mandibles')) s.dmg *= 1.6; },
   when: w => { const p = me(), l = f10Near(p.x, p.y, w.s.range); return l.length ? { l } : null; },
@@ -450,7 +450,7 @@ feat({ id: 'formic_acid', name: 'Formic Acid', icon: 'FA', ico: 'shard', type: '
     5: [fk('mandibles', 'Big Mandibles', 'The bite hits 60% harder.'), fk('colony', 'Colony', 'One more bite on one more target.')] } });
 
 feat({ id: 'tonic_immobility', name: 'Tonic Immobility', icon: 'TI', ico: 'storm', type: 'static', atk: 'burst', start: 1, rar: 2, stam: 34,
-  line: `"Everybody freeze! Not you. You keep going."`, does: 'Every enemy on screen takes a Static hit that staggers it at once. Bosses take extra damage.',
+  does: 'Every enemy on screen takes a Static hit that staggers it at once. Bosses take extra damage.',
   base: { dmg: 40, cd: 12 },
   stat: (w, s) => { if (f10Fk(w, 'quick')) s.cd *= 0.7; },
   when: w => { const l = G.enemies.filter(e => f10Live(e) && f10OnView(e)); return l.length >= 3 ? { l } : null; },
@@ -466,7 +466,7 @@ feat({ id: 'tonic_immobility', name: 'Tonic Immobility', icon: 'TI', ico: 'storm
     5: [fk('aftershock', 'Aftershock', 'A second, shorter stagger 0.8 seconds later.'), fk('quick', 'Quick Twitch', 'A much shorter cooldown.')] } });
 
 feat({ id: 'shed_the_lining', name: 'Shed the Lining', icon: 'SL', ico: 'wake', type: 'blood', atk: 'beam', start: 1, rar: 1, stam: 30,
-  line: `"Out with the old! All of it! Everybody out!"`, does: 'A wide red tide rolls across the screen from behind you, shoving enemies along and making them bleed.',
+  does: 'A wide red tide rolls across the screen from behind you, shoving enemies along and making them bleed.',
   base: { dmg: 12, cd: 8 },
   stat: (w, s) => { if (f10Fk(w, 'flood')) s.dmg *= 1.5; },
   when: w => { const p = me(); return f10Near(p.x, p.y, 400).length ? {} : null; },
@@ -479,7 +479,7 @@ feat({ id: 'shed_the_lining', name: 'Shed the Lining', icon: 'SL', ico: 'wake', 
     5: [fk('flood', 'Flood', 'The tide hits 50% harder.'), fk('fast', 'Spring Tide', 'The tide crosses the screen in 1.8 seconds.')] } });
 
 feat({ id: 'vanishing_twin', name: 'Vanishing Twin', icon: 'VT', ico: 'twins', type: 'soul', atk: 'burst', start: 1, rar: 2, stam: 26,
-  line: `"Remember your twin? No? They remember you."`, does: 'A faint copy of you rises under the toughest enemy nearby and turns it: it fights for you for a few seconds.',
+  does: 'A faint copy of you rises under the toughest enemy nearby and turns it: it fights for you for a few seconds.',
   base: { dmg: 80, cd: 8, range: 380 },
   stat: (w, s) => { if (f10Fk(w, 'closer')) s.cd *= 0.7; },
   when: w => { const p = me(), l = f10Near(p.x, p.y, w.s.range).sort((a, b) => b.maxHp - a.maxHp); return l.length ? { l } : null; },
@@ -498,7 +498,7 @@ feat({ id: 'vanishing_twin', name: 'Vanishing Twin', icon: 'VT', ico: 'twins', t
 
 // ---- later unlocks (FEATS.md section 5)
 feat({ id: 'not_yet', name: 'NOT YET', icon: 'NY', ico: 'shield', type: 'force', atk: 'burst', trig: 1, ev: 1, rar: 3, stam: 0,
-  line: `"No. No no no. You can't go yet."`, does: 'Once a run, a hit that would kill you leaves you on 1 health instead, untouchable for a second, and a violent shove bursts out of you.',
+  does: 'Once a run, a hit that would kill you leaves you on 1 health instead, untouchable for a second, and a violent shove bursts out of you.',
   base: { dmg: 30, cd: 99999, area: 200 },
   stat: (w, s) => { if (f10Fk(w, 'bang')) s.area *= 1.5; },
   fire: w => {
@@ -511,7 +511,7 @@ feat({ id: 'not_yet', name: 'NOT YET', icon: 'NY', ico: 'shield', type: 'force',
     5: [fk('wind', 'Second Wind', 'You also heal 15% when it goes off.'), fk('bang', 'Bigger Bang', 'A 50% wider burst.')] } });
 
 feat({ id: 'wait_wait_wait', name: 'WAIT WAIT WAIT', icon: 'WW', ico: 'clock', type: 'mucus', atk: 'burst', trig: 1, rar: 3, stam: 24,
-  line: `"Everybody stop. I need a second."`, does: 'When you are low and surrounded, everything nearby is Snared and enemy shots slow right down for two seconds. You keep moving.',
+  does: 'When you are low and surrounded, everything nearby is Snared and enemy shots slow right down for two seconds. You keep moving.',
   base: { dmg: 6, cd: 20, area: 180 },
   stat: (w, s) => { if (f10Fk(w, 'breath')) s.area *= 1.4; if (f10Fk(w, 'another')) s.cd *= 0.6; },
   when: w => { const p = me(); return p.hp < G.P.maxHp * 0.4 && f10Near(p.x, p.y, 180).length >= 6 ? {} : null; },
@@ -525,7 +525,7 @@ feat({ id: 'wait_wait_wait', name: 'WAIT WAIT WAIT', icon: 'WW', ico: 'clock', t
     5: [fk('breath', 'Deep Breath', 'A 40% wider reach.'), fk('another', 'Another Second', 'A much shorter cooldown.')] } });
 
 feat({ id: 'come_back_here', name: 'COME BACK HERE', icon: 'CB', ico: 'link', trig: 1, ev: 1, rar: 3,
-  line: `"You look hungry. Eat that one."`, does: 'When an enemy dies close by, a scrap of it flies into you and heals a little. Elites and bosses give more.',
+  does: 'When an enemy dies close by, a scrap of it flies into you and heals a little. Elites and bosses give more.',
   base: { cd: 0, range: 150 },
   stat: (w, s) => { if (f10Fk(w, 'arms')) s.range = 250; },
   fire: () => {},
@@ -533,7 +533,7 @@ feat({ id: 'come_back_here', name: 'COME BACK HERE', icon: 'CB', ico: 'link', tr
     5: [fk('bigbites', 'Bigger Bites', 'Scraps heal 50% more.'), fk('ravenous', 'Ravenous', 'The healing cap rises from 6 to 9 health a second.')] } });
 
 feat({ id: 'that_one', name: 'THAT ONE', icon: 'TO', ico: 'grudge', type: 'force', atk: 'burst', trig: 1, ev: 1, rar: 3, stam: 12,
-  line: `"I didn't like that one. I don't like it now either."`, does: 'The consciousness points at whichever enemy hurt you most lately. When it dies, it goes off in a burst.',
+  does: 'The consciousness points at whichever enemy hurt you most lately. When it dies, it goes off in a burst.',
   base: { dmg: 25, cd: 8, area: 140 },
   stat: (w, s) => { if (f10Fk(w, 'overkill')) s.dmg *= 1.5; if (f10Fk(w, 'forget')) s.cd *= 0.6; },
   fire: (w, c) => { const l = f10Near(c.x, c.y, w.s.area); f10Burst(w, c.x, c.y, w.s.area, w.s.dmg, null); if (f10Fk(w, 'tell')) for (const e of l) f10Stagger(e); },
@@ -541,7 +541,7 @@ feat({ id: 'that_one', name: 'THAT ONE', icon: 'TO', ico: 'grudge', type: 'force
     5: [fk('overkill', 'Overkill', 'The burst hits 50% harder.'), fk('forget', 'Never Forget', 'A much shorter cooldown.')] } });
 
 feat({ id: 'nesting', name: 'Nesting', icon: 'NE', ico: 'web', type: 'mucus', atk: 'pool', trig: 1, rar: 3, stam: 14,
-  line: `"I made a nest. Get in. Get IN."`, does: 'Stay put for two seconds and a ring of Mucus forms around you. Anything crossing it is Snared.',
+  does: 'Stay put for two seconds and a ring of Mucus forms around you. Anything crossing it is Snared.',
   base: { dmg: 3, cd: 12, area: 50, dur: 4 },
   stat: (w, s) => { if (f10Fk(w, 'feathered')) s.dur *= 2; if (f10Fk(w, 'quick')) s.cd *= 0.6; },
   when: w => (f10().stayT >= 2 ? {} : null),
@@ -554,7 +554,7 @@ feat({ id: 'nesting', name: 'Nesting', icon: 'NE', ico: 'web', type: 'mucus', at
     5: [fk('twelve', 'Full House', 'Twelve patches instead of six.'), fk('quick', 'Quick Nest', 'A much shorter cooldown.')] } });
 
 feat({ id: 'mine', name: 'Mine!', icon: 'MI', ico: 'tooth', trig: 1, ev: 1, rar: 3,
-  line: `"Found it. It's ours now."`, does: 'A big haul (a box, a chest or a pile of XP at once) wraps you in a halo that soaks hits for a few seconds.',
+  does: 'A big haul (a box, a chest or a pile of XP at once) wraps you in a halo that soaks hits for a few seconds.',
   base: { dmg: 10, cd: 20 },
   stat: (w, s) => { if (f10Fk(w, 'quickfingers')) s.cd *= 0.6; },
   fire: (w, c) => {
@@ -567,7 +567,7 @@ feat({ id: 'mine', name: 'Mine!', icon: 'MI', ico: 'tooth', trig: 1, ev: 1, rar:
     5: [fk('haul', 'Bigger Haul', 'The halo soaks 25% of your health instead of 15%.'), fk('quickfingers', 'Quick Fingers', 'A much shorter cooldown.')] } });
 
 feat({ id: 'packed_lunch', name: 'Packed Lunch', icon: 'PL', ico: 'cross', trig: 1, rar: 3,
-  line: `"I packed you lunch. Don't share it."`, does: 'While you are hurt, a yolk drops near you now and then. Swim into it to heal. Greedy enemies try to eat it first.',
+  does: 'While you are hurt, a yolk drops near you now and then. Swim into it to heal. Greedy enemies try to eat it first.',
   base: { cd: 40 },
   stat: (w, s) => { if (f10Fk(w, 'bag')) s.cd *= 0.6; },
   when: w => { const p = me(), D = f10(); return p.hp < G.P.maxHp * 0.6 && !D.yolk ? {} : null; },
@@ -579,7 +579,7 @@ feat({ id: 'packed_lunch', name: 'Packed Lunch', icon: 'PL', ico: 'cross', trig:
     5: [fk('bag', 'Doggy Bag', 'A much shorter cooldown.'), fk('gourmet', 'Gourmet', 'The yolk heals 10% more.')] } });
 
 feat({ id: 'hagfish', name: 'Hagfish', icon: 'HF', ico: 'spray', type: 'mucus', atk: 'burst', start: 1, rar: 2, stam: 24,
-  line: `"I made you slimy. Nobody can hold you now."`, does: 'An instant burst of slime Snares everything around you and leaves a Mucus patch where you were.',
+  does: 'An instant burst of slime Snares everything around you and leaves a Mucus patch where you were.',
   base: { dmg: 18, cd: 13, area: 150 },
   stat: (w, s) => { if (f10Fk(w, 'bucket')) s.area *= 1.4; if (f10Fk(w, 'slimmer')) s.cd *= 0.7; },
   when: w => { const p = me(); return f10Near(p.x, p.y, 150).length ? {} : null; },
@@ -592,7 +592,7 @@ feat({ id: 'hagfish', name: 'Hagfish', icon: 'HF', ico: 'spray', type: 'mucus', 
     5: [fk('bucket', 'Bucketful', 'A 40% wider burst.'), fk('slimmer', 'Slimmer', 'A much shorter cooldown.')] } });
 
 feat({ id: 'running_with_scissors', name: 'Running With Scissors', icon: 'RS', ico: 'scissors', type: 'blood', atk: 'spread', start: 1, rar: 2, stam: 26,
-  line: `"I found sharp things. Don't hold them. Throw them."`, does: 'A ring of blades bursts out of you, cutting and making everything it catches bleed.',
+  does: 'A ring of blades bursts out of you, cutting and making everything it catches bleed.',
   base: { dmg: 19, cd: 6, area: 220 },
   stat: (w, s) => { if (f10Fk(w, 'serrated')) s.dmg *= 1.5; if (f10Fk(w, 'snips')) s.cd *= 0.7; },
   when: w => { const p = me(); return f10Near(p.x, p.y, w.s.area).length ? {} : null; },
@@ -614,7 +614,7 @@ feat({ id: 'running_with_scissors', name: 'Running With Scissors', icon: 'RS', i
 // swallows them (12.8), up to 10. When it ends it fires one Static arc per bullet, round the nearest enemies; each hit
 // makes its target Charged (fight.js). Full dome: no more pull, shots fly past. Level 5 fork text is TODO_COPY (FEATS.md has none).
 feat({ id: 'van_de_graaff', name: 'Van de Graaff', icon: 'VG', ico: 'storm', type: 'static', atk: 'proj', start: 1, rar: 2, stam: 24,
-  line: `"Give me their bullets. I'm keeping them. Okay, have them back."`, does: 'When enemy bullets crowd you, a dome swallows them, then fires one Static arc per bullet caught.',
+  does: 'When enemy bullets crowd you, a dome swallows them, then fires one Static arc per bullet caught.',
   base: { dmg: 16, cd: 12, area: 230, dur: 4 },
   stat: (w, s) => { s.cap = f10Fk(w, 'vdg_store') ? 16 : 10; if (f10Fk(w, 'vdg_long')) s.dur *= 1.5; },
   when: w => { if (G.f10 && G.f10.vdg) return null; const p = me(); let n = 0; for (const b of G.ebul) if (!b.dead && Math.hypot(b.x - p.x, b.y - p.y) < w.s.area) n++; return n >= 3 ? {} : null; },
@@ -661,7 +661,7 @@ const f10Sort = p => (a, b) => Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x
 const f10Sick = e => corroded(e) || snared(e) || charged(e) || f_burning(e) || f_bleeding(e) || f_possessed(e); // carries a status First Contact can react to
 
 feat({ id: 'standard_procedure', sample: 'baseline', name: 'Standard Procedure', icon: 'SP', ico: 'nova', type: 'force', atk: 'burst', rar: 0, stam: 14,
-  line: `"Step one: everyone else, away from you."`, does: 'A clean ring of Force pulses out of you and knocks nearby enemies away.',
+  does: 'A clean ring of Force pulses out of you and knocks nearby enemies away.',
   base: { dmg: 18, cd: 9, area: 130 },
   stat: (w, s) => { if (f10Fk(w, 'extra')) s.area *= 1.4; if (f10Fk(w, 'fast')) s.cd *= 0.7; },
   when: w => { const p = me(); return f10Near(p.x, p.y, w.s.area).length ? {} : null; },
@@ -674,7 +674,7 @@ feat({ id: 'standard_procedure', sample: 'baseline', name: 'Standard Procedure',
     5: [fk('extra', 'Extra Strength', 'A 40% wider pulse.'), fk('fast', 'Fast Acting', 'A much shorter cooldown.')] } });
 
 feat({ id: 'personal_best', sample: 'alpha', name: 'Personal Best', icon: 'PB', ico: 'wake', type: 'static', atk: 'contact', rar: 0, stam: 20,
-  line: `"Go! GO! Beat your time! Beat EVERYONE'S time!"`, does: 'You burst forward in a fast sprint, leaving a Static wake. Every enemy you strike makes the sprint longer.',
+  does: 'You burst forward in a fast sprint, leaving a Static wake. Every enemy you strike makes the sprint longer.',
   base: { dmg: 14, cd: 10, dur: 1.5 },
   stat: (w, s) => { if (f10Fk(w, 'longer')) s.dur += 1; if (f10Fk(w, 'second')) s.cd *= 0.7; },
   when: w => { const p = me(), D = f10(); return !(D.pb && D.pb.end > G.t) && f10Near(p.x, p.y, 420).length ? {} : null; },
@@ -683,7 +683,7 @@ feat({ id: 'personal_best', sample: 'alpha', name: 'Personal Best', icon: 'PB', 
     5: [fk('longer', 'Longer Run', 'The sprint lasts a second longer.'), fk('second', 'Second Lap', 'A much shorter cooldown.')] } });
 
 feat({ id: 'second_wind', sample: 'beta', name: 'Second Wind', icon: 'SW', ico: 'heart', type: 'blood', atk: 'burst', rar: 0, stam: 22,
-  line: `"They look so full. You look so empty. Fix that."`, does: 'You drain Blood from the wounded enemies around you and heal. The lower your health, the more you heal.',
+  does: 'You drain Blood from the wounded enemies around you and heal. The lower your health, the more you heal.',
   base: { dmg: 10, cd: 11, area: 220 },
   stat: (w, s) => { if (f10Fk(w, 'wide')) s.area *= 1.4; if (f10Fk(w, 'again')) s.cd *= 0.7; },
   when: w => { const p = me(); return f10Near(p.x, p.y, w.s.area).some(e => e.hp < e.maxHp) ? {} : null; },
@@ -699,7 +699,7 @@ feat({ id: 'second_wind', sample: 'beta', name: 'Second Wind', icon: 'SW', ico: 
     5: [fk('again', 'Catching Up', 'A much shorter cooldown.'), fk('plenty', 'Plenty More', 'It drains from two more enemies.')] } });
 
 feat({ id: 'pulling_strings', sample: 'private', name: 'Pulling Strings', icon: 'PS', ico: 'link', type: 'acid', atk: 'burst', rar: 0, stam: 20,
-  line: `"That one. The one in the good suit. Make it a problem."`, does: 'You mark the toughest enemy nearby. It melts fast while the enemies around it fill with Holy/Damned, until its own entourage turns on it.',
+  does: 'You mark the toughest enemy nearby. It melts fast while the enemies around it fill with Holy/Damned, until its own entourage turns on it.',
   base: { dmg: 6, cd: 12, dur: 4, range: 380 },
   stat: (w, s) => { if (f10Fk(w, 'leash')) s.range *= 1.4; if (f10Fk(w, 'short')) s.cd *= 0.7; },
   when: w => { const p = me(); return f10Near(p.x, p.y, w.s.range).length ? {} : null; },
@@ -716,7 +716,7 @@ feat({ id: 'pulling_strings', sample: 'private', name: 'Pulling Strings', icon: 
     5: [fk('two', 'Two Marks', 'Mark the two toughest enemies.'), fk('short', 'Shorter Leash', 'A much shorter cooldown.')] } });
 
 feat({ id: 'shrink_wrap', sample: 'ordered', name: 'Shrink Wrap', icon: 'SH', ico: 'web', type: 'mucus', atk: 'burst', rar: 0, stam: 22,
-  line: `"Fragile. Handle with care. Actually, don't handle."`, does: 'A ring of enemies around you is Snared in Mucus, then an Acid pool bubbles up beneath them. Trap first, dissolve second.',
+  does: 'A ring of enemies around you is Snared in Mucus, then an Acid pool bubbles up beneath them. Trap first, dissolve second.',
   base: { dmg: 8, cd: 11, area: 170, dur: 3.5 },
   stat: (w, s) => { if (f10Fk(w, 'wide')) s.area *= 1.4; if (f10Fk(w, 'slow')) s.dur *= 1.6; if (f10Fk(w, 'strong')) s.dmg *= 1.5; if (f10Fk(w, 'refund')) s.cd *= 0.7; },
   when: w => { const p = me(); return f10Near(p.x, p.y, w.s.area).length ? {} : null; },
@@ -730,7 +730,7 @@ feat({ id: 'shrink_wrap', sample: 'ordered', name: 'Shrink Wrap', icon: 'SH', ic
     5: [fk('strong', 'Industrial Strength', 'The Pools and the first hit are 50% stronger.'), fk('refund', 'Return Policy', 'A much shorter cooldown.')] } });
 
 feat({ id: 'reply_all', sample: 'redtail', name: 'Reply All', icon: 'RA', ico: 'spray', type: 'fire', atk: 'beam', rar: 0, stam: 22,
-  line: `"I replied to everyone. EVERYONE. Look how warm they are."`, does: 'The nearest enemy\'s Burn bar fills at once, and Static arcs carry the Burn to the enemies around it.',
+  does: 'The nearest enemy\'s Burn bar fills at once, and Static arcs carry the Burn to the enemies around it.',
   base: { dmg: 12, cd: 10, range: 320, area: 170 },
   stat: (w, s) => { if (f10Fk(w, 'wide')) s.area *= 1.4; if (f10Fk(w, 'auto')) s.cd *= 0.7; },
   when: w => { const p = me(), t = acquire('nearest', w.s.range, p.x, p.y); return t ? { t } : null; },
@@ -748,7 +748,7 @@ feat({ id: 'reply_all', sample: 'redtail', name: 'Reply All', icon: 'RA', ico: '
     5: [fk('bcc', 'Bcc', 'The second-nearest enemy catches fire too.'), fk('auto', 'Auto-Reply', 'A much shorter cooldown.')] } });
 
 feat({ id: 'recount', sample: 'prawn', name: 'Recount', icon: 'RC', ico: 'ghost', type: 'soul', atk: 'burst', rar: 0, stam: 28,
-  line: `"Let's count again. Six of you. Three seconds. Be nice."`, does: 'You Possess up to six enemies for three seconds. When it ends, each loses a chunk of health, and every kill gives you stamina back.',
+  does: 'You Possess up to six enemies for three seconds. When it ends, each loses a chunk of health, and every kill gives you stamina back.',
   base: { dmg: 40, cd: 14, range: 340, dur: 3 },
   stat: (w, s) => { if (f10Fk(w, 'audit')) s.dmg *= 1.5; if (f10Fk(w, 'quick')) s.cd *= 0.7; if (f10Fk(w, 'long')) s.dur += 1; },
   when: w => { const p = me(); return f10Near(p.x, p.y, w.s.range).some(e => !e.boss && !e.rival) ? {} : null; },
@@ -763,7 +763,7 @@ feat({ id: 'recount', sample: 'prawn', name: 'Recount', icon: 'RC', ico: 'ghost'
     5: [fk('long', 'Long Meeting', 'The Possession lasts a second longer.'), fk('quick', 'Quick Count', 'A much shorter cooldown.')] } });
 
 feat({ id: 'first_contact', sample: 'alien', name: 'First Contact', icon: 'FC', ico: 'twins', rar: 0, stam: 0,
-  line: `"Oh, you're different now. Say hello to everyone."`, does: 'You switch to your next damage type at once, and every enemy on screen with a status reacts as if hit by both your old and new types.',
+  does: 'You switch to your next damage type at once, and every enemy on screen with a status reacts as if hit by both your old and new types.',
   base: { cd: 14, dmg: 30 },
   stat: (w, s) => { if (f10Fk(w, 'quickintro')) s.cd *= 0.7; if (f10Fk(w, 'firm')) s.dmg *= 1.5; },
   when: w => (G.enemies.some(e => f10Live(e) && f10OnView(e) && f10Sick(e)) ? {} : null),

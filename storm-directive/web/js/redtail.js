@@ -64,7 +64,7 @@ PROFILES.redtail = {
   weapons: ['wedding', 'moonshine', 'banjo'],
   unlock: { text: 'Play 20 runs (any result)', have: () => (typeof RUNLOG !== 'undefined' ? RUNLOG.length : 0), need: 20 },
 };
-if (typeof SEQ_LOOK !== 'undefined') SEQ_LOOK.redtail = { short: 'Redtail', color: RED.color, tag: 'BRED FOR LUCK', quote: 'Mama always said we was special. Then she said it to my cousin. Who is also my sister.', stats: [4, 3, 2, 3] };
+if (typeof SEQ_LOOK !== 'undefined') SEQ_LOOK.redtail = { short: 'Redtail', color: RED.color, tag: 'BRED FOR LUCK', quote: 'Its mother said it was special. She said the same to its cousin, who is also its sister.', stats: [4, 3, 2, 3] };
 const redOn = () => !!(G && G.genes && G.genes.active.includes('redtail'));
 // Level-up boxes for the Redtail are never Common (from genLoot: the lowest rarity).
 const redLoot = (req, minR) => (req.kind === 'level' && redOn() ? Math.max(minR, 1) : minR);

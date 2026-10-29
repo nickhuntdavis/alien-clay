@@ -1,8 +1,7 @@
 'use strict';
-// Spawn Prawn v10 - wiring for the two narrative voices (voice10.js). The line tables are in voice.js.
-// Owns: when and where each line is shown. The Scientist ('sci') owns menus, boss intros, the death screen and the
-// odd calm observation; the consciousness ('con') owns first-sighting nudges, level-up pushes and in-run pressure
-// (VOICE_GUIDE "Screen and content ownership"). In-run commentary is sparse: at most one line every VX_GAP seconds of
+// Spawn Prawn v10 - wiring for the caption lines (voice10.js). The line tables are in voice.js.
+// Owns: when and where each line is shown (one voice, no personas since 29 Oct 2026; 'sci' is the only who).
+// In-run commentary is sparse: at most one line every VX_GAP seconds of
 // run time, never a repeat (voiceLine remembers the last three), and forced moments (start, bosses, firsts, the end
 // screen) still count towards the gap. Tier 2 and 3 lines show their `recover` line next.
 // The old narrator (show.js) still runs underneath; vxSysLine swallows its chatter.
@@ -13,8 +12,8 @@
 // Save data: META.vxSt (statuses already hinted), META.vxEv (first-time events: firstBossKill, firstEggWin).
 
 const VX_GAP = 20; // seconds of run time between commentary lines
-const VX_HEAD = { sci: 'THE SCIENTIST', con: 'INNER VOICE' };
-const VX_COL = { sci: '#cfd8dc', con: '#8dffc0' };
+const VX_HEAD = { sci: 'LAB LOG' };
+const VX_COL = { sci: '#cfd8dc' };
 
 // The sample's ID for this run ('1A', '2C'): strain from the sample, letter from META.s10runs (samples10.js).
 const vxSid = g => { g = g || G; return g && g.s10 && typeof sampleId === 'function' ? sampleId(g.s10.strain, g.s10.run) : ''; };
@@ -31,8 +30,10 @@ function vxEvSet(k) { (META.vxEv || (META.vxEv = {}))[k] = 1; saveMeta(); }
 
 // Put a line on the narrator strip (show.js msgQ, shown by ui.js while playing).
 function vxPush(who, text, head, hold) {
+  return; // (narration bubbles removed from the HUD; lines are still picked and logged)
   const q = G.show.msgQ;
-  q.push({ head: head || (who === 'sci' ? 'LAB LOG' + (vxSid() ? ' · ' + vxSid() : '') : VX_HEAD[who]), body: text, color: VX_COL[who], who, hold: hold || Math.min(6, 2.2 + text.length / 24) });
+  who = 'sci';
+  q.push({ head: head || VX_HEAD.sci + (vxSid() ? ' · ' + vxSid() : ''), body: text, color: VX_COL.sci, who, hold: hold || Math.min(6, 2.2 + text.length / 24) });
   if (q.length > 6) q.shift();
 }
 function vxLog(event, who, text) {
@@ -52,7 +53,7 @@ function vxSay(event, who, opt) {
   vxLog(event, who, L.text);
   return L;
 }
-// A Scientist line that stays Tier 0 (the death screen, VOICE_GUIDE).
+// A line that stays Tier 0 (the death screen).
 function vxTier0(event, ctx) {
   let L = null;
   for (let i = 0; i < 8; i++) { L = voiceLine(event, 'sci', ctx); if (!L || !L.tier) break; }
@@ -65,7 +66,7 @@ function vxSysLine(kind) { return VX_SWALLOW.indexOf(kind) >= 0; }
 
 // ---------------------------------------------------------------- run start
 function vxRunStart() {
-  if (G.lvl) { vxSay('campaignStart', 'con', { force: true }); return; }
+  if (G.lvl) { vxSay('campaignStart', 'sci', { force: true }); return; }
   const s = G.s10 && typeof S10_BY !== 'undefined' && S10_BY[G.s10.id], id = vxSid();
   if (s && G.s10.run === 1 && s.sci) { vxSay('runStart', 'sci', { force: true, line: { text: s.sci.replace('{id}', id), tier: 0 } }); return; }
   vxSay('runStart', 'sci', { force: true });
@@ -82,22 +83,22 @@ function vxTick(dt) {
   const p = G.player, hp = p.hp / G.P.maxHp, tut = G.wave && G.wave.n === 0;
   if (!S.started) { if (G.t > 1.5) { S.started = 1; S.lv = G.level; S.bk = G.stats.bossKills || 0; S.wc = G.weapons.filter(w => w && !w.isSpell).length; vxRunStart(); } return; }
   if (tut) return;
-  // Pressure: the consciousness.
-  if (hp < 0.12) { if (!S.nd && G.t >= (S.ndCd || 0)) { S.nd = 1; S.ndCd = G.t + 30; vxSay('nearDeath', 'con', { force: true }); } }
+  // Pressure.
+  if (hp < 0.12) { if (!S.nd && G.t >= (S.ndCd || 0)) { S.nd = 1; S.ndCd = G.t + 30; vxSay('nearDeath', 'sci', { force: true }); } }
   else if (hp > 0.5) S.nd = 0;
-  if (hp < 0.35) { if (!S.low) { S.low = 1; vxSay('lowHp', 'con'); } } else if (hp > 0.6) S.low = 0;
+  if (hp < 0.35) { if (!S.low) { S.low = 1; vxSay('lowHp', 'sci'); } } else if (hp > 0.6) S.low = 0;
   if (G.t >= (S.surCd || 0)) {
     let n = 0; for (const e of G.enemies) if (!e.dead && !e.charmed && !e.egg && Math.abs(e.x - p.x) < 170 && Math.abs(e.y - p.y) < 170 && Math.hypot(e.x - p.x, e.y - p.y) < 170) n++;
-    if (n >= 7 && vxSay('surrounded', 'con')) S.surCd = G.t + 45;
+    if (n >= 7 && vxSay('surrounded', 'sci')) S.surCd = G.t + 45;
   }
-  // A calm spell: the Scientist, rarely.
+  // A calm spell, rarely.
   let near = false; for (const e of G.enemies) if (!e.dead && !e.charmed && Math.hypot(e.x - p.x, e.y - p.y) < 450) { near = true; break; }
   S.quiet = near || hp < 0.6 ? 0 : S.quiet + step;
   if (S.quiet > 6 && G.t > 90 && G.t >= (S.quietCd || 0)) { S.quiet = 0; S.quietCd = G.t + 150; if (Math.random() < 0.5) vxSay('quietMoment', 'sci'); }
   // Progress.
-  if (G.level > S.lv) { const n = G.level - S.lv; S.lv = G.level; S.ups += n; if (S.ups >= 4) { if (vxSay('levelUp', 'con')) S.ups = 0; } }
+  if (G.level > S.lv) { const n = G.level - S.lv; S.lv = G.level; S.ups += n; if (S.ups >= 4) { if (vxSay('levelUp', 'sci')) S.ups = 0; } }
   const wc = G.weapons.filter(w => w && !w.isSpell).length;
-  if (wc > S.wc) vxSay('newWeapon', 'con'); S.wc = wc;
+  if (wc > S.wc) vxSay('newWeapon', 'sci'); S.wc = wc;
   if (G.wave && G.wave.n >= 1 && !G.wave.active && G.wave.restT > 0 && S.wcN !== G.wave.n) { S.wcN = G.wave.n; vxSay('waveClear', 'sci'); }
   const bk = G.stats.bossKills || 0;
   if (bk > S.bk) { S.bk = bk; if (!vxEv('firstBossKill')) { vxEvSet('firstBossKill'); vxSay('firstBossKill', 'sci', { force: true }); } else vxSay('bossKill', 'sci', { force: true }); }
@@ -128,22 +129,22 @@ function vxHints() {
       if (seen[k] || !STATUS_HINT[k]) continue;
       seen[k] = 1; saveMeta();
       S.hintCd = G.t + 8;
-      vxPush('con', STATUS_HINT[k], 'NEW: ' + k.toUpperCase(), 4);
-      vxLog('statusHint', 'con', STATUS_HINT[k]);
+      vxPush('sci', STATUS_HINT[k], 'NEW: ' + k.toUpperCase(), 4);
+      vxLog('statusHint', 'sci', STATUS_HINT[k]);
       return;
     }
   }
 }
 
 // ---------------------------------------------------------------- first sightings (intro.js startFoeIntro)
-// Returns one of the two SIGHTING lines for an enemy or boss key, or null (the caller keeps its own text).
+// Returns the SIGHTING line for an enemy or boss key, or null (the caller keeps its own text).
 function vxSight(key) {
   if (!vxOn() || !SIGHTING[key]) return null;
-  const s = SIGHTING[key], who = Math.random() < 0.5 ? 'sci' : 'con';
-  vxLog('sighting', who, s[who]);
-  return s[who];
+  const s = SIGHTING[key];
+  vxLog('sighting', 'sci', s.sci);
+  return s.sci;
 }
-// Boss intro card (bosses.js startBossIntro): a first meeting shows a SIGHTING line, later ones a Scientist line.
+// Boss intro card (bosses.js startBossIntro): a first meeting shows the SIGHTING line, later ones a bossArrive line.
 function vxBossIntro(e) {
   if (!vxOn() || e.egg) return;
   const id = e.def.id === 'litmus' ? 'litmusstrip' : e.def.id, first = (META.bosses && META.bosses[e.def.id]) === 1;
@@ -170,19 +171,19 @@ function vxEnd(won) {
   if (!G || !G.show || G.debug || typeof $ !== 'function') return;
   const body = $('overBody'); if (!body) return;
   const ctx = vxCtx(), sid = vxSid(), S = vxs();
-  const row = (who, L) => L ? `<div class="vxl" style="margin:6px 0;font-style:italic;opacity:0.9;color:${who === 'sci' ? '#cfd8dc' : '#8dffc0'}">${esc(L.text)}${L.recover ? ' <span style="opacity:0.7">' + esc(L.recover) + '</span>' : ''}</div>` : '';
+  const row = (who, L) => L ? `<div class="vxl" style="margin:6px 0;font-style:italic;opacity:0.9;color:#cfd8dc">${esc(L.text)}${L.recover ? ' <span style="opacity:0.7">' + esc(L.recover) + '</span>' : ''}</div>` : '';
   let lines = '';
   const egg = won && !G.lvl;
   if (egg) {
     const first = !vxEv('firstEggWin'), ev = first ? 'firstEggWin' : 'eggWin';
     if (first) vxEvSet('firstEggWin');
-    const con = voiceLine(ev, 'con', ctx), sci = voiceLine(ev, 'sci', ctx); // (the consciousness gets the peak, so it goes first)
-    lines = row('con', con) + row('sci', sci);
-    if (con) vxLog(ev, 'con', con.text); if (sci) vxLog(ev, 'sci', sci.text);
+    const sci = voiceLine(ev, 'sci', ctx);
+    lines = row('sci', sci);
+    if (sci) vxLog(ev, 'sci', sci.text);
   } else if (!won) {
-    const sci = vxTier0('death', ctx), con = Math.random() < 0.5 ? voiceLine('death', 'con', ctx) : null;
-    lines = row('sci', sci) + row('con', con);
-    if (sci) vxLog('death', 'sci', sci.text); if (con) vxLog('death', 'con', con.text);
+    const sci = vxTier0('death', ctx);
+    lines = row('sci', sci);
+    if (sci) vxLog('death', 'sci', sci.text);
   }
   body.insertAdjacentHTML('afterbegin', `<div class="vxend">${sid ? `<div class="hint">SAMPLE ${esc(sid)}${G.s10 && typeof S10_BY !== 'undefined' && S10_BY[G.s10.id] ? ' | ' + esc(S10_BY[G.s10.id].name) : ''}</div>` : ''}${lines}</div>`);
 }

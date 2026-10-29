@@ -257,7 +257,7 @@ function tutWave0Clear(V) {
   if (V.n !== 0) return false;
   META.tutWave = 1; saveMeta();
   banner(TUT_NAME + ' PASSED', PAL.upgrade);
-  sysMsg('THE SCIENTIST', '"Adequate. Now the real thing: twenty drops, a boss every fifth."', XR.dim, true);
+  sysMsg('LAB LOG', 'Adequate. Now the real thing: twenty drops, a boss every fifth.', XR.dim, true);
   return true;
 }
 // The "skip tutorial" link on every card: no more cards, and pre-school ends where it stands.

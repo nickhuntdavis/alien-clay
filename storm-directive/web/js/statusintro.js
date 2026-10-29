@@ -2,7 +2,7 @@
 // Spawn Prawn - first-time status cards. The first time ever a buff or debuff chip turns up on your HUD, the
 // game stops for a short card explaining it (once per status, ever; Settings > Tutorial brings them back).
 // With introductions set to Quiet it is a narrator message instead; Off skips them.
-// Only the first two get the full card. After that a new one shows "NEW POWERUP UNLOCKED!" beside its chip for
+// Only the first two get the full card. After that a new one shows "NEW POWERUP UNLOCKED" beside its chip for
 // a few seconds, and tapping the chip or the message opens the same card (play carries on if you ignore it).
 // Hooks: statusIntroCheck(chips), from the HUD each frame; stNewKey/stNewOutline/stNewMsg (render.js, the chips), stNewTap (game.js, a tap on a chip).
 
@@ -96,7 +96,7 @@ function stNewOutline(key, x, y, w, h) {
 }
 // The message (x null: centred); returns where it went, for the tap.
 function stNewMsg(key, x, y) {
-  const I = statusInfo(key), msg = I && !I.buff ? 'NEW DEBUFF SPOTTED! TAP TO READ' : 'NEW POWERUP UNLOCKED! TAP TO READ';
+  const I = statusInfo(key), msg = I && !I.buff ? 'NEW DEBUFF SPOTTED: TAP TO READ' : 'NEW POWERUP UNLOCKED: TAP TO READ';
   const mw = ctx.measureText(msg).width + 14;
   if (x == null) x = (W - mw) / 2;
   filmPanel(x, y, mw, 16); ctx.fillStyle = '#ffffff'; ctx.fillText(msg, x + 7, y + 12);

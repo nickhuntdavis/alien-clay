@@ -69,82 +69,82 @@ const needType = (t, name) => () => hasType(t) ? '' : 'needs a ' + name + ' weap
 const hpFix = (G, f) => { const P = G.P, p = G.player; P.maxHp *= f; p.hp = Math.min(P.maxHp, f > 1 ? p.hp + (P.maxHp - P.maxHp / f) : p.hp); };
 
 // ---------------------------------------------------------------- body (M1 to M8)
-mutCard({ id: 'm_slip', title: 'Slipstream', icon: 'SL', rarity: 0, maxRank: 3, start: true, flavour: 'Keep going! You\'re getting good at going!',
+mutCard({ id: 'm_slip', title: 'Slipstream', icon: 'SL', rarity: 0, maxRank: 3, start: true, flavour: 'Momentum, retained. Thought, optional.',
   desc: 'Keep swimming and you get faster. A hit resets it.' });
-mutCard({ id: 'm_pad', title: 'Extra Padding', icon: 'EP', rarity: 0, maxRank: 3, flavour: 'I put something soft around your something soft.',
+mutCard({ id: 'm_pad', title: 'Extra Padding', icon: 'EP', rarity: 0, maxRank: 3, flavour: 'Something soft around something soft. Standard packaging.',
   desc: 'More max health. At full health, part of it is a Membrane.', on: G => hpFix(G, 1.05) });
-mutCard({ id: 'm_fingers', title: 'Sticky Fingers', icon: 'SF', rarity: 0, maxRank: 3, start: true, flavour: 'You found it. It\'s yours. All of it.',
+mutCard({ id: 'm_fingers', title: 'Sticky Fingers', icon: 'SF', rarity: 0, maxRank: 3, start: true, flavour: 'Everything nearby is now yours. The nearby has been widened.',
   desc: 'You pick things up from further away, and every level-up pulls in the XP around you.', on: G => { G.P.magnet += 0.3; } });
-mutCard({ id: 'm_heart', title: 'Heartbeat', icon: 'HB', rarity: 1, maxRank: 3, flavour: 'Thump thump. Still there. Good.',
+mutCard({ id: 'm_heart', title: 'Heartbeat', icon: 'HB', rarity: 1, maxRank: 3, flavour: 'Thump. Everything near it moves away. Thump.',
   desc: 'Every few seconds a Force pulse shoves enemies away. It reaches further the healthier you are.' });
-mutCard({ id: 'm_hold', title: 'Hard to Hold', icon: 'HH', rarity: 1, maxRank: 3, flavour: 'You slipped! Do it again but without the ouch.',
+mutCard({ id: 'm_hold', title: 'Hard to Hold', icon: 'HH', rarity: 1, maxRank: 3, flavour: 'Slipped. The grip failed. Consistently.',
   desc: 'After a hit, you swim faster and take less Contact damage for a moment.' });
-mutCard({ id: 'm_parts', title: 'Spare Parts', icon: 'SP', rarity: 1, maxRank: 3, flavour: 'I saved the bits. You might need the bits.',
+mutCard({ id: 'm_parts', title: 'Spare Parts', icon: 'SP', rarity: 1, maxRank: 3, flavour: 'The bits have been kept. Five bits make one of you.',
   desc: 'Kills sometimes drop a fragment. Collect five to heal.' });
-mutCard({ id: 'm_excite', title: 'Hair Trigger', icon: 'OX', rarity: 1, maxRank: 3, flavour: 'Again! Again! AGAIN!',
+mutCard({ id: 'm_excite', title: 'Hair Trigger', icon: 'OX', rarity: 1, maxRank: 3, flavour: 'Three quick kills and the tail forgets to pace itself.',
   desc: 'A burst of quick kills makes you attack faster for a few seconds.' });
-mutCard({ id: 'm_space', title: 'Personal Space', icon: 'PS', rarity: 1, maxRank: 3, family: 'mut:body', flavour: 'Please don\'t touch. Actually, I will handle that.',
+mutCard({ id: 'm_space', title: 'Personal Space', icon: 'PS', rarity: 1, maxRank: 3, family: 'mut:body', flavour: 'Stand too close for too long and the mucus decides.',
   desc: 'An enemy that hangs around too close to you is Snared.' });
 
 // ---------------------------------------------------------------- weapon (M9 to M16)
 const MUT_WF = 'mut:weapon', MUT_WC = MUT_COL.weapon;
-mutCard({ id: 'w_split', slot: 'weaponmut', family: MUT_WF, color: MUT_WC, title: 'Mitosis', icon: 'CP', rarity: 2, start: true, fit: ['proj', 'spread'], flavour: 'One for you. One for you. One for... oh, there\'s loads.',
+mutCard({ id: 'w_split', slot: 'weaponmut', family: MUT_WF, color: MUT_WC, title: 'Mitosis', icon: 'CP', rarity: 2, start: true, fit: ['proj', 'spread'], flavour: 'One shot. Two shots. The count is not final.',
   desc: 'A hit may split into two smaller shots that home in on new targets.' });
-mutCard({ id: 'w_nfy', slot: 'weaponmut', family: MUT_WF, color: MUT_WC, title: 'Serial Monogamy', icon: 'NY', rarity: 2, start: true, fit: ['proj', 'spread'], flavour: 'That one was rude too. Get them.',
+mutCard({ id: 'w_nfy', slot: 'weaponmut', family: MUT_WF, color: MUT_WC, title: 'Serial Monogamy', icon: 'NY', rarity: 2, start: true, fit: ['proj', 'spread'], flavour: 'It kills one, then moves on to the next. It does not call.',
   desc: 'A shot that kills flies on to the next enemy nearby, a few times over.' });
-mutCard({ id: 'w_spin', slot: 'weaponmut', family: MUT_WF, color: MUT_WC, title: 'Keep Spinning', icon: 'KS', rarity: 1, start: true, stack: true, fit: ['orbit', 'contact', 'beam'], flavour: 'Round and round. They\'re not learning.',
+mutCard({ id: 'w_spin', slot: 'weaponmut', family: MUT_WF, color: MUT_WC, title: 'Keep Spinning', icon: 'KS', rarity: 1, start: true, stack: true, fit: ['orbit', 'contact', 'beam'], flavour: 'Round and round. Each lap, a little harder. Nobody has learned.',
   desc: 'The attack lasts longer, and hits harder for every enemy it hits in a row.' });
-mutCard({ id: 'w_reach', slot: 'weaponmut', family: MUT_WF, color: MUT_WC, title: 'Stretch Marks', icon: 'RE', rarity: 1, stack: true, fit: ['contact', 'beam'], flavour: 'Stretch! You can almost touch that one!',
+mutCard({ id: 'w_reach', slot: 'weaponmut', family: MUT_WF, color: MUT_WC, title: 'Stretch Marks', icon: 'RE', rarity: 1, stack: true, fit: ['contact', 'beam'], flavour: 'Further than it used to go. The far end has stretched.',
   desc: 'Longer reach, and the far end hits harder.' });
-mutCard({ id: 'w_extra', slot: 'weaponmut', family: MUT_WF, color: MUT_WC, title: 'Pustule', icon: 'AB', rarity: 2, stack: true, fit: 'any', flavour: 'It needed a little more.',
+mutCard({ id: 'w_extra', slot: 'weaponmut', family: MUT_WF, color: MUT_WC, title: 'Pustule', icon: 'AB', rarity: 2, stack: true, fit: 'any', flavour: 'A kill, and something small pops out. It needed to.',
   desc: 'A kill may pop in a small burst of the weapon\'s damage type.' });
-mutCard({ id: 'w_thru', slot: 'weaponmut', family: MUT_WF, color: MUT_WC, title: 'Shish Kebab', icon: 'TT', rarity: 1, stack: true, fit: ['proj', 'spread'], flavour: 'You can get more than one. I checked.',
+mutCard({ id: 'w_thru', slot: 'weaponmut', family: MUT_WF, color: MUT_WC, title: 'Shish Kebab', icon: 'TT', rarity: 1, stack: true, fit: ['proj', 'spread'], flavour: 'Two more on the skewer. Each a little less done.',
   desc: 'Shots pierce two more enemies, losing a little damage with each.' });
-mutCard({ id: 'w_pool', slot: 'weaponmut', family: MUT_WF, color: MUT_WC, title: 'Leave a Little Something', icon: 'LS', rarity: 1, stack: true, fit: ['pool'], flavour: 'For later. You might want it for later.',
+mutCard({ id: 'w_pool', slot: 'weaponmut', family: MUT_WF, color: MUT_WC, title: 'Leave a Little Something', icon: 'LS', rarity: 1, stack: true, fit: ['pool'], flavour: 'Lasts longer and finishes with one big tick. Standard.',
   desc: 'Pools last longer and give one last big tick as they dry up.' });
-mutCard({ id: 'w_every', slot: 'weaponmut', family: MUT_WF, color: MUT_WC, title: 'Spray and Pray', icon: 'EV', rarity: 2, stack: true, fit: ['proj', 'spread', 'beam'], flavour: 'I got all the angles. There are so many angles.',
+mutCard({ id: 'w_every', slot: 'weaponmut', family: MUT_WF, color: MUT_WC, title: 'Spray and Pray', icon: 'EV', rarity: 2, stack: true, fit: ['proj', 'spread', 'beam'], flavour: 'Every third shot goes somewhere else. Somewhere else is also an enemy.',
   desc: 'Every third attack also fires an extra shot at another target.' });
 
 // ---------------------------------------------------------------- damage type (M17 to M22)
 const MUT_TF = t => 'mut:type:' + t;
-mutCard({ id: 't_force', title: 'Juggling', icon: 'HT', type: 'force', family: MUT_TF('force'), color: MUT_COL.force, rarity: 1, maxRank: 3, why: needType('force', 'Force'), flavour: 'Again! They\'re nearly over there!',
+mutCard({ id: 't_force', title: 'Juggling', icon: 'HT', type: 'force', family: MUT_TF('force'), color: MUT_COL.force, rarity: 1, maxRank: 3, why: needType('force', 'Force'), flavour: 'Already in the air? Further, then.',
   desc: 'Force hits knock enemies further if they are already flying.' });
-mutCard({ id: 't_mucus', title: 'Clingy', icon: 'ST', type: 'mucus', family: MUT_TF('mucus'), color: MUT_COL.mucus, rarity: 1, maxRank: 3, why: needType('mucus', 'Mucus'), flavour: 'If it\'s sticky, it stays. That\'s science.',
+mutCard({ id: 't_mucus', title: 'Clingy', icon: 'ST', type: 'mucus', family: MUT_TF('mucus'), color: MUT_COL.mucus, rarity: 1, maxRank: 3, why: needType('mucus', 'Mucus'), flavour: 'If it is stuck, it stays stuck. That is the whole science.',
   desc: 'Snared lasts longer, and Snared enemies stagger sooner.' });
-mutCard({ id: 't_static', title: 'Pass It On', icon: 'PI', type: 'static', family: MUT_TF('static'), color: MUT_COL.static, rarity: 1, maxRank: 3, why: needType('static', 'Static'), flavour: 'Everybody gets a turn!',
+mutCard({ id: 't_static', title: 'Pass It On', icon: 'PI', type: 'static', family: MUT_TF('static'), color: MUT_COL.static, rarity: 1, maxRank: 3, why: needType('static', 'Static'), flavour: 'The charge wears off and looks for a neighbour. It always finds one.',
   desc: 'When Charged wears off an enemy, it may jump to the nearest one.' });
-mutCard({ id: 't_blood', title: 'Bad Blood', icon: 'BB', type: 'blood', family: MUT_TF('blood'), color: MUT_COL.blood, rarity: 1, maxRank: 3, why: needType('blood', 'Blood'), flavour: 'Oh. That\'s going everywhere.',
+mutCard({ id: 't_blood', title: 'Bad Blood', icon: 'BB', type: 'blood', family: MUT_TF('blood'), color: MUT_COL.blood, rarity: 1, maxRank: 3, why: needType('blood', 'Blood'), flavour: 'The pool is bigger. Everything in it bleeds. Everything.',
   desc: 'Blood pools from bleeding deaths are bigger, and anything in them Bleeds.' });
-mutCard({ id: 't_soul', title: 'Come Out of There', icon: 'CO', type: 'soul', family: MUT_TF('soul'), color: MUT_COL.soul, rarity: 2, maxRank: 3, why: needType('soul', 'Holy/Damned'), flavour: 'There\'s something inside! I want it.',
+mutCard({ id: 't_soul', title: 'Come Out of There', icon: 'CO', type: 'soul', family: MUT_TF('soul'), color: MUT_COL.soul, rarity: 2, maxRank: 3, why: needType('soul', 'Holy/Damned'), flavour: 'Something comes out of the dead. Occasionally useful.',
   desc: 'Enemies killed by Holy/Damned may leave a wisp that heals you or speeds up your attacks.' });
-mutCard({ id: 't_wires', title: 'Crossed Wires', icon: 'CW', family: 'mut:type:any', color: MUT_COL.rare, rarity: 2, start: true, flavour: 'Oh! They did a thing together!',
+mutCard({ id: 't_wires', title: 'Crossed Wires', icon: 'CW', family: 'mut:type:any', color: MUT_COL.rare, rarity: 2, start: true, flavour: 'Every reaction known to the sample goes off twice. Known to the sample is the limit.',
   desc: 'Every unstable reaction you have discovered hits harder and goes off a second time.' });
 
 // ---------------------------------------------------------------- trade-offs (M23 to M28)
-mutCard({ id: 'x_brain', title: 'Big Brain', icon: 'BR', family: 'mut:trade', color: MUT_COL.trade, rarity: 2, start: true, flavour: 'You\'re getting clever. You look a bit breakable, though.',
+mutCard({ id: 'x_brain', title: 'Big Brain', icon: 'BR', family: 'mut:trade', color: MUT_COL.trade, rarity: 2, start: true, flavour: 'Cleverer. More breakable. Standard trade.',
   desc: 'You deal 25% more damage but have 20% less max health.', on: G => { G.P.might *= 1.25; hpFix(G, 0.8); } });
-mutCard({ id: 'x_qty', title: 'Quantity Over Quality', icon: 'QQ', family: 'mut:trade', color: MUT_COL.trade, rarity: 2, flavour: 'One hundred little hits! That\'s basically one big hit. Right?',
+mutCard({ id: 'x_qty', title: 'Quantity Over Quality', icon: 'QQ', family: 'mut:trade', color: MUT_COL.trade, rarity: 2, flavour: 'One hundred small hits. Mathematically one big hit. Mathematically.',
   desc: 'You attack faster with an extra shot, but each hit does 30% less.', on: G => { G.P.haste *= 1.3; G.P.multishot += 1; G.P.might *= 0.7; } });
-mutCard({ id: 'x_still', title: 'Can\'t Sit Still', icon: 'CS', family: 'mut:trade', color: MUT_COL.trade, rarity: 2, flavour: 'Go go go! Wait. Why did you stop?',
+mutCard({ id: 'x_still', title: 'Can\'t Sit Still', icon: 'CS', family: 'mut:trade', color: MUT_COL.trade, rarity: 2, flavour: 'Faster while moving. Slower while still. The tail has opinions on stopping.',
   desc: 'You attack 20% faster while swimming and 20% slower while still.', }); // (Alpha may take it again: its passive is Charge, not fire rate, since specpass.js)
-mutCard({ id: 'x_once', title: 'First Impressions', icon: 'AO', family: 'mut:trade', color: MUT_COL.trade, rarity: 2, flavour: 'SURPRISE! Oh. You\'re still there.',
+mutCard({ id: 'x_once', title: 'First Impressions', icon: 'AO', family: 'mut:trade', color: MUT_COL.trade, rarity: 2, flavour: 'First impressions count for 60%. The rest are discounted.',
   desc: 'Your first hit on a fresh enemy does 60% more, but your next hits on it do 20% less for a few seconds.' });
-mutCard({ id: 'x_hungry', title: 'Eating for Two', icon: 'HG', family: 'mut:trade', color: MUT_COL.trade, rarity: 2, flavour: 'More food! More friends! Wait, those aren\'t friends.',
+mutCard({ id: 'x_hungry', title: 'Eating for Two', icon: 'HG', family: 'mut:trade', color: MUT_COL.trade, rarity: 2, flavour: 'More to eat. More arrivals. The two are related.',
   desc: 'You gain 30% more XP, but enemies arrive 20% faster.', on: G => { G.P.xp += 0.6; G.P.spawnMult *= 1.2; } }); // (XP bonuses count half in gainXp, so +0.6 is +30%)
-mutCard({ id: 'x_careless', title: 'Unprotected', icon: 'NC', family: 'mut:trade', color: MUT_COL.trade, rarity: 2, flavour: 'You look amazing! Please don\'t get hit.',
+mutCard({ id: 'x_careless', title: 'Unprotected', icon: 'NC', family: 'mut:trade', color: MUT_COL.trade, rarity: 2, flavour: 'Hits harder at full health. Takes more at every health. 98% of the time this is fine.',
   desc: 'You deal 20% more damage while above 70% health, but take 20% more damage.' });
 
 // ---------------------------------------------------------------- rare synergy (M29 to M33)
 const MUT_RF = 'mut:rare';
-mutCard({ id: 'r_mess', title: 'Conductive Mess', icon: 'CM', family: MUT_RF, color: MUT_COL.rare, rarity: 3, why: () => hasType('static') && hasType('blood') ? '' : 'needs Static and Blood', flavour: 'It\'s all connected! That\'s probably fine.',
+mutCard({ id: 'r_mess', title: 'Conductive Mess', icon: 'CM', family: MUT_RF, color: MUT_COL.rare, rarity: 3, why: () => hasType('static') && hasType('blood') ? '' : 'needs Static and Blood', flavour: 'A charge in a blood pool is a charge in the whole blood pool.',
   desc: 'A Charged enemy standing in a blood pool Charges everything else in that pool.' });
-mutCard({ id: 'r_closer', title: 'Come Closer', icon: 'CC', family: MUT_RF, color: MUT_COL.rare, rarity: 3, why: () => hasType('mucus') && hasType('force') ? '' : 'needs Mucus and Force', flavour: 'Closer! Closer! There you go.',
+mutCard({ id: 'r_closer', title: 'Come Closer', icon: 'CC', family: MUT_RF, color: MUT_COL.rare, rarity: 3, why: () => hasType('mucus') && hasType('force') ? '' : 'needs Mucus and Force', flavour: 'Stuck things are pulled together. Stuck things do not object.',
   desc: 'Snared enemies take more Force damage, and a Force hit on one pulls the other Snared enemies towards it.' });
 mutCard({ id: 'r_recycle', title: 'Death Is Recycling', icon: 'DR', family: MUT_RF, color: MUT_COL.rare, rarity: 3, why: needType('soul', 'Holy/Damned'), flavour: 'Nothing goes to waste. Not even the insides.',
   desc: 'An enemy you kill with Holy/Damned lets out a wisp that fills the nearest enemy\'s Holy/Damned bar.' });
-mutCard({ id: 'r_group', title: 'Group Project', icon: 'GP', family: MUT_RF, color: MUT_COL.rare, rarity: 3, start: true, why: () => ownedWeapons().length >= 2 ? '' : 'needs two weapons', flavour: 'You did it together! I knew you could.',
+mutCard({ id: 'r_group', title: 'Group Project', icon: 'GP', family: MUT_RF, color: MUT_COL.rare, rarity: 3, start: true, why: () => ownedWeapons().length >= 2 ? '' : 'needs two weapons', flavour: 'Two weapons, one target, close together. The second one takes the credit.',
   desc: 'When two different weapons hit the same enemy close together, the second hit does more.' });
-mutCard({ id: 'r_pains', title: 'Growing Pains', icon: 'GR', family: MUT_RF, color: MUT_COL.rare, rarity: 3, flavour: 'You grew! Everybody noticed!',
+mutCard({ id: 'r_pains', title: 'Growing Pains', icon: 'GR', family: MUT_RF, color: MUT_COL.rare, rarity: 3, flavour: 'A level-up, a shove and one second of immunity. Growth is loud.',
   desc: 'Each level-up lets off a Force burst (stronger with more enemies near), and Contact hits cannot hurt you for a second.' });
 
 // ---------------------------------------------------------------- Catalysts: one per reaction (UPGRADES.md 3)
@@ -154,7 +154,7 @@ for (const id of Object.keys(FIGHT_RX)) {
   const R = FIGHT_RX[id];
   const c = {
     id: 'cat_' + id, kind: 'specialise', slot: null, family: 'catalyst', type: MUT_RXTYPE[id] || null, rarity: 2, start: false,
-    title: 'More ' + R.name, flavour: 'That worked. Do it more.', desc: R.name + ' hits 25% harder (where it hits at all) and comes round sooner.',
+    title: 'More ' + R.name, flavour: 'It worked. More of it, then.', desc: R.name + ' hits 25% harder (where it hits at all) and comes round sooner.',
     icon: 'CA', color: R.color, maxRank: 3, rxId: id,
     why: G => (G.fst && G.fst.rx && G.fst.rx[id] > 0) ? '' : 'you have not set off that unstable reaction this run', // (user, 18 Oct: only once you have it to enhance)
     rank: G => (G.cat && G.cat[id]) || 0,
@@ -171,7 +171,7 @@ const MUT_CONC = { acid: ['Eaten Away', 'Corrosion fills 25% faster and drains 2
 for (const t of Object.keys(MUT_CONC)) {
   const [title, desc, icon] = MUT_CONC[t];
   const c = {
-    id: 'conc_' + t, kind: 'specialise', slot: null, family: 'conc:' + t, type: t, rarity: 1, start: false, title, desc, icon, color: MUT_COL[t], maxRank: 3, flavour: 'It\'s working. Keep going.',
+    id: 'conc_' + t, kind: 'specialise', slot: null, family: 'conc:' + t, type: t, rarity: 1, start: false, title, desc, icon, color: MUT_COL[t], maxRank: 3, flavour: 'It is working. Continue.',
     why: G => hasType(t) ? '' : 'needs a ' + t + ' weapon or Feat that builds this bar',
     rank: G => (G.conc && G.conc[t]) || 0,
     apply: G => { mutSt(); G.conc[t] = Math.min(3, (G.conc[t] || 0) + 1); },

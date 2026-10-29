@@ -770,3 +770,12 @@ body.immersive:not(.land) #row2 #armBtn { position: fixed; top: auto !important;
    glows as ink in the weapon's own hue. Ink menus keep the dark slide. */
 :root:not(.ink):not(.menus-auto) canvas.pvpaper { filter: invert(1) hue-rotate(180deg); }
 @media (prefers-color-scheme: light) { :root.menus-auto canvas.pvpaper { filter: invert(1) hue-rotate(180deg); } }
+
+/* ---- Damage-type colour in text and names (typetext.js; user, 29 Oct). Colours are the Paper / Ink type tokens above. */
+.tyw { color: var(--tyc); }
+.tyw:not(.tyf) { font-weight: 700; }
+.tyn.tyn.tyn { color: var(--tyc) !important; } /* (three classes: beats the card title ink rule above) */
+/* Feat upgrade card: what the Feat does (.cwhat, a normal description line), then the stat change smaller */
+.card .cdesc.cup { font: var(--t-body-small); font-size: 13px; color: var(--color-text-secondary); margin-top: 4px; }
+/* rarity chip under the pictogram tile: smaller text (user, 29 Oct) */
+.card .cico .rchip { font-size: 9px; letter-spacing: 0.03em; padding: 3px 0; }

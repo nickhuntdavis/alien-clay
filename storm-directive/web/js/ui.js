@@ -155,8 +155,8 @@ const UI = {
   },
   afterIntro() {
     $('schoolSkip').classList.toggle('on', schoolOn()); // (Level 0's skip link)
-    if (G.wave && G.wave.camp) sysMsg('THE SCIENTIST', `"Subject in the dish. Twenty drops. Every fifth one is something big. Survive them all and you get the egg." Clear a wave, open your DNA, then start the next.`, XR.dim, true);
-    else if (G.wave) sysMsg('THE SCIENTIST', '"Subject in the dish. One drop at a time. Let us see what you become." Clear a wave, open your DNA, then start the next.', XR.dim, true);
+    if (G.wave && G.wave.camp) sysMsg('LAB LOG', `Subject in the dish. Twenty drops. Every fifth one is something big. Survive them all and the egg is yours. Clear a wave, open your DNA, then start the next.`, XR.dim, true);
+    else if (G.wave) sysMsg('LAB LOG', 'Subject in the dish. One drop at a time. What it becomes is the study. Clear a wave, open your DNA, then start the next.', XR.dim, true);
     else sysLine('start', true);
     if (G.heat) sysMsg('IMMUNE RESPONSE ' + G.heat, IMMUNE.slice(0, G.heat).map(x => x.name).join(', ') + '. +' + Math.round(IMMUNE_DNA * G.heat * 100) + '% DNA if you survive it.', PAL.danger, true);
     UI.show('hud');
@@ -402,7 +402,6 @@ const UI = {
   // Push settings into the systems that read them.
   applySettings() {
     AUDIO.on = soundOn(); if (typeof audioVolumes === 'function') audioVolumes(); DOF.on = SET.dof && !SET.clinical; UI.syncAuto();
-    applyNarrator();
     document.body.classList.toggle('clinical', !!SET.clinical);
     document.body.classList.toggle('darkfield', !!SET.darkfield);
     document.body.classList.toggle('immersive', immersiveOn());
@@ -420,7 +419,7 @@ const UI = {
     UI.arm = { k, i, bar: 0, recycle: false };
     $('armClose').textContent = 'BACK TO THE RACE';
     $('armQuip').textContent = pick([
-      'Please do not lick the weapons. We have had complaints.',
+      'Please do not lick the weapons. There have been complaints.',
       'Everything here is legally a gift, so no returns.',
       'Set your directives. Your tail does the rest. You do the blaming.',
       'No other swimmer has a Tackle Box. That is not fair. That is the point.',
@@ -879,7 +878,7 @@ const UI = {
     const titles = {
       start: ['CHOOSE YOUR FIRST WEAPON', 'Complimentary starter DNA. Yes, sperm can carry guns in their genes now. Do not ask the biology department.'],
       slot: ['NEW WEAPON SLOT!', 'You grew a new weapon mount. Something shiny for it, Rare or better.'],
-      level: ['LEVEL ' + G.level + '!', pick(['Fresh DNA. Splice in one gene. Choose wisely. Or quickly.', 'Fresh DNA! Some base pairs may have shifted during your near-death experience.', 'A strand of DNA. The lab had some spare. Do not ask where from.'])],
+      level: ['LEVEL ' + G.level, pick(['Fresh DNA. Splice in one gene. Choose wisely. Or quickly.', 'Fresh DNA. Some base pairs may have shifted during your near-death experience.', 'A strand of DNA. The lab had some spare. Do not ask where from.'])],
       chest: ['DONOR DNA', pick(['Epic or better. From an anonymous donor. Do not ask which one.', 'Epic or better. It wriggles. That is probably fine.'])],
       myth: ['ACHIEVEMENT DNA', 'Mythical or Immaculate, every card. Earned, not given. Do not waste it.'],
       boss: ['BOSS DNA', 'Epic or better. Extracted from a still-warm corpse. The genes are yours now. The smell is extra.'],
@@ -1557,7 +1556,7 @@ function lootStory(req) {
     ],
     cure: [
       'For clearing up the yeast infection. The womb is grateful, and slightly embarrassed.',
-      'Infection cured. The doctor sends this DNA with a leaflet you will not read.',
+      'Infection cured. The DNA comes with a leaflet you will not read.',
     ],
     level: [
       `Level ${L}. You grew, and the womb noticed. It sends its regards, and some spare DNA.`,

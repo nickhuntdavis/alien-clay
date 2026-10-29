@@ -139,7 +139,7 @@ function bpSpecial(e, pat, dt, dist, ux, uy, aim, bd) {
         if (e.stT <= 0) { e.st = 2; e.stT = 0.85; sfx('zap'); }
       } else if (e.st === 2) {
         e.mvx = e.dashX; e.mvy = e.dashY; e.mvs = e.speed * 6.5; e.stT -= dt;
-        if (e.stT <= 0) { e.st = 3; e.rolling = false; e.bpExposed = G.t + 2.6; floatText(e.x, e.y - e.r - 14, 'OVERSHOT! HIT ITS BACK', PAL.reward, 15, 1.4); }
+        if (e.stT <= 0) { e.st = 3; e.rolling = false; e.bpExposed = G.t + 2.6; floatText(e.x, e.y - e.r - 14, 'OVERSHOT: HIT ITS BACK', PAL.reward, 15, 1.4); }
       } else e.mvs = e.speed * 0.6;
       return true;
     case 'mucusspit':
@@ -156,14 +156,14 @@ function bpSpecial(e, pat, dt, dist, ux, uy, aim, bd) {
       if (e.st === 1) {
         e.stT -= dt;
         if (e.stT <= 0) {
-          if (dist < 700) { e.st = 2; e.stT = 3.8; e.gripping = true; sfx('zap'); floatText(p.x, p.y - 34, 'GRABBED! SPRINT TO SNAP IT', PAL.danger, 15, 1.4); }
+          if (dist < 700) { e.st = 2; e.stT = 3.8; e.gripping = true; sfx('zap'); floatText(p.x, p.y - 34, 'GRABBED: SPRINT TO SNAP IT', PAL.danger, 15, 1.4); }
           else e.st = 3;
         }
       } else if (e.st === 2) {
         e.stT -= dt; e.mvs = 0;
         if (G.stam && G.stam.sprint) {
           e.st = 3; e.gripping = false; e.winded = G.t + 2.8;
-          floatText(e.x, e.y - e.r - 14, 'SNAP! PULLED A MUSCLE', PAL.reward, 16, 1.4);
+          floatText(e.x, e.y - e.r - 14, 'SNAP: PULLED A MUSCLE', PAL.reward, 16, 1.4);
           ring(e.x, e.y, e.r * 2.5, PAL.reward, 0.5, 6); cam.shake = Math.max(cam.shake, 10); sfx('boom');
         } else if (e.fireT <= 0) { e.fireT = 1.4; const n = 9, off = e.age; for (let i = 0; i < n; i++) eBullet(e.x, e.y, off + i / n * TAU, 110, bd, 6); }
         if (e.stT <= 0) { e.st = 3; e.gripping = false; }

@@ -9,8 +9,8 @@
 const DISH = { arena: 2600, waveSec: 75 }; // (was 1150, then 1750: user, 23 Oct, even bigger)
 const DROPS = ['Saline', 'Agar Broth', 'Growth Serum', 'Hormone Cocktail', 'Mutagen', 'Steroid Drip', 'Spicy Reagent', 'Unlabelled Vial',
   'Something Glowing', 'Formula X', 'The Good Stuff', 'Grant Money', 'Super Serum', 'Forbidden Pipette', 'Professor Nobody\'s Tears'];
-const SCIENTIST = ['The scientist adjusts her goggles. "Again."', '"Fascinating. Make it stronger."', '"Write that down. No, the other notebook."',
-  '"It survived? Double the dose."', '"For science. And possibly a patent."', '"The ethics board will never know."', '"Hmm. Hmm hmm hmm."'];
+const SCIENTIST = ['Again.', 'Fascinating. Stronger, then.', 'Written down. In the other notebook.', 'It survived. Dose doubled.',
+  'For science. And possibly a patent.', 'The ethics board has not been informed.', 'Noted. Noted again, in case.'];
 
 const wavesMode = () => !!(G && G.wave);
 
@@ -42,7 +42,7 @@ function waveBegin() {
   G.fx.push({ type: 'drop', x, y, r: 26, color: '#ffffff', life: 0.7, max: 0.7 });
   after(0.7, () => { ring(x, y, 160, '#ffffff', 0.8, 8); ring(x, y, 300, '#ffffff', 1.1, 4); cam.shake = 8; sfx('boom'); });
   banner(`WAVE ${V.n}: ${drop.toUpperCase()}`, PAL.reward);
-  if (V.n > 1) sysMsg('THE SCIENTIST', pick(SCIENTIST), XR.dim);
+  if (V.n > 1) sysMsg('LAB LOG', pick(SCIENTIST), XR.dim);
   // From wave 2 every drop has a side effect (a run event for the wave); DIRE from wave 10.
   if (V.n >= 2) after(1.2, () => { if (V.active) startEvent(V.n >= 10); });
   // Every 5th wave she drops in something big.

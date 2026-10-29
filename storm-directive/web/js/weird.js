@@ -10,7 +10,7 @@
 // weirdLoot (game.js genLoot), G.immBox (game.js rollRarity and the curse roll).
 
 const WEIRD = {
-  double:   { w: 30, title: 'DOUBLE OR NOTHING', quip: 'Take a card like a sensible person, or gamble for two. Fifty-fifty. Same odds as the last bloke who said "trust me".' },
+  double:   { w: 30, title: 'DOUBLE OR NOTHING', quip: 'Take a card like a sensible person, or gamble for two. Fifty-fifty. Same odds as the last person who said "trust me".' },
   sachet:   { w: 25, title: 'MYSTERY SACHET', quip: 'Three sealed packets. Only the colour of the foil gives it away. Do not ask what is in them. It is probably fine.' },
   recycler: { w: 20, title: 'THE RECYCLER', quip: 'Hand over two of your upgrades for one much better one. The lab calls it a trade-in. Your genome calls it a mugging.' },
   cursed:   { w: 15, title: 'CURSED BARGAIN', quip: 'One Mythical gene with a curse stapled on. Read the small print. Or do not. Nobody ever does.' },

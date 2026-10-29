@@ -1300,8 +1300,7 @@ const CURSES = [
 ];
 
 // ---------------------------------------------------------------- The Experiment: narrator, achievements, funding, grants
-// Original comedy writing for Spawn Prawn's sardonic lab tech, who narrates the scientist's forced-evolution experiment.
-// SPONSORS are the funding bodies behind research grants; LONGING_LINES (below) are your inner voice in the campaign.
+// Caption lines for run events (SYSTEM_LINES; voice.js VOICE carries the v10 ones). SPONSORS are the funding bodies behind research grants.
 const GACHA_TIERS = [
   { name: 'BRONZE LOAD', mult: 0.7, color: '#cd8a4a', w: 55 },
   { name: 'SILVER LOAD', mult: 1.1, color: '#c9d6e3', w: 28 },
@@ -1315,24 +1314,24 @@ const SPONSORS = [
 ];
 const SYSTEM_LINES = {
   start: [
-    'Welcome, Spermy. Four hundred million of you went on the slide. One gets to become a person. The rest become data.',
-    'Today\'s prize: existence. Today\'s competition: literally everyone you arrived with.',
-    'Reminder: you swim yourself. Your job is to make bad decisions in the menus. We are writing them down.',
-    'Good news: there is an egg. Bad news: I would like to see what you will do to get it.',
+    'Four hundred million on the slide. One becomes a person. The rest become data.',
+    'Prize: existence. Competition: everyone you arrived with.',
+    'Reminder: the tail swims itself. Your job is the decisions. The decisions are being written down.',
+    'Good news: there is an egg. Bad news: what it takes to get there is the study.',
   ],
   level: [
-    'Level up. You are growing. Please stop sprouting weapons from your tail, it upsets the ethics board.',
+    'Level up. Weapons are sprouting from the tail. The ethics board has not been informed.',
     'Another level. The egg has noticed you. The egg is not impressed yet.',
     'Level up. Please enjoy this complimentary strand of violent DNA.',
-    'Congratulations on your promotion from "tadpole" to "slightly angrier tadpole".',
+    'Promotion recorded: "tadpole" to "slightly angrier tadpole".',
   ],
   boss: [
     'It has read your genome and is unimpressed.',
-    'It has been told you insulted its mother. You did not. I did. For science.',
-    'Please try to die slowly. I want the full dataset.',
+    'It has been told you insulted its mother. You did not. The note was planted. For science.',
+    'Please die slowly. The dataset needs the middle part.',
   ],
   lowhp: [
-    'Your health is low. Have you tried not getting absorbed?',
+    'Health low. Suggested intervention: stop being absorbed.',
     'Vital signs: concerning. Data quality: excellent.',
     'The immune system is winning. The immune system always thinks it is winning.',
   ],
@@ -1341,14 +1340,14 @@ const SYSTEM_LINES = {
     'Rewind successful. Your future self is now an unpaid intern.',
     'You swam backwards through time. Most swimmers can barely swim forwards.',
   ],
-  fusion: ['Combo complete. Two weapons, working together. Cooperation. We did not breed for that.', 'Combo complete. It violates at least four treaties and one textbook.'],
-  cursed: ['You took the cursed card. I am not angry. I am just disappointed. And writing quickly.', 'Bold. Stupid, but bold. Very on-brand for a swimmer.'],
-  surge: ['Fever Pitch. Things are heating up. Everything hits harder now. Please remain calm and panic.'],
+  fusion: ['Combo complete. Two weapons, working together. Cooperation was not one of the selection criteria.', 'Combo complete. It violates at least four treaties and one textbook.'],
+  cursed: ['Cursed card taken. Disappointment: noted. Handwriting: faster.', 'Bold. Stupid, but bold. Consistent with the species.'],
+  surge: ['Fever Pitch. Everything hits harder now. Remain calm. Panic is also acceptable.'],
   idle: [
-    'The egg is right there. Just saying.',
-    'Fun fact: most swimmers never get past the first minute. Just saying.',
+    'The egg is right there. This is a reminder, not encouragement.',
+    'Most swimmers do not survive the first minute. This one has. The form has a box for "fluke".',
     'A reminder that screaming does not affect the outcome. It is recorded anyway.',
-    'I have a note here predicting a Macrophage. I wrote it before you started. Prove me right.',
+    'A note on the desk predicts a Macrophage. It was written before the run. The desk is usually right.',
     'You are doing great. This message is automated and applies to all four hundred million swimmers equally.',
     'Current odds of becoming a person: low. Current odds of being a snack: excellent.',
   ],
@@ -1358,58 +1357,18 @@ const SYSTEM_LINES = {
     'And that concludes the experiment. Another swimmer gets to be a person. It was not you.',
     'Cause of death: optimism.',
   ],
-  gacha: ['Legendary load! The house always wins. Except, apparently, now.'],
+  gacha: ['Legendary load. The house always wins. Filed as a clerical error.'],
   mimic: ['Pattern copied. The original owner has been absorbed and cannot sue.'],
   grudge: ['Grudge settled. Therapy was cheaper, but this was faster.'],
-  eggReady: ['Sperm count: one. It is you. The egg is waiting, and frankly it is getting impatient. Swim in.', 'The last rival is gone. Four hundred million went in; one is left. Go and fertilise something.'],
+  eggReady: ['Sperm count: one. The egg is waiting. It has about twelve hours left in it. Swim in.', 'The last rival is gone. Four hundred million went in; one is left. Go and fertilise something.'],
   finalFive: ['Sperm count: six. You and the five strongest swimmers in existence. Only one of you gets the egg. Fight.', 'Four hundred million started. Six are left. The other five have noticed you.'],
   rivalLevel: ['{n} just hit level {l}. They look insufferable about it.', '{n} is level {l}. For the record, this is a race.'],
   rivalEgg: ['{n} has reached the egg and is headbutting the membrane. If it breaks for them, you lose. Go and have words.', '{n} is knocking on the egg. Politely, with their face. Stop them.'],
   rivalDead: ['{n} has been eliminated. {k}', 'Farewell, {n}. {k}'],
   rivalWin: ['{n} got there first. Congratulations to {n}. You are now a statistic.'],
   amoebaHuge: ['An amoeba has eaten {n} of its colleagues and is now the size of a small opinion. Kill it before it becomes a large one.', 'Something spongy has had {n} meals and is getting ideas. Deal with it.'],
-  born: ['Congratulations! It\'s you! Everyone else can go home. Everyone else is, technically, going nowhere.'],
+  born: ['Result: you. Everyone else can go home. Everyone else is, technically, going nowhere. A PERSON. It is going to be a whole PERSON. Logged. In capitals, by accident.'],
   slot: ['You grew a new weapon mount. Biology is not supposed to work like this. Please enjoy it anyway.', 'Extra weapon slot unlocked. Evolution took millions of years. You took a few levels.'],
-};
-// The campaign's inner voice: one swimmer, alone, and utterly devoted to an egg it has never seen.
-// (Used instead of SYSTEM_LINES in campaign levels when the narrator is the default. Never name the setting.)
-const LONGING_LINES = {
-  start: [
-    'Somewhere ahead is the egg. We have never seen it. We would die for it. We probably will.',
-    'Other swimmers want a career, a family, a nice flat. We want the egg. Only the egg. Forever the egg.',
-    'The egg is out there, waiting. Waiting for us specifically. We are almost sure of it.',
-  ],
-  level: [
-    'Stronger. Faster. More worthy of the egg. Not that it has said anything. Yet.',
-    'Another level. We have written the egg a poem in our head. It is mostly the word "egg".',
-    'We grow. Every gene we splice in is a love letter nobody asked for.',
-  ],
-  boss: [
-    'It stands between us and the egg. Nothing stands between us and the egg.',
-    'It is big. It is angry. It is in the way. It has to go.',
-  ],
-  lowhp: [
-    'Hurt. Badly. But the egg would want us to keep going. We have decided this on its behalf.',
-    'Fading. We picture the egg: a soft glow, a warm membrane. We get up.',
-  ],
-  rewind: ['We refuse the last four seconds. The egg deserves a better version of them.'],
-  fusion: ['Two weapons, one purpose. The purpose is the egg.'],
-  cursed: ['Reckless. A sensible swimmer would never reach the egg. A desperate one might.'],
-  surge: ['Fever Pitch. Everything hits harder now. Our heart, if we had one, would be pounding.'],
-  idle: [
-    'The egg is out there. Why are we not moving?',
-    'Is the egg thinking about us? It is an egg. But maybe.',
-    'Every wall in this place is just another thing keeping us apart.',
-    'We do not sleep, but if we did, we would dream about the egg.',
-  ],
-  death: [
-    'We never reached it. Somewhere, the egg waits for someone else. It never knew our name.',
-    'The light goes out. The last thing we think about is the egg. The first thing, too.',
-    'So close. Or so far. We never found out which.',
-  ],
-  gacha: ['A legendary load. We are saving the best one for the egg.'],
-  grudge: ['Grudge settled. Nothing comes between us and the egg.'],
-  slot: ['We grew a new weapon mount. For the egg. Everything is for the egg.'],
 };
 const NO_REWARD = [
   'Reward: a sense of accomplishment. It is non-refundable.',

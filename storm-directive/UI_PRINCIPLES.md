@@ -8,7 +8,7 @@ Scope: menus, overlays and HUD (the e-ink layer). The game world is not e-ink; s
 
 The biggest change across the eight screens was removal. Before adding a line, check it is not already on screen in another form.
 
-1. **No written damage type beside its colour.** The swatch, or the icon drawn in the type colour, is the label. Write "POOL", not "MUCUS | POOL". The same goes for defence kinds. Keep a word only when there is no colour to carry it (Feats with no type say "NO TYPE").
+1. **No written damage type beside its colour.** The swatch, or the icon drawn in the type colour, is the label. Write "POOL", not "MUCUS | POOL". The same goes for defence kinds. Keep a word only when there is no colour to carry it (Feats with no type say "NO TYPE"). Exception (user, 29 Oct): the Armoury sub line says the type name in its type colour instead of "weapon", and words in text that speak to a damage type (Acid, Corrosion, Mucus, Snare, Bleed ...) take that type's colour. Weapon and Feat names, and the left bar of a loot card is the rarity colour, not the damage type.
 2. **No stat values when a bar already shows them.** Weapon Draft stat bars have no "5/5" readout.
 3. **No restating kicker.** The draft detail lost its "Projectile | Force" line: the selected option above already says it.
 4. **No legend that repeats the buttons.** DNA Loot lost "Choose 1 of 3" and "3 genes spliced".

@@ -3,6 +3,57 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.224 (versionCode 503): 2026-10-29 Tone, not characters; type colour in text; no HUD narration (merge of `claude/zealous-cori-jj4q7l` v10.221 to v10.223, `claude/intelligent-goldberg-u2xo4b` and `claude/focused-ramanujan-gzr4rp`)
+- Merge notes: both zealous-cori and focused-ramanujan removed the Narrator setting; the persona-free settings.js was kept. focused-ramanujan's rule wins in show.js: no narration reaches the HUD (voice lines and headers THE SCIENTIST, THE LAB TECH and LAB LOG are dropped; notices still show), so the rewritten captions appear only on the end screen, boss intros and in the run log. tests/wstest.js removed with the whisper behaviour. Full suite: see NOTES.md.
+
+### 2026-10-29 Feat page shows Lv x/5 (`claude/zealous-cori-jj4q7l`)
+- Systems: weapons (level display), ui (Tackle Box Feat page)
+- Files: weapons24.js
+- What: wTierMax returns 5 for v10 Feats, so the Feat page header reads Lv 1/5 with five squares, matching the loadout row and the real cap.
+- Save data: none.
+- Hooks: none.
+- Risk: anything else that reads wTierMax for a Feat (wLvText in the slot tooltips) now says /5. Weapons unchanged.
+
+### 2026-10-29 Sequence stories trimmed, last narrator drift fixed (v10.223) (`claude/zealous-cori-jj4q7l`)
+- Systems: sequences, voice, ui, tutorials, bosses (float text only), campaign levels (banner only)
+- Files: seqreveal.js, reborn.js, redtail.js, twins.js, holy.js, spoon.js, dnadrop.js, ui.js, weird.js, intro.js, game.js, levels.js, statusintro.js, bosspack.js, render.js, rivals.js, voice_and_tone.md
+- What: the eleven v9 sequence stories are shorter and speakerless (no "my handwriting", no "Mine"); Prawn Again's gift line now matches the mechanic (every 45 s, not once a run). The three sequence quotes that spoke (Prawn Again, Redtail, Twins) are captions, and the Twins tag is SOLD AS A PAIR. The remaining first-person and "the scientist"/"the doctor" lines are captions, "bloke" is gone, and HUD alerts use a colon instead of "!". voice_and_tone.md 8B now lists what is left (enemy taunts as the deliberate exception, ENEMY_INTRO tips, the persona docs, dead Sample 9 lines).
+- Save data: none.
+- Hooks: none.
+- Risk: none in code paths; text only. seqtest fails before and after (pre-existing unlock-order check).
+
+### 2026-10-29 Copy pass: speakerless captions (v10.222) (`claude/zealous-cori-jj4q7l`)
+- Systems: voice, ui (mutation cards, Meet card), campaign, data
+- Files: voice.js, data.js, waves.js, ui.js, campaign.js, rivals.js, tutorial.js, mutations.js, samples10.js, meetsample.js
+- What: every narration line that spoke in the first person, named a person in the room or shouted now reads as a flat log caption (voice_and_tone.md). About 55 voice.js lines, 20 SYSTEM_LINES, the waves.js SCIENTIST pool, the quoted dish intros, all 35 mutation flavour lines, two STATUS_HINT lines and five sighting lines were rewritten; the loud Tier 2 and 3 lines keep their volume without a speaker. The Meet card's play-style line and button are filled (MEET_STYLE, "TO THE SLIDE"). Copy written by Claude at the user's request.
+- Save data: none.
+- Hooks: none.
+- Risk: tests that match exact narration text (none found) would break; voicetest, mutstest, samplestest, drafttest, quick pass.
+
+### 2026-10-29 Persona cut: one caption voice, no characters (v10.221) (`claude/zealous-cori-jj4q7l`)
+- Systems: voice, settings, ui (cards, sample screens), campaign, data
+- Files: cardvoice.js (deleted), giftvoice.js (deleted), tests/tools/copy/cardvoice.py and giftvoice.py (deleted), index.html, voice.js, voice10.js, show.js, settings.js, data.js, feats10.js, samples10.js, meetsample.js, weapons24.js, ui.js, campaign.js, rivals.js, tutorial.js, waves.js, tests/voicetest.js, tests/wstest.js, tests/veilshot.js, tests/tools/guide.js, voice_and_tone.md, ARCHITECTURE.md, CLAUDE.md
+- What: the game has a tone, not characters (voice_and_tone.md rewritten). The per-sample card quip line is gone (cards show the name and what they do; weird-box and stat-card quips stay). The Narrator setting and its Documentary, Midwife and Mums packs are gone. The inner voice is gone: voice.js keeps one pool per event (the old `sci` key), sightings have one line, `LONGING_LINES` and the campaign's egg sponsor line are deleted, the end screen shows one line. Sample intro quotes (`line`) are gone from the sample screen and the Meet card; the Feats' quoted gift lines are gone. Every caption header reads LAB LOG. Rival quotes and KILL_LINES stay by the user's decision.
+- Save data: SET.narrator is no longer read (stale values are harmless). None added.
+- Hooks: none added. ui.js applySettings no longer calls applyNarrator; show.js sysPool reads SYSTEM_LINES only.
+- Risk: any branch that adds cardvoice.js rows, CARD_VOICE keys, `con` pools, a narrator pack or a sample `line` field will conflict or go unused. feats10.js `line` fields were removed from every Feat def. veilshot.js and statuptest fail before and after this change (pre-existing).
+
+### 2026-10-29 Damage-type colour in text, rarity left bar, Feat upgrade line (v10.221) (`claude/intelligent-goldberg-u2xo4b`)
+- Systems: ui (loot cards, Tackle Box, Armoury), weapons, feats, docs
+- Files: typetext.js (new), eink.css, style.css, index.html, tests/typetexttest.js (new), tests/run.sh, ARCHITECTURE.md, UI_PRINCIPLES.md, NOTES.md
+- What: words that speak to a damage type (Acid, Corrosion, Mucus, Snare, Charged, Bleed, Possessed, Burning, Force) take their type's e-ink colour in every screen; weapon and Feat names (loot card titles, the "For weapon:" line, Tackle Box rows, Armoury header) take the weapon's current type colour; the "For weapon:" line is one size; the Armoury sub line shows the type name in its colour instead of "weapon"; the loot card left bar is the rarity colour (was damage type); the rarity chip under the tile is 9 px; a Feat upgrade card leads with the Feat's own "what it does" line (F10 `does`, existing text), then the stat change. No new player-facing text.
+- Save data: none.
+- Hooks: none (a MutationObserver per `.screen` in typetext.js; no render function wrapped or edited).
+- Risk: other sessions editing loot cards (ui.js renderLootCards, style.css `#lootCards .card`) may touch the same left-border line; lit (`.sel`) elements are skipped so inverted buttons stay readable; a type word in prose that is not a damage type (capitalised "Force", "Static", "Fire" not before "rate") would be tinted.
+
+### 2026-10-29 Remove the Narrator setting and HUD narration (v10.221) (`claude/focused-ramanujan-gzr4rp`)
+- Systems: settings, narrative (show, voice10), ui
+- Files: settings.js, show.js, voice10.js, tests/voicetest.js, tests/wstest.js (removed), tests/tools/guide.js
+- What: the Narrator row is gone from Settings (saves fall back to the default pack). Narrator lines (Scientist, inner voice, Lab Tech chatter) no longer reach the HUD message box; gameplay notices (achievements, combos, hazards, level instructions) still show. Voice lines are still picked and logged, and the end screen and boss intro lines are unchanged. Immersive whispers (whisper.js) are now inert.
+- Save data: SET.narrator is forced to 'system' on load; key kept.
+- Hooks: none (early returns in sysLine, vxPush and narrator-headed sysMsg).
+- Risk: the Scientist's wave-mode start line also carried the "clear a wave, open your DNA" instruction, which no longer shows.
+
 ## v10.220 (versionCode 499): 2026-10-29 First-run setup; readable damage numbers on Darkfield (`ccr-0a3df35b-hhv6r6`; v10.219 on the branch, copy written in v10.220)
 - Systems: first-run setup (new), render (floating texts), tests
 - Files: onboard.js (new), render.js, index.html, ARCHITECTURE.md, tests/onboardtest.js (new), tests/tuttest.js, tests/batchcheck.js, tests/viewtest.js

@@ -130,7 +130,7 @@ function wupCarry(from, to) {
 // screen every WUP_EVERY player levels (draft.js draftLoot 'wup'); normal drafts carry no weapon cards.
 const WUP_TIER = [1, 3, 6, 10], WUP_EVERY = 4;
 const wTier = w => (w && !w.isSpell && w.def && w.def.w24 ? WUP_TIER.filter(l => w.lvl >= l).length : w ? w.lvl : 0);
-const wTierMax = w => (w && !w.isSpell && w.def && w.def.w24 ? 4 : MAX_WLVL);
+const wTierMax = w => (w && !w.isSpell && w.def && w.def.w24 ? 4 : w && w.isSpell && w.def && w.def.kind === 'f10' ? 5 : MAX_WLVL); // (v10 Feats stop at Lv 5: feats10.js maxRank)
 const wLvText = w => 'Lv ' + wTier(w) + '/' + wTierMax(w);
 // The next internal level for this slot, or 0 when it has none (top tier, or the run's mastery is taken elsewhere).
 function wupNextLv(w) {
@@ -166,7 +166,7 @@ function wupForkCards(req) {
   if (!S) return null;
   const U = wupUp(w), col = w.def.color, sub = `${w.def.name} | Tier ${WUP_TIER.indexOf(req.lv) + 1}`;
   const card = (title, desc, fn, tag) => ({ rarity: 3, tag: tag || 'BRANCH', icon: 'B', color: col, title, sub, desc, quip: (typeof cardLine === 'function' ? cardLine('wup:' + title) : ''), apply: () => { fn(); computeStats(w); } });
-  if (req.lv === 3) return ['A', 'B', 'C'].filter(k => S[k]).map(k => card(S[k].name, S[k].lv3.desc + (S[k].costs && !(typeof CARD_VOICE !== 'undefined' && CARD_VOICE['wup:' + S[k].name]) ? ' Costs: ' + S[k].costs : ''), () => { U.p = k; S[k].lv3.apply(w); }, 'PROMISE'));
+  if (req.lv === 3) return ['A', 'B', 'C'].filter(k => S[k]).map(k => card(S[k].name, S[k].lv3.desc + (S[k].costs ? ' Costs: ' + S[k].costs : ''), () => { U.p = k; S[k].lv3.apply(w); }, 'PROMISE'));
   if (req.lv === 6) {
     const P = S[U.p]; if (!P) return null;
     return [...P.lv6, P.wild].filter(Boolean).map((c, i) => card(c.name || ('Lv 6: ' + P.name), c.desc, () => { U.l6 = c.name; c.apply(w); }, i === 2 ? 'WILDCARD' : 'BRANCH'));

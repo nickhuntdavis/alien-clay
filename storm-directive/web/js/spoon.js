@@ -12,7 +12,7 @@
 // Hooks: none in shared files. Wraps v10.js v10Tick; adds to spfull.js SP_KEEP. Loads after spmast.js.
 
 const SPOON = { lv2: { area: 1.3, mag: 1.5 }, lv3: { dmg: 1.5 }, lv4: { area: 1.6, mag: 2, dmg: 2 } };
-mutCard({ id: 'sp_spoon', title: 'There Is No Spoon', icon: 'NS', rarity: 2, maxRank: 3, family: 'mut:body', flavour: 'We swallow. Then we spit.',
+mutCard({ id: 'sp_spoon', title: 'There Is No Spoon', icon: 'NS', rarity: 2, maxRank: 3, family: 'mut:body', flavour: 'It swallows. Then it spits. Manners were not selected for.',
   desc: 'Eats enemy bullets that come close and spits them back just as hard. Holds 10. Ranks: reach and storage, then harder hits.' });
 { const c = MUT_REG.find(x => x.id === 'sp_spoon'), el = c.eligible, ap = c.apply; // (it can be mastered, as The Runs can)
   c.maxRank = 4; c.eligible = G => el(G) && (mr('sp_spoon') < 3 || spMasteryRoom('sperm'));
