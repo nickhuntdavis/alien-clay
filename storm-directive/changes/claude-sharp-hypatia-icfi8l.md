@@ -1,5 +1,13 @@
 # claude/sharp-hypatia-icfi8l
 
+## 2026-10-29 Planner: blank idea blocks
+- Systems: tests/tools (docs and tools only)
+- Files: tests/tools/planner/template.html
+- What: a dashed Blank block chip drops on any node (sperm, weapon, modifier, fork, branch, or another blank) and is typed into on the map (tag, name, text); blocks are kept with the build, hang off their parent, and go when it goes. Copy build walks the whole tree (blanks included); Copy ideas lists only the blanks with their place in the tree, for turning into real content later.
+- Save data: none (localStorage of the artifact page only).
+- Hooks: none.
+- Risk: none.
+
 ## 2026-10-29 Loadout Planner artifact (tool only, no game change)
 - Systems: tests/tools (docs and tools only)
 - Files: tests/tools/planner/planner.js (new), tests/tools/planner/template.html (new), ARCHITECTURE.md

@@ -7,17 +7,17 @@
 :root {
   --bg: #e9eef0; --panel: #ffffff; --panel2: #f3f6f7; --ink: #15232a; --dim: #5e717a; --line: #c8d4d8; --accent: #0b7f8c; --hi: #0b7f8c22;
   --g-delivery: #2563c9; --g-flight: #d9480f; --g-crowd: #8e3fb0; --g-tempo: #c2185b; --g-chemistry: #1f8f4e; --g-area: #a07400; --g-lifesteal: #c0392b;
-  --t-phys: #5a6c7c; --t-fire: #d4168a; --t-ice: #3f8f1f; --t-shock: #a3850a; --t-arcane: #b5123f; --t-soul: #a37a00; --t-flame: #e04e10; --t-poison: #c2447f; --t-oxi: #9c6b16; --t-salt: #2a6fd6; --t-sab: #1f8f4e;
+  --t-phys: #5a6c7c; --t-fire: #d4168a; --t-ice: #3f8f1f; --t-shock: #a3850a; --t-arcane: #b5123f; --t-soul: #a37a00; --t-flame: #e04e10; --t-poison: #c2447f; --t-oxi: #9c6b16; --t-salt: #2a6fd6; --t-sab: #1f8f4e; --idea: #3b4a55; --idea-bg: #fbfcf8;
   --display: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif; --body: 'Atkinson Hyperlegible', system-ui, sans-serif; --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #0d1416; --panel: #151e21; --panel2: #1b2629; --ink: #e3ecee; --dim: #8ea3a9; --line: #283539; --accent: #4fd1e0; --hi: #4fd1e033;
   --g-delivery: #6ea2ff; --g-flight: #ff8a4d; --g-crowd: #c98cff; --g-tempo: #ff6fa8; --g-chemistry: #5fd68f; --g-area: #f0c24a; --g-lifesteal: #ff7b6b;
-  --t-phys: #dfe7f2; --t-fire: #ff5fc0; --t-ice: #8ee05a; --t-shock: #ffe94a; --t-arcane: #ff5a7e; --t-soul: #ffcf5a; --t-flame: #ff7a3a; --t-poison: #ff8ac0; --t-oxi: #e0a84a; --t-salt: #6fa6ff; --t-sab: #5fd68f; color-scheme: dark; } }
+  --t-phys: #dfe7f2; --t-fire: #ff5fc0; --t-ice: #8ee05a; --t-shock: #ffe94a; --t-arcane: #ff5a7e; --t-soul: #ffcf5a; --t-flame: #ff7a3a; --t-poison: #ff8ac0; --t-oxi: #e0a84a; --t-salt: #6fa6ff; --t-sab: #5fd68f; --idea: #c9d6dc; --idea-bg: #1a2226; color-scheme: dark; } }
 :root[data-theme="dark"] {
   --bg: #0d1416; --panel: #151e21; --panel2: #1b2629; --ink: #e3ecee; --dim: #8ea3a9; --line: #283539; --accent: #4fd1e0; --hi: #4fd1e033;
   --g-delivery: #6ea2ff; --g-flight: #ff8a4d; --g-crowd: #c98cff; --g-tempo: #ff6fa8; --g-chemistry: #5fd68f; --g-area: #f0c24a; --g-lifesteal: #ff7b6b;
-  --t-phys: #dfe7f2; --t-fire: #ff5fc0; --t-ice: #8ee05a; --t-shock: #ffe94a; --t-arcane: #ff5a7e; --t-soul: #ffcf5a; --t-flame: #ff7a3a; --t-poison: #ff8ac0; --t-oxi: #e0a84a; --t-salt: #6fa6ff; --t-sab: #5fd68f; color-scheme: dark; }
+  --t-phys: #dfe7f2; --t-fire: #ff5fc0; --t-ice: #8ee05a; --t-shock: #ffe94a; --t-arcane: #ff5a7e; --t-soul: #ffcf5a; --t-flame: #ff7a3a; --t-poison: #ff8ac0; --t-oxi: #e0a84a; --t-salt: #6fa6ff; --t-sab: #5fd68f; --idea: #c9d6dc; --idea-bg: #1a2226; color-scheme: dark; }
 html, body { height: 100%; }
 body { margin: 0; box-sizing: border-box; background: var(--bg); color: var(--ink); font: 14px/1.4 var(--body); display: flex; flex-direction: column; gap: 10px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 10px; }
@@ -100,6 +100,14 @@ details.wb.onmap { border-color: var(--accent); }
 @keyframes wig { from { transform: rotate(-3deg); } to { transform: rotate(3deg); } }
 .types { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
 .types span { font: 500 10px var(--mono); padding: 1px 6px; border-radius: 10px; border: 1px solid var(--tc); color: var(--tc); }
+.chip.blank { border-style: dashed; border-left-style: dashed; background: var(--idea-bg); --c: var(--idea); }
+.node.custom { border-style: dashed; background: var(--idea-bg); --c: var(--idea); cursor: text; }
+.node.custom input, .node.custom textarea { display: block; width: 100%; border: 0; background: transparent; padding: 0; margin: 0; resize: none; color: var(--ink); }
+.node.custom input:focus, .node.custom textarea:focus { outline: none; background: var(--hi); border-radius: 3px; }
+.node.custom .cg { font: 600 10px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--c); }
+.node.custom .ct { font: 700 14.5px/1.15 var(--display); margin: 2px 0; }
+.node.custom .cx { font: 11.5px/1.35 var(--body); color: var(--dim); overflow: hidden; min-height: 32px; }
+.node.custom input::placeholder, .node.custom textarea::placeholder { color: var(--dim); opacity: .7; }
 .ghost { position: fixed; left: 0; top: 0; pointer-events: none; z-index: 50; opacity: .93; transform: translate(-50%, -50%) rotate(-2deg); box-shadow: 0 8px 24px #0006; }
 .toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 10px; font-size: 13px; z-index: 60; max-width: min(92vw, 520px); opacity: 0; transition: opacity .15s; }
 .toast.show { opacity: 1; }
@@ -140,6 +148,7 @@ details.wb.onmap { border-color: var(--accent); }
       <span class="sp"></span>
       <div class="zoom"><button class="btn" id="zout" title="Zoom out">−</button><button class="btn" id="zfit" title="Fit">Fit</button><button class="btn" id="zin" title="Zoom in">+</button></div>
       <button class="btn" id="copy">Copy build</button>
+      <button class="btn" id="ideas">Copy ideas</button>
       <button class="btn danger" id="clear">Clear</button>
     </div>
     <div class="map" id="map"><div class="sizer" id="sizer"><div class="stage" id="stage"></div></div></div>
@@ -167,8 +176,9 @@ const SAB_DESC = t => `Attacks switch to ${tname(t)} damage: 35% of them, then 7
 $('#ver').textContent = 'data from v' + D.version;
 
 // ---------------------------------------------------------------- state
-let S = { sample: D.samples[0].id, rules: true, sel: null, zoom: 1, weapons: [], seq: 1 };
-try { const s = JSON.parse(localStorage.getItem('sp_planner_v1') || 'null'); if (s && s.weapons) S = Object.assign(S, s); } catch (e) { }
+let S = { sample: D.samples[0].id, rules: true, sel: null, zoom: 1, weapons: [], custom: [], seq: 1 };
+let FOCUS = null;
+try { const s = JSON.parse(localStorage.getItem('sp_planner_v1') || 'null'); if (s && s.weapons) S = Object.assign(S, s); if (!S.custom) S.custom = []; } catch (e) { }
 const save = () => { try { localStorage.setItem('sp_planner_v1', JSON.stringify(S)); } catch (e) { } };
 const sampleOf = () => D.samples.find(s => s.id === S.sample) || D.samples[0];
 const W = id => D.weapons[id], M = id => D.mods[id];
@@ -188,7 +198,12 @@ function dropPlan(p, n) {
     if (S.weapons.length >= MAXW) return { ok: false, why: `Four weapons at most. Remove one first.` };
     return { ok: true, run: () => { const w = { u: S.seq++, id: p.id, mods: [], sab: false, promise: null, wbr: null, wmast: null }; const d = W(p.id).dlv; if (d && M(d)) w.mods.push({ id: d, rank: 1, br: null, mast: null, builtin: true }); S.weapons.push(w); S.sel = 'w' + w.u; } };
   }
-  const w = n && n.w; if (!w) return { ok: false, why: 'Drop that on a weapon.' };
+  if (p.k === 'blank') {
+    if (!n || n.kind === 'hint') return { ok: false, why: 'Drop the blank on a node.' };
+    const TAG = { root: 'Custom weapon', weapon: 'Custom upgrade', mod: 'Custom fork', mbranch: 'Custom mastery', promise: 'Custom Lv 6 branch', wbranch: 'Custom mastery', custom: 'Custom follow-on' };
+    return { ok: true, run: () => { const c = { u: S.seq++, parent: n.id, tag: TAG[n.kind] || 'Custom', name: '', text: '' }; S.custom.push(c); S.sel = FOCUS = 'c' + c.u; } };
+  }
+  const w = n && n.w; if (!w) return { ok: false, why: n && n.kind === 'custom' ? 'Only blank blocks hang off a blank block.' : 'Drop that on a weapon.' };
   const Wd = W(w.id);
   if (p.k === 'mod') {
     const m = M(p.id), have = w.mods.find(x => x.id === p.id);
@@ -279,8 +294,11 @@ function buildTree() {
         if (m.mast) bn.children.push(mk('mm' + w.u + '_' + m.id, { kind: 'mmast', w, m, Md, title: Md.br[MAST_IDX[m.mast]], ey: 'Mastery ' + m.mast, desc: Md.brText ? Md.brText[MAST_TXT[m.mast]] : '', col: gvar(Md.group) }));
       }
     }
-    if (!wn.children.length) wn.children.push(mk('h' + w.u, { kind: 'hint', w, title: 'Drop modifiers or a Lv 3 branch here', ey: 'empty', desc: '', col: 'var(--line)' }));
   }
+  const kept = [];
+  for (const c of S.custom.slice().sort((a, b) => a.u - b.u)) { const par = NODES[c.parent]; if (!par) continue; kept.push(c); par.children.push(mk('c' + c.u, { kind: 'custom', c, title: c.name || 'Untitled', ey: c.tag, desc: c.text, col: 'var(--idea)' })); }
+  S.custom = kept; // (blocks whose parent went are dropped)
+  for (const w of S.weapons) { const wn = NODES['w' + w.u]; if (!wn.children.length) wn.children.push(mk('h' + w.u, { kind: 'hint', w, title: 'Drop modifiers, a Lv 3 branch or a blank block here', ey: 'empty', desc: '', col: 'var(--line)' })); }
   if (S.weapons.length < MAXW) root.children.push(mk('hroot', { kind: 'hint', title: S.weapons.length ? 'Drop another weapon here' : 'Drop a weapon here (1 to 4)', ey: 'empty mount', desc: '', col: 'var(--line)' }));
   return root;
 }
@@ -291,6 +309,7 @@ function nodeHtml(n) {
     return `<svg class="sperm" viewBox="0 0 120 60" aria-hidden="true"><defs><radialGradient id="hg" cx="35%" cy="35%" r="75%"><stop offset="0" stop-color="#ffffff" stop-opacity=".95"/><stop offset="1" style="stop-color:${n.col}"/></radialGradient></defs><g class="tail"><path d="M42 30 C 56 16, 66 44, 82 30 S 106 16, 118 30" fill="none" stroke="${n.col}" stroke-width="3" stroke-linecap="round"/></g><ellipse cx="26" cy="30" rx="19" ry="12.5" fill="url(#hg)" stroke="${n.col}" stroke-width="2"/><ellipse cx="21" cy="28.5" rx="7" ry="5" fill="${n.col}" opacity=".6"/></svg>
       <span class="ey"><i></i>${esc(n.ey)}</span><b>${esc(n.title)}</b><p>${esc(n.desc)}</p><div class="types">${s.types.map(t => `<span style="--tc:${tvar(t)}">${esc(tname(t))}</span>`).join('')}</div>`;
   }
+  if (n.kind === 'custom') return `<input class="cg" value="${esc(n.c.tag)}" placeholder="Tag" aria-label="Tag"><input class="ct" value="${esc(n.c.name)}" placeholder="Name it" aria-label="Name"><textarea class="cx" rows="2" placeholder="What it does: numbers, trigger, feel." aria-label="Text">${esc(n.c.text)}</textarea>`;
   let h = `<span class="ey"><i></i>${esc(n.ey)}</span><b>${esc(n.title)}</b>`;
   if (n.desc) h += `<p>${esc(n.desc)}</p>`;
   if (n.kind === 'mod') h += `<div class="pips">${[1, 2, 3].map(r => `<span class="${n.rank >= r ? 'on' : ''}"></span>`).join('')}<em>${n.m.mast ? 'mastery' : 'Rank ' + n.rank}${n.Md.max < 3 ? ' · max ' + n.Md.max : ''}</em></div>`;
@@ -298,17 +317,28 @@ function nodeHtml(n) {
 }
 
 const COLW = 212, ROOTW = 250, GX = 54, GY = 12, PAD = 24;
+let LAST = null;
 function render() {
   const stage = $('#stage'), root = buildTree();
   stage.innerHTML = '';
   const all = [];
-  (function walk(n, d) { n.depth = d; all.push(n); n.children.forEach(c => walk(c, d + 1)); })(root, 0);
+  (function walk(n, d, par) { n.depth = d; n.parent = par; all.push(n); n.children.forEach(c => walk(c, d + 1, n)); })(root, 0, null);
   for (const n of all) {
     const el = document.createElement('div');
     el.className = 'node ' + n.kind + (n.kind === 'root' ? ' root' : '') + (n.kind === 'hint' ? ' hintnode' : '') + (S.sel === n.id ? ' sel' : '');
     el.dataset.n = n.id; el.style.setProperty('--c', n.col); el.tabIndex = n.kind === 'hint' ? -1 : 0;
     el.innerHTML = nodeHtml(n); stage.appendChild(el); n.el = el;
   }
+  LAST = { root, all };
+  layout();
+  renderDetail();
+  renderRack();
+  if (FOCUS) { const f = stage.querySelector(`[data-n="${FOCUS}"] .ct`); FOCUS = null; if (f) { f.focus(); f.scrollIntoView({ block: 'nearest', inline: 'nearest' }); } }
+}
+function layout() {
+  const stage = $('#stage'), { root, all } = LAST;
+  const old = stage.querySelector('svg'); if (old) old.remove();
+  for (const t of stage.querySelectorAll('textarea')) { t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px'; }
   const sub = n => { n.h = n.el.offsetHeight; let s = 0; for (const c of n.children) s += sub(c) + GY; n.sh = Math.max(n.h, s - GY); return n.sh; };
   sub(root);
   const xAt = d => d === 0 ? PAD : PAD + ROOTW + GX + (d - 1) * (COLW + GX);
@@ -332,9 +362,17 @@ function render() {
   svg.innerHTML = paths; stage.prepend(svg);
   stage.style.width = Wt + 'px'; stage.style.height = Ht + 'px';
   applyZoom();
-  renderDetail();
-  renderRack();
 }
+// typing into a blank block: keep the state, re-flow the map, never rebuild (that would drop the caret)
+let typeT = 0;
+$('#stage').addEventListener('input', e => {
+  const el = e.target.closest('.node.custom'); if (!el) return;
+  const n = NODES[el.dataset.n]; if (!n || !n.c) return;
+  if (e.target.classList.contains('cg')) n.c.tag = e.target.value;
+  if (e.target.classList.contains('ct')) n.c.name = e.target.value;
+  if (e.target.classList.contains('cx')) n.c.text = e.target.value;
+  layout(); clearTimeout(typeT); typeT = setTimeout(save, 300);
+});
 function applyZoom() {
   const z = S.zoom, st = $('#stage'), sz = $('#sizer');
   st.style.transform = `scale(${z})`;
@@ -351,6 +389,11 @@ function renderDetail() {
   if (!n) { d.innerHTML = `<span class="ey">Nothing selected</span><p>Tap a node to see it in full, rank it up or down, pick its forks, or remove it. Tap a chip in the rack to add it to the selected node.</p>`; return; }
   const B = (label, on, p, cls) => `<button class="btn opt ${on ? 'on' : ''} ${cls || ''}" data-p='${esc(JSON.stringify(p))}'>${esc(label)}</button>`;
   let h = `<span class="ey">${esc(n.ey)}</span><h2>${esc(n.title)}</h2><p>${esc(n.desc)}</p>`;
+  if (n.kind === 'custom') {
+    h += `<div class="row"><small style="color:var(--dim)">Type straight into the block on the map. Blocks are kept with the build and listed by Copy ideas.</small></div>`;
+    h += `<div class="row">${B('Add a blank block under this', false, { k: 'blank' })}<button class="btn danger" data-act="rmc">Remove block</button></div>`;
+    d.innerHTML = h; return;
+  }
   if (n.kind === 'root') {
     h += `<div class="row"><span class="lab">Own weapons</span>${n.smp.weapons.filter(W).map(id => B(W(id).name, S.weapons.some(w => w.id === id), { k: 'weapon', id })).join('')}</div>`;
     h += `<div class="row"><span class="lab">Best fit</span>${n.smp.fit.filter(W).map(id => B(W(id).name, S.weapons.some(w => w.id === id), { k: 'weapon', id })).join('')}</div>`;
@@ -385,6 +428,7 @@ function renderDetail() {
     }
     if (!m.builtin) h += `<div class="row"><button class="btn danger" data-act="rmm">Remove modifier</button></div>`;
   }
+  h += `<div class="row">${B('Add a blank block here', false, { k: 'blank' })}</div>`;
   d.innerHTML = h;
 }
 $('#detail').addEventListener('click', e => {
@@ -393,6 +437,7 @@ $('#detail').addEventListener('click', e => {
   if (b.dataset.p) { applyDrop(JSON.parse(b.dataset.p), n); return; }
   const a = b.dataset.act, w = n.w;
   if (a === 'rmw') { S.weapons = S.weapons.filter(x => x !== w); S.sel = 'root'; }
+  if (a === 'rmc') { S.custom = S.custom.filter(x => x !== n.c); S.sel = n.parent ? n.parent.id : 'root'; }
   if (a === 'rmp') { w.promise = null; w.wbr = null; w.wmast = null; S.sel = 'w' + w.u; }
   if (a === 'rmb') { w.wbr = null; w.wmast = null; S.sel = 'p' + w.u; }
   if (a === 'rmx') { w.wmast = null; S.sel = 'b' + w.u; }
@@ -410,6 +455,7 @@ const match = s => !Q || s.toLowerCase().includes(Q);
 function renderRack() {
   const r = $('#rack'), smp = sampleOf(), sw = selW(), onMap = S.weapons.map(w => w.id);
   let h = `<input type="search" id="q" placeholder="Filter…" value="${esc(Q)}" aria-label="Filter">`;
+  h += `<div class="sec"><div class="chips">${chip({ k: 'blank' }, 'Blank block', 'Your own weapon, upgrade, fork or mastery. Drop it anywhere on the map and type into it.', 'var(--idea)', 'blank', S.custom.length ? S.custom.length + ' on the dish' : '')}</div></div>`;
   if (TAB === 'weapons') {
     h += `<p class="hint">Drop on the sperm. ${esc(smp.name)}'s own weapons are marked; its two best fits are starred.</p>`;
     for (const atk of ATK_ORDER) {
@@ -473,6 +519,7 @@ document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => { TAB =
 let drag = null, overEl = null;
 function targetFor(p) { // where a tap (no drag) sends a chip
   if (p.k === 'weapon') return NODES.root;
+  if (p.k === 'blank') { const c = NODES[S.sel]; return c && c.kind !== 'hint' ? c : NODES.root; }
   const n = NODES[S.sel]; if (n && n.w) return n;
   const w = S.weapons[S.weapons.length - 1]; return w ? NODES['w' + w.u] : null;
 }
@@ -512,8 +559,12 @@ map.addEventListener('pointerdown', e => { if (e.target.closest('.node')) return
 map.addEventListener('pointermove', e => { if (!pan || e.pointerId !== pan.id) return; const dx = e.clientX - pan.x, dy = e.clientY - pan.y; if (Math.hypot(dx, dy) > 4) pan.moved = true; map.scrollLeft = pan.sl - dx; map.scrollTop = pan.st - dy; });
 const endPan = e => { if (!pan) return; const moved = pan.moved; pan = null; map.classList.remove('panning'); if (!moved && !e.target.closest('.node')) { S.sel = null; save(); render(); } };
 map.addEventListener('pointerup', endPan); map.addEventListener('pointercancel', () => { pan = null; map.classList.remove('panning'); });
-map.addEventListener('click', e => { const el = e.target.closest('.node'); if (!el) return; const n = NODES[el.dataset.n]; if (n.kind === 'hint') return; S.sel = n.id; save(); render(); });
-map.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { const el = e.target.closest('.node'); if (el) { e.preventDefault(); el.click(); } } });
+map.addEventListener('click', e => {
+  const el = e.target.closest('.node'); if (!el) return; const n = NODES[el.dataset.n]; if (n.kind === 'hint') return;
+  if (e.target.matches('input, textarea')) { if (S.sel !== n.id) { S.sel = n.id; save(); map.querySelectorAll('.node.sel').forEach(x => x.classList.remove('sel')); el.classList.add('sel'); renderDetail(); } return; }
+  S.sel = n.id; save(); render();
+});
+map.addEventListener('keydown', e => { if (e.target.matches('input, textarea')) return; if (e.key === 'Enter' || e.key === ' ') { const el = e.target.closest('.node'); if (el) { e.preventDefault(); el.click(); } } });
 
 // ---------------------------------------------------------------- toolbar
 const sel = $('#sample');
@@ -521,21 +572,43 @@ sel.innerHTML = D.samples.map(s => `<option value="${esc(s.id)}">${esc(s.name)} 
 sel.value = S.sample; sel.onchange = () => { S.sample = sel.value; save(); render(); };
 $('#rules').checked = S.rules; $('#rules').onchange = e => { S.rules = e.target.checked; save(); renderRack(); toast(S.rules ? 'Game rules on: fit, one per group, 5 slots, forks in order.' : 'Game rules off: anything goes (like the no-limits setting).'); };
 let clearArm = 0;
-$('#clear').onclick = () => { const b = $('#clear'); if (Date.now() - clearArm > 2500) { clearArm = Date.now(); b.textContent = 'Clear? Tap again'; setTimeout(() => b.textContent = 'Clear', 2500); return; } S.weapons = []; S.sel = null; b.textContent = 'Clear'; save(); render(); };
+$('#clear').onclick = () => { const b = $('#clear'); if (Date.now() - clearArm > 2500) { clearArm = Date.now(); b.textContent = 'Clear? Tap again'; setTimeout(() => b.textContent = 'Clear', 2500); return; } S.weapons = []; S.custom = []; S.sel = null; b.textContent = 'Clear'; save(); render(); };
+const LABEL = n => {
+  if (n.kind === 'weapon') { const Wd = W(n.w.id); return `${Wd.name} [${Wd.atk}, ${tname(Wd.type)}]`; }
+  if (n.kind === 'promise') return `Lv 3 ${n.P.k}: ${n.title}`;
+  if (n.kind === 'wbranch') return `Lv 6: ${n.title}`;
+  if (n.kind === 'wmast') return `Lv 9 mastery: ${n.title}`;
+  if (n.kind === 'sab') return n.title;
+  if (n.kind === 'mod') return `${n.title} R${n.m.rank}${n.m.mast ? ' (mastered)' : ''}${n.m.builtin ? ' (built in)' : ''}`;
+  if (n.kind === 'mbranch') return `Fork ${n.m.br}: ${n.title}`;
+  if (n.kind === 'mmast') return `Mastery ${n.m.mast}: ${n.title}`;
+  if (n.kind === 'custom') return `[IDEA · ${n.c.tag || 'custom'}] ${n.c.name || 'Untitled'}${n.c.text ? ': ' + n.c.text.replace(/\s*\n\s*/g, ' / ') : ''}`;
+  return n.title;
+};
 function buildText() {
   const smp = sampleOf(), L = [`${smp.name} (strain ${smp.strain}, ${smp.types.map(tname).join('/')}) · ${smp.passive}`];
-  for (const w of S.weapons) {
-    const Wd = W(w.id); L.push(`- ${Wd.name} [${Wd.atk}, ${tname(Wd.type)}]`);
-    if (w.promise) { const P = Wd.promises.find(x => x.k === w.promise); let s = `  Lv3 ${P.k}: ${P.name}`; if (w.wbr != null) s += ` > Lv6 ${(w.wbr === 'wild' ? P.wild : P.branches[w.wbr]).name}`; if (w.wmast != null) s += ` > Lv9 ${Wd.masteries[w.wmast].name}`; L.push(s); }
-    if (w.sab) L.push(`  Switched at Birth: ${tname(Wd.sab)}`);
-    for (const m of w.mods) { const Md = M(m.id); let s = `  ${Md.name} R${m.rank}${m.builtin ? ' (built in)' : ''}`; if (m.br) s += ` > ${Md.br[m.br === 'A' ? 0 : 1]}`; if (m.mast) s += ` > ${Md.br[MAST_IDX[m.mast]]}`; L.push(s); }
-  }
-  if (!S.weapons.length) L.push('- (no weapons yet)');
+  (function walk(n) { for (const c of n.children) { if (c.kind === 'hint') continue; L.push('  '.repeat(c.depth - 1) + '- ' + LABEL(c)); walk(c); } })(NODES.root);
+  if (L.length === 1) L.push('- (nothing on the dish yet)');
   return L.join('\n');
 }
-$('#copy').onclick = () => { const t = buildText(); const done = () => toast('Build copied.'); const fail = () => { const ta = document.createElement('textarea'); ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch (e) { toast('Could not copy. The build is in the detail panel.'); } ta.remove(); };
-  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done, fail); else fail(); };
-
+function ideasText() {
+  const smp = sampleOf(), ideas = LAST.all.filter(n => n.kind === 'custom');
+  if (!ideas.length) return '';
+  const L = [`Loadout ideas (${ideas.length}) · ${smp.name}, v${D.version} data`];
+  ideas.forEach((n, i) => {
+    const path = []; for (let p = n.parent; p && p.kind !== 'root'; p = p.parent) path.unshift(p.title);
+    L.push(`${i + 1}. [${n.c.tag || 'custom'}] ${n.c.name || 'Untitled'}` + (path.length ? `   (under ${path.join(' > ')})` : '   (on the sperm)'));
+    if (n.c.text) L.push('   ' + n.c.text.replace(/\n/g, '\n   '));
+  });
+  return L.join('\n');
+}
+function copyText(t, what) {
+  const done = () => toast(what + ' copied.');
+  const fail = () => { const ta = document.createElement('textarea'); ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch (e) { toast('Could not copy.'); } ta.remove(); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done, fail); else fail();
+}
+$('#copy').onclick = () => copyText(buildText(), 'Build');
+$('#ideas').onclick = () => { const t = ideasText(); if (!t) { toast('No blank blocks on the dish yet. Drag one from the rack.'); return; } copyText(t, 'Ideas'); };
 // ---------------------------------------------------------------- boot
 try { if (window.claude && window.claude.hot && window.claude.hot.snapshot) window.claude.hot.snapshot(() => S); } catch (e) { }
 function start(hot) { if (hot && hot.weapons) S = Object.assign(S, hot); render(); if (!S.weapons.length) { S.sel = 'root'; render(); } }
