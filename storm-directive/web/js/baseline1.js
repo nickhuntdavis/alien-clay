@@ -121,7 +121,7 @@ function bl1Hit(w, e, res, src) {
   }
   if (f.p === 'C') {
     if (src.bl1rocket && !src.bl1boom) { src.bl1boom = 1; aoe(e.x, e.y, BL1.rocketR, w.s.dmg * BL1.rocketK, bl1Src(w, 'burst'), w.def.color); ring(e.x, e.y, BL1.rocketR, bl1Pale, 0.25, 3); }
-    if (f.deadalive && bl1Marked(e) && !e.boss && !e.dead && e.hp > 0 && e.hp < e.maxHp * 0.15) { damageEnemy(e, e.hp * 3, bl1Src(w, 'proj', { noCrit: true })); bl1Say('doa', e.x, e.y - e.r - 14, 'TODO_COPY:si_doa_float', bl1Pale, 13, 0.5); }
+    if (f.deadalive && bl1Marked(e) && !e.boss && !e.dead && e.hp > 0 && e.hp < e.maxHp * 0.15) { damageEnemy(e, e.hp * 3, bl1Src(w, 'proj', { noCrit: true })); bl1Say('doa', e.x, e.y - e.r - 14, 'DOA', bl1Pale, 13, 0.5); }
   }
 }
 function bl1Kill(w, e) {
@@ -145,7 +145,7 @@ function bl1SetMark(w, e, byHand) {
   S.marks = S.marks.filter(x => !x.dead && x.bl1mk && x !== e);
   while (S.marks.length >= cap) bl1Unmark(S.marks[0]);
   e.bl1mk = 1; e.bl1mkT = G.t; S.marks.push(e); G.grudge = e;
-  ring(e.x, e.y, e.r + 10, '#ff4d6d', 0.35, 4); bl1Say('mark', e.x, e.y - e.r - 12, byHand ? 'TODO_COPY:si_mark_tap_float' : 'TODO_COPY:si_mark_float', '#ff4d6d', 12, 0.4);
+  ring(e.x, e.y, e.r + 10, '#ff4d6d', 0.35, 4); bl1Say('mark', e.x, e.y - e.r - 12, byHand ? 'BOOKED' : 'MARKED', '#ff4d6d', 12, 0.4);
   return true;
 }
 function bl1MarkNew(w, now) { // the nearest Elite in range, else the nearest enemy
@@ -182,7 +182,7 @@ function bl1Tick(w, dt) {
 })();
 
 // ---------------------------------------------------------------- the FINISHER directive (Improved targeting)
-DIRECTIVES.push({ id: 'finisher', name: 'TODO_COPY:dir_fin', short: 'FINISH', desc: 'TODO_COPY:dir_fin_desc' });
+DIRECTIVES.push({ id: 'finisher', name: 'FINISHER', short: 'FINISH', desc: 'Nearest, but anything in range under 15% health comes first. It is basically palliative care.' });
 const bl1Finisher = () => { const w = bl1W(); return !!(w && bl1F(w).p === 'C' && bl1F(w).targeting); };
 aimList = (orig => function () { const L = orig(); return bl1Finisher() ? L : L.filter(d => d.id !== 'finisher'); })(aimList);
 targetScore = (orig => function (dir, e, d2) {
@@ -200,39 +200,39 @@ function bl1Install(w) {
   const set = k => w => { bl1F(w)[k] = 1; if (k === 'beltfed') { computeStats(w); w.ammo = w.s.mag; w.reloadT = 0; } };
   const P = k => w => { bl1F(w).p = k; bl1Install(w); recomputeAll(); };
   wupReg(BL1.SI, {
-    A: { name: 'Rambo', tag: 'TODO_COPY:si_rambo_tag', costs: 'TODO_COPY:si_rambo_costs', shows: 'a headband with two ribbons.', modes: 'ORBIT keeps the magazine busy.',
-      lv3: { desc: 'TODO_COPY:si_rambo_desc', apply: P('A') },
-      lv6: [C('Faster and faster', 'TODO_COPY:si_faster_desc', set('faster')), C('First blood', 'TODO_COPY:si_firstblood_desc', set('blood'))],
-      wild: C('TODO_COPY:si_hot_name', 'TODO_COPY:si_hot_desc', set('hot')) },
-    B: { name: 'Dirty Harry', tag: 'TODO_COPY:si_harry_tag', costs: 'TODO_COPY:si_harry_costs', shows: 'a dark visor band and long tracers.', modes: 'HUNT and ELITES & BOSSES, which pick one target.',
-      lv3: { desc: 'TODO_COPY:si_harry_desc', apply: P('B') },
-      lv6: [C('Lucky shot', 'TODO_COPY:si_lucky_desc', set('lucky')), C('TODO_COPY:si_six_name', 'TODO_COPY:si_six_desc', set('six'))],
-      wild: C('TODO_COPY:si_feel_name', 'TODO_COPY:si_feel_desc', set('feel')) },
-    C: { name: 'Robocop', tag: 'TODO_COPY:si_robo_tag', costs: 'TODO_COPY:si_robo_costs', shows: 'a chrome head with a sweeping red visor; the mark wears a crosshair.', modes: 'REVENGE follows the mark.',
-      lv3: { desc: 'TODO_COPY:si_robo_desc', apply: P('C') },
-      lv6: [C('Improved targeting', 'TODO_COPY:si_targeting_desc', set('targeting')), C('TODO_COPY:si_prime_name', 'TODO_COPY:si_prime_desc', set('prime'))],
-      wild: C('TODO_COPY:si_rich_name', 'TODO_COPY:si_rich_desc', set('rich')) },
+    A: { name: 'Rambo', tag: 'Spray, then spray again', costs: 'each shot is 15% weaker.', shows: 'a headband with two ribbons.', modes: 'ORBIT keeps the magazine busy.',
+      lv3: { desc: 'Magazine 20 (from 12), reload 0.7 s (from 1.1), fires 25% faster. While held, every weapon fires 10% faster. One man, one forest.', apply: P('A') },
+      lv6: [C('Faster and faster', 'Each shot in a magazine comes 5% sooner than the last, up to twice as fast. A reload resets it, as reloads do.', set('faster')), C('First blood', 'Hits Bleed (30% of the hit over 3 s). Shots on a Bleeding enemy do 20% more. Spilt first, counted later.', set('blood'))],
+      wild: C('Hot Start', 'The first shot of every magazine does double damage. It is always the most enthusiastic one.', set('hot')) },
+    B: { name: 'Dirty Harry', tag: 'Make every round count', costs: 'the fire rate is halved.', shows: 'a dark visor band and long tracers.', modes: 'HUNT and ELITES & BOSSES, which pick one target.',
+      lv3: { desc: 'Magazine 6, reload 1.4 s, 2.2x damage a shot, range +120, almost no spread. While held, every weapon gets +10 crit chance.', apply: P('B') },
+      lv6: [C('Lucky shot', 'Every hit on an Elite is a crit (1.6x). Bosses are not Elites, whatever they have told you.', set('lucky')), C('The Sixth Round', 'The last round in each magazine hits 50% harder, knocks a Shell layer off and staggers. It has been saving up.', set('six'))],
+      wild: C('Feeling Lucky?', 'A crit does double damage, but your crit chance is halved. Results may vary.', set('feel')) },
+    C: { name: 'Robocop', tag: 'One target, all of you', costs: 'your shots will not leave the mark.', shows: 'a chrome head with a sweeping red visor; the mark wears a crosshair.', modes: 'REVENGE follows the mark.',
+      lv3: { desc: 'Every 6 s the nearest Elite (else nearest enemy) is marked: +50% to it. Tap one to mark it yourself. Every 4th shot: Force rocket, 150%, 40 area.', apply: P('C') },
+      lv6: [C('Improved targeting', 'Adds the FINISHER rule to every weapon aim menu: nearest, but anything in range under 15% health comes first. Triage, basically.', set('targeting')), C('Prime Directive', 'Marks never fade. When the mark dies it passes to the next Elite at once. Paperwork, but quicker.', set('prime'))],
+      wild: C('Double Booked', 'Two marks at once. Both have been told to wait where they are.', set('rich')) },
     lv10: [
-      { name: 'TODO_COPY:si_beltfed_name', best: 'A', desc: 'TODO_COPY:si_beltfed_desc', apply: set('beltfed') },
-      { name: 'TODO_COPY:si_makeday_name', best: 'B', desc: 'TODO_COPY:si_makeday_desc', apply: set('makeday') },
-      { name: 'TODO_COPY:si_doa_name', best: 'C', desc: 'TODO_COPY:si_doa_desc', apply: set('deadalive') }] });
+      { name: 'Belt-Fed', best: 'A', desc: 'No reload, ever. Shots are 30% weaker. Worn across the chest, where it will not be missed.', apply: set('beltfed') },
+      { name: 'Made Your Day', best: 'B', desc: 'A crit that kills refills the magazine, and the next shot is a crit. A very good afternoon.', apply: set('makeday') },
+      { name: 'Dead on Arrival', best: 'C', desc: 'The marked enemy takes triple damage and dies outright under 15% health. Not bosses. Bosses arrive alive.', apply: set('deadalive') }] });
 })();
 
 // ---------------------------------------------------------------- gated Feats
 const bl1Fk = (id, title, desc) => ({ id, title, desc });
 feat({ id: 'quick_draw', name: 'Quick draw', icon: 'QD', ico: 'nova', type: 'force', atk: 'proj', trig: 1, ev: 1, rar: 1, stam: 10, gate: () => bl1P() === 'B',
-  line: 'TODO_COPY:feat_quickdraw_line', does: 'TODO_COPY:feat_quickdraw_does',
+  line: '"It aims. We shoot first. Simple."', does: 'Performs itself: when an enemy within 300 starts winding up a shot, you shoot first with a double crit. 10 stamina, 4 s cooldown.',
   base: { dmg: 24, cd: 4, range: BL1.quickR },
   stat: (w, s) => { if (f10Fk(w, 'reach')) s.range *= 1.5; if (f10Fk(w, 'fast')) s.cd *= 0.6; },
   fire: (w, c) => {
     const p = me(), e = c.e; if (!e || e.dead) return;
     const si = bl1W(), dmg = (si ? si.s.dmg : w.s.dmg) * (f10Fk(w, 'triple') ? 3 : 2), n = f10Fk(w, 'two') ? 2 : 1;
     for (let i = 0; i < n; i++) after(i * 0.08, () => { if (e.dead) return; const a = Math.atan2(e.y - p.y, e.x - p.x); if (si && bl1Live(si)) spawnProj(si, p.x, p.y, a, Object.assign(weaponSrc(si), { crit: 1, wupEcho: true, wname: w.def.name }), { dmg }); else f10Hit(w, e, dmg, 'proj', { crit: 1 }); });
-    bolt(p.x, p.y, e.x, e.y, bl1Pale, 0.12); bl1Say('qd', p.x, p.y - 30, 'TODO_COPY:feat_quickdraw_float', bl1Pale, 13, 0.5);
+    bolt(p.x, p.y, e.x, e.y, bl1Pale, 0.12); bl1Say('qd', p.x, p.y - 30, 'FIRST', bl1Pale, 13, 0.5);
     e.bl1qdT = G.t;
   },
-  forks: { 3: [bl1Fk('reach', 'TODO_COPY:feat_qd_reach_name', 'TODO_COPY:feat_qd_reach_desc'), bl1Fk('triple', 'TODO_COPY:feat_qd_triple_name', 'TODO_COPY:feat_qd_triple_desc')],
-    5: [bl1Fk('two', 'TODO_COPY:feat_qd_two_name', 'TODO_COPY:feat_qd_two_desc'), bl1Fk('fast', 'TODO_COPY:feat_qd_fast_name', 'TODO_COPY:feat_qd_fast_desc')] } });
+  forks: { 3: [bl1Fk('reach', 'Long Barrel', 'Reach 450 instead of 300. Compensating for something, but accurately.'), bl1Fk('triple', 'Big Calibre', 'A triple crit instead of double. The recoil is your problem.')],
+    5: [bl1Fk('two', 'Lost Count', 'Two shots instead of one. Nobody is counting.'), bl1Fk('fast', 'Practice Rounds', 'Cooldown 2.4 s instead of 4. Mostly paperwork and repetition.')] } });
 // The trigger: an enemy in reach has started winding up a shot (snipers aim, roster shooters show a tell, plain shooters are a beat from firing).
 const bl1Winding = e => (e.aimT > 0) || (e.s10T > 0) || (e.shootCd != null && e.shootCd > 0 && e.shootCd < 0.15 && e.def && e.def.shoot);
 hookOn('tick', 'baseline1:quickdraw', dt => {
@@ -243,7 +243,7 @@ hookOn('tick', 'baseline1:quickdraw', dt => {
   if (best) f10Go(w, { e: best });
 });
 feat({ id: 'acid_bath', name: 'Acid bath', icon: 'AB', ico: 'flask', type: 'acid', atk: 'burst', rar: 1, stam: 14, gate: () => bl1P() === 'C',
-  line: 'TODO_COPY:feat_acidbath_line', does: 'TODO_COPY:feat_acidbath_does',
+  line: '"Hard one. Spray it. It goes soft. Next."', does: 'Tap to spray the most-Shelled enemy within 350: a hit, 60% of its Corrosion bar, an Acid pool for 8 s. 14 stamina, 9 s cooldown.',
   base: { dmg: 18, cd: 9, area: 70, range: BL1.bathR, dur: 8 },
   stat: (w, s) => { if (f10Fk(w, 'bigger')) s.area *= 1.5; if (f10Fk(w, 'longer')) s.dur *= 1.75; },
   when: w => { // the most-Shelled enemy in range, else the toughest
@@ -261,8 +261,8 @@ feat({ id: 'acid_bath', name: 'Acid bath', icon: 'AB', ico: 'flask', type: 'acid
       if (G.zones.length < 150) G.zones.push({ x: t.x, y: t.y, r: w.s.area, life: w.s.dur, max: w.s.dur, dps: w.s.dmg * 0.6, elem: 'fire', color: w.def.color, tick: 0, src: f10Src(w, { atk: 'pool', zoneHit: true }), bl1bath: true });
     }
   },
-  forks: { 3: [bl1Fk('bigger', 'TODO_COPY:feat_ab_bigger_name', 'TODO_COPY:feat_ab_bigger_desc'), bl1Fk('full', 'TODO_COPY:feat_ab_full_name', 'TODO_COPY:feat_ab_full_desc')],
-    5: [bl1Fk('two', 'TODO_COPY:feat_ab_two_name', 'TODO_COPY:feat_ab_two_desc'), bl1Fk('longer', 'TODO_COPY:feat_ab_longer_name', 'TODO_COPY:feat_ab_longer_desc')] } });
+  forks: { 3: [bl1Fk('bigger', 'Industrial Spill', 'The pool is 50% wider. Somebody should have put a sign up.'), bl1Fk('full', 'Mostly Liquid', 'The spray fills 90% of the Corrosion bar instead of 60%. The rest is a formality.')],
+    5: [bl1Fk('two', 'Double Dose', 'A second target, the next Elite, gets the same bath. Acid is not fussy.'), bl1Fk('longer', 'Slow Leak', 'The pool lasts 14 s instead of 8. Nobody has come to clean it up.')] } });
 
 for (const id of ['quick_draw', 'acid_bath']) { // only once the branch is taken (and never twice)
   const c = typeof CARDS !== 'undefined' && CARDS.find(x => x.id === 'feat_' + id); if (c) c.eligible = g => !!(F10[id].gate() && !f10Own(id));
