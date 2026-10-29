@@ -15,7 +15,8 @@ const { chromium } = require('playwright');
     // 1. Only with the mastery, and first in the list
     STEER.force = true; fresh(['v_phys_proj']); out.with = aimList().slice(0, 4).map(d => d.id).join(); // (always on, no upgrade needed: user, 24 Oct)
     if (out.with !== 'mines,shots,enemies,me') bad.push('menu ' + out.with);
-    out.all = [aimList().length === DIRECTIVES.length, moveModes().some(m => m.id === 'auto'), ['sp_aim', 'sp_auto', 'sp_aimM', 'sp_autoM'].every(id => spSkip(CARDS.find(c => c.id === id)))];
+    out.all = [aimList().length === DIRECTIVES.filter(d => d.id !== 'finisher').length, // (FINISHER is hidden until Robocop's Improved targeting or Sperminator's, baseline1.js / baseline2.js)
+       moveModes().some(m => m.id === 'auto'), ['sp_aim', 'sp_auto', 'sp_aimM', 'sp_autoM'].every(id => spSkip(CARDS.find(c => c.id === id)))];
     if (out.all.includes(false)) bad.push('targeting and autorun not all on, or their cards still dealt ' + out.all);
     // 2. MINES: a mine within reach is set off
     let [w, nm] = fresh(['v_phys_proj', 's_mines']); G.spMx = { sp_aimM: 1 }; w.dir = 'mines'; nm.cd = 99;

@@ -40,7 +40,7 @@ const { chromium } = require('playwright');
     block('rename', () => {
       const sc = scene([[100, 0]]);
       chk('WEAPONS name', WEAPONS[MG].name === 'Shotgun', WEAPONS[MG].name); chk('W24_BY name', W24_BY[MG].name === 'Shotgun'); chk('slot name', sc.w.def.name === 'Shotgun');
-      chk('W24 row', W24.find(r => r[0] === MG)[1] === 'Shotgun'); chk('desc is a placeholder', W24_DESC[MG] === 'TODO_COPY:mg_desc' && WEAPONS[MG].desc === 'TODO_COPY:mg_desc');
+      chk('W24 row', W24.find(r => r[0] === MG)[1] === 'Shotgun'); chk('desc in place', !!WEAPONS[MG].desc && WEAPONS[MG].desc === W24_DESC[MG] && !/^TODO_COPY/.test(WEAPONS[MG].desc));
       const t3 = genLoot({ kind: 'fork', w: sc.w, lv: 3 }).map(c => c.title); chk('Shotgun promises', t3.join() === 'Sperminator,Evil Dead,Riding shotgun', t3);
       const l6 = [0, 1, 2].map(i => { const s2 = scene([[100, 0]]); pick(s2.w, 3, i); return genLoot({ kind: 'fork', w: s2.w, lv: 6 }).map(c => c.title).join('|'); });
       out.lv6 = l6;
@@ -154,7 +154,7 @@ const { chromium } = require('playwright');
 
     // ---------------------------------------------------------------- Come back (gated on Sperminator)
     block('Come back', () => {
-      const C = cardOf('pass_comeback'); chk('Come back registered', !!C && C.title === 'Come back' && C.desc === 'TODO_COPY:pass_comeback_desc', C && C.title);
+      const C = cardOf('pass_comeback'); chk('Come back registered', !!C && C.title === 'Come back' && !!C.desc && !/^TODO_COPY/.test(C.desc), C && C.title);
       if (!C) return;
       let sc = scene([[150, 0]]); chk('Come back not dealt without a branch', !C.eligible(G));
       pick(sc.w, 3, 1); chk('Come back not dealt on Evil Dead', !C.eligible(G));
