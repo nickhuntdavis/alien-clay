@@ -19,7 +19,7 @@ const { chromium } = require('playwright');
     if (!boss10SummonOk(q)) bad.push('summons blocked with no adds');
     for (let i = 0; i < 8; i++) { const o = makeEnemy(ENEMIES.crawler, q.x, q.y); o.summonedBy = q; G.enemies.push(o); }
     if (boss10SummonOk(q)) bad.push('summon cap not enforced');
-    // A1a: a boss kill queues a relic then spoils; both open, and picking a relic sets G.relics.
+    // A1a: a boss kill queues a relic then spoils; the relic opens, spoils is dropped (levelpace.js, 29 Oct), and picking a relic sets G.relics.
     const bk = boss('alpha'); G.lootQueue.length = 0; bossDown(bk);
     const rq = G.lootQueue[0];
     if (!rq || rq.kind !== 'relic') bad.push('boss kill does not queue a relic first');
@@ -30,7 +30,7 @@ const { chromium } = require('playwright');
       if (ro.length < 3) bad.push('relic screen has ' + ro.length + ' cards');
       else { const rid = ro[0].rid || ro[0].id; ro[0].apply(); if (!(G.relics && Object.values(G.relics).some(Boolean))) bad.push('picking a relic sets nothing in G.relics'); }
     }
-    const sq = G.lootQueue.find(q => q.kind === 'spoils'); if (!sq || !draftBox(sq)) bad.push('spoils box does not open');
+    const sq = G.lootQueue.find(q => q.kind === 'spoils'); if (!sq || draftBox(sq) !== false) bad.push('spoils box not dropped (levelpace.js)');
     // C2 boss telegraphs (bosstells10.js): each tell shows before its attack and nothing lands inside it.
     const tellBoss = (id, pat) => { const b = boss(id); G.lootQueue.length = 0; G.nextBoss = 1e9; G.ev.next = 1e9; b.pat = b.def.patterns.indexOf(pat); b.patT = 0; b.fireT = 0; b.st = 0; b.hp = b.maxHp = 1e9; b.speed = 0; G.player.x = b.x + 300; G.player.y = b.y; G.player.iframes = 1e9; G.ebul.length = 0; G.hazards.length = 0; return b; };
     const step = (n, fn) => { let t = 0; for (let i = 0; i < n; i++) { update(1 / 60); t += 1 / 60; if (fn && fn(t, i)) break; } return t; };

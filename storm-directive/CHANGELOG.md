@@ -3,6 +3,102 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.218 (versionCode 497): 2026-10-29 Fewer reward screens, Lv 30 runs (`ccr-0a3df35b-hhv6r6`; merged into main with `ccr-d9f589ef-0b2nf0` v10.208 to v10.217 and the stale `ccr-b6a373a9-q8ofbd` build)
+- Systems: level pace (new), engine (XP curve, levelsAhead), reward director, weapon levels, race schedule, DNA strands
+- Files: levelpace.js (new), wmods.js, index.html, ARCHITECTURE.md, tests/tools/guide.js
+- What: levels cost more as you climb (new Lv L = old Lv L + L²/30, so Lv 30 is the old Lv 60; egg opens at Lv 30, weapon mounts at 4 and 9, evolutions at 4/8/15/27). Reward screens come from play: one per level-up, the boss relic, Vestigial Masses and the weapon kill bars (WM.k0 16 -> 20). Boss spoils, elite/event/cure/pickup DNA strands (all but Achievement DNA) and the Race's 5:00/10:00 milestone screens are gone. Race bot sim (10 runs, mortal): Lv 22-29 at 15:00 (was 57-62), 14-85 screens a run (was 100-134), wins 2/10 (baseline 1/4).
+- Save data: none.
+- Hooks: none in shared files (levelpace.js replaces xpNeed and levelsAhead, wraps dirGate, sets EGG.level, SLOT_LEVELS, EVOLVE_LV, XEB.chance, RPLAN.milestones at load).
+- Risk: wave mode (s002) and Level 1 also level about half as far; SPLICE_LEVELS and Prawn Again memories keyed to old levels may come later or not at all; the bot dies more often before 8:00 with one weapon.
+
+## v10.217: 2026-10-28 Mythical and Immaculate cards drop again (`ccr-d9f589ef-0b2nf0`)
+- Systems: loot (rarity), achievements (Achievement DNA)
+- Files: mythdna.js (new), wmods.js, index.html, ARCHITECTURE.md, tests/v10test.js
+- What: under v10 nothing reached Mythical or Immaculate (modifier cards are ranked Uncommon to Epic, stat cards rolled without the special roll, so Legendary was the ceiling; Achievement DNA was dropped by the box gate). Stat cards now take the special roll (0.47% Mythical, 0.26% Immaculate a card in a 20,000 roll check, three a run) with a boon each; Achievement DNA opens and deals three stat cards, all Mythical (69%) or Immaculate (31%). v10test updated: fresh-save modes, Achievement DNA no longer dropped, 46 roster weapons (the podcast, missed in v10.209).
+- Save data: none.
+- Hooks: wmods.js wmStatRar passes special=true to rollRarity; mythdna.js wraps wmStatCard, draftBox and v10Loot.
+- Risk: dropping Achievement DNA was a deliberate v10 choice (v10test asserted it), now reversed; boons come back into play with them.
+
+## v10.216: 2026-10-28 Weapon fusions offered again; locked samples are silhouettes (`ccr-d9f589ef-0b2nf0`)
+- Systems: weapons (fusion), samples (rack)
+- Files: wfusion.js, progress.js, style.css
+- What: every weapon fusion offer was dropped: draft.js draftBox refuses box kinds it does not list, and 'wfuse' was never added (since the 26 Oct merge that brought both in). wfusion.js now gates its own box (open while the pair is still ready, through the Reward Director like a fork). All 27 pairs checked in the race and the Petri Dish: offered, opened and fused (0 of 54 before). Locked samples on the rack are a silhouette with ??? for the name.
+- Save data: none.
+- Hooks: wfusion.js wraps draftBox; progress.js wraps s10Samples.
+- Risk: fusions now happen in real runs for the first time (a weapon slot opens per fusion, so builds get bigger); other dropped box kinds remain: 'myth' (Achievement DNA) and 'vesicle' (Lateral Gene Transfer).
+
+## v10.215: 2026-10-28 First-play progression, no XP drift, sperm button opens YOU (`ccr-d9f589ef-0b2nf0`)
+- Systems: samples (unlocks), modes, xp, ui (HUD)
+- Files: progress.js (new), xpgems.js, buildbtn.js, index.html, ARCHITECTURE.md, tests/kinalltest.js
+- What: a new player sees only The Race and The Petri Dish; Endless opens after beating the Dish, Level 1 and the race course after winning The Race (META.modeWon; developer Unlock Everything opens all). Only Baseline is open on the rack: the v9 samples are locked too (rescues do not offer them). The Race's mode tag is TODO_COPY:mode_race_tag while it is renamed. XP no longer drifts to you in the race (was 700 px at 110; Gem Drift cards still add drift). The HUD sperm button pauses on YOU instead of BUILD.
+- Save data: META.modeWon { <mode>: 1 } added.
+- Hooks: none in shared files (wraps game.js victory and samples10.js s10Modes).
+- Risk: more XP left on the floor in the race (slower levelling, the level curve and BEHIND PACE chip will read further behind); v9 samples are unreachable outside developer mode.
+
+## v10.214: 2026-10-28 Rarity chip on every loot card; straight to the weapon draft (`ccr-d9f589ef-0b2nf0`)
+- Systems: ui (loot cards, start flow)
+- Files: dsheads.js, eink.css, lab.js, ui.js
+- What: loot cards without a pictogram (stat cards and others) show their rarity as a chip above the title, as pictogram cards do under theirs. Starting a run skips the 2.9 s microscope dive (INTRO.skip), which showed the plain sperm before the sample's look was applied: the weapon draft opens at once.
+- Save data: none.
+- Hooks: ui.js startGame reads INTRO.skip (one condition).
+- Risk: the dive's sound and the fade into the slide are gone from every run start.
+
+## v10.213: 2026-10-28 Meet a new sample on rescue; weapon name on upgrade screens (`ccr-d9f589ef-0b2nf0`)
+- Systems: kindred (rescues), ui (draft screen, loot cards)
+- Files: meetsample.js (new), upweap.js (new), style.css, index.html, ARCHITECTURE.md
+- What: rescuing a sample you have never played (no kills on its profile, not met before) pauses on a full-screen MEET card first: live portrait, origin, damage types, its line, passive and a play-style tip (TODO_COPY:meet_<id>_style, TODO_COPY:meet_go); once per sample. Upgrade and modifier screens in the Weapon Draft layout show the weapon's icon and name in big letters above the title (dsheads.js had trimmed it from the kicker); the preview badge and the DNA cards' "For weapon" line are larger.
+- Save data: META.s10met { <sample id>: 1 } added.
+- Hooks: none in shared files (wraps kindred.js kinRescue and UI.openDraft).
+- Risk: the MEET card is skipped under window.TUT_OFF, so tests do not cover it; open copy: 8 meet_*_style lines and meet_go.
+
+## v10.212: 2026-10-28 Sharp player sperm, hit bursts spread over frames (`ccr-d9f589ef-0b2nf0`)
+- Systems: render, combat (hits), tests (sims)
+- Files: youhd.js (new), hitspread.js (new), render.js, index.html, ARCHITECTURE.md, tests/sim/crowdbench.js
+- What: your body (sperm, Holy/Damned halo or horns, body mods) draws on its own canvas at up to 2x resolution, so it stays sharp when the quality steps drop the slide to 1x or 0.75x; Lab view greys it. Past 12 hits in a frame, further hits are held and land over the next frames, oldest first (a Headstrong shockwave plays out over 2 to 4 frames); damage, kills and credit unchanged. crowdbench.js: HS=1 forces hit spreading, a second crash halfway (the first crash's 40 to 90 ms is one-off code warm-up; repeats cost 10 to 30 ms on a desktop).
+- Save data: none.
+- Hooks: render.js player draw wrapped in youHd(fn); hitspread hookOn hit:before (order 0) and tick; youhd wraps render. Both off under window.TUT_OFF (tests, sims) unless HS_FORCE / YOU_HD_FORCE.
+- Risk: a held hit returns 0 to its caller (damage-dealt stats undercount bursts slightly); the sharp canvas sits above the canvas-drawn HUD (rings and chips near you draw under your body); hitspread and youhd are off in tests, so tests do not cover them.
+
+## v10.211: 2026-10-28 Red bullet cores and preview health rings back (`ccr-d9f589ef-0b2nf0`)
+- Systems: render, ui (weapon preview), tests (sims)
+- Files: render.js, preview.js, tests/sim/crowdbench.js
+- What: enemy bullets always have their red core again, and the weapon preview's hurt targets wear a red health ring; both needed the Anti-Immune Stain, retired in v9.11. crowdbench.js gains CRASH=1 (swim back and forth through a clump), RAM=n (Headstrong rank) and hits by source.
+- Save data: none.
+- Hooks: none.
+- Risk: one more fill pass over enemy bullets a frame (one path, cheap).
+
+## 2026-10-28 Crowd frame bench (`ccr-d9f589ef-0b2nf0`)
+- Systems: tests (sims), render
+- Files: tests/sim/crowdbench.js (new), render.js, ARCHITECTURE.md
+- What: crowdbench.js times frames when you swim into a packed crowd (DEFS=enemy ids, LOD=on-screen threshold, NODRAW=1 for update only). render.js counts enemies on screen and draws the plain crowd look above LOD_ON_SCREEN (999 for now: off, so nothing changes yet).
+- Save data: none.
+- Hooks: none.
+- Risk: none (threshold off).
+
+## v10.210: 2026-10-28 Run clock on the HUD (`ccr-d9f589ef-0b2nf0`)
+- Systems: ui (HUD)
+- Files: render.js
+- What: a small run clock (m:ss) at the top centre between the AUTO/speed and pause buttons. It reads G.t, which runs at the set game speed, so it matches the race's 15:00 egg and the run log's times. The top bar that used to hold the clock is never drawn (Immersive is the only HUD).
+- Save data: none.
+- Hooks: none (one line in render.js drawHud).
+- Risk: none.
+
+## v10.209: 2026-10-28 Obligatory Podcast, enemy health rings back (`ccr-d9f589ef-0b2nf0`)
+- Systems: weapons (podcast), samples (type pools), enemies (health rings), ui
+- Files: podcast.js (new), foes.js, render.js, typepools.js, matrixonly.js, wstars.js (regenerated), index.html, ARCHITECTURE.md, tests/typepoolstest.js
+- What: new Force weapon Obligatory Podcast: 3 sound waves a shot, each a widening 40-degree funnel that pierces and shoves; reach 300, crowd 116 dps into 10 (bars 1/2/5/3). In the Force pool, and Alpha drafts it too. Every hurt enemy shows a red health ring again (it needed the Anti-Immune Stain, retired in v9.11); rivals ring in their own colour. Weapon bars re-ranked with 31 weapons (a few other weapons' reach bars moved by one).
+- Save data: none.
+- Hooks: render.js shot loop skips pr.pod; typepools.js tpOk -> podOk; matrixonly.js MATRIX_ONLY.weapons + v_phys_podcast; wraps v10Draw; hookOn fire, tick.
+- Risk: one more arc stroke per hurt enemy (late-game draw cost); Alpha's drafts now include a Force weapon. Copy open: TODO_COPY:w_podcast_desc.
+
+## v10.208: 2026-10-28 Tougher race start (`ccr-d9f589ef-0b2nf0`)
+- Systems: race (race early), enemies
+- Files: raceearly.js (new), index.html, ARCHITECTURE.md, tests/sim/early.js (new)
+- What: in the race, ordinary enemies spawned at 0:00 have x2 health, x2.5 hits and x1.4 speed, fading to normal by 3:00 (RACE_EARLY). Bot sim (10 runs): damage taken in minutes 1 and 2 from about 1-5 and 6-24 to about 18-35 and 40-64; lowest health in minute 2 from about 90% to 45-65%. Deaths by 7:00 unchanged within noise (baseline 1/6 to 6/10). Extra early spawns were tried and dropped: they fed XP and made the start easier.
+- Save data: none.
+- Hooks: wraps game.js makeEnemy (power11.js also wraps it, later in script order).
+- Risk: new players meet real pressure in the first 2 minutes. Petri Dish, Endless and levels untouched (raceOn); bosses and rivals untouched (def.patterns).
+
 ## v10.207 (versionCode 486): 2026-10-28 Collision crash with timer enemies (`ccr-d9f589ef-0b2nf0`)
 - Systems: combat (collisions), enemies
 - Files: collide.js
