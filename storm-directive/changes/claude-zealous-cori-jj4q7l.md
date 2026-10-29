@@ -1,3 +1,11 @@
+## 2026-10-29 Feat page shows Lv x/5
+- Systems: weapons (level display), ui (Tackle Box Feat page)
+- Files: weapons24.js
+- What: wTierMax returns 5 for v10 Feats, so the Feat page header reads Lv 1/5 with five squares, matching the loadout row and the real cap.
+- Save data: none.
+- Hooks: none.
+- Risk: anything else that reads wTierMax for a Feat (wLvText in the slot tooltips) now says /5. Weapons unchanged.
+
 ## 2026-10-29 Sequence stories trimmed, last narrator drift fixed (v10.223)
 - Systems: sequences, voice, ui, tutorials, bosses (float text only), campaign levels (banner only)
 - Files: seqreveal.js, reborn.js, redtail.js, twins.js, holy.js, spoon.js, dnadrop.js, ui.js, weird.js, intro.js, game.js, levels.js, statusintro.js, bosspack.js, render.js, rivals.js, voice_and_tone.md

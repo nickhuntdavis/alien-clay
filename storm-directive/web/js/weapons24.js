@@ -130,7 +130,7 @@ function wupCarry(from, to) {
 // screen every WUP_EVERY player levels (draft.js draftLoot 'wup'); normal drafts carry no weapon cards.
 const WUP_TIER = [1, 3, 6, 10], WUP_EVERY = 4;
 const wTier = w => (w && !w.isSpell && w.def && w.def.w24 ? WUP_TIER.filter(l => w.lvl >= l).length : w ? w.lvl : 0);
-const wTierMax = w => (w && !w.isSpell && w.def && w.def.w24 ? 4 : MAX_WLVL);
+const wTierMax = w => (w && !w.isSpell && w.def && w.def.w24 ? 4 : w && w.isSpell && w.def && w.def.kind === 'f10' ? 5 : MAX_WLVL); // (v10 Feats stop at Lv 5: feats10.js maxRank)
 const wLvText = w => 'Lv ' + wTier(w) + '/' + wTierMax(w);
 // The next internal level for this slot, or 0 when it has none (top tier, or the run's mastery is taken elsewhere).
 function wupNextLv(w) {
