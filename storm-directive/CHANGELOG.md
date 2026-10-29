@@ -3,6 +3,14 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.220 (versionCode 499): 2026-10-29 First-run setup; readable damage numbers on Darkfield (`ccr-0a3df35b-hhv6r6`; v10.219 on the branch, copy written in v10.220)
+- Systems: first-run setup (new), render (floating texts), tests
+- Files: onboard.js (new), render.js, index.html, ARCHITECTURE.md, tests/onboardtest.js (new), tests/tuttest.js, tests/batchcheck.js, tests/viewtest.js
+- What: damage numbers and other floating texts no longer go through the Darkfield inversion (their black outline had turned white, so they washed out over glows). A new player now picks View (Lab or Arcade, shown side by side on a live demo), the slide (brightfield or Darkfield) and sound volumes before the title. Copy written by Claude at the user's request.
+- Save data: META.obDone added (setup done). The demo's own run never touches META (restored from a copy).
+- Hooks: none in shared files (render.js edit is one line in the floating-text block). onboard.js wraps splashEnd, render, UI.tick, achieve, liveSave; hookOn('hurt:before').
+- Risk: tests that call splashEnd() without window.TUT_OFF on a fresh profile now get the setup (three updated with META.obDone). Existing players never see it (any run in RUNLOG or DNA earned).
+
 ## v10.218 (versionCode 497): 2026-10-29 Fewer reward screens, Lv 30 runs (`ccr-0a3df35b-hhv6r6`; merged into main with `ccr-d9f589ef-0b2nf0` v10.208 to v10.217 and the stale `ccr-b6a373a9-q8ofbd` build)
 - Systems: level pace (new), engine (XP curve, levelsAhead), reward director, weapon levels, race schedule, DNA strands
 - Files: levelpace.js (new), wmods.js, index.html, ARCHITECTURE.md, tests/tools/guide.js

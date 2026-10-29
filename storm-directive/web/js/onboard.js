@@ -12,9 +12,9 @@
 
 const OB = { on: false, step: 0, split: null, cache: {}, cv: null, demoSample: 's001', crowd: 22, crowdR: [380, 620], crowdDefs: ['crawler', 'crawler', 'skitter', 'spitter', 'brute'], crowdT: 0 };
 const OB_COPY = {
-  view: { title: 'TODO_COPY:ob_view_title', body: 'TODO_COPY:ob_view_body' },
-  field: { title: 'TODO_COPY:ob_field_title', body: 'TODO_COPY:ob_field_body', bright: 'TODO_COPY:ob_field_bright' },
-  sound: { title: 'TODO_COPY:ob_sound_title', body: 'TODO_COPY:ob_sound_body', done: 'TODO_COPY:ob_sound_done' },
+  view: { title: 'Calibrate the eyepiece', body: 'Lab: grey, as nature intended. Arcade: full colour, with rings that drain as effects wear off. Settings can change it.' },
+  field: { title: 'Adjust the lighting', body: 'Brightfield lights the slide from below. Darkfield turns the room off and lets the specimens glow.', bright: 'Brightfield' },
+  sound: { title: 'Check the audio', body: 'Sound is on. Adjust until tolerable. 0% is silent, which the lab also recommends.', done: 'Begin the study' },
 };
 const obNeeded = () => !META.obDone && !(META.total > 0) && !(typeof RUNLOG !== 'undefined' && RUNLOG.length) && !(typeof window !== 'undefined' && window.TUT_OFF);
 const obOpt = (id, v) => { const d = SETTINGS_DEF.find(x => x.id === id), o = d && d.opts.find(x => x[0] === v); return o ? o[1] : String(v); };
