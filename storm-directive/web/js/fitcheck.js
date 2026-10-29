@@ -17,7 +17,7 @@
 
   // Branch cards to leave out, by weapon: (w, up) -> [card titles].
   const FIT_BRANCH = {
-    v_phys_proj: (w, u) => has(w, 'homing') ? ['Through and Through'] : [],
+    v_phys_proj: (w, u) => [], // (the movie-cop branches, baseline1.js: no clash with any modifier)
     v_phys_spread: (w, u) => [
       ...(u.l6 === 'Roundabout' ? ['Baby Boom'] : []), // (a ring has no direction to recoil from)
       ...(has(w, 'lunge') ? ['Shotgun Wedding', 'Kickback'] : []),
@@ -38,7 +38,7 @@
   };
   // Modifiers to leave out, by weapon: (w, up) -> [modifier ids].
   const FIT_MOD = {
-    v_phys_proj: (w, u) => u.p === 'B' ? ['homing'] : [],
+    v_phys_proj: (w, u) => [],
     v_phys_spread: (w, u) => [...(u.p === 'A' ? ['lunge'] : []), ...(u.l6 === 'Roundabout' ? ['homing', 'returning'] : [])],
     v_phys_contact: (w, u) => u.p === 'A' || u.p === 'C' ? ['lunge'] : [],
     v_phys_burst: (w, u) => u.l6 === 'Elbow Room' ? ['selfcentred', 'lobbed', 'delayed'] : [],

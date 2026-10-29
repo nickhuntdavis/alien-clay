@@ -10,15 +10,15 @@ Standard Issue: three Lv 3 branches, each with its own follow-ons.
 
 | # | Type | Name | Under | Idea | Status |
 |---|---|---|---|---|---|
-| 1 | Lv 3 branch | Rambo | Standard Issue | Focus on rapid fire. faster reload. more bullets. bigger magazine. / Passive increases rate of fire. | new |
-| 2 | Modifier | Faster and faster | Standard Issue > Rambo | Rate of fire increases until magazine empties, then resets | new |
-| 3 | Modifier | First blood | Standard Issue > Rambo | Bullets now also cause bleeding | new |
-| 4 | Lv 3 branch | Dirty harry | Standard Issue | Focus on accuracy and big hits. longer range. more damage per shot. smaller magazine. / Passive increases crit. | new |
-| 5 | Modifier | Lucky shot | Standard Issue > Dirty harry | Guaranteed crit on Punks | new |
-| 6 | Feat | Quick draw | Standard Issue > Dirty harry | Every X seconds/stamina, any time an enemy is about to shoot at you, you shoot them first with a double crit. | new |
-| 7 | Lv 3 branch | Robocop | Standard Issue | Every Nth shot is a small (unfinished) / Passive, places a target (grudge) on a random enemy ever X seconds. | new |
-| 8 | Modifier | Improved targeting | Standard Issue > Robocop | In UI, can do more advanced targeting like "nearest unless there's enemny in range who's about to die" - not sure how to do it in the UI, but that sort of thing | new |
-| 9 | Feat | Acid bath (variant of Formic Acid) | Standard Issue > Robocop | The most-Shelled enemy get's sprayed with acid. Leaves an acid puddle. | new |
+| 1 | Lv 3 branch | Rambo | Standard Issue | Focus on rapid fire. faster reload. more bullets. bigger magazine. / Passive increases rate of fire. | built v10.221 (baseline1.js) |
+| 2 | Modifier | Faster and faster | Standard Issue > Rambo | Rate of fire increases until magazine empties, then resets | built v10.221 (baseline1.js) |
+| 3 | Modifier | First blood | Standard Issue > Rambo | Bullets now also cause bleeding | built v10.221 (baseline1.js) |
+| 4 | Lv 3 branch | Dirty harry | Standard Issue | Focus on accuracy and big hits. longer range. more damage per shot. smaller magazine. / Passive increases crit. | built v10.221 (baseline1.js) |
+| 5 | Modifier | Lucky shot | Standard Issue > Dirty harry | Guaranteed crit on Punks | built v10.221 (baseline1.js) |
+| 6 | Feat | Quick draw | Standard Issue > Dirty harry | Every X seconds/stamina, any time an enemy is about to shoot at you, you shoot them first with a double crit. | built v10.221 (baseline1.js) |
+| 7 | Lv 3 branch | Robocop | Standard Issue | Every Nth shot is a small (unfinished) / Passive, places a target (grudge) on a random enemy ever X seconds. | built v10.221 (baseline1.js) |
+| 8 | Modifier | Improved targeting | Standard Issue > Robocop | In UI, can do more advanced targeting like "nearest unless there's enemny in range who's about to die" - not sure how to do it in the UI, but that sort of thing | built v10.221 (baseline1.js) |
+| 9 | Feat | Acid bath (variant of Formic Acid) | Standard Issue > Robocop | The most-Shelled enemy get's sprayed with acid. Leaves an acid puddle. | built v10.221 (baseline1.js) |
 
 Maximum Gains, renamed Shotgun (an edit of the card: name only, text unchanged), with three Lv 3 branches.
 

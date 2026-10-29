@@ -60,6 +60,8 @@ const { chromium } = require('playwright');
       brown_fat: { pre: () => ring(6, 150), act: () => {}, sec: 4.5, ok: () => (G.fst && G.fst.ignite > 0) || 'nothing ignited' },
       sofa_crevice: { pre: () => ring(6, 150), act: () => {}, sec: 1.5 },
       formic_acid: { pre: () => { foe(150, 0); foe(190, 0); }, act: () => {}, sec: 0.6 },
+      quick_draw: { pre: () => { foe(150, 0, { aimT: 5 }); }, act: () => {}, sec: 0.8 }, // (baseline1.js: an enemy winding up a shot sets it off)
+      acid_bath: { pre: () => { foe(150, 0); foe(190, 0); }, act: () => {}, sec: 1.2, ok: () => G.enemies.some(e => fightCd(e).bars.acid >= 0.59) || 'no Corrosion filled' },
       tonic_immobility: { pre: () => ring(5, 120), act: () => {}, sec: 0.5, ok: () => G.enemies.some(e => e.dazeT > G.t) || 'nothing staggered' },
       shed_the_lining: { pre: () => { G.player.face = 0; foe(120, 0); foe(160, 40); }, act: () => {}, sec: 3, ok: () => G.enemies.some(e => e.bleeds && e.bleeds.length) || 'nothing bleeding' },
       vanishing_twin: { pre: () => { foe(150, 0); foe(160, 50); }, act: () => {}, sec: 0.6, ok: () => (G.fst && G.fst.possess > 0) || 'nothing Possessed' },

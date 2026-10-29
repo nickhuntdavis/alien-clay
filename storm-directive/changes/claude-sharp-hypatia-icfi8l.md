@@ -1,5 +1,13 @@
 # claude/sharp-hypatia-icfi8l
 
+## 2026-10-29 Baseline reimagined, part 1: Standard Issue's movie-cop branches (v10.221)
+- Systems: baseline branches (new), weapons24, feats, aim, render, tests/tools
+- Files: web/js/baseline1.js (new), web/index.html, web/js/fitcheck.js, tests/baseline1test.js (new), tests/wup1test.js, tests/fittest.js, tests/sivtest.js, tests/featstest.js, ARCHITECTURE.md, ideas.md, NOTES.md
+- What: Standard Issue's Lv 3 branches are now Rambo (magazine 20, reload 0.7 s, 25% faster, 15% weaker; every weapon 10% faster while held; Lv 6 Faster and faster, First blood; wild Hot barrel; mastery Belt-fed), Dirty Harry (magazine 6, half the fire rate, x2.2, range +120, no spread, +10 crit on itself and every weapon; Lv 6 Lucky shot, Six shooter; wild; mastery Make my day) and Robocop (a mark every 6 s on the nearest Elite, tap-to-mark on the slide, shots stay on it at +50%, every 4th shot a Force rocket; Lv 6 Improved targeting unlocks the FINISHER directive, Prime Directive; wild Target rich; mastery Dead or Alive). Ricochet Brain, Through and Through and Marked for Bonking are no longer reachable (code stays in wup1.js). Two gated Feats: Quick draw (dealt only on Dirty Harry: shoots an enemy winding up a shot first, double crit) and Acid bath (Robocop only: sprays the most-Shelled enemy, 60% Corrosion, an Acid pool). Costumes: headband ribbons, a visor band, a chrome head with a sweeping red visor; a crosshair on the mark. Branch screens for Standard Issue use the plain layout (SIV_DRAFT off: sidemo.js scenes belong to the old cards).
+- Save data: none.
+- Hooks: hookOn('fire:after'), hookOn('tick'), hookOn('dmgMul') from baseline1.js; wraps computeStats (game.js), aimList (autorun.js/spsteer.js), targetScore (game.js), drawPlates (bodymods.js); DIRECTIVES.push('finisher'); fitcheck.js's two Standard Issue rules retired.
+- Risk: Standard Issue's balance changes for every sample that drafts it (Dirty Harry is a big single-target jump; Rambo's 10% fire rate is sperm-wide). SIV_DRAFT off changes how Standard Issue's branch screens look (plain cards). About 30 TODO_COPY strings show on cards until the user writes them.
+
 ## 2026-10-29 ideas.md second batch (folded from the planner database); planner double-save guard
 - Systems: docs, tests/tools
 - Files: ideas.md, tests/tools/planner/template.html
