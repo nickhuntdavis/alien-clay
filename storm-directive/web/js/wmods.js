@@ -18,7 +18,7 @@
 // makePreview (the modifier loops), modmatrix.js modDraftCands and wupLevel, modcards.js modBoxCards, UI.openDraft and
 // UI.refreshHud. Loads last (after modpick.js and holdcopy.js).
 
-const WM = { on: true, force: false, k0: 16, kg: 0.42, assist: 0.3, assistT: 3, catchK: 0.35, cards: 3, skipRerolls: 2, statN: 2, statW: 1.1, statSteps: [1.5, 2, 3, 4, 6, 8, 10] };
+const WM = { on: true, force: false, k0: 20, kg: 0.42, assist: 0.3, assistT: 3, catchK: 0.35, cards: 3, skipRerolls: 2, statN: 2, statW: 1.1, statSteps: [1.5, 2, 3, 4, 6, 8, 10] };
 const wmOn = () => WM.on && !!G && !xbrTest(WM.force) && !(typeof sbOn === 'function' && sbOn());
 const wmNeedL = l => Math.round(WM.k0 * (1 + WM.kg * (Math.min(MM.lvlCap, l || 1) - 1)));
 const wmNeed = w => wmNeedL(w.lvl);
