@@ -1,0 +1,543 @@
+<title>Prawn Loadout Planner</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: a lab bench. Left, the rack: tabs of draggable chips (weapons, modifiers, branches). Right, the dish: a pannable mind map
+   growing rightwards from the sperm, one column per depth (weapon > modifier or Lv 3 branch > fork > mastery). */
+:root {
+  --bg: #e9eef0; --panel: #ffffff; --panel2: #f3f6f7; --ink: #15232a; --dim: #5e717a; --line: #c8d4d8; --accent: #0b7f8c; --hi: #0b7f8c22;
+  --g-delivery: #2563c9; --g-flight: #d9480f; --g-crowd: #8e3fb0; --g-tempo: #c2185b; --g-chemistry: #1f8f4e; --g-area: #a07400; --g-lifesteal: #c0392b;
+  --t-phys: #5a6c7c; --t-fire: #d4168a; --t-ice: #3f8f1f; --t-shock: #a3850a; --t-arcane: #b5123f; --t-soul: #a37a00; --t-flame: #e04e10; --t-poison: #c2447f; --t-oxi: #9c6b16; --t-salt: #2a6fd6; --t-sab: #1f8f4e;
+  --display: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif; --body: 'Atkinson Hyperlegible', system-ui, sans-serif; --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0d1416; --panel: #151e21; --panel2: #1b2629; --ink: #e3ecee; --dim: #8ea3a9; --line: #283539; --accent: #4fd1e0; --hi: #4fd1e033;
+  --g-delivery: #6ea2ff; --g-flight: #ff8a4d; --g-crowd: #c98cff; --g-tempo: #ff6fa8; --g-chemistry: #5fd68f; --g-area: #f0c24a; --g-lifesteal: #ff7b6b;
+  --t-phys: #dfe7f2; --t-fire: #ff5fc0; --t-ice: #8ee05a; --t-shock: #ffe94a; --t-arcane: #ff5a7e; --t-soul: #ffcf5a; --t-flame: #ff7a3a; --t-poison: #ff8ac0; --t-oxi: #e0a84a; --t-salt: #6fa6ff; --t-sab: #5fd68f; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0d1416; --panel: #151e21; --panel2: #1b2629; --ink: #e3ecee; --dim: #8ea3a9; --line: #283539; --accent: #4fd1e0; --hi: #4fd1e033;
+  --g-delivery: #6ea2ff; --g-flight: #ff8a4d; --g-crowd: #c98cff; --g-tempo: #ff6fa8; --g-chemistry: #5fd68f; --g-area: #f0c24a; --g-lifesteal: #ff7b6b;
+  --t-phys: #dfe7f2; --t-fire: #ff5fc0; --t-ice: #8ee05a; --t-shock: #ffe94a; --t-arcane: #ff5a7e; --t-soul: #ffcf5a; --t-flame: #ff7a3a; --t-poison: #ff8ac0; --t-oxi: #e0a84a; --t-salt: #6fa6ff; --t-sab: #5fd68f; color-scheme: dark; }
+html, body { height: 100%; }
+body { margin: 0; box-sizing: border-box; background: var(--bg); color: var(--ink); font: 14px/1.4 var(--body); display: flex; flex-direction: column; gap: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 10px; }
+* { box-sizing: border-box; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+header { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+header h1 { font: 800 22px/1 var(--display); margin: 0; letter-spacing: -0.01em; }
+header .sub { color: var(--dim); font-size: 13px; }
+header .ver { margin-left: auto; font: 500 11px var(--mono); color: var(--dim); }
+.bench { flex: 1; min-height: 0; display: grid; grid-template-columns: 330px minmax(0, 1fr); gap: 12px; }
+@media (max-width: 860px) { .bench { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) 44vh; } .rack { order: 2; } }
+
+/* rack */
+.rack { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; display: flex; flex-direction: column; min-height: 0; min-width: 0; }
+.tabs { display: flex; border-bottom: 1px solid var(--line); }
+.tabs button { flex: 1; background: none; border: 0; padding: 10px 6px; font: 700 13px var(--display); color: var(--dim); border-bottom: 2px solid transparent; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.tabs button:focus-visible, .chip:focus-visible, .node:focus-visible, .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.rackbody { overflow: auto; padding: 10px; flex: 1; min-height: 0; }
+.rackbody input[type="search"] { width: 100%; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel2); margin-bottom: 10px; }
+.sec { margin: 0 0 12px; }
+.sec h3 { font: 600 10.5px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--dim); margin: 0 0 6px; display: flex; align-items: center; gap: 6px; }
+.sec h3 i { width: 9px; height: 9px; border-radius: 50%; background: var(--c); display: inline-block; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { --c: var(--accent); display: inline-flex; flex-direction: column; gap: 1px; padding: 5px 9px 5px 10px; border: 1px solid var(--line); border-left: 4px solid var(--c); border-radius: 8px;
+  background: var(--panel); cursor: grab; user-select: none; -webkit-user-select: none; touch-action: pan-y; max-width: 100%; text-align: left; }
+.chip b { font: 700 13px/1.15 var(--display); }
+.chip small { font-size: 11px; color: var(--dim); }
+.chip .fits { font: 500 10px var(--mono); color: var(--dim); letter-spacing: .02em; }
+.chip.dim { opacity: .38; }
+.chip.held { background: var(--hi); border-color: var(--accent); }
+.chip.held b::after { content: ' ✓'; color: var(--accent); }
+.chip:active { cursor: grabbing; }
+.hint { font-size: 12px; color: var(--dim); margin: 0 0 10px; }
+details.wb { border: 1px solid var(--line); border-radius: 10px; padding: 0 10px; margin-bottom: 8px; background: var(--panel2); }
+details.wb summary { cursor: pointer; padding: 8px 0; font: 700 13px var(--display); list-style: none; display: flex; gap: 8px; align-items: center; }
+details.wb summary::before { content: '▸'; color: var(--dim); font-size: 11px; }
+details.wb[open] summary::before { content: '▾'; }
+details.wb summary small { color: var(--dim); font-weight: 400; font-family: var(--body); }
+details.wb .sec { margin: 6px 0 10px; }
+details.wb.onmap { border-color: var(--accent); }
+
+/* dish */
+.dish { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; display: flex; flex-direction: column; min-height: 0; min-width: 0; overflow: hidden; }
+.dishbar { display: flex; gap: 8px; align-items: center; padding: 8px 10px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.dishbar label { font: 600 10.5px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--dim); display: flex; align-items: center; gap: 6px; }
+.dishbar select { padding: 5px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel2); max-width: 60vw; }
+.btn { padding: 5px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel2); font: 700 12px var(--display); }
+.btn:hover { border-color: var(--accent); }
+.btn.danger { color: var(--g-lifesteal); }
+.sp { flex: 1; }
+.zoom { display: flex; gap: 4px; }
+.zoom .btn { min-width: 32px; padding: 5px 6px; }
+.map { flex: 1; overflow: auto; position: relative; min-height: 0; cursor: grab;
+  background-image: radial-gradient(circle, var(--line) 1px, transparent 1.2px); background-size: 22px 22px; }
+.map.panning { cursor: grabbing; }
+.sizer { position: relative; }
+.stage { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.stage svg { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; }
+.stage svg path { fill: none; stroke: var(--c); stroke-width: 2.2; opacity: .75; }
+.node { --c: var(--accent); position: absolute; width: 212px; background: var(--panel); border: 1.5px solid var(--line); border-radius: 10px; padding: 7px 10px 8px; cursor: pointer; }
+.node.over { outline: 3px solid var(--accent); outline-offset: 2px; }
+.node.bad { outline: 3px solid var(--g-lifesteal); outline-offset: 2px; }
+.node.sel { border-color: var(--c); box-shadow: 0 0 0 2px var(--c) inset; }
+.node .ey { font: 600 10px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--c); display: flex; gap: 6px; align-items: center; }
+.node .ey i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); flex: none; }
+.node b { font: 700 14.5px/1.15 var(--display); display: block; margin: 2px 0 2px; }
+.node p { margin: 0; font-size: 11.5px; color: var(--dim); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.node .pips { display: flex; gap: 4px; margin-top: 5px; align-items: center; }
+.node .pips span { width: 18px; height: 6px; border-radius: 3px; background: var(--line); }
+.node .pips span.on { background: var(--c); }
+.node .pips em { font: 500 10px var(--mono); color: var(--dim); font-style: normal; margin-left: 4px; }
+.node.hintnode { border-style: dashed; background: transparent; color: var(--dim); cursor: default; }
+.node.hintnode b { font-weight: 500; color: var(--dim); }
+.node.root { width: 250px; border-width: 2px; padding-top: 6px; }
+.sperm { width: 100%; height: 64px; display: block; margin-bottom: 2px; }
+.sperm .tail { transform-origin: 42px 30px; animation: wig .7s ease-in-out infinite alternate; }
+@media (prefers-reduced-motion: reduce) { .sperm .tail { animation: none; } }
+@keyframes wig { from { transform: rotate(-3deg); } to { transform: rotate(3deg); } }
+.types { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
+.types span { font: 500 10px var(--mono); padding: 1px 6px; border-radius: 10px; border: 1px solid var(--tc); color: var(--tc); }
+.ghost { position: fixed; left: 0; top: 0; pointer-events: none; z-index: 50; opacity: .93; transform: translate(-50%, -50%) rotate(-2deg); box-shadow: 0 8px 24px #0006; }
+.toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 10px; font-size: 13px; z-index: 60; max-width: min(92vw, 520px); opacity: 0; transition: opacity .15s; }
+.toast.show { opacity: 1; }
+
+/* detail drawer */
+.detail { border-top: 1px solid var(--line); padding: 10px 12px; max-height: 40%; overflow: auto; background: var(--panel2); display: flex; flex-direction: column; gap: 8px; }
+.detail .ey { font: 600 10px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--dim); }
+.detail h2 { font: 700 17px/1.1 var(--display); margin: 0; }
+.detail p { margin: 0; font-size: 13px; }
+.detail .row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.detail .row .lab { font: 600 10px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--dim); min-width: 92px; flex: none; }
+.btn.opt { font-weight: 500; font-family: var(--body); max-width: 100%; white-space: normal; text-align: left; }
+.btn.opt.on { border-color: var(--accent); background: var(--hi); font-weight: 700; }
+.btn:disabled { opacity: .4; cursor: default; }
+.slots { display: flex; gap: 4px; align-items: center; }
+.slots span { width: 22px; height: 8px; border-radius: 4px; background: var(--line); }
+.slots span.on { background: var(--accent); }
+</style>
+
+<header>
+  <h1>Prawn Loadout Planner</h1>
+  <span class="sub">Drag from the rack onto the dish. Tap a chip to add it to the selected node instead.</span>
+  <span class="ver" id="ver"></span>
+</header>
+<div class="bench">
+  <section class="rack" aria-label="Rack">
+    <div class="tabs" role="tablist">
+      <button role="tab" aria-selected="true" data-tab="weapons" id="tab-weapons">Weapons</button>
+      <button role="tab" aria-selected="false" data-tab="mods" id="tab-mods">Modifiers</button>
+      <button role="tab" aria-selected="false" data-tab="branches" id="tab-branches">Branches</button>
+    </div>
+    <div class="rackbody" id="rack"></div>
+  </section>
+  <section class="dish" aria-label="Dish">
+    <div class="dishbar">
+      <label for="sample">Sperm <select id="sample"></select></label>
+      <label><input type="checkbox" id="rules" checked> Game rules</label>
+      <span class="sp"></span>
+      <div class="zoom"><button class="btn" id="zout" title="Zoom out">−</button><button class="btn" id="zfit" title="Fit">Fit</button><button class="btn" id="zin" title="Zoom in">+</button></div>
+      <button class="btn" id="copy">Copy build</button>
+      <button class="btn danger" id="clear">Clear</button>
+    </div>
+    <div class="map" id="map"><div class="sizer" id="sizer"><div class="stage" id="stage"></div></div></div>
+    <div class="detail" id="detail"></div>
+  </section>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const D = /*DATA*/null;
+const MAXW = 4, SLOTS = D.mmOpen.length, SLOT_AT = D.mmOpen;
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const WIDS = Object.keys(D.weapons), MIDS = Object.keys(D.mods);
+const GORDER = ['delivery', 'flight', 'crowd', 'tempo', 'chemistry', 'area', 'lifesteal'];
+const AK = { Projectile: 'proj', Spread: 'spread', Contact: 'contact', Burst: 'burst', Beam: 'beam', Pool: 'pool' };
+const ATK_ORDER = ['Projectile', 'Spread', 'Contact', 'Burst', 'Beam', 'Pool'];
+const ATK_SHORT = { proj: 'Proj', spread: 'Spread', contact: 'Contact', burst: 'Burst', beam: 'Beam', pool: 'Pool' };
+const BUILTIN = ['melee', 'mines', 'dfa', 'ranged'];
+const tname = t => (D.types[t] || {}).name || t;
+const tvar = t => `var(--t-${D.types[t] ? t : 'phys'})`;
+const gvar = g => `var(--g-${g})`;
+const MAST_IDX = { A1: 2, A2: 3, B1: 4, B2: 5 }, MAST_TXT = { A1: 4, A2: 5, B1: 6, B2: 7 };
+const SAB_DESC = t => `Attacks switch to ${tname(t)} damage: 35% of them, then 70%, then a fork at level 3 (fully switched, or Blend: the new type plus an echo of the original). Takes the Chemistry slot.`;
+$('#ver').textContent = 'data from v' + D.version;
+
+// ---------------------------------------------------------------- state
+let S = { sample: D.samples[0].id, rules: true, sel: null, zoom: 1, weapons: [], seq: 1 };
+try { const s = JSON.parse(localStorage.getItem('sp_planner_v1') || 'null'); if (s && s.weapons) S = Object.assign(S, s); } catch (e) { }
+const save = () => { try { localStorage.setItem('sp_planner_v1', JSON.stringify(S)); } catch (e) { } };
+const sampleOf = () => D.samples.find(s => s.id === S.sample) || D.samples[0];
+const W = id => D.weapons[id], M = id => D.mods[id];
+const findW = u => S.weapons.find(w => w.u === u);
+const selW = () => { const n = NODES[S.sel]; return n && n.w ? n.w : null; };
+
+// ---------------------------------------------------------------- toast
+let toastT = 0;
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2600); }
+
+// ---------------------------------------------------------------- rules: what a drop does
+// Returns { ok, why, run } for a payload dropped on a tree node (or null node = the dish itself).
+function dropPlan(p, n) {
+  const R = S.rules;
+  if (p.k === 'weapon') {
+    if (S.weapons.some(w => w.id === p.id)) return { ok: false, why: W(p.id).name + ' is already on the sperm.' };
+    if (S.weapons.length >= MAXW) return { ok: false, why: `Four weapons at most. Remove one first.` };
+    return { ok: true, run: () => { const w = { u: S.seq++, id: p.id, mods: [], sab: false, promise: null, wbr: null, wmast: null }; const d = W(p.id).dlv; if (d && M(d)) w.mods.push({ id: d, rank: 1, br: null, mast: null, builtin: true }); S.weapons.push(w); S.sel = 'w' + w.u; } };
+  }
+  const w = n && n.w; if (!w) return { ok: false, why: 'Drop that on a weapon.' };
+  const Wd = W(w.id);
+  if (p.k === 'mod') {
+    const m = M(p.id), have = w.mods.find(x => x.id === p.id);
+    if (have) {
+      if (have.builtin) return { ok: false, why: m.name + ' is built into ' + Wd.name + ' and ranks with its level.' };
+      if (have.rank >= 3) return { ok: false, why: m.name + ' is at Rank 3 already. Its mastery is on the Branches tab.' };
+      if (R && have.rank === 2 && m.br && !have.br) return { ok: false, why: 'Rank 2 forks first: drop ' + m.br[0] + ' or ' + m.br[1] + ' from the Branches tab.' };
+      return { ok: true, run: () => { have.rank++; S.sel = 'm' + w.u + '_' + p.id; } };
+    }
+    if (R && !Wd.mods.includes(p.id)) return { ok: false, why: m.name + ' does not fit ' + Wd.name + ' (' + Wd.atk + ').' };
+    const taken = w.mods.find(x => M(x.id).group === m.group) || (m.group === 'chemistry' && w.sab ? { id: 'sab' } : null);
+    if (R && taken) return { ok: false, why: `${Wd.name}'s ${m.gname} slot holds ${taken.id === 'sab' ? 'Switched at Birth' : M(taken.id).name}. One modifier per group.` };
+    if (R && w.mods.length + (w.sab ? 1 : 0) >= SLOTS) return { ok: false, why: `${Wd.name} has all ${SLOTS} modifier slots filled.` };
+    return { ok: true, run: () => { w.mods.push({ id: p.id, rank: 1, br: null, mast: null }); S.sel = 'm' + w.u + '_' + p.id; } };
+  }
+  if (p.k === 'sab') {
+    if (w.sab) return { ok: false, why: Wd.name + ' is already Switched at Birth.' };
+    if (!Wd.sab) return { ok: false, why: Wd.name + ' has no Switched at Birth alternate (it would spoil the attack).' };
+    const taken = w.mods.find(x => M(x.id).group === 'chemistry');
+    if (R && taken) return { ok: false, why: `${Wd.name}'s Chemistry slot holds ${M(taken.id).name}.` };
+    if (R && w.mods.length >= SLOTS) return { ok: false, why: `${Wd.name} has all ${SLOTS} modifier slots filled.` };
+    return { ok: true, run: () => { w.sab = true; S.sel = 's' + w.u; } };
+  }
+  if (p.k === 'promise') {
+    if (p.w !== w.id) return { ok: false, why: 'That Lv 3 branch belongs to ' + W(p.w).name + '.' };
+    if (w.promise === p.p) return { ok: false, why: 'Already chosen.' };
+    return { ok: true, run: () => { w.promise = p.p; w.wbr = null; w.wmast = null; S.sel = 'p' + w.u; } };
+  }
+  if (p.k === 'wbranch') {
+    if (p.w !== w.id) return { ok: false, why: 'That branch belongs to ' + W(p.w).name + '.' };
+    if (R && w.promise !== p.p) return { ok: false, why: 'Take the Lv 3 branch ' + p.p + ' (' + Wd.promises.find(x => x.k === p.p).name + ') first.' };
+    return { ok: true, run: () => { w.promise = p.p; w.wbr = p.i; S.sel = 'b' + w.u; } };
+  }
+  if (p.k === 'wmast') {
+    if (p.w !== w.id) return { ok: false, why: 'That mastery belongs to ' + W(p.w).name + '.' };
+    if (R && (!w.promise || w.wbr == null)) return { ok: false, why: 'Masteries open at Lv 9, after the Lv 3 and Lv 6 branches.' };
+    return { ok: true, run: () => { w.wmast = p.i; S.sel = 'x' + w.u; } };
+  }
+  if (p.k === 'mbranch' || p.k === 'mmast') {
+    const m = M(p.m), have = w.mods.find(x => x.id === p.m);
+    if (!have) return { ok: false, why: Wd.name + ' does not have ' + m.name + ' yet. Drop the modifier first.' };
+    if (p.k === 'mbranch') {
+      if (have.br === p.b) return { ok: false, why: 'Already chosen.' };
+      return { ok: true, run: () => { have.br = p.b; have.mast = null; if (have.rank < 2) have.rank = 2; S.sel = 'mb' + w.u + '_' + p.m; } };
+    }
+    if (R && have.br !== p.x[0]) return { ok: false, why: `${m.br[MAST_IDX[p.x]]} follows the ${p.x[0]} fork (${m.br[p.x[0] === 'A' ? 0 : 1]}). Take that first.` };
+    return { ok: true, run: () => { have.br = p.x[0]; have.mast = p.x; have.rank = 3; S.sel = 'mm' + w.u + '_' + p.m; } };
+  }
+  return { ok: false, why: 'Nothing happens there.' };
+}
+function applyDrop(p, n) { const r = dropPlan(p, n); if (!r.ok) { toast(r.why); return false; } r.run(); save(); render(); return true; }
+
+// ---------------------------------------------------------------- tree
+let NODES = {};
+function buildTree() {
+  NODES = {};
+  const mk = (id, o) => (NODES[id] = Object.assign({ id, children: [] }, o));
+  const smp = sampleOf();
+  const root = mk('root', { kind: 'root', title: smp.name, ey: 'Strain ' + smp.strain + ' · ' + smp.origin, desc: smp.passive + ': ' + smp.pdesc, col: tvar(smp.types[0]), smp });
+  for (const w of S.weapons) {
+    const Wd = W(w.id);
+    const wn = mk('w' + w.u, { kind: 'weapon', w, title: Wd.name, ey: Wd.atk + ' · ' + tname(Wd.type), desc: Wd.desc, col: tvar(Wd.type) });
+    root.children.push(wn);
+    if (w.promise) {
+      const P = Wd.promises.find(x => x.k === w.promise);
+      if (P) {
+        const pn = mk('p' + w.u, { kind: 'promise', w, P, title: P.name, ey: 'Lv 3 branch ' + P.k + ' · ' + P.tag, desc: P.desc, col: tvar(Wd.type) });
+        wn.children.push(pn);
+        if (w.wbr != null) {
+          const o = w.wbr === 'wild' ? P.wild : P.branches[w.wbr];
+          if (o) {
+            const bn = mk('b' + w.u, { kind: 'wbranch', w, title: o.name, ey: 'Lv 6 · ' + (w.wbr === 'wild' ? 'wild card' : 'branch'), desc: o.desc, col: tvar(Wd.type) });
+            pn.children.push(bn);
+            if (w.wmast != null && Wd.masteries[w.wmast]) { const X = Wd.masteries[w.wmast]; bn.children.push(mk('x' + w.u, { kind: 'wmast', w, title: X.name, ey: 'Lv 9 mastery', desc: X.desc, col: tvar(Wd.type) })); }
+          }
+        }
+      }
+    }
+    if (w.sab) wn.children.push(mk('s' + w.u, { kind: 'sab', w, title: 'Switched at Birth: ' + tname(Wd.sab), ey: 'Chemistry · damage type', desc: SAB_DESC(Wd.sab), col: tvar(Wd.sab) }));
+    for (const m of w.mods) {
+      const Md = M(m.id);
+      const mn = mk('m' + w.u + '_' + m.id, { kind: 'mod', w, m, Md, title: Md.name, ey: Md.gname + (m.builtin ? ' · built in' : ''), desc: (m.br && m.rank >= 3 && Md.brText) ? Md.brText[m.br === 'A' ? 2 : 3] : Md.ranks[Math.min(m.rank, 3) - 1], col: gvar(Md.group), rank: m.rank });
+      wn.children.push(mn);
+      if (m.br && Md.br) {
+        const bi = m.br === 'A' ? 0 : 1;
+        const bn = mk('mb' + w.u + '_' + m.id, { kind: 'mbranch', w, m, Md, title: Md.br[bi], ey: 'Rank 2 fork ' + m.br, desc: Md.brText ? Md.brText[bi] : '', col: gvar(Md.group) });
+        mn.children.push(bn);
+        if (m.mast) bn.children.push(mk('mm' + w.u + '_' + m.id, { kind: 'mmast', w, m, Md, title: Md.br[MAST_IDX[m.mast]], ey: 'Mastery ' + m.mast, desc: Md.brText ? Md.brText[MAST_TXT[m.mast]] : '', col: gvar(Md.group) }));
+      }
+    }
+    if (!wn.children.length) wn.children.push(mk('h' + w.u, { kind: 'hint', w, title: 'Drop modifiers or a Lv 3 branch here', ey: 'empty', desc: '', col: 'var(--line)' }));
+  }
+  if (S.weapons.length < MAXW) root.children.push(mk('hroot', { kind: 'hint', title: S.weapons.length ? 'Drop another weapon here' : 'Drop a weapon here (1 to 4)', ey: 'empty mount', desc: '', col: 'var(--line)' }));
+  return root;
+}
+
+function nodeHtml(n) {
+  if (n.kind === 'root') {
+    const s = n.smp;
+    return `<svg class="sperm" viewBox="0 0 120 60" aria-hidden="true"><defs><radialGradient id="hg" cx="35%" cy="35%" r="75%"><stop offset="0" stop-color="#ffffff" stop-opacity=".95"/><stop offset="1" style="stop-color:${n.col}"/></radialGradient></defs><g class="tail"><path d="M42 30 C 56 16, 66 44, 82 30 S 106 16, 118 30" fill="none" stroke="${n.col}" stroke-width="3" stroke-linecap="round"/></g><ellipse cx="26" cy="30" rx="19" ry="12.5" fill="url(#hg)" stroke="${n.col}" stroke-width="2"/><ellipse cx="21" cy="28.5" rx="7" ry="5" fill="${n.col}" opacity=".6"/></svg>
+      <span class="ey"><i></i>${esc(n.ey)}</span><b>${esc(n.title)}</b><p>${esc(n.desc)}</p><div class="types">${s.types.map(t => `<span style="--tc:${tvar(t)}">${esc(tname(t))}</span>`).join('')}</div>`;
+  }
+  let h = `<span class="ey"><i></i>${esc(n.ey)}</span><b>${esc(n.title)}</b>`;
+  if (n.desc) h += `<p>${esc(n.desc)}</p>`;
+  if (n.kind === 'mod') h += `<div class="pips">${[1, 2, 3].map(r => `<span class="${n.rank >= r ? 'on' : ''}"></span>`).join('')}<em>${n.m.mast ? 'mastery' : 'Rank ' + n.rank}${n.Md.max < 3 ? ' · max ' + n.Md.max : ''}</em></div>`;
+  return h;
+}
+
+const COLW = 212, ROOTW = 250, GX = 54, GY = 12, PAD = 24;
+function render() {
+  const stage = $('#stage'), root = buildTree();
+  stage.innerHTML = '';
+  const all = [];
+  (function walk(n, d) { n.depth = d; all.push(n); n.children.forEach(c => walk(c, d + 1)); })(root, 0);
+  for (const n of all) {
+    const el = document.createElement('div');
+    el.className = 'node ' + n.kind + (n.kind === 'root' ? ' root' : '') + (n.kind === 'hint' ? ' hintnode' : '') + (S.sel === n.id ? ' sel' : '');
+    el.dataset.n = n.id; el.style.setProperty('--c', n.col); el.tabIndex = n.kind === 'hint' ? -1 : 0;
+    el.innerHTML = nodeHtml(n); stage.appendChild(el); n.el = el;
+  }
+  const sub = n => { n.h = n.el.offsetHeight; let s = 0; for (const c of n.children) s += sub(c) + GY; n.sh = Math.max(n.h, s - GY); return n.sh; };
+  sub(root);
+  const xAt = d => d === 0 ? PAD : PAD + ROOTW + GX + (d - 1) * (COLW + GX);
+  let maxX = 0;
+  const place = (n, top) => {
+    n.x = xAt(n.depth); n.y = top + (n.sh - n.h) / 2; n.wd = n.depth ? COLW : ROOTW; maxX = Math.max(maxX, n.x + n.wd);
+    n.el.style.left = n.x + 'px'; n.el.style.top = n.y + 'px';
+    let tot = 0; for (const c of n.children) tot += c.sh + GY; tot -= GY;
+    let t = top + (n.sh - tot) / 2;
+    for (const c of n.children) { place(c, t); t += c.sh + GY; }
+  };
+  place(root, PAD);
+  const Wt = maxX + PAD, Ht = root.sh + PAD * 2;
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', Wt); svg.setAttribute('height', Ht);
+  let paths = '';
+  for (const n of all) for (const c of n.children) {
+    const x1 = n.x + n.wd, y1 = n.y + n.h / 2, x2 = c.x, y2 = c.y + c.h / 2, dx = (x2 - x1) / 2;
+    paths += `<path d="M${x1} ${y1} C${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}" style="--c:${c.col}"${c.kind === 'hint' ? ' stroke-dasharray="4 5"' : ''}/>`;
+  }
+  svg.innerHTML = paths; stage.prepend(svg);
+  stage.style.width = Wt + 'px'; stage.style.height = Ht + 'px';
+  applyZoom();
+  renderDetail();
+  renderRack();
+}
+function applyZoom() {
+  const z = S.zoom, st = $('#stage'), sz = $('#sizer');
+  st.style.transform = `scale(${z})`;
+  sz.style.width = parseFloat(st.style.width) * z + 'px'; sz.style.height = parseFloat(st.style.height) * z + 'px';
+}
+function zoomTo(z) { S.zoom = Math.max(.4, Math.min(1.6, z)); save(); applyZoom(); }
+$('#zin').onclick = () => zoomTo(S.zoom + .15);
+$('#zout').onclick = () => zoomTo(S.zoom - .15);
+$('#zfit').onclick = () => { const map = $('#map'), st = $('#stage'); zoomTo(Math.min(1.2, (map.clientWidth - 8) / parseFloat(st.style.width), (map.clientHeight - 8) / parseFloat(st.style.height))); map.scrollTo(0, 0); };
+
+// ---------------------------------------------------------------- detail drawer
+function renderDetail() {
+  const d = $('#detail'), n = NODES[S.sel];
+  if (!n) { d.innerHTML = `<span class="ey">Nothing selected</span><p>Tap a node to see it in full, rank it up or down, pick its forks, or remove it. Tap a chip in the rack to add it to the selected node.</p>`; return; }
+  const B = (label, on, p, cls) => `<button class="btn opt ${on ? 'on' : ''} ${cls || ''}" data-p='${esc(JSON.stringify(p))}'>${esc(label)}</button>`;
+  let h = `<span class="ey">${esc(n.ey)}</span><h2>${esc(n.title)}</h2><p>${esc(n.desc)}</p>`;
+  if (n.kind === 'root') {
+    h += `<div class="row"><span class="lab">Own weapons</span>${n.smp.weapons.filter(W).map(id => B(W(id).name, S.weapons.some(w => w.id === id), { k: 'weapon', id })).join('')}</div>`;
+    h += `<div class="row"><span class="lab">Best fit</span>${n.smp.fit.filter(W).map(id => B(W(id).name, S.weapons.some(w => w.id === id), { k: 'weapon', id })).join('')}</div>`;
+  }
+  if (n.kind === 'weapon') {
+    const Wd = W(n.w.id), used = n.w.mods.length + (n.w.sab ? 1 : 0);
+    h += `<div class="row"><span class="lab">Slots</span><div class="slots">${SLOT_AT.map((l, i) => `<span class="${i < used ? 'on' : ''}" title="opens at Lv ${l}"></span>`).join('')}</div><small style="color:var(--dim)">${used} of ${SLOTS} (slots open at weapon Lv ${SLOT_AT.join(', ')})</small></div>`;
+    h += `<div class="row"><span class="lab">Lv 3 branch</span>${Wd.promises.length ? Wd.promises.map(P => B(P.k + ' · ' + P.name, n.w.promise === P.k, { k: 'promise', w: Wd.id, p: P.k })).join('') : '<small style="color:var(--dim)">None: this weapon branches through its built-in Delivery modifier.</small>'}</div>`;
+    if (Wd.sab) h += `<div class="row"><span class="lab">Chemistry</span>${B('Switched at Birth: ' + tname(Wd.sab), n.w.sab, { k: 'sab' })}</div>`;
+    h += `<div class="row"><span class="lab">Fits</span><small style="color:var(--dim)">${Wd.mods.map(id => M(id).name).join(', ')}</small></div>`;
+    h += `<div class="row"><button class="btn danger" data-act="rmw">Remove weapon</button></div>`;
+  }
+  if (n.kind === 'promise') {
+    h += `<div class="row"><span class="lab">Lv 6</span>${n.P.branches.map((b, i) => B(b.name, n.w.wbr === i, { k: 'wbranch', w: n.w.id, p: n.P.k, i })).join('')}${n.P.wild ? B('Wild: ' + n.P.wild.name, n.w.wbr === 'wild', { k: 'wbranch', w: n.w.id, p: n.P.k, i: 'wild' }) : ''}</div>`;
+    h += `<div class="row"><button class="btn danger" data-act="rmp">Remove branch</button></div>`;
+  }
+  if (n.kind === 'wbranch') {
+    h += `<div class="row"><span class="lab">Lv 9 mastery</span>${W(n.w.id).masteries.map((x, i) => B(x.name + (x.best ? ' (suits ' + x.best.split('').join(', ') + ')' : ''), n.w.wmast === i, { k: 'wmast', w: n.w.id, i })).join('')}</div>`;
+    h += `<div class="row"><button class="btn danger" data-act="rmb">Remove</button></div>`;
+  }
+  if (n.kind === 'wmast') h += `<div class="row"><button class="btn danger" data-act="rmx">Remove mastery</button></div>`;
+  if (n.kind === 'sab') h += `<div class="row"><button class="btn danger" data-act="rms">Remove</button></div>`;
+  if (n.kind === 'mod' || n.kind === 'mbranch' || n.kind === 'mmast') {
+    const m = n.m, Md = n.Md;
+    h += `<div class="row" style="align-items:flex-start"><span class="lab">Ranks</span><div style="display:flex;flex-direction:column;gap:2px;min-width:0">${Md.ranks.map((t, i) => `<small style="color:${m.rank === i + 1 ? 'var(--ink)' : 'var(--dim)'};font-weight:${m.rank === i + 1 ? 700 : 400}">${i + 1}. ${esc(t)}</small>`).join('')}</div></div>`;
+    if (!m.builtin) h += `<div class="row"><span class="lab">Rank</span><button class="btn" data-act="rdown" ${m.rank <= 1 ? 'disabled' : ''}>−</button><b style="font-family:var(--mono)">${m.mast ? 'M' : m.rank}</b><button class="btn" data-act="rup" ${m.rank >= 3 ? 'disabled' : ''}>+</button></div>`;
+    if (Md.br) {
+      h += `<div class="row"><span class="lab">Rank 2 fork</span>${['A', 'B'].map((b, i) => B(b + ' · ' + Md.br[i], m.br === b, { k: 'mbranch', m: m.id, b })).join('')}</div>`;
+      const side = m.br || 'A', ks = side === 'A' ? ['A1', 'A2'] : ['B1', 'B2'];
+      h += `<div class="row"><span class="lab">Mastery</span>${ks.map(x => B(Md.br[MAST_IDX[x]], m.mast === x, { k: 'mmast', m: m.id, x })).join('')}</div>`;
+      if (Md.brText) h += `<div class="row"><small style="color:var(--dim)">${esc(Md.brText[0])} / ${esc(Md.brText[1])}</small></div>`;
+    }
+    if (!m.builtin) h += `<div class="row"><button class="btn danger" data-act="rmm">Remove modifier</button></div>`;
+  }
+  d.innerHTML = h;
+}
+$('#detail').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const n = NODES[S.sel]; if (!n) return;
+  if (b.dataset.p) { applyDrop(JSON.parse(b.dataset.p), n); return; }
+  const a = b.dataset.act, w = n.w;
+  if (a === 'rmw') { S.weapons = S.weapons.filter(x => x !== w); S.sel = 'root'; }
+  if (a === 'rmp') { w.promise = null; w.wbr = null; w.wmast = null; S.sel = 'w' + w.u; }
+  if (a === 'rmb') { w.wbr = null; w.wmast = null; S.sel = 'p' + w.u; }
+  if (a === 'rmx') { w.wmast = null; S.sel = 'b' + w.u; }
+  if (a === 'rms') { w.sab = false; S.sel = 'w' + w.u; }
+  if (a === 'rmm') { w.mods = w.mods.filter(x => x !== n.m); S.sel = 'w' + w.u; }
+  if (a === 'rup') { n.m.rank = Math.min(3, n.m.rank + 1); }
+  if (a === 'rdown') { n.m.rank = Math.max(1, n.m.rank - 1); if (n.m.rank < 3) n.m.mast = null; if (n.m.rank < 2) n.m.br = null; }
+  save(); render();
+});
+
+// ---------------------------------------------------------------- rack
+let TAB = 'weapons', Q = '';
+const chip = (p, name, sub, col, cls, fits) => `<button class="chip ${cls || ''}" style="--c:${col}" data-p='${esc(JSON.stringify(p))}'><b>${esc(name)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}${fits ? `<span class="fits">${esc(fits)}</span>` : ''}</button>`;
+const match = s => !Q || s.toLowerCase().includes(Q);
+function renderRack() {
+  const r = $('#rack'), smp = sampleOf(), sw = selW(), onMap = S.weapons.map(w => w.id);
+  let h = `<input type="search" id="q" placeholder="Filter…" value="${esc(Q)}" aria-label="Filter">`;
+  if (TAB === 'weapons') {
+    h += `<p class="hint">Drop on the sperm. ${esc(smp.name)}'s own weapons are marked; its two best fits are starred.</p>`;
+    for (const atk of ATK_ORDER) {
+      const ids = WIDS.filter(id => W(id).atk === atk && match(W(id).name)); if (!ids.length) continue;
+      h += `<div class="sec"><h3>${atk}</h3><div class="chips">` + ids.map(id => { const w = W(id); const own = smp.weapons.includes(id), fit = smp.fit.includes(id);
+        return chip({ k: 'weapon', id }, w.name + (fit ? ' ★' : ''), tname(w.type) + (w.dlv ? ' · ' + M(w.dlv).name + ' built in' : '') + (own ? ' · own' : ''), tvar(w.type), onMap.includes(id) ? 'held' : (S.weapons.length >= MAXW ? 'dim' : '')); }).join('') + '</div></div>';
+    }
+  }
+  if (TAB === 'mods') {
+    h += `<p class="hint">${sw ? `Drop on a weapon. Chips that cannot go on <b>${esc(W(sw.id).name)}</b> are dimmed. Drop a modifier again to rank it up.` : 'Drop on a weapon, or select a weapon first to see what fits it.'}</p>`;
+    for (const g of GORDER) {
+      let ids = MIDS.filter(id => M(id).group === g && !BUILTIN.includes(id) && match(M(id).name));
+      const sabOk = g === 'chemistry' && match('Switched at Birth');
+      if (!ids.length && !sabOk) continue;
+      h += `<div class="sec"><h3 style="--c:${gvar(g)}"><i></i>${esc(D.gnames[g] || g)}</h3><div class="chips">`;
+      h += ids.map(id => { const m = M(id); let cls = ''; if (sw) { const plan = dropPlan({ k: 'mod', id }, NODES['w' + sw.u]); const have = sw.mods.find(x => x.id === id); cls = have ? 'held' : (plan.ok ? '' : 'dim'); }
+        return chip({ k: 'mod', id }, m.name + (sw && sw.mods.find(x => x.id === id) ? ' R' + sw.mods.find(x => x.id === id).rank : ''), m.ranks[0], gvar(g), cls, m.atk.map(a => ATK_SHORT[a]).join(' ') + (m.br ? ' · forks' : '')); }).join('');
+      if (sabOk) { let cls = ''; if (sw) { cls = sw.sab ? 'held' : (dropPlan({ k: 'sab' }, NODES['w' + sw.u]).ok ? '' : 'dim'); }
+        h += chip({ k: 'sab' }, 'Switched at Birth', sw && W(sw.id).sab ? 'to ' + tname(W(sw.id).sab) : 'one fixed alternate damage type per weapon', 'var(--t-sab)', cls, 'Chemistry slot'); }
+      h += '</div></div>';
+    }
+  }
+  if (TAB === 'branches') {
+    h += `<p class="hint">Weapon branches open at Lv 3, 6 and 9: drop them on the weapon. Modifier forks open at Rank 2, masteries after Rank 3: drop them on the modifier.</p>`;
+    const order = WIDS.slice().sort((a, b) => (onMap.includes(b) - onMap.includes(a)) || WIDS.indexOf(a) - WIDS.indexOf(b));
+    h += `<h3 style="font:600 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin:0 0 6px">Weapon branches</h3>`;
+    for (const id of order) {
+      const w = W(id), on = onMap.includes(id); const ent = on ? findW(S.weapons.find(x => x.id === id).u) : null;
+      const txt = [w.name].concat(w.promises.flatMap(P => [P.name].concat(P.branches.map(b => b.name), P.wild ? [P.wild.name] : []))).concat(w.masteries.map(m => m.name)).join(' ');
+      if (!match(txt)) continue;
+      h += `<details class="wb ${on ? 'onmap' : ''}" ${on ? 'open' : ''}><summary>${esc(w.name)} <small>${esc(w.atk)}${on ? ' · on the dish' : ''}</small></summary>`;
+      if (!w.promises.length) { const d = w.dlv ? M(w.dlv) : null; h += `<p class="hint">No branch tree of its own: it branches through its built-in ${d ? esc(d.name) : 'Delivery'} modifier (see Modifier forks below).</p>`; }
+      for (const P of w.promises) {
+        h += `<div class="sec"><h3 style="--c:${tvar(w.type)}"><i></i>Lv 3 · ${esc(P.k)} · ${esc(P.tag)}</h3><div class="chips">`;
+        h += chip({ k: 'promise', w: id, p: P.k }, P.name, P.desc, tvar(w.type), ent && ent.promise === P.k ? 'held' : '', 'Lv 3');
+        h += P.branches.map((b, i) => chip({ k: 'wbranch', w: id, p: P.k, i }, b.name, b.desc, tvar(w.type), ent && ent.promise === P.k && ent.wbr === i ? 'held' : '', 'Lv 6')).join('');
+        if (P.wild) h += chip({ k: 'wbranch', w: id, p: P.k, i: 'wild' }, P.wild.name, P.wild.desc, tvar(w.type), ent && ent.promise === P.k && ent.wbr === 'wild' ? 'held' : '', 'Lv 6 wild');
+        h += '</div></div>';
+      }
+      if (w.masteries.length) h += `<div class="sec"><h3 style="--c:${tvar(w.type)}"><i></i>Lv 9 masteries</h3><div class="chips">` + w.masteries.map((x, i) => chip({ k: 'wmast', w: id, i }, x.name, x.desc, tvar(w.type), ent && ent.wmast === i ? 'held' : '', 'Lv 9' + (x.best ? ' · suits ' + x.best.split('').join(', ') : ''))).join('') + '</div></div>';
+      h += '</details>';
+    }
+    h += `<h3 style="font:600 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin:12px 0 6px">Modifier forks</h3>`;
+    const onMods = new Set(S.weapons.flatMap(w => w.mods.map(m => m.id)));
+    const morder = MIDS.filter(id => M(id).br).sort((a, b) => (onMods.has(b) - onMods.has(a)) || MIDS.indexOf(a) - MIDS.indexOf(b));
+    for (const id of morder) {
+      const m = M(id), on = onMods.has(id); if (!match([m.name].concat(m.br).join(' '))) continue;
+      const ent = sw && sw.mods.find(x => x.id === id);
+      h += `<details class="wb ${on ? 'onmap' : ''}" ${on ? 'open' : ''}><summary>${esc(m.name)} <small>${esc(m.gname)}${on ? ' · on the dish' : ''}</small></summary>`;
+      h += `<div class="sec"><h3 style="--c:${gvar(m.group)}"><i></i>Rank 2 fork</h3><div class="chips">` + ['A', 'B'].map((b, i) => chip({ k: 'mbranch', m: id, b }, m.br[i], m.brText ? m.brText[i] : '', gvar(m.group), ent && ent.br === b ? 'held' : '', 'fork ' + b)).join('') + '</div></div>';
+      h += `<div class="sec"><h3 style="--c:${gvar(m.group)}"><i></i>Mastery</h3><div class="chips">` + ['A1', 'A2', 'B1', 'B2'].map(x => chip({ k: 'mmast', m: id, x }, m.br[MAST_IDX[x]], m.brText ? m.brText[MAST_TXT[x]] : '', gvar(m.group), ent && ent.mast === x ? 'held' : '', 'after fork ' + x[0])).join('') + '</div></div>';
+      h += '</details>';
+    }
+  }
+  r.innerHTML = h;
+  const q = $('#q'); q.oninput = () => { Q = q.value.trim().toLowerCase(); const at = q.selectionStart; renderRack(); const q2 = $('#q'); q2.focus(); q2.setSelectionRange(at, at); };
+}
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => { TAB = b.dataset.tab; document.querySelectorAll('.tabs button').forEach(x => x.setAttribute('aria-selected', x === b)); renderRack(); });
+
+// ---------------------------------------------------------------- drag (pointer events: mouse and touch alike)
+let drag = null, overEl = null;
+function targetFor(p) { // where a tap (no drag) sends a chip
+  if (p.k === 'weapon') return NODES.root;
+  const n = NODES[S.sel]; if (n && n.w) return n;
+  const w = S.weapons[S.weapons.length - 1]; return w ? NODES['w' + w.u] : null;
+}
+function setOver(el, ok) { if (overEl) overEl.classList.remove('over', 'bad'); overEl = el; if (el) el.classList.add(ok ? 'over' : 'bad'); }
+$('#rack').addEventListener('pointerdown', e => {
+  const c = e.target.closest('.chip'); if (!c || e.button) return;
+  drag = { p: JSON.parse(c.dataset.p), el: c, sx: e.clientX, sy: e.clientY, ghost: null, id: e.pointerId };
+});
+window.addEventListener('pointermove', e => {
+  if (!drag || e.pointerId !== drag.id) return;
+  const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
+  if (!drag.ghost) { if (Math.hypot(dx, dy) < 8) return; if (e.pointerType === 'touch' && Math.abs(dy) > Math.abs(dx) * 1.5) { drag = null; return; }
+    const g = drag.el.cloneNode(true); g.classList.add('ghost'); g.style.width = drag.el.offsetWidth + 'px'; document.body.appendChild(g); drag.ghost = g; try { drag.el.setPointerCapture(drag.id); } catch (x) { } }
+  e.preventDefault();
+  drag.ghost.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%) rotate(-2deg)`;
+  const hit = document.elementFromPoint(e.clientX, e.clientY), node = hit && hit.closest('.node'), inMap = hit && hit.closest('#map');
+  if (node) { const n = NODES[node.dataset.n]; const target = n.kind === 'hint' ? (n.w ? NODES['w' + n.w.u] : NODES.root) : n; setOver(node, dropPlan(drag.p, target).ok); }
+  else if (inMap && drag.p.k === 'weapon') setOver($('#map').querySelector('.node.root'), dropPlan(drag.p, NODES.root).ok);
+  else setOver(null);
+}, { passive: false });
+function endDrag(e, cancelled) {
+  if (!drag || e.pointerId !== drag.id) return;
+  const d = drag; drag = null;
+  if (d.ghost) { d.ghost.remove(); const el = overEl; setOver(null); if (!cancelled && el) { const n = NODES[el.dataset.n]; applyDrop(d.p, n.kind === 'hint' ? (n.w ? NODES['w' + n.w.u] : NODES.root) : n); } return; }
+  if (cancelled) return;
+  const t = targetFor(d.p); // a tap: add to the selected node
+  if (!t) { toast('Drop a weapon on the sperm first.'); return; }
+  applyDrop(d.p, t);
+}
+window.addEventListener('pointerup', e => endDrag(e, false));
+window.addEventListener('pointercancel', e => endDrag(e, true));
+
+// select a node by tapping it; pan the map by dragging its background
+const map = $('#map');
+let pan = null;
+map.addEventListener('pointerdown', e => { if (e.target.closest('.node')) return; pan = { x: e.clientX, y: e.clientY, sl: map.scrollLeft, st: map.scrollTop, id: e.pointerId, moved: false }; map.classList.add('panning'); });
+map.addEventListener('pointermove', e => { if (!pan || e.pointerId !== pan.id) return; const dx = e.clientX - pan.x, dy = e.clientY - pan.y; if (Math.hypot(dx, dy) > 4) pan.moved = true; map.scrollLeft = pan.sl - dx; map.scrollTop = pan.st - dy; });
+const endPan = e => { if (!pan) return; const moved = pan.moved; pan = null; map.classList.remove('panning'); if (!moved && !e.target.closest('.node')) { S.sel = null; save(); render(); } };
+map.addEventListener('pointerup', endPan); map.addEventListener('pointercancel', () => { pan = null; map.classList.remove('panning'); });
+map.addEventListener('click', e => { const el = e.target.closest('.node'); if (!el) return; const n = NODES[el.dataset.n]; if (n.kind === 'hint') return; S.sel = n.id; save(); render(); });
+map.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { const el = e.target.closest('.node'); if (el) { e.preventDefault(); el.click(); } } });
+
+// ---------------------------------------------------------------- toolbar
+const sel = $('#sample');
+sel.innerHTML = D.samples.map(s => `<option value="${esc(s.id)}">${esc(s.name)} (strain ${s.strain})</option>`).join('');
+sel.value = S.sample; sel.onchange = () => { S.sample = sel.value; save(); render(); };
+$('#rules').checked = S.rules; $('#rules').onchange = e => { S.rules = e.target.checked; save(); renderRack(); toast(S.rules ? 'Game rules on: fit, one per group, 5 slots, forks in order.' : 'Game rules off: anything goes (like the no-limits setting).'); };
+let clearArm = 0;
+$('#clear').onclick = () => { const b = $('#clear'); if (Date.now() - clearArm > 2500) { clearArm = Date.now(); b.textContent = 'Clear? Tap again'; setTimeout(() => b.textContent = 'Clear', 2500); return; } S.weapons = []; S.sel = null; b.textContent = 'Clear'; save(); render(); };
+function buildText() {
+  const smp = sampleOf(), L = [`${smp.name} (strain ${smp.strain}, ${smp.types.map(tname).join('/')}) · ${smp.passive}`];
+  for (const w of S.weapons) {
+    const Wd = W(w.id); L.push(`- ${Wd.name} [${Wd.atk}, ${tname(Wd.type)}]`);
+    if (w.promise) { const P = Wd.promises.find(x => x.k === w.promise); let s = `  Lv3 ${P.k}: ${P.name}`; if (w.wbr != null) s += ` > Lv6 ${(w.wbr === 'wild' ? P.wild : P.branches[w.wbr]).name}`; if (w.wmast != null) s += ` > Lv9 ${Wd.masteries[w.wmast].name}`; L.push(s); }
+    if (w.sab) L.push(`  Switched at Birth: ${tname(Wd.sab)}`);
+    for (const m of w.mods) { const Md = M(m.id); let s = `  ${Md.name} R${m.rank}${m.builtin ? ' (built in)' : ''}`; if (m.br) s += ` > ${Md.br[m.br === 'A' ? 0 : 1]}`; if (m.mast) s += ` > ${Md.br[MAST_IDX[m.mast]]}`; L.push(s); }
+  }
+  if (!S.weapons.length) L.push('- (no weapons yet)');
+  return L.join('\n');
+}
+$('#copy').onclick = () => { const t = buildText(); const done = () => toast('Build copied.'); const fail = () => { const ta = document.createElement('textarea'); ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch (e) { toast('Could not copy. The build is in the detail panel.'); } ta.remove(); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done, fail); else fail(); };
+
+// ---------------------------------------------------------------- boot
+try { if (window.claude && window.claude.hot && window.claude.hot.snapshot) window.claude.hot.snapshot(() => S); } catch (e) { }
+function start(hot) { if (hot && hot.weapons) S = Object.assign(S, hot); render(); if (!S.weapons.length) { S.sel = 'root'; render(); } }
+(window.claude && window.claude.hot && window.claude.hot.ready) ? window.claude.hot.ready(start) : start(null);
+</script>
