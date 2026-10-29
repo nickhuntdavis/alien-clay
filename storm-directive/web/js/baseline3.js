@@ -1,0 +1,270 @@
+'use strict';
+// Spawn Prawn - Baseline reimagined, part 3: Hand-to-gland (Nervous Wreck renamed; slot id v_phys_contact; Contact). Spec:
+// BASELINE_REDESIGN.md "Part 3" (ideas.md, 29 Oct 2026 second batch; the user's design). Pattern: baseline1.js.
+//  - Rename: W24 / W24_BY / W24_DESC / WEAPONS name, icon HG, description TODO_COPY:hg_desc. The old Nervous Wreck cards stay in
+//    wup1.js, unreachable (WUP['v_phys_contact'] is re-registered here).
+//  - Base retune (a wupStats wrap, so it holds with no branch taken): reach 70 (was 110), 14 damage (was 30), 2.2 hits a second
+//    (was 1.67), no magazine (the rate is the rate). Everything is scaled from what the engine computed, so levels, mods and buffs still count.
+//  - Lv 3 branches (WUP re-registered with wupReg; behaviour through wupOn hooks):
+//      A Kung fu   twice the hit rate at 70% damage; every 5th swing is a kick that knocks back (the wup1.js shove pattern).
+//                  Lv 6: Combo (+8% a hit on the same enemy, up to +40%, reset when it dies or you switch), Flying kick (the kick
+//                        lunges you through the target). Wild: an enemy hit twice within a second has its next shot reflected back.
+//                  Lv 9: Thousand fists (every hit lands on everything in reach).
+//      B Samurai   one cut a second at triple damage in a 160 degree arc (arsenal.js meleeSweep); the first strike on a fresh enemy
+//                  is a heavy hit. Lv 6: Iaijutsu (a cut after 1.5 s idle is x2), Parry (a cut destroys enemy shots in its arc).
+//                  Wild: under 30% health every cut is heavy. Lv 9: Clean cut (cuts strip a Shell layer and stagger).
+//      C Biting    bites Bleed (fightStatus) and heal you 4% of the damage dealt. Lv 6: Chew toy (a bitten enemy is held 0.5 s:
+//                  e.snareT and a stun), Rabies (biting a Bleeding enemy spreads Bleed to neighbours within 60). Wild: a bite on a
+//                  Shelled enemy strips a layer. Lv 9: Jaws (bites on enemies under 20% health kill outright, not bosses; heal 10% max health).
+//  - Costumes (drawPlates wrap, same transform as baseline1.js bl1Costume): Kung fu two small fists circling the head (one punches
+//    out on a kick); Samurai a thin blade beside the head that sweeps on a cut, and a topknot bump; Biting a row of teeth along the
+//    head's leading edge that chomp on each bite. Shapes, not colours, so Lab view reads.
+//  Copy: every card text is TODO_COPY:<id> (BASELINE_COPY_IDS.md); the branch and Lv 6 card names the user gave are kept.
+// Simplifications: "a hit" for the kick counts swings, not enemies hit; the reflected shot is cancelled and its damage (at least two
+// swings' worth) lands on the shooter instead of flying back as a bullet; Jaws heals 10% of max health.
+// Hooks: wupReg (weapons24.js), wupOn stats/fire/dmg/hit/kill/tick, hookOn('fire:after'); wraps wupStats (base retune) and
+// drawPlates (bodymods.js). No shared file is edited. Loads after baseline1.js (reuses bl1Heavy, bl1Src, bl1Say).
+
+const BL3 = { HG: 'v_phys_contact', reach: 70, reach0: 110, dmg: 14, dmg0: 30, rate: 2.2, cd0: 0.6, kickEvery: 5, kickDist: 170, flyDist: 200,
+  arc: 160 * Math.PI / 180, iaiIdle: 1.5, parryPad: 24, spreadR: 60, reflWin: 1, reflLife: 8, chew: 0.5, lowHp: 0.2, lowSamurai: 0.3 };
+const hgF = w => w.hg || (w.hg = {});
+const hgS = () => G.bl3 || (G.bl3 = { refl: [], seen: new WeakSet() });
+const hgIs = w => !!(w && !w.isSpell && w.def && w24Key(w) === BL3.HG);
+const hgW = () => (G && G.weapons ? G.weapons.find(hgIs) : null);
+const hgP = () => { const w = hgW(); return w && w.hg ? w.hg.p || '' : ''; };
+const hgPale = '#f1ecff';
+
+// ---------------------------------------------------------------- the rename
+(function () {
+  const row = W24.find(r => r[0] === BL3.HG); if (row) row[1] = 'Hand-to-gland';
+  W24_BY[BL3.HG].name = 'Hand-to-gland';
+  W24_DESC[BL3.HG] = 'TODO_COPY:hg_desc';
+  const d = WEAPONS[BL3.HG];
+  if (d) { d.name = 'Hand-to-gland'; d.desc = d.play = 'TODO_COPY:hg_desc'; d.icon = 'HG'; }
+  if (typeof WL_ICON !== 'undefined' && WL_ICON[BL3.HG]) WL_ICON[BL3.HG][1] = 'HG';
+})();
+
+// ---------------------------------------------------------------- the base retune (always on, branch or not)
+function hgBase(w, s) {
+  const kr = BL3.reach / BL3.reach0;
+  s.range *= kr; s.reach = (s.reach || s.range / kr) * kr;
+  s.dmg *= BL3.dmg / BL3.dmg0;
+  s.cd *= (1 / BL3.rate) / BL3.cd0;
+  s.mag = 9999; s.reload = 0.01; // (no magazine: 2.2 hits a second means 2.2 hits a second)
+}
+wupStats = (orig => function (w, s) {
+  if (hgIs(w)) hgBase(w, s); // (first, so the branch cards below scale the retuned numbers)
+  orig(w, s);
+})(wupStats);
+function hgStats(w, s) {
+  const f = hgF(w);
+  if (f.p === 'A') { s.cd *= 0.5; s.dmg *= 0.7; }
+  if (f.p === 'B') { s.cd *= BL3.rate; s.dmg *= 3; s.arc = BL3.arc; }
+}
+
+// ---------------------------------------------------------------- helpers (as wup1.js keeps them, closed over there)
+function hgShove(e, ux, uy, dist) { // knock e away along (ux, uy) by about dist units (bosses, eggs and the very large don't move)
+  if (!e || e.dead || e.boss || e.egg || e.def.spongy || e.def.heavy || e.tethT > G.t) return false;
+  const l = Math.hypot(ux, uy) || 1;
+  const k = dist * 3.9 * (e.def.ai === 'aura' || e.def.hp > 200 ? 0.3 : 1) * (e.cd && e.cd.def === 'squishy' ? 0.5 : 1);
+  if (!(k > 0)) return false;
+  e.kx += ux / l * k; e.ky += uy / l * k;
+  return true;
+}
+function hgLunge(target, dist) { // modifiers.js lunge: forward through the target
+  const p = G.player, S = modS(); if (S.lunge && S.lunge.left > 0) return false;
+  const dx = target.x - p.x, dy = target.y - p.y, l = Math.hypot(dx, dy) || 1, d = Math.max(0, Math.min(dist, l + target.r));
+  S.lunge = { ux: dx / l, uy: dy / l, left: d, v: d / 0.25 };
+  return true;
+}
+// One swing of the weapon's own sweep (arsenal.js meleeSweep) over an arc: a cut, or a full circle for Thousand fists.
+function hgSweep(w, target, src, arc, extra) {
+  const s = w.s, p = G.player, a0 = target ? Math.atan2(target.y - p.y, target.x - p.x) : p.face, keep = s.arc;
+  p.face = a0; w.swingN = (w.swingN || 0) + 1;
+  s.arc = arc;
+  try { meleeSweep(w, p.x, p.y, a0, extra ? Object.assign({}, src, extra) : src); } finally { s.arc = keep; }
+  sfx('shot');
+  return a0;
+}
+
+// ---------------------------------------------------------------- firing
+function hgFire(w, target, src) {
+  const f = hgF(w), p = G.player, s = w.s; if (!target) return false;
+  f.swings = (f.swings || 0) + 1;
+  f.kick = 0; f.cut = 0;
+  if (f.p === 'A' && f.swings % BL3.kickEvery === 0) { // the kick
+    f.kick = 1; f.kicks = (f.kicks || 0) + 1; f.kickT = G.realT;
+    if (f.flying) hgLunge(target, BL3.flyDist);
+  }
+  let took = false;
+  if (f.p === 'B') { // the cut
+    f.cut = 1; f.cuts = (f.cuts || 0) + 1; f.cutAt = G.realT;
+    const idle = G.t - (f.cutT == null ? -99 : f.cutT); f.cutT = G.t;
+    const iai = f.iai && idle >= BL3.iaiIdle;
+    if (iai) { bl1Say('iai', p.x, p.y - 30, 'TODO_COPY:hg_iai_float', hgPale, 14, 0.4); f.iais = (f.iais || 0) + 1; }
+    const a0 = hgSweep(w, target, src, f.fists ? TAU : s.arc, iai ? { mult: (src.mult || 1) * 2 } : null);
+    if (f.parry) { // Parry: the cut destroys enemy shots in its arc
+      const R = (s.reach || s.range) + BL3.parryPad;
+      for (const b of G.ebul) {
+        if (b.dead) continue;
+        const dx = b.x - p.x, dy = b.y - p.y, d = Math.hypot(dx, dy);
+        if (d > R + (b.r || 4) || (!f.fists && Math.abs(angDiff(Math.atan2(dy, dx), a0)) > s.arc / 2)) continue;
+        b.dead = true; f.parried = (f.parried || 0) + 1; spawnPart(b.x, b.y, w.def.color, 4, 90, 0.25, 2); ring(b.x, b.y, 12, hgPale, 0.25, 3);
+      }
+    }
+    took = true;
+  } else if (f.fists) { // Thousand fists: the swing is a full circle
+    hgSweep(w, target, src, TAU); took = true;
+  }
+  return took;
+}
+hookOn('fire:after', 'baseline3:after', w => { if (w && w.hg) { w.hg.kick = 0; w.hg.cut = 0; } });
+
+// ---------------------------------------------------------------- damage and hits
+function hgDmg(w, e, src) {
+  const f = hgF(w);
+  if (src.wupEcho) return 1;
+  if (f.combo) return 1 + 0.08 * Math.min(5, e.hgN || 0); // Combo: +8% a hit on this enemy, up to +40%
+  return 1;
+}
+function hgHit(w, e, res, src) {
+  const f = hgF(w), p = G.player;
+  if (!res || res.miss || !e) return;
+  const dealt = (res.toHp || 0) + (res.toShell || 0) + (res.toMem || 0);
+  // ---- Kung fu
+  if (f.p === 'A' || f.combo || f.reflect) {
+    if (f.combo) { // Combo: the count is per enemy; switching target drops the old one's
+      if (!f.fists && f.comboE && f.comboE !== e) f.comboE.hgN = 0;
+      f.comboE = e; e.hgN = (e.hgN || 0) + 1;
+    }
+    if (f.kick && !e.dead) {
+      hgShove(e, e.x - p.x, e.y - p.y, BL3.kickDist);
+      ring(e.x, e.y, e.r + 12, hgPale, 0.3, 6); fxParts('spark', e.x, e.y, hgPale, 10, 180, 0.35, 3); cam.shake = Math.min(8, cam.shake + 2);
+      bl1Say('kick', e.x, e.y - e.r - 14, 'TODO_COPY:hg_kick_float', hgPale, 14, 0.3);
+    }
+    if (f.reflect && !e.dead) { // Wild: hit twice inside a second and its next shot goes back
+      const ts = e.hgHitT || (e.hgHitT = []); ts.push(G.t); while (ts.length > 2) ts.shift();
+      if (ts.length === 2 && ts[1] - ts[0] <= BL3.reflWin && !e.hgRefl) {
+        const S = hgS(); e.hgRefl = G.t; ts.length = 0; S.refl.push(e);
+        for (const b of G.ebul) if (b.owner === e) S.seen.add(b); // (only shots fired from now on are turned round)
+        ring(e.x, e.y, e.r + 8, hgPale, 0.3, 4);
+      }
+    }
+  }
+  // ---- Samurai
+  if (f.p === 'B') { // the first strike on a fresh enemy is heavy; under 30% health every cut is
+    const low = f.low && p.hp < G.P.maxHp * BL3.lowSamurai;
+    if (!f.clean && (!e.hgSeen || low)) { bl1Heavy(e, w, 0.333); ring(e.x, e.y, e.r + 12, hgPale, 0.3, 5); f.heavies = (f.heavies || 0) + 1; }
+    e.hgSeen = 1;
+  }
+  if (f.clean) { bl1Heavy(e, w, 1); ring(e.x, e.y, e.r + 12, hgPale, 0.3, 5); } // Clean cut: a layer off and a stagger, every hit
+  // ---- Biting
+  if (f.p === 'C') {
+    f.biteT = G.realT; f.bites = (f.bites || 0) + 1;
+    const wasBleeding = f_bleeding(e);
+    if (f.strip) bl1Heavy(e, w, 0); // wild: a bite on a Shelled enemy strips a layer
+    fightStatus(e, 'arcane', res.raw || res.toHp || 1, src);
+    if (dealt > 0) healPlayer(dealt * 0.04, true);
+    if (f.chew && !e.dead) { e.snareT = Math.max(e.snareT || 0, G.t + BL3.chew); stun(e, BL3.chew); } // Chew toy: held
+    if (f.rabies && wasBleeding && !e.dead && !(e.hgRabT > G.t)) { // Rabies: the Bleed spreads to neighbours
+      e.hgRabT = G.t + 0.4; let n = 0;
+      forNear(e.x, e.y, BL3.spreadR, q => { if (q === e || q.dead || q.egg || q.charmed || n >= 6) return false; n++; fightStatus(q, 'arcane', res.raw || 1, src); fxParts('spark', q.x, q.y, '#ff4d6d', 3, 80, 0.25, 2); return false; });
+      if (n) ring(e.x, e.y, BL3.spreadR, '#ff4d6d', 0.3, 3);
+    }
+    if (f.jaws && !e.boss && !e.dead && e.hp > 0 && e.hp < e.maxHp * BL3.lowHp) { // Jaws: bites on the nearly dead kill outright
+      damageEnemy(e, e.hp * 3 + 1, bl1Src(w, 'contact', {}));
+      ring(e.x, e.y, e.r + 14, hgPale, 0.3, 6); f.jawsKills = (f.jawsKills || 0) + 1;
+      healPlayer(G.P.maxHp * 0.1);
+    }
+  }
+}
+function hgKill(w, e) { // (a kill leaves its Combo and reflect marks behind with the corpse)
+  e.hgN = 0; e.hgRefl = 0;
+}
+
+// ---------------------------------------------------------------- the reflect (Kung fu wild card)
+function hgTick(w, dt) {
+  const f = hgF(w), S = hgS();
+  if (!S.refl.length) return;
+  S.refl = S.refl.filter(e => !e.dead && e.hgRefl && G.t - e.hgRefl < BL3.reflLife);
+  if (!S.refl.length) return;
+  for (const b of G.ebul) {
+    if (b.dead || S.seen.has(b)) continue;
+    S.seen.add(b);
+    const o = b.owner; if (!o || !o.hgRefl || o.dead) continue;
+    b.dead = true; o.hgRefl = 0; S.refl = S.refl.filter(x => x !== o);
+    damageEnemy(o, Math.max(b.dmg || 0, w.s.dmg * 2), bl1Src(w, 'proj', {}));
+    bolt(b.x, b.y, o.x, o.y, hgPale, 0.2); ring(o.x, o.y, o.r + 10, hgPale, 0.3, 5); f.reflected = (f.reflected || 0) + 1;
+  }
+}
+
+// ---------------------------------------------------------------- install and the cards
+function hgInstall(w) {
+  const f = hgF(w); if (f.inst) return; f.inst = 1;
+  wupOn(w, 'stats', hgStats); wupOn(w, 'fire', hgFire); wupOn(w, 'dmg', hgDmg); wupOn(w, 'hit', hgHit); wupOn(w, 'kill', hgKill); wupOn(w, 'tick', hgTick);
+}
+(function () {
+  const C = (name, desc, apply) => ({ name, desc, apply });
+  const set = k => w => { hgF(w)[k] = 1; };
+  const P = k => w => { hgF(w).p = k; hgInstall(w); recomputeAll(); };
+  wupReg(BL3.HG, {
+    A: { name: 'Kung fu', tag: 'TODO_COPY:hg_kungfu_tag', costs: 'TODO_COPY:hg_kungfu_costs', shows: 'two small fists circling the head.', modes: 'HUNT and ORBIT keep you in reach.',
+      lv3: { desc: 'TODO_COPY:hg_kungfu_desc', apply: P('A') },
+      lv6: [C('Combo', 'TODO_COPY:hg_combo_desc', set('combo')), C('Flying kick', 'TODO_COPY:hg_flying_desc', set('flying'))],
+      wild: C('TODO_COPY:hg_kungfu_wild_name', 'TODO_COPY:hg_kungfu_wild_desc', set('reflect')) },
+    B: { name: 'Samurai', tag: 'TODO_COPY:hg_samurai_tag', costs: 'TODO_COPY:hg_samurai_costs', shows: 'a thin blade beside the head and a topknot.', modes: 'HOLD lets the crowd walk into the arc.',
+      lv3: { desc: 'TODO_COPY:hg_samurai_desc', apply: P('B') },
+      lv6: [C('Iaijutsu', 'TODO_COPY:hg_iai_desc', set('iai')), C('Parry', 'TODO_COPY:hg_parry_desc', set('parry'))],
+      wild: C('TODO_COPY:hg_samurai_wild_name', 'TODO_COPY:hg_samurai_wild_desc', set('low')) },
+    C: { name: 'Biting', tag: 'TODO_COPY:hg_biting_tag', costs: 'TODO_COPY:hg_biting_costs', shows: 'a row of teeth along the leading edge of the head.', modes: 'HUNT keeps you on one enemy.',
+      lv3: { desc: 'TODO_COPY:hg_biting_desc', apply: P('C') },
+      lv6: [C('Chew toy', 'TODO_COPY:hg_chew_desc', set('chew')), C('Rabies', 'TODO_COPY:hg_rabies_desc', set('rabies'))],
+      wild: C('TODO_COPY:hg_biting_wild_name', 'TODO_COPY:hg_biting_wild_desc', set('strip')) },
+    lv10: [
+      { name: 'TODO_COPY:hg_fists_name', best: 'A', desc: 'TODO_COPY:hg_fists_desc', apply: set('fists') },
+      { name: 'TODO_COPY:hg_clean_name', best: 'B', desc: 'TODO_COPY:hg_clean_desc', apply: set('clean') },
+      { name: 'TODO_COPY:hg_jaws_name', best: 'C', desc: 'TODO_COPY:hg_jaws_desc', apply: set('jaws') }] });
+})();
+
+// ---------------------------------------------------------------- costumes
+function hgCostume(px, py) {
+  if (!G || !G.player) return;
+  const w = hgW(), p = hgP(); if (!w || !p) return;
+  const f = w.hg, pl = G.player, k = S * (typeof playerScale === 'function' ? playerScale() : 1), face = pl.hd != null ? pl.hd : pl.face, t = G.realT;
+  const raw = RAW_COL; RAW_COL = true;
+  ctx.save(); ctx.translate(px, py); ctx.rotate(face + (pl.yaw || 0)); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  if (p === 'A') { // Kung fu: two small fists circling the head; one punches out on a kick
+    const kick = Math.max(0, 1 - (t - (f.kickT || -9)) / 0.25);
+    for (let i = 0; i < 2; i++) {
+      const a = t * 5 + i * Math.PI, out = 11 + (i === 0 ? kick * 9 : 0), x = 1.5 * k + Math.cos(i === 0 && kick > 0 ? 0 : a) * out * k, y = (i === 0 && kick > 0 ? 0 : Math.sin(a) * out * 0.8) * k;
+      ctx.strokeStyle = 'rgb(40,36,34)'; ctx.lineWidth = 1 * k; ctx.globalAlpha = 0.4;
+      ctx.beginPath(); ctx.moveTo(1.5 * k, 0); ctx.lineTo(x, y); ctx.stroke();
+      ctx.globalAlpha = 0.95; ctx.fillStyle = '#f4d6c0'; ctx.beginPath(); ctx.arc(x, y, 2.9 * k, 0, TAU); ctx.fill();
+      ctx.strokeStyle = 'rgb(40,36,34)'; ctx.lineWidth = 1 * k; ctx.stroke();
+      ctx.strokeStyle = 'rgb(40,36,34)'; ctx.lineWidth = 0.7 * k; ctx.beginPath(); ctx.moveTo(x + 0.4 * k, y - 1.6 * k); ctx.lineTo(x + 0.4 * k, y + 1.6 * k); ctx.stroke(); // (the knuckles)
+    }
+  }
+  if (p === 'B') { // Samurai: a thin blade beside the head that sweeps on a cut, and a topknot bump
+    const cut = Math.max(0, 1 - (t - (f.cutAt || -9)) / 0.22), sw = (1 - cut) * 0 + cut * -1.3;
+    ctx.save(); ctx.translate(2 * k, 8.5 * k); ctx.rotate(sw);
+    ctx.strokeStyle = 'rgb(30,32,34)'; ctx.lineWidth = 2.4 * k; ctx.globalAlpha = 0.9; ctx.beginPath(); ctx.moveTo(-3 * k, 0); ctx.lineTo(0, 0); ctx.stroke(); // (the hilt)
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.3 * k; ctx.globalAlpha = 1; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(17 * k, 0); ctx.stroke();
+    ctx.strokeStyle = 'rgb(30,32,34)'; ctx.lineWidth = 0.5 * k; ctx.beginPath(); ctx.moveTo(0, 0.5 * k); ctx.lineTo(17 * k, 0.5 * k); ctx.stroke();
+    ctx.restore();
+    ctx.fillStyle = 'rgb(30,32,34)'; ctx.globalAlpha = 0.95; ctx.beginPath(); ctx.arc(-1 * k, -6.4 * k, 2.6 * k, 0, TAU); ctx.fill(); // (the topknot)
+    ctx.strokeStyle = 'rgb(30,32,34)'; ctx.lineWidth = 1 * k; ctx.beginPath(); ctx.moveTo(0.5 * k, -4.4 * k); ctx.lineTo(-1 * k, -6 * k); ctx.stroke();
+  }
+  if (p === 'C') { // Biting: a row of teeth along the leading edge that chomp on each bite
+    const bite = Math.max(0, 1 - (t - (f.biteT || -9)) / 0.18), r0 = (7.6 - bite * 2.6) * k;
+    ctx.strokeStyle = 'rgb(120,40,50)'; ctx.lineWidth = 1.4 * k; ctx.globalAlpha = 0.85;
+    ctx.beginPath(); ctx.arc(1.5 * k, 0, 6.6 * k, -1.0, 1.0); ctx.stroke(); // (the gum line)
+    ctx.fillStyle = '#ffffff'; ctx.strokeStyle = 'rgb(50,48,44)'; ctx.lineWidth = 0.6 * k; ctx.globalAlpha = 1;
+    for (let i = 0; i < 6; i++) {
+      const a = -0.9 + i * 0.36, bx = 1.5 * k + Math.cos(a) * r0, by = Math.sin(a) * r0, tx = 1.5 * k + Math.cos(a) * (r0 + 3.2 * k), ty = Math.sin(a) * (r0 + 3.2 * k), n = 1.35 * k;
+      ctx.beginPath(); ctx.moveTo(bx - Math.sin(a) * n, by + Math.cos(a) * n); ctx.lineTo(tx, ty); ctx.lineTo(bx + Math.sin(a) * n, by - Math.cos(a) * n); ctx.closePath(); ctx.fill(); ctx.stroke();
+    }
+  }
+  ctx.restore();
+  ctx.globalAlpha = 1; RAW_COL = raw;
+}
+drawPlates = (orig => function (px, py) { orig(px, py); try { hgCostume(px, py); } catch (e) { } })(drawPlates);
