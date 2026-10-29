@@ -3,6 +3,14 @@
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
 
+## v10.226 (versionCode 505): 2026-10-29 Baseline hero costumes you can see (`claude/sharp-hypatia-icfi8l`)
+- Systems: baseline costumes (new), sidemo, fbdemo, render, tests
+- Files: web/js/baselinelook.js (new), web/index.html, ARCHITECTURE.md, tests/baselinelooktest.js (new)
+- What: the nine Baseline hero costumes (Rambo, Dirty Harry, Robocop, Sperminator, Evil Dead, Riding shotgun, Kung fu, Samurai, Biting) are drawn by one shared drawer at about twice the body's size, with a pale halo under a dark outline so they read in Lab view. In the run the costume follows the hero weapon fired last, and reacts: Rambo's ribbons whip as the magazine empties, Dirty Harry's revolver flashes, Robocop's scanner speeds up while a mark is live, Riding shotgun's speed lines stretch with swim speed, the chainsaw runs faster, fists jab and blades cut on a hit. The Lv 3, 6 and 9 branch screens for Standard Issue, Shotgun and Hand-to-gland now show the costume on the stage sperm (they previously showed an unrelated scene), clear of the stage's arrow buttons.
+- Save data: none.
+- Hooks: wraps drawPlates (bodymods.js), edits SIV_FLAG, MGV_FLAG, NWV_FLAG in place and wraps the `me` and `step` of PV_OWN for v_phys_proj, v_phys_spread and v_phys_contact. No shared file edited.
+- Risk: the older small costumes in baseline1.js to baseline3.js are still drawn underneath. The stage previews still fire their old generic shots, not each hero's own behaviour.
+
 ## v10.225 (versionCode 504): 2026-10-29 Baseline reimagined: Standard Issue, Shotgun and Hand-to-gland get movie-hero branches, gated Feats, Come back, costumes and copy; Loadout Planner tool and ideas.md (`claude/sharp-hypatia-icfi8l`; v10.221 on the branch)
 ### 2026-10-29 Baseline part 2: Shotgun (v10.225)
 - Systems: baseline branches (new), weapons24, pdef, stamina, mutations, tests
