@@ -24,7 +24,7 @@ Never write player-facing text yourself (card names and descriptions, narrator l
    - **Neighbours**: 1 to 3 existing lines it sits beside, quoted, so the voice matches.
 3. When the user sends the copy, drop it in, replace the placeholders, and grep that no `TODO_COPY` remains before shipping. If some are still open at ship time, say which in one line.
 Internal text (code comments, commit messages, changelog fragments, NOTES.md) is still yours to write.
-Where card lines live: Feat gift lines (per sample) are in `redesign docs/GIFT_LINES.md` and `FEATS.md` 3, built by `tests/tools/copy/giftvoice.py`; every other card line is in `storm-directive/Card_Copy_Draft_All.xlsx`, built by `cardvoice.py`. Run cardvoice.py first, then giftvoice.py.
+Card quip lines (the per-sample consciousness one-liners in `Card_Copy_Draft_All.xlsx`, `GIFT_LINES.md`, `FEATS.md` 3) were retired on 29 Oct 2026: cards show the name and what it does. The sheet is kept as an archive only.
 
 ## Working with the user
 - British English. Use () rather than em dashes. The first line is the answer. No preamble or recap. Numbered steps and ranked lists. When asked for options, give 2 to 4, recommendation first. End with one action under 2 minutes, with real time estimates.

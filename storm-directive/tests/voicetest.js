@@ -48,7 +48,7 @@ const { chromium } = require('playwright');
     if (!META.vxSt.Corrosion) bad.push('hint not remembered');
     // 5. the rate limit: 60 s of events, no more than one line every 20 s
     run('baseline'); const S = vxs(); G.show.msgQ.length = 0; S.log.length = 0;
-    const evs = [['lowHp', 'con'], ['surrounded', 'con'], ['levelUp', 'con'], ['newWeapon', 'con'], ['waveClear', 'sci'], ['quietMoment', 'sci']];
+    const evs = [['lowHp', 'sci'], ['surrounded', 'sci'], ['levelUp', 'sci'], ['newWeapon', 'sci'], ['waveClear', 'sci'], ['quietMoment', 'sci']];
     for (let t = 10; t < 70; t += 0.5) { G.t = t; for (const [e, w] of evs) vxSay(e, w); }
     out.rate = S.log.length;
     if (S.log.length > 3 || S.log.length < 1) bad.push('60 s produced ' + S.log.length + ' lines');

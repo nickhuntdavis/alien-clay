@@ -1,7 +1,7 @@
 'use strict';
-// Spawn Prawn - the Experiment: a sardonic lab tech narrating, achievements with (occasionally real)
+// Spawn Prawn - the Experiment: the caption strip (sysMsg), achievements with (occasionally real)
 // rewards, and lab funding (G.show.viewers, internally) with research grants at funding milestones.
-// In the campaign the same meter is your devotion to the egg, and the narrator is your inner voice.
+// In the campaign the same meter is called Devotion. One voice, no personas (29 Oct 2026).
 
 function newShow() {
   return { viewers: 1200, peak: 1200, lastKillT: 0, milestone: 0, idleT: 50, lowHpCd: 0, achieved: {}, order: [], msgQ: [] };
@@ -11,7 +11,7 @@ function fmtViewers(v) { return (v >= 1e6 ? (v / 1e6).toFixed(1) + 'M' : v >= 1e
 // What the meter is called: the lab's funding, or (in the campaign) your devotion to the egg.
 const showWord = () => lvOn() ? 'Devotion' : 'Data';
 
-function sysMsg(head, body, color, force, who) { // who: 'sci' (the Scientist) or 'con' (inner voice) picks the box's look
+function sysMsg(head, body, color, force, who) { // who: 'sci' marks a voice line (whisper.js holds those in Immersive)
   if (!G) return;
   const q = G.show.msgQ;
   if (!force && q.length >= 1) return;
@@ -20,9 +20,8 @@ function sysMsg(head, body, color, force, who) { // who: 'sci' (the Scientist) o
   q.push({ head: narratorHead(head), body, color: color || '#8dffc0', who });
   if (q.length > 6) q.shift();
 }
-// In the campaign the default narrator gives way to your own inner voice (LONGING_LINES).
-const sysPool = kind => (lvOn() && SET.narrator === 'system' && LONGING_LINES[kind]) || SYSTEM_LINES[kind];
-function sysLine(kind, force) { if (typeof vxSysLine === 'function' && vxSysLine(kind)) return; const L = sysPool(kind); if (L) sysMsg('SYSTEM MESSAGE', pick(L), '#8dffc0', force, L === SYSTEM_LINES[kind] ? 'sci' : 'con'); }
+const sysPool = kind => SYSTEM_LINES[kind];
+function sysLine(kind, force) { if (typeof vxSysLine === 'function' && vxSysLine(kind)) return; const L = sysPool(kind); if (L) sysMsg('SYSTEM MESSAGE', pick(L), '#8dffc0', force, 'sci'); }
 
 function addViewers(n) {
   if (!G) return;
@@ -37,8 +36,7 @@ function sponsorGift(milestone) {
   const sponsor = pick(SPONSORS), type = pick(['heal', 'rage', 'shield', 'magnet', 'chest', 'nuke', 'chest']);
   const p = me(), a = Math.random() * TAU;
   G.pickups.push(makePickup(type, p.x + Math.cos(a) * 70, p.y + Math.sin(a) * 70, { t: 'sponsor', name: lvOn() ? 'the egg' : sponsor }));
-  if (lvOn()) sysMsg('A SIGN FROM THE EGG', `Devotion ${fmtViewers(milestone)}. The egg is calling, and we are sure it has sent us a ${POWERUPS[type].name}. Who else would?`, '#ffb400', true, 'con');
-  else sysMsg('LAB NOTE', `${fmtViewers(milestone)} data points. Found a ${POWERUPS[type].name} in ${sponsor}. Adding it to the slide. Do not ask what it was doing there.`, '#ffb400', true, 'sci');
+  sysMsg('LAB NOTE', `${fmtViewers(milestone)} data points. Found a ${POWERUPS[type].name} in ${sponsor}. Adding it to the slide. Do not ask what it was doing there.`, '#ffb400', true, 'sci');
   if (!lvOn()) achieve('sponsor');
 }
 

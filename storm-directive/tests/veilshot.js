@@ -1,4 +1,4 @@
-// Screenshots of the two narrator looks: the Scientist's lab-log panel and the inner voice's black cosmic cloud.
+// Screenshot of the narrator look: the lab-log panel (the inner-voice look was retired, 29 Oct 2026).
 const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 400, height: 860 }, deviceScaleFactor: 2 });
@@ -6,7 +6,7 @@ const { chromium } = require('playwright');
   await page.goto('file://' + require('path').resolve(__dirname, '../web/index.html'));
   await page.evaluate(() => { window.TUT_OFF = 1; splashEnd(); }); await page.waitForTimeout(400);
   await page.evaluate(() => UI.quickStart()); /* (Quick Start's button is now Sandbox: sandbox.js) */ await page.waitForTimeout(1200);
-  for (const who of ['sci', 'con']) {
+  for (const who of ['sci']) {
     const r = await page.evaluate(w => { SET.immersive = false; document.body.classList.remove('immersive'); G.show.msgQ.length = 0; UI.msgT = 0; vxPush(w, w === 'sci' ? 'Sample 1A placed on the slide. The slide has not been cleaned since Tuesday.' : 'The egg is out there. You can feel it. Swim.', null, 9); return true; }, who);
     await page.waitForTimeout(900);
     const st = await page.evaluate(() => { const x = $('sysmsg'); return { who: x.dataset.who, on: x.classList.contains('on'), head: x.querySelector('b').textContent, vis: getComputedStyle(x.querySelector('b')).display }; });

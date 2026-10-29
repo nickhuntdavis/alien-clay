@@ -92,7 +92,7 @@ function campBegin(V) {
     V.leadN = id === 'failed' ? 0 : Math.round((10 + V.n * 1.5) * G.P.spawnMult); V.leadDone = 0;
     V.budget = 1;
     banner(`WAVE ${V.n} OF ${CAMP.waves}: ${(DROP_NAMES[id] || 'THE DROP').toUpperCase()}`, PAL.danger);
-    sysMsg('THE SCIENTIST', id === 'failed' ? `"Subject ${G.failedDef.run}. One of yours, from before. It did not make it. Let us see if you do better." ${E.line}` : `"${B.name.replace(/^THE /, 'The ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase())}, and friends." ${E.line}`, XR.dim, true);
+    sysMsg('LAB LOG', id === 'failed' ? `"Subject ${G.failedDef.run}. One of yours, from before. It did not make it. Let us see if you do better." ${E.line}` : `"${B.name.replace(/^THE /, 'The ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase())}, and friends." ${E.line}`, XR.dim, true);
     return;
   }
   // An ordinary wave: a couple of newcomers join the mix.
@@ -108,7 +108,7 @@ function campBegin(V) {
   V.dur = Math.min(63, (20 + V.n * 1.8) * 1.15) * CAMP.long; // (fed in over 30 s at wave 1, up to 82 s)
   // (What's in the drop stays a surprise until it lands.)
   banner(`WAVE ${V.n} OF ${CAMP.waves}`, PAL.reward);
-  if (V.n > 1) sysMsg('THE SCIENTIST', `${pick(SCIENTIST)} Next boss: wave ${Math.ceil(V.n / CAMP.bossEvery) * CAMP.bossEvery}.`, XR.dim);
+  if (V.n > 1) sysMsg('LAB LOG', `${pick(SCIENTIST)} Next boss: wave ${Math.ceil(V.n / CAMP.bossEvery) * CAMP.bossEvery}.`, XR.dim);
   dishFxBegin(V); // (a condition for the whole wave, sometimes: dishfx.js)
   rivalWaveJoin(V); // (a new rival, from wave 2: rivals.js)
 }
@@ -247,7 +247,7 @@ function campBoss(V) {
 function campWin() {
   if (!G || G.state === 'over' || G.state === 'finale') return;
   META.waveWins = (META.waveWins || 0) + 1; seqWin(G); saveMeta(); // (the sequence ladder: seqlock.js)
-  sysMsg('THE SCIENTIST', `"${CAMP.waves} for ${CAMP.waves}. Remarkable. Pass me the egg." In vitro, in the end. It still counts.`, XR.dim, true);
+  sysMsg('LAB LOG', `"${CAMP.waves} for ${CAMP.waves}. Remarkable. Pass me the egg." In vitro, in the end. It still counts.`, XR.dim, true);
   G.wave.won = true;
   victory(null);
 }

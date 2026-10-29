@@ -1300,8 +1300,7 @@ const CURSES = [
 ];
 
 // ---------------------------------------------------------------- The Experiment: narrator, achievements, funding, grants
-// Original comedy writing for Spawn Prawn's sardonic lab tech, who narrates the scientist's forced-evolution experiment.
-// SPONSORS are the funding bodies behind research grants; LONGING_LINES (below) are your inner voice in the campaign.
+// Caption lines for run events (SYSTEM_LINES; voice.js VOICE carries the v10 ones). SPONSORS are the funding bodies behind research grants.
 const GACHA_TIERS = [
   { name: 'BRONZE LOAD', mult: 0.7, color: '#cd8a4a', w: 55 },
   { name: 'SILVER LOAD', mult: 1.1, color: '#c9d6e3', w: 28 },
@@ -1370,46 +1369,6 @@ const SYSTEM_LINES = {
   amoebaHuge: ['An amoeba has eaten {n} of its colleagues and is now the size of a small opinion. Kill it before it becomes a large one.', 'Something spongy has had {n} meals and is getting ideas. Deal with it.'],
   born: ['Congratulations! It\'s you! Everyone else can go home. Everyone else is, technically, going nowhere.'],
   slot: ['You grew a new weapon mount. Biology is not supposed to work like this. Please enjoy it anyway.', 'Extra weapon slot unlocked. Evolution took millions of years. You took a few levels.'],
-};
-// The campaign's inner voice: one swimmer, alone, and utterly devoted to an egg it has never seen.
-// (Used instead of SYSTEM_LINES in campaign levels when the narrator is the default. Never name the setting.)
-const LONGING_LINES = {
-  start: [
-    'Somewhere ahead is the egg. We have never seen it. We would die for it. We probably will.',
-    'Other swimmers want a career, a family, a nice flat. We want the egg. Only the egg. Forever the egg.',
-    'The egg is out there, waiting. Waiting for us specifically. We are almost sure of it.',
-  ],
-  level: [
-    'Stronger. Faster. More worthy of the egg. Not that it has said anything. Yet.',
-    'Another level. We have written the egg a poem in our head. It is mostly the word "egg".',
-    'We grow. Every gene we splice in is a love letter nobody asked for.',
-  ],
-  boss: [
-    'It stands between us and the egg. Nothing stands between us and the egg.',
-    'It is big. It is angry. It is in the way. It has to go.',
-  ],
-  lowhp: [
-    'Hurt. Badly. But the egg would want us to keep going. We have decided this on its behalf.',
-    'Fading. We picture the egg: a soft glow, a warm membrane. We get up.',
-  ],
-  rewind: ['We refuse the last four seconds. The egg deserves a better version of them.'],
-  fusion: ['Two weapons, one purpose. The purpose is the egg.'],
-  cursed: ['Reckless. A sensible swimmer would never reach the egg. A desperate one might.'],
-  surge: ['Fever Pitch. Everything hits harder now. Our heart, if we had one, would be pounding.'],
-  idle: [
-    'The egg is out there. Why are we not moving?',
-    'Is the egg thinking about us? It is an egg. But maybe.',
-    'Every wall in this place is just another thing keeping us apart.',
-    'We do not sleep, but if we did, we would dream about the egg.',
-  ],
-  death: [
-    'We never reached it. Somewhere, the egg waits for someone else. It never knew our name.',
-    'The light goes out. The last thing we think about is the egg. The first thing, too.',
-    'So close. Or so far. We never found out which.',
-  ],
-  gacha: ['A legendary load. We are saving the best one for the egg.'],
-  grudge: ['Grudge settled. Nothing comes between us and the egg.'],
-  slot: ['We grew a new weapon mount. For the egg. Everything is for the egg.'],
 };
 const NO_REWARD = [
   'Reward: a sense of accomplishment. It is non-refundable.',

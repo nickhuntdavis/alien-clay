@@ -29,7 +29,7 @@ function meetShow(id) {
   const disp = (typeof TP_DISPLAY !== 'undefined' && TP_DISPLAY[id]) || s.types || [];
   document.getElementById('msTypes').innerHTML = disp.map(t => { const el2 = S10_TYPES[t] || t, nm = (ELEMENTS[el2] && ELEMENTS[el2].name) || t;
     return `<span class="mstype" style="--tc:${elemCol(el2)}">${esc(nm)}</span>`; }).join('');
-  document.getElementById('msLine').textContent = s.line ? '"' + s.line + '"' : '';
+  document.getElementById('msLine').textContent = '';
   document.getElementById('msPass').textContent = s.passive || '';
   document.getElementById('msPdesc').textContent = s.pdesc || '';
   document.getElementById('msStyle').textContent = 'TODO_COPY:meet_' + id + '_style';
