@@ -274,6 +274,7 @@ Tone: Dungeon Crawler Carl. Dry, deadpan, nerdy, not self-aware; bodies, sex, co
 - Campaign Level 1: difficulty clock `pt` [10, 200], par (bristles) 540 s, arena quotas 30/70/90/110, Tartar Colony with `campK` 0.65. A self-steering bot clears it in about 4 to 7 minutes.
 
 ## Open threads and ideas
+- Copy direction (29 Oct 2026): no characters or personas, tone only. `voice_and_tone.md` rewritten around the six benchmark names (Premature Evangelation, Hot Load, Big Load, One Pump Chump, Prawn Again, Latex Protection 98% effective). Open: audit `SYSTEM_LINES`/`LONGING_LINES` first-person and inner-voice lines (section 8B lists the shapes); `redesign docs/VOICE_GUIDE.md` and `CONSCIOUSNESS.md` still describe personas and need the same cut; Big Load and One Pump Chump need mechanics.
 - (`ccr-2faffc4b-4lg67n`, v10.193) Lifesteal back (lifemods.js): Bloodsucker and Umbilical Cord modifiers; Leech and Slurp on the slice list (the other 13 health and Membrane 'up:' cards are still blocked by the slice). Slice drafts: 48 of 150 level-ups offer a lifesteal card. wave20 8 mortal with SLICE.force: 2 wins without, 4 with (25% -> 50%, top of the bot band). If too easy: Umbilical `LSM.cordW` or `DRAFT.groupW.up`.
 - (26 Oct, ccr-1ac49716) Fusion pairs 9 to 16 built (v10.158) except 13: There Is No Spoon is a sperm passive now, so it cannot fuse.
 - (26 Oct, ccr-1ac49716) Little Jacob built (ljacob.js, v10.157). Untested for balance.
