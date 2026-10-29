@@ -18,11 +18,8 @@
   // Branch cards to leave out, by weapon: (w, up) -> [card titles].
   const FIT_BRANCH = {
     v_phys_proj: (w, u) => [], // (the movie-cop branches, baseline1.js: no clash with any modifier)
-    v_phys_spread: (w, u) => [
-      ...(u.l6 === 'Roundabout' ? ['Baby Boom'] : []), // (a ring has no direction to recoil from)
-      ...(has(w, 'lunge') ? ['Shotgun Wedding', 'Kickback'] : []),
-      ...(has(w, 'homing') || has(w, 'returning') ? ['Roundabout'] : [])],
-    v_phys_contact: (w, u) => has(w, 'lunge') ? ['Vice Grip', 'Back Off!'] : [],
+    v_phys_spread: (w, u) => [], // (movie-hero branches, baseline2.js: the old rules went with the old cards)
+    v_phys_contact: (w, u) => [], // (movie-hero branches, baseline2.js / baseline3.js: the old rules went with the old cards)
     v_phys_burst: (w, u) => [
       ...(u.l6 === 'Elbow Room' ? ['Trigger Happy'] : []),
       ...(has(w, 'lobbed') || has(w, 'delayed') ? ['Elbow Room'] : [])],
@@ -39,8 +36,8 @@
   // Modifiers to leave out, by weapon: (w, up) -> [modifier ids].
   const FIT_MOD = {
     v_phys_proj: (w, u) => [],
-    v_phys_spread: (w, u) => [...(u.p === 'A' ? ['lunge'] : []), ...(u.l6 === 'Roundabout' ? ['homing', 'returning'] : [])],
-    v_phys_contact: (w, u) => u.p === 'A' || u.p === 'C' ? ['lunge'] : [],
+    v_phys_spread: (w, u) => [], // (movie-hero branches, baseline2.js / baseline3.js: the old rules went with the old cards)
+    v_phys_contact: (w, u) => [], // (movie-hero branches, baseline2.js / baseline3.js: the old rules went with the old cards)
     v_phys_burst: (w, u) => u.l6 === 'Elbow Room' ? ['selfcentred', 'lobbed', 'delayed'] : [],
     v_fire_proj: (w, u) => u.l10 === 'Projectile Vomit' ? Object.keys(MODS10).filter(id => !BEAM_OK.includes(id)) : [],
     v_ice_pool: (w, u) => u.p === 'B' ? ['trail'] : [],
