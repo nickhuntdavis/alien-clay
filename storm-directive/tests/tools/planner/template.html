@@ -144,6 +144,16 @@ details.wb.onmap { border-color: var(--accent); }
 .chip.blocked b::after { content: ' ⊘'; color: var(--g-lifesteal); }
 .btn.on { border-color: var(--accent); background: var(--hi); }
 .stage svg.rlinks path { fill: none; stroke-width: 2.4; stroke-dasharray: 6 5; opacity: .85; }
+.bpop { position: absolute; top: 52px; right: 10px; z-index: 30; width: min(360px, calc(100% - 20px)); max-height: 70%; overflow: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 10px 30px #0004; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
+.bphead { display: flex; justify-content: space-between; align-items: center; font: 800 16px var(--display); }
+.bpgroup { display: flex; flex-direction: column; gap: 5px; }
+.bpgroup > span { font: 600 10px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--dim); }
+.bpitem { text-align: left; border: 1px solid var(--line); border-radius: 9px; background: var(--panel2); padding: 7px 10px; display: flex; flex-direction: column; gap: 2px; }
+.bpitem b { font: 700 13px var(--display); }
+.bpitem small { font-size: 11.5px; color: var(--dim); }
+.bpitem:hover { border-color: var(--accent); }
+.bpitem.armed { border-color: var(--g-lifesteal); background: var(--hi); }
+.bpitem.armed b { color: var(--g-lifesteal); }
 .ghost { position: fixed; left: 0; top: 0; pointer-events: none; z-index: 50; opacity: .93; transform: translate(-50%, -50%) rotate(-2deg); box-shadow: 0 8px 24px #0006; }
 .toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 10px; font-size: 13px; z-index: 60; max-width: min(92vw, 520px); opacity: 0; transition: opacity .15s; }
 .toast.show { opacity: 1; }
@@ -192,10 +202,12 @@ details.wb.onmap { border-color: var(--accent); }
       <button class="btn" id="copy">Copy build</button>
       <button class="btn" id="ideas">Copy ideas</button>
       <button class="btn" id="saveall" title="Writes your blocks to the planner's list and asks Claude to fold them into ideas.md">Save to ideas.md</button>
+      <button class="btn" id="buildsbtn" title="Load a build: your saved ideas, a sample's start or a Baseline hero">Builds</button>
       <button class="btn" id="rulesbtn" title="Open a card's Do, Don't and Weight rules">Rules</button>
       <button class="btn" id="simbtn" title="Grey out what the cards on the dish would stop from being dealt">Simulate</button>
       <button class="btn danger" id="clear">Clear</button>
     </div>
+    <div class="bpop" id="bpop" hidden></div>
     <div class="map" id="map"><div class="sizer" id="sizer"><div class="stage" id="stage"></div></div></div>
     <div class="detail" id="detail"></div>
   </section>
@@ -1216,6 +1228,103 @@ function rpBuiltinHtml(k) {
     return `<div class="crlist"><small style="color:var(--dim);width:100%">${esc(src[s] || s)}${form ? ' · with ' + esc(rpName('m:' + form)) : (s === 'audit' ? ' · no Delivery' : '')}</small>${bs.map(b => `<span class="crchip locked" style="--zc:var(--g-lifesteal)" title="${esc(b.why)}${b.unless ? ' (not with ' + esc(rpName('m:' + b.unless)) + ')' : ''}">${esc(t === 'w' ? rpName('m:' + b.mod) : rpName('w:' + b.w))}</span>`).join('')}</div>`;
   }).join('')}</div>`;
 }
+// ---------------------------------------------------------------- builds to preload (the user, 30 Oct)
+// The Builds menu: your saved ideas rebuilt onto the dish (from the artifact database, collection "ideas"), each sample's start,
+// and the Baseline hero builds (D.presets). On the very first open the dish is preloaded: your saved ideas when there are any,
+// else Baseline's start. Loading a build replaces the dish (a second tap confirms when the dish has something on it).
+const BP = { open: false, arm: null, ideas: null, loading: false };
+const bpDishEmpty = () => !S.weapons.length && !S.custom.length && !S.feats.length && !S.pass.length;
+function bpNewWeapon(id, promise) {
+  const w = { u: S.seq++, id, mods: [], sab: false, promise: promise || null, wbr: null, wmast: null };
+  const d = W(id).dlv; if (d && M(d)) w.mods.push({ id: d, rank: 1, br: null, mast: null, builtin: true });
+  return w;
+}
+function bpApply(p) {
+  S.weapons = []; S.custom = []; S.over = {}; S.feats = []; S.pass = []; S.gates = []; S.sel = 'root';
+  if (p.sample && D.samples.some(x => x.id === p.sample)) { S.sample = p.sample; $('#sample').value = p.sample; }
+  for (const x of p.weapons || []) if (W(x.id) && S.weapons.length < MAXW) S.weapons.push(bpNewWeapon(x.id, x.promise));
+  for (const id of p.feats || []) if (FEAT(id) && !S.feats.some(f => f.id === id)) S.feats.push({ u: S.seq++, id, f3: null, f5: null });
+  for (const id of p.pass || []) if (PASS(id) && !S.pass.some(x => x.id === id)) S.pass.push({ u: S.seq++, id, rank: 1, mast: null });
+  for (const c of p.custom || []) S.custom.push(c);
+  S.preloaded = 1; save(); render();
+  toast('Loaded: ' + p.name + '.');
+}
+// Your saved ideas as a build: each row's "under" path is walked from the sperm; a first segment that names a weapon puts that
+// weapon on the dish, every other segment is a block (made if missing); the row itself becomes a block there.
+async function bpIdeasBuild() {
+  if (!DB) return null;
+  let rows = [];
+  try { const q = await DB.collection('ideas').get(); rows = q.docs.map(d => d.data()).filter(Boolean); } catch (e) { return null; }
+  rows = rows.filter(r => r.kind !== 'gate');
+  const seen = new Set(); rows = rows.filter(r => { const k = [r.type, r.name, r.text, r.under].join('|'); if (seen.has(k)) return false; seen.add(k); return true; });
+  if (!rows.length) return null;
+  const depth = r => r.under && r.under !== '(on the sperm)' ? r.under.split(' > ').length : 0;
+  rows.sort((a, b) => depth(a) - depth(b) || String(a.savedAt).localeCompare(String(b.savedAt)));
+  const out = { name: 'Your saved ideas', sample: (D.samples.find(x => x.name === rows[0].sample) || {}).id || 'baseline', weapons: [], custom: [], feats: [], pass: [] };
+  const byName = n => Object.values(D.weapons).find(w => w.name.toLowerCase() === String(n).trim().toLowerCase());
+  const wNode = [], blocks = []; // (blocks: { c, parentKey })
+  const weaponFor = name => { const d = byName(name); if (!d) return null; let w = wNode.find(x => x.id === d.id); if (!w && wNode.length < MAXW) { w = bpNewWeapon(d.id); wNode.push(w); } return w; };
+  const blockUnder = (parent, name, extra) => {
+    let b = blocks.find(x => x.parent === parent && x.c.name.toLowerCase() === String(name).trim().toLowerCase());
+    if (!b) { b = { parent, c: Object.assign({ u: S.seq++, parent, tag: 'Custom', name: String(name).trim(), text: '' }, extra || {}) }; blocks.push(b); }
+    else if (extra) Object.assign(b.c, extra, { u: b.c.u, parent });
+    return b;
+  };
+  for (const r of rows) {
+    const path = depth(r) ? r.under.split(' > ') : [];
+    let parent = 'root';
+    path.forEach((seg, i) => {
+      if (i === 0) { const w = weaponFor(seg); if (w) { parent = 'w' + w.u; return; } }
+      parent = 'c' + blockUnder(parent, seg).c.u;
+    });
+    if (r.kind === 'edit' && /^Weapon/.test(r.type || '') && !path.length) { if (weaponFor(r.name)) continue; } // (a renamed weapon that is real now)
+    if (!path.length && /^Weapon/.test(r.type || '') && byName(r.name)) { weaponFor(r.name); continue; } // (an idea for a weapon that is in the game now)
+    blockUnder(parent, r.name || 'Untitled', { tag: r.tag || r.type || 'Custom', text: r.text || '', type: r.type || '', sid: undefined });
+  }
+  out.weapons = wNode.map(w => ({ id: w.id }));
+  // keep the weapon slots' ids so the blocks' parents line up: bpApply makes new slots, so rebase them here
+  out.custom = blocks.map(b => b.c);
+  out.rebase = wNode.map(w => w.u);
+  return out;
+}
+const bpApplyIdeas = p => { // like bpApply, but the weapon slots keep the ids the blocks point at
+  bpApply(Object.assign({}, p, { weapons: [], custom: [] }));
+  p.weapons.forEach((x, i) => { const w = bpNewWeapon(x.id); w.u = p.rebase[i]; S.weapons.push(w); });
+  for (const c of p.custom) S.custom.push(c);
+  S.seq = Math.max(S.seq, ...p.rebase.map(u => u + 1), ...p.custom.map(c => c.u + 1)); save(); render();
+};
+function bpRender() {
+  const el = $('#bpop'); if (!BP.open) { el.hidden = true; return; }
+  el.hidden = false;
+  const groups = {}; for (const p of D.presets || []) (groups[p.group] || (groups[p.group] = [])).push(p);
+  const item = (id, name, sub) => `<button class="bpitem ${BP.arm === id ? 'armed' : ''}" data-bp="${esc(id)}"><b>${esc(BP.arm === id ? 'Replace the dish? Tap again' : name)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}</button>`;
+  const ideasSub = !CAPS ? 'connecting…' : !DB ? 'needs a claude.ai sign-in' : BP.ideas === null ? 'reading your saved ideas…' : BP.ideas ? `${BP.ideas.custom.length} blocks on ${BP.ideas.weapons.length} weapons` : 'nothing saved yet';
+  let h = `<div class="bphead"><b>Builds</b><button class="btn" data-bp="close">Close</button></div><div class="bpgroup"><span>Yours</span>${item('ideas', 'Your saved ideas', ideasSub)}</div>`;
+  for (const [g, ps] of Object.entries(groups)) h += `<div class="bpgroup"><span>${esc(g)}</span>${ps.map((p, i) => item(g + '|' + i, p.name, [p.weapons.map(x => W(x.id) && W(x.id).name + (x.promise ? ' (' + (W(x.id).promises.find(q => q.k === x.promise) || {}).name + ')' : '')).join(', '), p.feats.map(id => FEAT(id) && FEAT(id).name).filter(Boolean).join(', '), p.pass.map(id => PASS(id) && PASS(id).name).filter(Boolean).join(', ')].filter(Boolean).join(' · '))).join('')}</div>`;
+  el.innerHTML = h;
+}
+async function bpLoadIdeas() { if (BP.loading) return; BP.loading = true; BP.ideas = await bpIdeasBuild(); BP.loading = false; if (BP.open) bpRender(); return BP.ideas; }
+$('#bpop').addEventListener('click', async e => {
+  const b = e.target.closest('[data-bp]'); if (!b) return;
+  const id = b.dataset.bp;
+  if (id === 'close') { BP.open = false; BP.arm = null; bpRender(); return; }
+  if (!bpDishEmpty() && BP.arm !== id) { BP.arm = id; bpRender(); return; } // (a second tap replaces a dish that has something on it)
+  BP.arm = null;
+  if (id === 'ideas') { const p = BP.ideas || await bpLoadIdeas(); if (!p) { toast('No saved ideas to load yet.'); bpRender(); return; } bpApplyIdeas(p); }
+  else { const [g, i] = id.split('|'), p = (D.presets || []).filter(x => x.group === g)[+i]; if (p) bpApply(p); }
+  BP.open = false; bpRender();
+});
+$('#buildsbtn').onclick = () => { BP.open = !BP.open; BP.arm = null; bpRender(); if (BP.open && BP.ideas === null) bpLoadIdeas(); };
+// First open: preload once (your saved ideas when there are any, else Baseline's start).
+(async () => {
+  if (S.preloaded || !bpDishEmpty()) { S.preloaded = 1; save(); return; }
+  const base = (D.presets || []).find(p => p.group === 'Sample starts' && p.sample === 'baseline');
+  for (let i = 0; i < 40 && !CAPS; i++) await new Promise(r => setTimeout(r, 100)); // (the database answers a moment after load)
+  const mine = DB ? await bpLoadIdeas() : null;
+  if (!bpDishEmpty()) return; // (the user started building meanwhile)
+  if (mine) bpApplyIdeas(mine); else if (base) bpApply(base);
+})();
+
 // ---------------------------------------------------------------- boot
 try { if (window.claude && window.claude.hot && window.claude.hot.snapshot) window.claude.hot.snapshot(() => S); } catch (e) { }
 function start(hot) { if (hot && hot.weapons) S = Object.assign(S, hot); render(); if (!S.weapons.length) { S.sel = 'root'; render(); } }

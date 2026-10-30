@@ -61,7 +61,20 @@ const path = require('path'), fs = require('fs');
       builtin.push({ w: wid, mod: id, src: 'delivery', why: 'does nothing on this Delivery weapon' });
     for (const [wid, forms] of Object.entries(typeof MOD_DEAD !== 'undefined' && !OWN.audit ? MOD_DEAD : {})) if (roster.has(wid)) for (const [form, ids] of Object.entries(forms)) for (const id of ids) if (okMod(id))
       builtin.push({ w: wid, mod: id, form, src: 'audit', why: 'the modifier audit found it does nothing here' + (form ? ' (with ' + (MODS10[form] ? MODS10[form].name : form) + ')' : '') });
-    return { version: APP_VERSION, types, samples, weapons, mods, maxW: MAX_WEAPONS, mmOpen: MM.open, gnames: MM_GNAME, feats, featSlots: F10_SLOTS, passives, passSlots: SP.base + SP.at.length, families, rules0, builtin };
+    // Builds to preload (the user, 30 Oct): each sample's start (its two best-fit weapons and its Unique Feat), and the Baseline hero
+    // builds (each hero weapon on each branch, with the cards its branch unlocks by a Do rule and Baseline's Unique Feat).
+    const presets = [];
+    for (const sm of samples) {
+      const fit = (sm.fit || []).filter(id => weapons[id]).slice(0, 2), uf = F10_UNIQUE[sm.id];
+      presets.push({ group: 'Sample starts', name: sm.name, sample: sm.id, weapons: fit.map(id => ({ id })), feats: uf ? [uf] : [], pass: [] });
+    }
+    for (const wid of ['v_phys_proj', 'v_phys_spread', 'v_phys_contact']) for (const L of ['A', 'B', 'C']) {
+      const P = WUP[wid] && WUP[wid][L]; if (!P || !weapons[wid]) continue;
+      const unlocks = rules0.filter(r => r.mode === 'do' && r.parent === 'b:' + wid + ':' + L).map(r => r.target);
+      presets.push({ group: 'Baseline heroes', name: weapons[wid].name + ': ' + P.name, sample: 'baseline', weapons: [{ id: wid, promise: L }],
+        feats: [F10_UNIQUE.baseline].concat(unlocks.filter(k => /^f:/.test(k)).map(k => k.slice(2))).filter(Boolean), pass: unlocks.filter(k => /^p:/.test(k)).map(k => k.slice(2)) });
+    }
+    return { version: APP_VERSION, types, samples, weapons, mods, maxW: MAX_WEAPONS, mmOpen: MM.open, gnames: MM_GNAME, feats, featSlots: F10_SLOTS, passives, passSlots: SP.base + SP.at.length, families, rules0, builtin, presets };
   });
   const out = path.resolve(__dirname, '../../out/loadout-planner.html'); fs.mkdirSync(path.dirname(out), { recursive: true });
   const tpl = fs.readFileSync(path.join(__dirname, 'template.html'), 'utf8');

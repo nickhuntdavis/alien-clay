@@ -1,5 +1,13 @@
 # claude/sharp-hypatia-icfi8l
 
+## 2026-10-30 Planner: Builds menu and first-open preload
+- Systems: tests/tools (planner)
+- Files: tests/tools/planner/planner.js, tests/tools/planner/template.html
+- What: a Builds menu loads your saved ideas rebuilt onto the dish (from the artifact database: each row's path puts its weapon on the dish and its blocks under it), each sample's start (two best-fit weapons and its Unique Feat) or a Baseline hero build (the weapon on that branch with the cards its branch unlocks). The first open preloads your saved ideas, else Baseline's start. Replacing a dish that has something on it takes a second tap.
+- Save data: none in the game.
+- Hooks: none.
+- Risk: none.
+
 ## 2026-10-30 The game's dealing tables become editable card rules
 - Systems: card rules, modifier cards (moddead, matrixna), Delivery weapons (dlvrun), tests/tools (planner, rules), tests
 - Files: web/js/cardrules.js (551 rules, CARD_RULES_OWNS), web/js/cardrulesengine.js, web/js/moddead.js, web/js/matrixna.js, web/js/dlvrun.js (one guard line each), tests/tools/rules/importtables.js (new), tests/tools/rules/rulesfile.js (new), tests/tools/rules/genrules.js, tests/tools/moddead.js (comment), tests/tools/planner/planner.js, tests/tools/planner/template.html, tests/cardrulestest.js, tests/modstest.js, tests/sim/modaudit.js, CARD_RULES.md
