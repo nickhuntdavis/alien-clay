@@ -1,5 +1,13 @@
 # claude/sharp-hypatia-icfi8l
 
+## 2026-10-30 Planner: your dish kept in your account
+- Systems: tests/tools (planner)
+- Files: tests/tools/planner/template.html
+- What: the whole planner state (dish, blocks, edits, rules, settings) saves to the user's private space in the artifact database (data/users/<id>: planner_dish and planner_rules) a second after each change; on open the newer copy wins, so another device or a cleared cache picks up where you left off. A toolbar status says "Saved to your account" or "This device only" (signed out). Load-time housekeeping saves keep the old timestamp so they never overwrite a newer copy. The artifact now declares the user capability (to know whose space).
+- Save data: none in the game.
+- Hooks: none.
+- Risk: none.
+
 ## 2026-10-30 Planner: Builds menu and first-open preload
 - Systems: tests/tools (planner)
 - Files: tests/tools/planner/planner.js, tests/tools/planner/template.html

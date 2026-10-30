@@ -154,6 +154,8 @@ details.wb.onmap { border-color: var(--accent); }
 .bpitem:hover { border-color: var(--accent); }
 .bpitem.armed { border-color: var(--g-lifesteal); background: var(--hi); }
 .bpitem.armed b { color: var(--g-lifesteal); }
+.sync { font: 500 10.5px var(--mono); color: var(--dim); letter-spacing: .02em; }
+.sync.ok { color: var(--g-chemistry); } .sync.warn { color: var(--g-lifesteal); }
 .ghost { position: fixed; left: 0; top: 0; pointer-events: none; z-index: 50; opacity: .93; transform: translate(-50%, -50%) rotate(-2deg); box-shadow: 0 8px 24px #0006; }
 .toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 10px; font-size: 13px; z-index: 60; max-width: min(92vw, 520px); opacity: 0; transition: opacity .15s; }
 .toast.show { opacity: 1; }
@@ -197,6 +199,7 @@ details.wb.onmap { border-color: var(--accent); }
     <div class="dishbar">
       <label for="sample">Sperm <select id="sample"></select></label>
       <label><input type="checkbox" id="rules" checked> Game rules</label>
+      <span class="sync" id="sync" title="Where your dish is kept"></span>
       <span class="sp"></span>
       <div class="zoom"><button class="btn" id="zout" title="Zoom out">−</button><button class="btn" id="zfit" title="Fit">Fit</button><button class="btn" id="zin" title="Zoom in">+</button></div>
       <button class="btn" id="copy">Copy build</button>
@@ -249,7 +252,7 @@ $('#ver').textContent = 'data from v' + D.version;
 let S = { sample: D.samples[0].id, rules: true, sel: null, zoom: 1, weapons: [], custom: [], over: {}, feats: [], pass: [], gates: [], seq: 1, cr: [], crSeq: 1, sim: false, crRemoved: [] };
 let FOCUS = null;
 try { const s = JSON.parse(localStorage.getItem('sp_planner_v1') || 'null'); if (s && s.weapons) S = Object.assign(S, s); if (!S.custom) S.custom = []; if (!S.over) S.over = {}; for (const k of ['feats', 'pass', 'gates', 'cr', 'crRemoved']) if (!S[k]) S[k] = []; if (!S.crSeq) S.crSeq = 1; } catch (e) { }
-const save = () => { try { localStorage.setItem('sp_planner_v1', JSON.stringify(S)); } catch (e) { } };
+const save = () => { if (window.__rsChecked) S.savedAt = Date.now(); try { localStorage.setItem('sp_planner_v1', JSON.stringify(S)); } catch (e) { } if (window.__rsChecked) rsQueue(); }; // (and to your account: rsQueue below. Saves made while the page loads keep the old time, so they never beat a newer copy from another device.)
 const sampleOf = () => D.samples.find(s => s.id === S.sample) || D.samples[0];
 const W = id => D.weapons[id], M = id => D.mods[id];
 const findW = u => S.weapons.find(w => w.u === u);
@@ -1228,6 +1231,52 @@ function rpBuiltinHtml(k) {
     return `<div class="crlist"><small style="color:var(--dim);width:100%">${esc(src[s] || s)}${form ? ' · with ' + esc(rpName('m:' + form)) : (s === 'audit' ? ' · no Delivery' : '')}</small>${bs.map(b => `<span class="crchip locked" style="--zc:var(--g-lifesteal)" title="${esc(b.why)}${b.unless ? ' (not with ' + esc(rpName('m:' + b.unless)) + ')' : ''}">${esc(t === 'w' ? rpName('m:' + b.mod) : rpName('w:' + b.w))}</span>`).join('')}</div>`;
   }).join('')}</div>`;
 }
+// ---------------------------------------------------------------- your dish, kept in your account (the user, 30 Oct: option 1)
+// The whole planner state (dish, blocks, edits, rules, settings) is saved to your private space in this artifact's database
+// (data/users/<your id>: nobody else can read it), a moment after each change; on open the newer copy wins (this browser's or
+// your account's), so another device or a cleared cache picks up where you left off. Two documents, each under the 256 KiB cap:
+// the dish and the rules. Signed out or offline, it falls back to this browser only, and says so.
+const RS = { uid: null, col: null, ready: false, checked: false, sent: '', t: 0, state: 'local' };
+function rsShow(st, why) {
+  RS.state = st; const el = $('#sync'); if (!el) return;
+  el.className = 'sync ' + (st === 'saved' ? 'ok' : st === 'error' ? 'warn' : '');
+  el.textContent = { saved: 'Saved to your account', saving: 'Saving…', loading: 'Loading your dish…', local: 'This device only', error: 'Not saved: ' + (why || 'try again') }[st] || '';
+}
+const rsSplit = () => { const st = Object.assign({}, S); delete st.cr; return { dish: JSON.stringify(st), rules: JSON.stringify(S.cr || []) }; };
+function rsQueue() { if (!RS.ready) return; clearTimeout(RS.t); RS.t = setTimeout(rsPush, 1200); }
+async function rsPush() {
+  if (!RS.ready) return;
+  const x = rsSplit(), sig = x.dish.length + ':' + x.rules.length + ':' + S.savedAt;
+  if (sig === RS.sent) return;
+  rsShow('saving');
+  try {
+    await RS.col.doc('planner_rules').set({ json: x.rules, savedAt: S.savedAt || 0 });
+    await RS.col.doc('planner_dish').set({ json: x.dish, savedAt: S.savedAt || 0 });
+    RS.sent = sig; rsShow('saved');
+  } catch (e) { rsShow('error', (e && e.code) || ''); }
+}
+function rsAdopt(st, cr) { // the account's copy is newer: take it whole
+  S = Object.assign({ sample: D.samples[0].id, rules: true, sel: null, zoom: 1, weapons: [], custom: [], over: {}, feats: [], pass: [], gates: [], seq: 1, cr: [], crSeq: 1, sim: false, crRemoved: [] }, st, { cr });
+  try { localStorage.setItem('sp_planner_v1', JSON.stringify(S)); } catch (e) { }
+  $('#sample').value = S.sample; $('#rules').checked = S.rules; $('#simbtn').classList.toggle('on', !!S.sim);
+  render();
+}
+async function rsInit() {
+  for (let i = 0; i < 60 && !CAPS; i++) await new Promise(r => setTimeout(r, 100));
+  try { const U = DB && window.claude && window.claude.use ? await window.claude.use('user') : null; RS.uid = U ? await U.id() : null; } catch (e) { RS.uid = null; }
+  if (!DB || !RS.uid) { rsShow('local'); RS.checked = true; window.__rsChecked = true; return; }
+  RS.col = DB.collection('data/users/' + RS.uid); rsShow('loading');
+  try {
+    const [a, b] = await Promise.all([RS.col.doc('planner_dish').get(), RS.col.doc('planner_rules').get()]);
+    const dish = a && a.exists ? a.data() : null, rules = b && b.exists ? b.data() : null;
+    if (dish && (+dish.savedAt || 0) > (+S.savedAt || 0)) rsAdopt(JSON.parse(dish.json), rules ? JSON.parse(rules.json) : S.cr);
+    RS.ready = true; RS.checked = true; window.__rsChecked = true;
+    if (!dish || (+S.savedAt || 0) > (+dish.savedAt || 0)) rsPush(); else { RS.sent = rsSplit().dish.length + ':' + rsSplit().rules.length + ':' + S.savedAt; rsShow('saved'); }
+  } catch (e) { RS.checked = true; window.__rsChecked = true; rsShow('error', (e && e.code) || ''); }
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && RS.ready) { clearTimeout(RS.t); rsPush(); } });
+rsInit();
+
 // ---------------------------------------------------------------- builds to preload (the user, 30 Oct)
 // The Builds menu: your saved ideas rebuilt onto the dish (from the artifact database, collection "ideas"), each sample's start,
 // and the Baseline hero builds (D.presets). On the very first open the dish is preloaded: your saved ideas when there are any,
@@ -1319,7 +1368,8 @@ $('#buildsbtn').onclick = () => { BP.open = !BP.open; BP.arm = null; bpRender();
 (async () => {
   if (S.preloaded || !bpDishEmpty()) { S.preloaded = 1; save(); return; }
   const base = (D.presets || []).find(p => p.group === 'Sample starts' && p.sample === 'baseline');
-  for (let i = 0; i < 40 && !CAPS; i++) await new Promise(r => setTimeout(r, 100)); // (the database answers a moment after load)
+  for (let i = 0; i < 80 && !RS.checked; i++) await new Promise(r => setTimeout(r, 100)); // (your account's dish first: rsInit)
+  if (S.preloaded || !bpDishEmpty()) return;
   const mine = DB ? await bpLoadIdeas() : null;
   if (!bpDishEmpty()) return; // (the user started building meanwhile)
   if (mine) bpApplyIdeas(mine); else if (base) bpApply(base);
