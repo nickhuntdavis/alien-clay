@@ -2,6 +2,39 @@
 
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
+## v10.229 (versionCode 508): 2026-10-30 Sample branches (Baseline: Rambo, Dirty Harry, Robocop at Lv 15), Standard Issue's own branches back, all nine hero costumes redrawn and visible (`ccr-83ce4661-mwfavv`)
+### 30 Oct 2026 Shotgun and Hand-to-gland costumes redrawn in the high-detail style (v10.228)
+- Systems: baseline costumes, baseline branches (Shotgun, Hand-to-gland), tests
+- Files: baselinelook.js, baseline2.js, baseline3.js; tests baselinelooktest.js, baseline3test.js, wpnshot.js (new)
+- What: the six weapon branch costumes are shaded like the sample bodies and drawn in the head's frame, fitted to whichever sample wears them: Sperminator's torn-open chrome endoskeleton with a red eye (a dry husk for Come back's 2 s, then the whole chrome skull, both eyes and metal vertebrae), Evil Dead's chainsaw (the chain runs, the motor smokes and the tip throws blood while it cuts; a longer bar with Hail to the King), Riding shotgun's goggles on a leather strap with wind at speed, Kung fu's black belt and taped fists (a strike on a kick), Samurai's topknot and sheathed katana (drawn and swept on a cut; the old drawing read a field that was never set, so the cut never showed), Biting's gums and teeth (gape and snap on a bite, blood after). The old flat versions under the body in baseline2.js and baseline3.js are gone (the mark crosshair and the sidecar pod stay).
+- Save data: none.
+- Hooks: none new. baseline3.js no longer wraps drawPlates; baseline2.js's drawPlates wrap draws only the crosshair and the pod.
+- Risk: none for play (drawing only). The Sperminator's Shell layers still draw as brown bands under its costume.
+
+### 30 Oct 2026 Sample branches: Rambo, Dirty Harry and Robocop move from Standard Issue to the Baseline sample; costumes redrawn and finally visible (v10.227)
+- Systems: sample branches (new), baseline branches, baseline costumes, weapons24 (branch hooks), draft, fit rules, tests
+- Files: samplebranch.js (new), baseline1.js, baselinelook.js, fitcheck.js, index.html; tests baseline1test.js, baselinelooktest.js, smbshot.js (new), wup1test.js, sivtest.js, fittest.js, combo10test.js
+- What: a sample now has its own branch tree: at run Lv 15 the Baseline sample picks Rambo, Dirty Harry or Robocop (a live picture of each costume on its card), at Lv 20 that branch's card or wildcard, at Lv 25 a mastery; every effect acts on every weapon held, not one gun. Standard Issue has its old branches back (Ricochet Brain, Through and Through, Marked for Bonking). The hero costumes were drawn on the slide under youhd.js's sharp body canvas, so the body hid them (v10.226's 1.5x only let the edges poke out): the three sample costumes are now drawn in the head's own frame on that canvas, at the head's size, shaded like the sample bodies; the six weapon costumes draw in the same pass at 1x and give way while a sample costume is worn.
+- Save data: none (run state G.smb).
+- Hooks: none in shared files. samplebranch.js hookOn('tick'), wraps forkCards, draftTitle, UI.renderLootCards, UI.openLoot. baseline1.js now wraps weapons24.js wupDmgMul, wupHit, wupKill and adds hookOn('fire', 'baseline1:mark', 45). baselinelook.js wraps samplelooks.js SL_HEAD.baseline, sets SL_UNDER.baseline, wraps seqsel.js drawSeqMods (was drawPlates).
+- Risk: balance (Rambo and Dirty Harry now change every weapon, not one; Belt-Fed now works on any branch, it did nothing off Rambo before); TODO_COPY: smb_rambo_desc, smb_harry_desc, smb_sub_branch, smb_sub_card, smb_sub_mastery. Tests and sims never see the screens (TUT_OFF) unless SMB.force.
+
+## v10.227 (versionCode 506): 2026-10-30 Card rules: Do, Don't and Weight between cards, edited in the Loadout Planner (`claude/sharp-hypatia-icfi8l`)
+### 2026-10-30 Planner: card rules panel (Do, Don't, Weight), simulate, health, save; rules generator
+- Systems: tests/tools (planner, rules generator), docs
+- Files: tests/tools/planner/template.html, tests/tools/rules/genrules.js (new), CARD_RULES.md, ARCHITECTURE.md, NOTES.md
+- What: the planner opens any card in a side panel with Don't, Do and Weight boxes (drag or tap cards and groups in; scope, sample, branch and weight for new rules; a Don't shows on both cards). Simulate greys rack cards the dish's build would stop, with the reason; Health flags contradictions, unreachable Do cards and thin drafts; rules on cards both on the dish draw as dashed links. Save rules to the game writes the artifact database (rules/current) and comments to Claude; genrules.js validates them against the live game and writes web/js/cardrules.js.
+- Save data: none in the game.
+- Hooks: none.
+- Risk: none (the game's rules stay empty until saved and applied).
+
+### 2026-10-30 Card rules engine: Do, Don't and Weight
+- Systems: card rules (new), draft, modifier cards, branches back, weapons (slot draft), settings, tests
+- Files: web/js/cardrules.js (new, generated data, empty), web/js/cardrulesengine.js (new), web/js/draft.js (one line), web/index.html, CARD_RULES.md, ARCHITECTURE.md, tests/cardrulestest.js (new)
+- What: rules from the Loadout Planner decide what can be dealt. Don't is symmetric (two cards never held together), Do is any-one (a card only comes while one of its parents is held), Weight multiplies a card's odds in the random deals. Per-rule scope (this weapon or the whole run) and conditions (a sample, a held branch); a rule on a branch also covers its Lv 6 cards, a rule on a modifier its forks; tags (group, attack type, damage type, kind) as targets. Applies to modifier cards, weapon branch screens, modifier forks, Feat and sperm passive cards and new weapons; branch and fork screens never go empty. Settings > Game > rule debug adds a line to dealt cards naming the rules and what was held back. Ships with no rules, so play is unchanged.
+- Save data: SET.ruleDebug added (default off).
+- Hooks: draft.js draftCards -> crCardW (weight). Wraps modOk, modDraftCands, wupForkCards, forkCards, cardOk, kinPool, v10Loot, genLoot; loads last.
+- Risk: none while CARD_RULES is empty. With rules, too many bans can thin a draft (the planner's health check warns).
 
 ## v10.226 (versionCode 505): 2026-10-29 Baseline hero costumes you can see (`claude/sharp-hypatia-icfi8l`)
 - Systems: baseline costumes (new), sidemo, fbdemo, render, tests
