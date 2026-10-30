@@ -87,7 +87,7 @@ function draftCards(n, kind) {
     PDEF.slots = keep;
   }
   for (const c of CARDS) if (!banished(c.id) && cardOk(c) && !(typeof mdDraftSkip === 'function' && mdDraftSkip(c))) // (mutations come from elites: mutdrop.js)
-    cand.push({ o: () => cardOpt(c), w: leanW(c.type) * famK(c.family) * (c.start ? 1 : 0.6), fam: c.family || c.id });
+    cand.push({ o: () => cardOpt(c), w: leanW(c.type) * famK(c.family) * (c.start ? 1 : 0.6) * (typeof crCardW === 'function' ? crCardW(c) : 1), fam: c.family || c.id }); // (crCardW: card rules weight, cardrulesengine.js)
   // Groups share the draft by a fixed weight however many cards they hold, so 30 Feat cards don't crowd out
   // defences (lean, novelty and Fewer still tilt the odds inside each group).
   const grp = f => f.startsWith('feat:') ? 'feat' : f.startsWith('mut:') ? 'mut' : f.startsWith('mod:') ? 'mod' : f === 'catalyst' || f.startsWith('conc:') ? 'spec' : f === 'def' ? 'def' : f.startsWith('up:') ? 'up' : null; // (up: v9 upgrades, v9back.js)
