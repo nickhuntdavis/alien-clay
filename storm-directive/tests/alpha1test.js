@@ -50,9 +50,9 @@ const { chromium } = require('playwright');
         [SS]: ['Hype Man', 'Bro Code', 'Pull Up', 'Ghosting', 'Breadcrumbing', 'Red Flag', 'Matching Outfits', 'Couples Therapy', 'PDA', 'Ride or Die', "It's Complicated", 'Soulmates'] };
       for (const wid of [RF, SS]) {
         const S = wupSpecFor(wid, 'alpha'), have = [];
-        for (const k of 'ABC') { have.push(...S[k].lv6.map(c => c.name), S[k].wild.name); chk(wid + k + ' texts are placeholders', /^TODO_COPY:/.test(S[k].lv3.desc) && /^TODO_COPY:/.test(S[k].tag) && /^TODO_COPY:/.test(S[k].costs)); }
+        for (const k of 'ABC') { have.push(...S[k].lv6.map(c => c.name), S[k].wild.name); chk(wid + k + ' texts written (alphacopy.js)', [S[k].lv3.desc, S[k].tag, S[k].costs].every(t => t && !/TODO_COPY/.test(t))); }
         have.push(...S.lv10.map(c => c.name)); chk(wid + ' card names', have.join() === names[wid].join(), have);
-        for (const c of S.lv10) chk(wid + ' ' + c.name + ' placeholder', /^TODO_COPY:/.test(c.desc));
+        for (const c of S.lv10) chk(wid + ' ' + c.name + ' text written', !!c.desc && !/TODO_COPY/.test(c.desc));
       }
     });
 
