@@ -9,7 +9,7 @@ const { chromium } = require('playwright');
   const r = await page.evaluate(() => {
     const bad = [], chk = (n, c, i) => { if (!c) bad.push(n + (i !== undefined ? ' [' + JSON.stringify(i) + ']' : '')); };
     const block = (n, fn) => { try { fn(); } catch (e) { bad.push(n + ' threw ' + e.message + ' ' + (e.stack || '').split('\n')[1]); } };
-    const set = rules => { CARD_RULES.length = 0; CARD_RULES.push(...rules); };
+    const SHIPPED = CARD_RULES.slice(), set = rules => { CARD_RULES.length = 0; CARD_RULES.push(...rules); };
     const fresh = (wids, sample) => {
       UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100;
       G.weapons = wids.map(id => makeSlot(id, false, 1)).concat([null, null, null, null]).slice(0, 4); recomputeAll();
@@ -103,7 +103,7 @@ const { chromium } = require('playwright');
       SET.ruleDebug = false;
       chk('a dealt card carries the rules line', cs.some(c => /\[rules: /.test(c.desc || '')), cs.map(c => c.desc).slice(0, 3));
     });
-    set([]);
+    set(SHIPPED);
     return { bad };
   });
   if (errors.length) console.log('ERRORS', errors.slice(0, 5).join(' | '));

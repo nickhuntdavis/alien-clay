@@ -51,7 +51,17 @@ const path = require('path'), fs = require('fs');
       .map(m => ({ id: m.id, name: fix(m.title), desc: fix(m.desc), family: fix(m.family).replace('mut:', ''), maxRank: m.maxRank || 3, flavour: fix(m.flavour),
         mast: SPM_BR[m.id] ? [{ name: fix(SPM_BR[m.id][0]), desc: fix(SPM_BR[m.id][1]) }, { name: fix(SPM_BR[m.id][2]), desc: fix(SPM_BR[m.id][3]) }] : null }));
     const families = {}; for (const m of MUT_REG) families[m.family + '/' + m.slot + '/' + m.kind] = (families[m.family + '/' + m.slot + '/' + m.kind] || 0) + 1;
-    return { version: APP_VERSION, types, samples, weapons, mods, maxW: MAX_WEAPONS, mmOpen: MM.open, gnames: MM_GNAME, feats, featSlots: F10_SLOTS, passives, passSlots: SP.base + SP.at.length, families };
+    // Current rules (CARD_RULES.md): the rule file's rules load as the planner's editable defaults; the built-in tables (matrix N/A,
+    // Delivery weapons' denied modifiers, the audit's dead modifiers by Delivery form) load as locked rules with their reason.
+    const rules0 = (typeof CARD_RULES !== 'undefined' ? CARD_RULES : []).map(r => Object.assign({}, r));
+    const builtin = [], roster = new Set(Object.keys(weapons)), okMod = id => !!mods[id];
+    for (const [wid, ids] of Object.entries(typeof MATRIX_NA !== 'undefined' ? MATRIX_NA : {})) if (roster.has(wid)) for (const id of ids) if (okMod(id))
+      builtin.push({ w: wid, mod: id, src: 'matrix', why: 'N/A in the modifier matrix: the weapon already does this', unless: ['v_phys_burst', 's_lard', 'v_phys_contact'].includes(wid) && id === 'knock' ? 'ranged' : '' });
+    for (const [wid, ids] of Object.entries((typeof DLV !== 'undefined' && DLV.deny) || {})) if (roster.has(wid)) for (const id of ids) if (okMod(id))
+      builtin.push({ w: wid, mod: id, src: 'delivery', why: 'does nothing on this Delivery weapon' });
+    for (const [wid, forms] of Object.entries(typeof MOD_DEAD !== 'undefined' ? MOD_DEAD : {})) if (roster.has(wid)) for (const [form, ids] of Object.entries(forms)) for (const id of ids) if (okMod(id))
+      builtin.push({ w: wid, mod: id, form, src: 'audit', why: 'the modifier audit found it does nothing here' + (form ? ' (with ' + (MODS10[form] ? MODS10[form].name : form) + ')' : '') });
+    return { version: APP_VERSION, types, samples, weapons, mods, maxW: MAX_WEAPONS, mmOpen: MM.open, gnames: MM_GNAME, feats, featSlots: F10_SLOTS, passives, passSlots: SP.base + SP.at.length, families, rules0, builtin };
   });
   const out = path.resolve(__dirname, '../../out/loadout-planner.html'); fs.mkdirSync(path.dirname(out), { recursive: true });
   const tpl = fs.readFileSync(path.join(__dirname, 'template.html'), 'utf8');

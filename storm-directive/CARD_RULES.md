@@ -29,6 +29,11 @@ boxes. The planner exports a rule list; a generator writes `web/js/cardrules.js`
    first card a `[held back: ...]` list.
 10. **Branch and fork screens never go empty**: if every option is ruled out, the screen shows them all rather than lock the weapon.
 
+## Current rules in the planner (30 Oct)
+- The rule file's rules (`CARD_RULES`) load as the planner's defaults, marked "in game". Removing one is remembered; Restore brings them back. Saving writes the full list, defaults included, so the file and the planner stay the same.
+- The Baseline gates now live there as Do rules (Quick draw with Dirty Harry, Acid bath with Robocop, Come back with Sperminator).
+- The game's built-in tables load as LOCKED rules: matrix N/A (`MATRIX_NA`, matrixna.js), the Delivery weapons' denied modifiers (`DLV.deny`, dlvrun.js) and the modifier audit's dead modifiers by Delivery form (`MOD_DEAD`, moddead.js). They show on each weapon's and modifier's panel, count in Simulate and Health, and are not saved. Moving them into the rule file (so they could be edited) is a later step; the fit-check rules in fitcheck.js are functions and are not shown.
+
 ## Workflow
 1. In the planner: Rules (or a card's "Do, Don't and Weight" button) opens the card in the side panel. Drag or tap cards into the
    boxes; set scope, sample, branch and weight for new rules; groups (tags) are buttons. Simulate greys out what the dish's build

@@ -286,7 +286,7 @@ hookOn('tick', 'baseline2:comeback', dt => {
 });
 if (typeof mutCard === 'function') {
   mutCard({ id: 'pass_comeback', title: 'Come back', icon: 'CB', rarity: 2, maxRank: 1, family: 'mut:body', flavour: 'Rehydrated. Reinforced. Slightly more chrome than before.',
-    desc: 'Once a run, at 0 health you dry into an untouchable husk for 2 s, then return at 50% health with every status cleared. Now a robot skeleton.', why: () => (bl2P() === 'A' ? '' : 'needs Sperminator') });
+    desc: 'Once a run, at 0 health you dry into an untouchable husk for 2 s, then return at 50% health with every status cleared. Now a robot skeleton.', why: () => '' }); // (gated on Sperminator by a Do rule in cardrules.js, 30 Oct)
 }
 
 // ---------------------------------------------------------------- install and the cards

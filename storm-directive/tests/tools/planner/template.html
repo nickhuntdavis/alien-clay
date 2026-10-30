@@ -134,6 +134,8 @@ details.wb.onmap { border-color: var(--accent); }
 .crchip em { font: 500 9.5px var(--mono); font-style: normal; color: var(--dim); }
 .crchip button { border: 0; background: none; color: var(--dim); padding: 0 4px; font-size: 14px; line-height: 1; }
 .crchip.linked { opacity: .75; border-style: dashed; }
+.crchip.locked { opacity: .8; background: transparent; border-style: dotted; }
+.crchip.game em { color: var(--accent); }
 .rp-tags { display: flex; flex-wrap: wrap; gap: 4px; }
 .rp-tags button { font: 500 10.5px var(--mono); padding: 2px 7px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel2); }
 .rp-warn { font-size: 12px; color: var(--g-lifesteal); margin: 0; }
@@ -232,9 +234,9 @@ const SAB_DESC = t => `Attacks switch to ${tname(t)} damage: 35% of them, then 7
 $('#ver').textContent = 'data from v' + D.version;
 
 // ---------------------------------------------------------------- state
-let S = { sample: D.samples[0].id, rules: true, sel: null, zoom: 1, weapons: [], custom: [], over: {}, feats: [], pass: [], gates: [], seq: 1, cr: [], crSeq: 1, sim: false };
+let S = { sample: D.samples[0].id, rules: true, sel: null, zoom: 1, weapons: [], custom: [], over: {}, feats: [], pass: [], gates: [], seq: 1, cr: [], crSeq: 1, sim: false, crRemoved: [] };
 let FOCUS = null;
-try { const s = JSON.parse(localStorage.getItem('sp_planner_v1') || 'null'); if (s && s.weapons) S = Object.assign(S, s); if (!S.custom) S.custom = []; if (!S.over) S.over = {}; for (const k of ['feats', 'pass', 'gates', 'cr']) if (!S[k]) S[k] = []; if (!S.crSeq) S.crSeq = 1; } catch (e) { }
+try { const s = JSON.parse(localStorage.getItem('sp_planner_v1') || 'null'); if (s && s.weapons) S = Object.assign(S, s); if (!S.custom) S.custom = []; if (!S.over) S.over = {}; for (const k of ['feats', 'pass', 'gates', 'cr', 'crRemoved']) if (!S[k]) S[k] = []; if (!S.crSeq) S.crSeq = 1; } catch (e) { }
 const save = () => { try { localStorage.setItem('sp_planner_v1', JSON.stringify(S)); } catch (e) { } };
 const sampleOf = () => D.samples.find(s => s.id === S.sample) || D.samples[0];
 const W = id => D.weapons[id], M = id => D.mods[id];
@@ -1081,7 +1083,7 @@ function rpRender() {
   const k = RP.key, own = S.cr.filter(r => r.parent === k), linked = S.cr.filter(r => r.parent !== k && rpCovers(r.target, k));
   const zc = z => z === 'dont' ? 'g-lifesteal' : z === 'do' ? 'g-chemistry' : 'g-area';
   const zone = (z, title, hint) => {
-    let items = own.filter(r => r.mode === z).map(r => `<span class="crchip" style="--zc:var(--${zc(z)})">${esc(rpName(r.target))} <em>${esc(rpBadge(r))}</em><button data-rm="${r.id}" aria-label="Remove">×</button></span>`).join('');
+    let items = own.filter(r => r.mode === z).map(r => `<span class="crchip${rpIsDefault(r) ? ' game' : ''}" style="--zc:var(--${zc(z)})" ${rpIsDefault(r) ? 'title="In the game now (a default). Remove it here and save to take it out."' : ''}>${esc(rpName(r.target))} <em>${esc(rpBadge(r) + (rpIsDefault(r) ? ' · in game' : ''))}</em><button data-rm="${r.id}" aria-label="Remove">×</button></span>`).join('');
     if (z === 'dont') items += linked.filter(r => r.mode === 'dont').map(r => `<span class="crchip linked" style="--zc:var(--${zc(z)})" title="Set on ${esc(rpName(r.parent))}: a Don't works both ways">${esc(rpName(r.parent))} <em>from its card</em></span>`).join('');
     if (z === 'do') items += linked.filter(r => r.mode === 'do').map(r => `<span class="crchip linked" style="--zc:var(--${zc(z)})" title="This card only comes with ${esc(rpName(r.parent))}">needs ${esc(rpName(r.parent))} <em>from its card</em></span>`).join('');
     if (z === 'weight') items += linked.filter(r => r.mode === 'weight').map(r => `<span class="crchip linked" style="--zc:var(--${zc(z)})">x${r.k} with ${esc(rpName(r.parent))} <em>from its card</em></span>`).join('');
@@ -1102,13 +1104,14 @@ function rpRender() {
     ${zone('dont', "Don't", 'never held together (both ways)')}
     ${zone('do', 'Do', 'only comes while this is held')}
     ${zone('weight', 'Weight', 'more or less likely while this is held')}
+    ${rpBuiltinHtml(k)}
     <div class="rp-row" style="flex-direction:column;align-items:stretch"><span class="rp-lab">Groups (tap to add to the selected box)</span>${tags.map(([g, vs]) => `<div class="rp-tags">${vs.map(v => `<button data-tag="${g}:${v}">${esc(rpName('tag:' + g + ':' + v).replace(/^All /, ''))}</button>`).join('')}</div>`).join('')}</div>
     <div class="rp-row" style="flex-direction:column;align-items:stretch"><span class="rp-lab">Health</span>${warn.length ? warn.map(t => `<p class="rp-warn">${esc(t)}</p>`).join('') : '<p class="rp-ok">No contradictions, nothing unreachable, and every weapon on the dish can still get 3 modifiers.</p>'}</div>
-    <div class="rp-row"><button class="btn" data-rp="copy">Copy rules</button><button class="btn" data-rp="save">Save rules to the game</button><small style="color:var(--dim)">${S.cr.length} rule${S.cr.length === 1 ? '' : 's'} in all</small></div>`;
+    <div class="rp-row"><button class="btn" data-rp="copy">Copy rules</button><button class="btn" data-rp="save">Save rules to the game</button><small style="color:var(--dim)">${S.cr.length} rule${S.cr.length === 1 ? '' : 's'} in all (${S.cr.filter(rpIsDefault).length} in the game now), ${(D.builtin || []).length} built in</small>${S.crRemoved.length ? `<button class="btn" data-rp="restore">Restore removed defaults (${S.crRemoved.length})</button>` : ''}</div>`;
 }
 $('#rpanel').addEventListener('click', e => {
   const z = e.target.closest('.crzone'), rm = e.target.closest('[data-rm]'), tg = e.target.closest('[data-tag]'), b = e.target.closest('[data-rp]');
-  if (rm) { S.cr = S.cr.filter(r => r.id !== rm.dataset.rm); save(); rpRender(); render(); return; }
+  if (rm) { const gone = S.cr.find(r => r.id === rm.dataset.rm); if (gone && rpIsDefault(gone) && !S.crRemoved.includes(rpSig(gone))) S.crRemoved.push(rpSig(gone)); S.cr = S.cr.filter(r => r.id !== rm.dataset.rm); save(); rpRender(); render(); return; }
   if (tg) { rpAdd('tag:' + tg.dataset.tag, RP.zone); return; }
   if (b) {
     const a = b.dataset.rp;
@@ -1116,6 +1119,7 @@ $('#rpanel').addEventListener('click', e => {
     if (a === 'pick-add' || a === 'pick-open') { RP.pick = a.slice(5); rpRender(); }
     if (a === 'copy') copyText(JSON.stringify(S.cr, null, 1), 'Rules');
     if (a === 'save') rpSave();
+    if (a === 'restore') { S.crRemoved = []; for (const r0 of D.rules0 || []) if (!S.cr.some(r => rpSig(r) === rpSig(r0))) S.cr.push(Object.assign({}, r0, { id: 'r' + (S.crSeq++) })); save(); rpRender(); render(); }
     return;
   }
   if (z) { RP.zone = z.dataset.zone; rpRender(); }
@@ -1163,6 +1167,44 @@ async function rpSave() {
   toast(sent ? `Saved ${S.cr.length} rules. Claude has been asked to put them in the game.` : `Saved ${S.cr.length} rules. Ask Claude to apply the saved card rules.`);
 }
 
+
+// ---------------------------------------------------------------- the game's current rules as defaults
+// The rule file's rules (D.rules0) seed the editable rules once; a default you remove stays removed (S.crRemoved). The built-in
+// tables (D.builtin: matrix N/A, Delivery denials, the audit by Delivery form) are locked: shown, simulated and health-checked.
+const rpSig = r => r.parent + '|' + r.mode + '|' + r.target;
+const rpIsDefault = r => (D.rules0 || []).some(x => rpSig(x) === rpSig(r));
+(function rpSeed() {
+  for (const r0 of D.rules0 || []) {
+    if (S.cr.some(r => rpSig(r) === rpSig(r0)) || S.crRemoved.includes(rpSig(r0))) continue;
+    S.cr.push(Object.assign({}, r0, { id: 'r' + (S.crSeq++) }));
+  }
+  save();
+})();
+const rpForm = w => { const m = w && w.mods.find(x => M(x.id) && M(x.id).group === 'delivery'); return m ? m.id : ''; };
+function rpBuiltinWhy(k, w) { // a locked rule that keeps modifier k off weapon w as it stands
+  if (!S.rules || !w || !/^m:/.test(k)) return null;
+  const id = k.slice(2), form = rpForm(w);
+  for (const b of D.builtin || []) {
+    if (b.w !== w.id || b.mod !== id) continue;
+    if (b.form != null && b.form !== form) continue;
+    if (b.unless && w.mods.some(m => m.id === b.unless)) continue;
+    return 'Built in: ' + b.why;
+  }
+  return null;
+}
+rpWhy = (orig => function (k, w) { return rpBuiltinWhy(k, w) || orig(k, w); })(rpWhy);
+// The locked rules on a card's panel: a weapon lists the modifiers it never gets; a modifier lists the weapons it never goes on.
+function rpBuiltinHtml(k) {
+  const [t, r] = rpSplit(k), rows = (D.builtin || []).filter(b => (t === 'w' && b.w === r) || (t === 'm' && b.mod === r));
+  if (!rows.length) return '';
+  const by = {};
+  for (const b of rows) { const key = b.src + '|' + (b.form || ''); (by[key] || (by[key] = [])).push(b); }
+  const src = { matrix: 'Matrix N/A', delivery: 'Delivery weapon', audit: 'Does nothing (audit)' };
+  return `<div class="crzone" data-zone="dont" style="cursor:default"><h4>Built into the game <small>locked: these come from the game's own tables</small></h4>${Object.entries(by).map(([key, bs]) => {
+    const [s, form] = key.split('|');
+    return `<div class="crlist"><small style="color:var(--dim);width:100%">${esc(src[s] || s)}${form ? ' · with ' + esc(rpName('m:' + form)) : (s === 'audit' ? ' · no Delivery' : '')}</small>${bs.map(b => `<span class="crchip locked" style="--zc:var(--g-lifesteal)" title="${esc(b.why)}${b.unless ? ' (not with ' + esc(rpName('m:' + b.unless)) + ')' : ''}">${esc(t === 'w' ? rpName('m:' + b.mod) : rpName('w:' + b.w))}</span>`).join('')}</div>`;
+  }).join('')}</div>`;
+}
 // ---------------------------------------------------------------- boot
 try { if (window.claude && window.claude.hot && window.claude.hot.snapshot) window.claude.hot.snapshot(() => S); } catch (e) { }
 function start(hot) { if (hot && hot.weapons) S = Object.assign(S, hot); render(); if (!S.weapons.length) { S.sel = 'root'; render(); } }

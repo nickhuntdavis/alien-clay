@@ -265,7 +265,7 @@ feat({ id: 'acid_bath', name: 'Acid bath', icon: 'AB', ico: 'flask', type: 'acid
     5: [bl1Fk('two', 'Double Dose', 'A second target, the next Elite, gets the same bath. Acid is not fussy.'), bl1Fk('longer', 'Slow Leak', 'The pool lasts 14 s instead of 8. Nobody has come to clean it up.')] } });
 
 for (const id of ['quick_draw', 'acid_bath']) { // only once the branch is taken (and never twice)
-  const c = typeof CARDS !== 'undefined' && CARDS.find(x => x.id === 'feat_' + id); if (c) c.eligible = g => !!(F10[id].gate() && !f10Own(id));
+  const c = typeof CARDS !== 'undefined' && CARDS.find(x => x.id === 'feat_' + id); if (c) c.eligible = g => !f10Own(id); // (the branch gate is a Do rule in cardrules.js, 30 Oct: editable in the planner)
 }
 // The old Standard Issue branch scenes (sidemo.js) belong to the retired cards: branch screens use the plain layout until new scenes exist.
 if (typeof SIV_DRAFT !== 'undefined') SIV_DRAFT = false;

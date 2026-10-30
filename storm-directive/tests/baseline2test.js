@@ -156,9 +156,9 @@ const { chromium } = require('playwright');
     block('Come back', () => {
       const C = cardOf('pass_comeback'); chk('Come back registered', !!C && C.title === 'Come back' && !!C.desc && !/^TODO_COPY/.test(C.desc), C && C.title);
       if (!C) return;
-      let sc = scene([[150, 0]]); chk('Come back not dealt without a branch', !C.eligible(G));
-      pick(sc.w, 3, 1); chk('Come back not dealt on Evil Dead', !C.eligible(G));
-      sc = scene([[150, 0]]); pick(sc.w, 3, 0); chk('Come back dealt once Sperminator is taken', C.eligible(G));
+      let sc = scene([[150, 0]]); chk('Come back not dealt without a branch', !cardOk(C));
+      pick(sc.w, 3, 1); chk('Come back not dealt on Evil Dead', !cardOk(C));
+      sc = scene([[150, 0]]); pick(sc.w, 3, 0); chk('Come back dealt once Sperminator is taken', cardOk(C));
       C.apply(G); chk('Come back taken', mr('pass_comeback') === 1);
       const D = pdef(); G.P.maxHp = 100; sc.p.hp = 100; D.layers = 0; D.snareT = G.t + 9; D.bleeds = [{ dps: 1, t: 3 }]; D.burnPool = 20; D.burnT = 3; D.chargeT = G.t + 9;
       sc.p.hp = 1; sc.p.iframes = 0; hurtPlayer(500, 'test', null, 'other');

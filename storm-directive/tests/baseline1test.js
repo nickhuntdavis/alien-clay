@@ -86,12 +86,12 @@ const { chromium } = require('playwright');
     // Gated Feats
     block('Feats', () => {
       const QD = CARDS.find(c => c.id === 'feat_quick_draw'), AB = CARDS.find(c => c.id === 'feat_acid_bath');
-      sc = scene([[150, 0, 1e5]]); chk('Quick draw not dealt without Dirty Harry', !QD.eligible(G)); chk('Acid bath not dealt without Robocop', !AB.eligible(G));
-      pick(sc.w, 3, 1); chk('Quick draw dealt on Dirty Harry', QD.eligible(G)); chk('Acid bath still gated', !AB.eligible(G));
+      sc = scene([[150, 0, 1e5]]); chk('Quick draw not dealt without Dirty Harry', !cardOk(QD)); chk('Acid bath not dealt without Robocop', !cardOk(AB));
+      pick(sc.w, 3, 1); chk('Quick draw dealt on Dirty Harry', cardOk(QD)); chk('Acid bath still gated', !cardOk(AB));
       const qd = f10Give('quick_draw', 1); chk('Quick draw slot', !!qd); if (typeof stamInit === 'function') { stamInit(); G.stam.cur = G.stam.v = 100; }
       qd.cd = 0; sc.es[0].aimT = 5; let shots = 0; const h = (w, t, n0) => { if (w === sc.w && G.proj.slice(n0).some(p => p.src && p.src.wname === 'Quick draw')) shots++; }; hookOn('fire:after', 'test:qd', h); run(40);
       chk('Quick draw answers a wind-up', qd.cd > 1, [qd.cd, shots]);
-      sc = scene([[150, 0, 1e5]]); pick(sc.w, 3, 2); chk('Acid bath dealt on Robocop', AB.eligible(G));
+      sc = scene([[150, 0, 1e5]]); pick(sc.w, 3, 2); chk('Acid bath dealt on Robocop', cardOk(AB));
       const ab = f10Give('acid_bath', 1); if (typeof stamInit === 'function') { stamInit(); G.stam.cur = G.stam.v = 100; }
       const c = fightCd(sc.es[0]); c.def = 'shell'; c.layers = 2; c.maxHp = sc.es[0].maxHp;
       ab.cd = 0; const ok = f10Go(ab, null);
