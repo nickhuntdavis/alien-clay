@@ -1,5 +1,13 @@
 # claude/sharp-hypatia-icfi8l
 
+## 2026-10-30 Per-sample branch sets (for Alpha's hustle branches)
+- Systems: weapons24 (branches), tests, docs
+- Files: web/js/samplebranches.js (new), web/js/alpha1.js, alpha2.js, alphalook.js (new, stubs), web/index.html, tests/samplebranchtest.js (new), ALPHA_REDESIGN.md (new)
+- What: wupRegFor(sample, weapon, spec) gives a sample its own branch set for a weapon; while a run is played as that sample, WUP[weapon] returns it (every branch screen and check follows), and every other sample keeps the shared set.
+- Save data: none.
+- Hooks: none in shared files; WUP entries with a sample set become accessors.
+- Risk: none until a sample set is registered.
+
 ## 2026-10-30 Planner: your dish kept in your account
 - Systems: tests/tools (planner)
 - Files: tests/tools/planner/template.html
