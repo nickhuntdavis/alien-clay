@@ -115,6 +115,33 @@ details.wb.onmap { border-color: var(--accent); }
 .node.custom .ct { font: 700 14.5px/1.15 var(--display); margin: 2px 0; }
 .node.custom .cx { font: 11.5px/1.35 var(--body); color: var(--dim); overflow: hidden; min-height: 32px; }
 .node.custom input::placeholder, .node.custom textarea::placeholder { color: var(--dim); opacity: .7; }
+.rpanel { position: fixed; top: 0; right: 0; bottom: 0; width: min(400px, 94vw); background: var(--panel); border-left: 1px solid var(--line); box-shadow: -8px 0 24px #0003; z-index: 40; display: flex; flex-direction: column;
+  padding: calc(10px + env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-right, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)) 12px; gap: 8px; overflow: auto; transform: translateX(105%); transition: transform .18s; }
+.rpanel.open { transform: none; }
+.rpanel h2 { font: 800 18px/1.1 var(--display); margin: 0; }
+.rpanel .rp-ey { font: 600 10px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--dim); }
+.rpanel .rp-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; font-size: 12px; }
+.rpanel .rp-row select { padding: 3px 6px; border: 1px solid var(--line); border-radius: 7px; background: var(--panel2); font-size: 12px; }
+.rpanel .rp-lab { font: 600 10px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--dim); min-width: 64px; }
+.crzone { border: 2px dashed var(--line); border-radius: 10px; padding: 8px; min-height: 54px; display: flex; flex-direction: column; gap: 6px; cursor: pointer; }
+.crzone[data-zone="dont"] { --zc: var(--g-lifesteal); } .crzone[data-zone="do"] { --zc: var(--g-chemistry); } .crzone[data-zone="weight"] { --zc: var(--g-area); }
+.crzone h4 { margin: 0; font: 700 12px var(--display); color: var(--zc); display: flex; gap: 6px; align-items: baseline; }
+.crzone h4 small { font: 400 11px var(--body); color: var(--dim); }
+.crzone.active { border-color: var(--zc); background: var(--hi); }
+.crzone.over { border-style: solid; border-color: var(--zc); }
+.crlist { display: flex; flex-wrap: wrap; gap: 5px; }
+.crchip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 4px 3px 8px; border-radius: 7px; border: 1px solid var(--line); border-left: 3px solid var(--zc, var(--accent)); background: var(--panel2); font-size: 12px; }
+.crchip em { font: 500 9.5px var(--mono); font-style: normal; color: var(--dim); }
+.crchip button { border: 0; background: none; color: var(--dim); padding: 0 4px; font-size: 14px; line-height: 1; }
+.crchip.linked { opacity: .75; border-style: dashed; }
+.rp-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.rp-tags button { font: 500 10.5px var(--mono); padding: 2px 7px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel2); }
+.rp-warn { font-size: 12px; color: var(--g-lifesteal); margin: 0; }
+.rp-ok { font-size: 12px; color: var(--g-chemistry); margin: 0; }
+.chip.blocked { opacity: .32; filter: grayscale(1); }
+.chip.blocked b::after { content: ' ⊘'; color: var(--g-lifesteal); }
+.btn.on { border-color: var(--accent); background: var(--hi); }
+.stage svg.rlinks path { fill: none; stroke-width: 2.4; stroke-dasharray: 6 5; opacity: .85; }
 .ghost { position: fixed; left: 0; top: 0; pointer-events: none; z-index: 50; opacity: .93; transform: translate(-50%, -50%) rotate(-2deg); box-shadow: 0 8px 24px #0006; }
 .toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 10px; font-size: 13px; z-index: 60; max-width: min(92vw, 520px); opacity: 0; transition: opacity .15s; }
 .toast.show { opacity: 1; }
@@ -163,6 +190,8 @@ details.wb.onmap { border-color: var(--accent); }
       <button class="btn" id="copy">Copy build</button>
       <button class="btn" id="ideas">Copy ideas</button>
       <button class="btn" id="saveall" title="Writes your blocks to the planner's list and asks Claude to fold them into ideas.md">Save to ideas.md</button>
+      <button class="btn" id="rulesbtn" title="Open a card's Do, Don't and Weight rules">Rules</button>
+      <button class="btn" id="simbtn" title="Grey out what the cards on the dish would stop from being dealt">Simulate</button>
       <button class="btn danger" id="clear">Clear</button>
     </div>
     <div class="map" id="map"><div class="sizer" id="sizer"><div class="stage" id="stage"></div></div></div>
@@ -170,6 +199,7 @@ details.wb.onmap { border-color: var(--accent); }
   </section>
 </div>
 <div class="toast" id="toast" role="status"></div>
+<aside class="rpanel" id="rpanel" aria-label="Card rules"></aside>
 
 <script>
 const D = /*DATA*/null;
@@ -202,9 +232,9 @@ const SAB_DESC = t => `Attacks switch to ${tname(t)} damage: 35% of them, then 7
 $('#ver').textContent = 'data from v' + D.version;
 
 // ---------------------------------------------------------------- state
-let S = { sample: D.samples[0].id, rules: true, sel: null, zoom: 1, weapons: [], custom: [], over: {}, feats: [], pass: [], gates: [], seq: 1 };
+let S = { sample: D.samples[0].id, rules: true, sel: null, zoom: 1, weapons: [], custom: [], over: {}, feats: [], pass: [], gates: [], seq: 1, cr: [], crSeq: 1, sim: false };
 let FOCUS = null;
-try { const s = JSON.parse(localStorage.getItem('sp_planner_v1') || 'null'); if (s && s.weapons) S = Object.assign(S, s); if (!S.custom) S.custom = []; if (!S.over) S.over = {}; for (const k of ['feats', 'pass', 'gates']) if (!S[k]) S[k] = []; } catch (e) { }
+try { const s = JSON.parse(localStorage.getItem('sp_planner_v1') || 'null'); if (s && s.weapons) S = Object.assign(S, s); if (!S.custom) S.custom = []; if (!S.over) S.over = {}; for (const k of ['feats', 'pass', 'gates', 'cr']) if (!S[k]) S[k] = []; if (!S.crSeq) S.crSeq = 1; } catch (e) { }
 const save = () => { try { localStorage.setItem('sp_planner_v1', JSON.stringify(S)); } catch (e) { } };
 const sampleOf = () => D.samples.find(s => s.id === S.sample) || D.samples[0];
 const W = id => D.weapons[id], M = id => D.mods[id];
@@ -582,6 +612,7 @@ function renderDetail() {
       ? `<button class="btn" data-act="revert">Revert to the original</button><small style="color:var(--dim)">Original: ${esc(n.ov.orig.name)}. ${esc(n.ov.orig.text)}</small></div>` + typeRow(n.ov, KIND_TYPE[n.kind] || 'Other') + saveRow(n.ov) + `<div class="row">`
       : `<button class="btn" data-act="over">Overwrite the original</button><small style="color:var(--dim)">A copy is a new block beside this one. Overwrite rewrites this one in place; it keeps its slot, rank and branches.</small>`) + `</div>`;
   }
+  if (rpNodeKey(n)) h += `<div class="row"><span class="lab">Rules</span><button class="btn" data-act="rules">Do, Don't and Weight</button><small style="color:var(--dim)">${rpSummary(rpNodeKey(n))}</small></div>`;
   d.innerHTML = h;
 }
 const typeRow = (o, dflt) => `<div class="row"><span class="lab">Type</span><select id="ideatype" aria-label="Type">${(dflt ? '' : '<option value="">State what it is…</option>') + IDEA_TYPES.map(t => `<option value="${esc(t)}" ${(o.type || dflt) === t ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select><small style="color:var(--dim)">What ideas.md should file it as.</small></div>`;
@@ -600,6 +631,7 @@ $('#detail').addEventListener('click', e => {
   if (a === 'copy') { const orig = n.c ? null : (n.ov ? n.ov.orig.name : n.title); const c = { u: S.seq++, parent: n.c ? n.parent.id : (n.parent ? n.parent.id : 'root'), tag: n.c ? n.c.tag : 'Variant of ' + orig, name: n.c ? n.c.name : n.title, text: n.c ? n.c.text : n.desc, of: orig }; S.custom.push(c); S.sel = FOCUS = 'c' + c.u; }
   if (a === 'over') { S.over[n.id] = { name: n.title, text: n.desc, orig: { name: n.title, text: n.desc } }; FOCUS = n.id; }
   if (a === 'revert') { delete S.over[n.id]; }
+  if (a === 'rules') { rpOpen(rpNodeKey(n)); return; }
   if (a === 'rmf') { S.feats = S.feats.filter(x => x !== n.f); S.sel = 'root'; }
   if (a === 'rmff') { n.f['f' + n.lv] = null; if (n.lv === 3) n.f.f5 = null; S.sel = 'f' + n.f.u; }
   if (a === 'rmps') { S.pass = S.pass.filter(x => x !== n.p); S.sel = 'root'; }
@@ -620,8 +652,10 @@ $('#detail').addEventListener('click', e => {
 });
 
 // ---------------------------------------------------------------- rack
+layout = (orig => function () { orig.apply(this, arguments); try { rpLinks(); } catch (e) { } })(layout);
 let TAB = 'weapons', Q = '';
-const chip = (p, name, sub, col, cls, fits) => `<button class="chip ${cls || ''}" style="--c:${col}" data-p='${esc(JSON.stringify(p))}'><b>${esc(name)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}${fits ? `<span class="fits">${esc(fits)}</span>` : ''}</button>`;
+const chip = (p, name, sub, col, cls, fits) => { const sk = S.sim ? rpPayloadKey(p) : null, why = sk ? rpWhy(sk, rpCtxFor(p)) : null; return chipHtml(p, name, sub, col, (cls || '') + (why ? ' blocked' : ''), fits, why); };
+const chipHtml = (p, name, sub, col, cls, fits, why) => `<button ${why ? `title="${esc(why)}" ` : ''}class="chip ${cls || ''}" style="--c:${col}" data-p='${esc(JSON.stringify(p))}'><b>${esc(name)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}${fits ? `<span class="fits">${esc(fits)}</span>` : ''}</button>`;
 const match = s => !Q || s.toLowerCase().includes(Q);
 function renderRack() {
   const r = $('#rack'), smp = sampleOf(), sw = selW(), onMap = S.weapons.map(w => w.id);
@@ -728,6 +762,7 @@ window.addEventListener('pointermove', e => {
   e.preventDefault();
   drag.ghost.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%) rotate(-2deg)`;
   const hit = document.elementFromPoint(e.clientX, e.clientY), node = hit && hit.closest('.node'), inMap = hit && hit.closest('#map');
+  { const z = hit && hit.closest('.crzone'); if (z) { setOver(z, !!rpPayloadKey(drag.p)); return; } }
   if (node) { const n = NODES[node.dataset.n]; const target = n.kind === 'hint' ? (n.w ? NODES['w' + n.w.u] : NODES.root) : n; setOver(node, dropPlan(drag.p, target).ok); }
   else if (inMap && drag.p.k === 'weapon') setOver($('#map').querySelector('.node.root'), dropPlan(drag.p, NODES.root).ok);
   else setOver(null);
@@ -735,8 +770,9 @@ window.addEventListener('pointermove', e => {
 function endDrag(e, cancelled) {
   if (!drag || e.pointerId !== drag.id) return;
   const d = drag; drag = null;
-  if (d.ghost) { d.ghost.remove(); if (d.fromMap) d.el.classList.remove('moving'); const el = overEl; setOver(null); if (!cancelled && el) { const n = NODES[el.dataset.n]; applyDrop(d.p, n.kind === 'hint' ? (n.w ? NODES['w' + n.w.u] : NODES.root) : n); } return; }
+  if (d.ghost) { d.ghost.remove(); if (d.fromMap) d.el.classList.remove('moving'); const el = overEl; setOver(null); if (!cancelled && el && el.classList.contains('crzone')) { rpAdd(rpPayloadKey(d.p), el.dataset.zone); return; } if (!cancelled && el) { const n = NODES[el.dataset.n]; applyDrop(d.p, n.kind === 'hint' ? (n.w ? NODES['w' + n.w.u] : NODES.root) : n); } return; }
   if (cancelled) return;
+  if (RP.open) { const k = rpPayloadKey(d.p); if (RP.pick === 'open') { if (k) rpOpen(k); else toast('That card has no rules.'); } else rpAdd(k, RP.zone); return; } // (the rules panel takes taps)
   const t = targetFor(d.p); // a tap: add to the selected node
   if (!t) { toast('Drop a weapon on the sperm first.'); return; }
   applyDrop(d.p, t);
@@ -770,6 +806,7 @@ map.addEventListener('pointerup', endPan); map.addEventListener('pointercancel',
 map.addEventListener('click', e => {
   if (swallowClick) { swallowClick = false; return; }
   const el = e.target.closest('.node'); if (!el) return; const n = NODES[el.dataset.n]; if (n.kind === 'hint') return;
+  if (RP.open && !e.target.matches('input, textarea')) { const k = rpNodeKey(n); if (!k) { toast('That card has no rules.'); return; } if (RP.pick === 'open') rpOpen(k); else rpAdd(k, RP.zone); return; }
   if (e.target.matches('input, textarea')) { if (S.sel !== n.id) { S.sel = n.id; save(); map.querySelectorAll('.node.sel').forEach(x => x.classList.remove('sel')); el.classList.add('sel'); renderDetail(); } return; }
   S.sel = n.id; save(); render();
 });
@@ -879,6 +916,252 @@ async function saveIdeas(nodes) {
   toast(sent ? `Saved ${n}. Claude has been asked to fold ${n === 1 ? 'it' : 'them'} into ideas.md.` : `Saved ${n} to the planner's list. Ask Claude to fold the queued ideas into ideas.md.`);
 }
 $('#saveall').onclick = () => { const u = unsavedNodes(); if (!u.length) { toast(ideaNodes().length ? 'Everything is saved already.' : 'Nothing of yours on the dish yet: drop a blank block, or edit a card.'); return; } saveIdeas(u); };
+
+// ---------------------------------------------------------------- card rules: Do, Don't and Weight (CARD_RULES.md)
+// A card opens in the side panel; cards dragged (or tapped) into its boxes become rules. Keys match the game's (cardrulesengine.js).
+const RP = { open: false, key: null, zone: 'dont', pick: 'add', scope: 'weapon', sample: '', branch: '', k: 2 };
+const RP_ATK = { Projectile: 'proj', Spread: 'spread', Contact: 'contact', Burst: 'burst', Beam: 'beam', Pool: 'pool' };
+const RP_FORK_I = { A: 0, B: 1, A1: 2, A2: 3, B1: 4, B2: 5 };
+const rpSplit = k => { const i = k.indexOf(':'); return [k.slice(0, i), k.slice(i + 1)]; };
+function rpPayloadKey(p) {
+  if (!p) return null;
+  const w = p.w && W(p.w);
+  switch (p.k) {
+    case 'weapon': return 'w:' + p.id;
+    case 'mod': return BUILTIN.includes(p.id) ? null : 'm:' + p.id;
+    case 'promise': return 'b:' + p.w + ':' + p.p;
+    case 'wbranch': { const P = w && w.promises.find(x => x.k === p.p), o = P && (p.i === 'wild' ? P.wild : P.branches[p.i]); return o ? 'wb:' + p.w + ':' + o.name : null; }
+    case 'wmast': { const x = w && w.masteries[p.i]; return x ? 'wb:' + p.w + ':' + x.name : null; }
+    case 'mbranch': return 'mf:' + p.m + ':' + p.b;
+    case 'mmast': return 'mf:' + p.m + ':' + p.x;
+    case 'feat': return 'f:' + p.id;
+    case 'pass': return 'p:' + p.id;
+    case 'move': { const n = NODES[p.id]; return n ? rpNodeKey(n) : null; }
+  }
+  return null;
+}
+function rpNodeKey(n) {
+  if (!n) return null;
+  const wd = n.w && W(n.w.id);
+  switch (n.kind) {
+    case 'root': return 's:' + S.sample;
+    case 'weapon': return 'w:' + n.w.id;
+    case 'promise': return 'b:' + n.w.id + ':' + n.P.k;
+    case 'wbranch': { const P = wd.promises.find(x => x.k === n.w.promise), o = P && (n.w.wbr === 'wild' ? P.wild : P.branches[n.w.wbr]); return o ? 'wb:' + n.w.id + ':' + o.name : null; }
+    case 'wmast': { const x = wd.masteries[n.w.wmast]; return x ? 'wb:' + n.w.id + ':' + x.name : null; }
+    case 'mod': return n.m.builtin ? null : 'm:' + n.m.id;
+    case 'mbranch': return 'mf:' + n.m.id + ':' + n.m.br;
+    case 'mmast': return 'mf:' + n.m.id + ':' + n.m.mast;
+    case 'feat': return 'f:' + n.F.id;
+    case 'pass': return 'p:' + n.P.id;
+    case 'pmast': return 'pm:' + n.P.id + ':' + (n.p.mast ? 'B' : 'A');
+    case 'gate': return n.g.k === 'mod' ? 'm:' + n.g.id : n.g.k === 'feat' ? 'f:' + n.g.id : n.g.k === 'pass' ? 'p:' + n.g.id : null;
+  }
+  return null;
+}
+function rpName(k) {
+  if (!k) return '';
+  const [t, r] = rpSplit(k);
+  if (t === 'w') return W(r) ? W(r).name : r;
+  if (t === 'm') return M(r) ? M(r).name : r;
+  if (t === 'mf') { const [id, c] = r.split(':'), m = M(id); return m && m.br ? m.br[RP_FORK_I[c]] + ' (' + m.name + ')' : r; }
+  if (t === 'b') { const [wid, L] = r.split(':'), P = W(wid) && W(wid).promises.find(x => x.k === L); return P ? P.name : r; }
+  if (t === 'wb') return r.slice(r.indexOf(':') + 1);
+  if (t === 'f') return FEAT(r) ? FEAT(r).name : r;
+  if (t === 'p') return PASS(r) ? PASS(r).name : r;
+  if (t === 'pm') { const [id, c] = r.split(':'), P = PASS(id); return P && P.mast ? P.mast[c === 'B' ? 1 : 0].name + ' (' + P.name + ')' : r; }
+  if (t === 's') { const sm = D.samples.find(x => x.id === r); return sm ? sm.name : r; }
+  if (t === 'tag') { const [g, v] = r.split(':'); return 'All ' + ({ g: (D.gnames[v] || v) + ' modifiers', a: (ATK_SHORT[v] || v) + ' cards', t: tname(v) + ' cards', k: { w: 'weapons', m: 'modifiers', b: 'branch cards', f: 'Feats', p: 'passives' }[v] }[g] || v); }
+  return k;
+}
+function rpKindLabel(k) { return { w: 'Weapon', m: 'Modifier', mf: 'Modifier fork', b: 'Lv 3 branch', wb: 'Branch card', f: 'Feat', p: 'Sperm passive', pm: 'Passive mastery', s: 'Sample', tag: 'Group' }[rpSplit(k)[0]] || 'Card'; }
+// Tags and inheritance (the same rules as the game: cardrulesengine.js crTagsOf and crCovers).
+function rpTags(k) {
+  const [t, r] = rpSplit(k), out = [];
+  const kind = { w: 'w', m: 'm', mf: 'm', b: 'b', wb: 'b', f: 'f', p: 'p', pm: 'p' }[t]; if (kind) out.push('k:' + kind);
+  if (t === 'm' || t === 'mf') { const m = M(r.split(':')[0]); if (m) { out.push('g:' + m.group); for (const a of m.atk || []) out.push('a:' + a); } }
+  if (t === 'w' || t === 'b' || t === 'wb') { const w = W(r.split(':')[0]); if (w) { out.push('a:' + (RP_ATK[w.atk] || w.atk)); out.push('t:' + w.type); } }
+  if (t === 'f') { const f = FEAT(r); if (f) { if (f.atk) out.push('a:' + (RP_ATK[f.atk] || f.atk)); if (f.type) out.push('t:' + f.type); } }
+  return out;
+}
+function rpCovers(pat, k) {
+  if (pat === k) return true;
+  const [pt, pr] = rpSplit(pat), [kt, kr] = rpSplit(k);
+  if (pt === 'tag') return rpTags(k).includes(pr);
+  if (pt === 'm' && kt === 'mf') return kr.split(':')[0] === pr;
+  if (pt === 'p' && kt === 'pm') return kr.split(':')[0] === pr;
+  if (pt === 'b' && kt === 'wb') { const [wid, L] = pr.split(':'), i = kr.indexOf(':'); if (kr.slice(0, i) !== wid) return false; const P = W(wid) && W(wid).promises.find(x => x.k === L), nm = kr.slice(i + 1); return !!(P && [...P.branches, P.wild].some(o => o && o.name === nm)); }
+  return false;
+}
+// What the dish holds, as keys (per weapon, and for the run).
+function rpWeaponKeys(w) {
+  const out = ['w:' + w.id], wd = W(w.id);
+  for (const m of w.mods) { if (!m.builtin) out.push('m:' + m.id); if (m.br) out.push('mf:' + m.id + ':' + m.br); if (m.mast) out.push('mf:' + m.id + ':' + m.mast); }
+  if (w.promise) { out.push('b:' + w.id + ':' + w.promise); const P = wd.promises.find(x => x.k === w.promise), o = P && w.wbr != null && (w.wbr === 'wild' ? P.wild : P.branches[w.wbr]); if (o) out.push('wb:' + w.id + ':' + o.name); }
+  if (w.wmast != null && wd.masteries[w.wmast]) out.push('wb:' + w.id + ':' + wd.masteries[w.wmast].name);
+  return out;
+}
+const rpRunKeys = () => S.feats.map(f => 'f:' + f.id).concat(S.pass.map(x => 'p:' + x.id), S.pass.filter(x => x.mast != null).map(x => 'pm:' + x.id + ':' + (x.mast ? 'B' : 'A')), ['s:' + S.sample]);
+const rpHeldFor = (scope, w) => (scope === 'weapon' && w ? rpWeaponKeys(w) : S.weapons.flatMap(rpWeaponKeys)).concat(rpRunKeys());
+const rpLive = r => !(r.sample && r.sample !== S.sample) && !(r.branch && !rpHeldFor('run', null).some(h => rpCovers(r.branch, h)));
+// The verdict for a card against the dish's build (null: it could be dealt).
+function rpWhy(k, w) {
+  if (!S.cr.length || !k) return null;
+  let doSeen = false, doMet = false; const names = [];
+  for (const r of S.cr) {
+    if (!rpLive(r)) continue;
+    const held = rpHeldFor(r.scope || 'weapon', w);
+    if (r.mode === 'dont') {
+      if (rpCovers(r.target, k) && held.some(h => rpCovers(r.parent, h))) return 'Blocked by ' + rpName(r.parent);
+      if (rpCovers(r.parent, k)) { const h = held.find(x => rpCovers(r.target, x)); if (h) return 'Blocked by ' + rpName(h); }
+    } else if (r.mode === 'do' && rpCovers(r.target, k)) { doSeen = true; names.push(rpName(r.parent)); if (held.some(h => rpCovers(r.parent, h))) doMet = true; }
+  }
+  return doSeen && !doMet ? 'Needs ' + names.join(' or ') : null;
+}
+function rpCtxFor(p) { // the weapon a rack chip would go on: the selected one, else its own weapon
+  const sw = selW(); if (sw) return sw;
+  if (p && p.w) return S.weapons.find(x => x.id === p.w) || null;
+  return null;
+}
+
+// ---------------------------------------------------------------- editing
+function rpAdd(target, zone) {
+  if (!RP.key) { toast('Open a card first.'); return; }
+  if (!target) { toast('That card has no rules (built-in Delivery, Switched at Birth or a blank block).'); return; }
+  if (target === RP.key) { toast('A card cannot have a rule about itself.'); return; }
+  const mode = zone || RP.zone;
+  if (mode !== 'weight') {
+    const other = mode === 'do' ? 'dont' : 'do';
+    const clash = S.cr.find(r => r.mode === other && ((r.parent === RP.key && r.target === target) || (r.mode === 'dont' && r.parent === target && r.target === RP.key)));
+    if (clash) { toast(rpName(target) + ' is already in the ' + (clash.mode === 'do' ? 'Do' : "Don't") + ' box here. Remove it first.'); return; }
+  }
+  if (S.cr.some(r => r.parent === RP.key && r.target === target && r.mode === mode)) { toast('Already there.'); return; }
+  const r = { id: 'r' + (S.crSeq++), parent: RP.key, mode, target, scope: RP.scope };
+  if (mode === 'weight') r.k = +RP.k;
+  if (RP.sample) r.sample = RP.sample;
+  if (RP.branch) r.branch = RP.branch;
+  S.cr.push(r); save(); rpRender(); render();
+  toast((mode === 'dont' ? "Don't: " : mode === 'do' ? 'Do: ' : 'Weight x' + r.k + ': ') + rpName(target));
+}
+function rpShow(on) { RP.open = on; $('#rpanel').classList.toggle('open', on); $('#rulesbtn').classList.toggle('on', on); }
+function rpOpen(k) { if (!k) return; RP.key = k; RP.pick = 'add'; rpShow(true); rpRender(); }
+function rpClose() { rpShow(false); render(); }
+const rpBadge = r => [r.scope === 'run' ? 'run' : 'weapon', r.sample ? (D.samples.find(x => x.id === r.sample) || {}).name : '', r.branch ? 'if ' + rpName(r.branch) : '', r.mode === 'weight' ? 'x' + r.k : ''].filter(Boolean).join(' · ');
+function rpSummary(k) {
+  const own = S.cr.filter(r => r.parent === k), linked = S.cr.filter(r => r.parent !== k && rpCovers(r.target, k));
+  const n = m => own.filter(r => r.mode === m).length;
+  return own.length || linked.length ? `${n('do')} do, ${n('dont')} don't, ${n('weight')} weight` + (linked.length ? `; named by ${linked.length} other card${linked.length === 1 ? '' : 's'}` : '') : 'No rules yet.';
+}
+function rpHealth() {
+  const out = [];
+  for (const r of S.cr) {
+    if (r.mode === 'weight') continue;
+    const other = r.mode === 'do' ? 'dont' : 'do';
+    if (S.cr.some(o => o.mode === other && ((o.parent === r.parent && o.target === r.target) || (o.parent === r.target && o.target === r.parent))))
+      out.push(`${rpName(r.parent)} has ${rpName(r.target)} in both Do and Don't.`);
+  }
+  const doT = [...new Set(S.cr.filter(r => r.mode === 'do').map(r => r.target))];
+  for (const t of doT) {
+    const ps = S.cr.filter(r => r.mode === 'do' && r.target === t).map(r => r.parent);
+    if (ps.every(p => S.cr.some(r => r.mode === 'dont' && ((r.parent === p && rpCovers(r.target, t)) || (r.parent === t && rpCovers(r.target, p)) || (rpCovers(r.parent, t) && rpCovers(r.target, p))))))
+      out.push(`${rpName(t)} can never come: every card it needs bans it.`);
+  }
+  for (const w of S.weapons) {
+    const wd = W(w.id), free = wd.mods.filter(id => !BUILTIN.includes(id) && !w.mods.some(m => m.id === id) && !rpWhy('m:' + id, w));
+    if (free.length < 3) out.push(`${wd.name}: only ${free.length} new modifier${free.length === 1 ? '' : 's'} can still come with this build.`);
+  }
+  const feats = D.feats.filter(f => !f.sample && !S.feats.some(x => x.id === f.id) && !rpWhy('f:' + f.id, null)).length;
+  if (feats < 3) out.push(`Only ${feats} Feats can still come with this build.`);
+  return [...new Set(out)];
+}
+function rpRender() {
+  const el = $('#rpanel');
+  if (!RP.open) { el.innerHTML = ''; return; }
+  if (!RP.key) { el.innerHTML = `<div class="rp-row" style="justify-content:space-between"><span class="rp-ey">Card rules</span><button class="btn" data-rp="close">Close</button></div><h2>Pick a card</h2><p class="hint">Tap a card in the rack or on the dish to open its rules.</p>`; return; }
+  const k = RP.key, own = S.cr.filter(r => r.parent === k), linked = S.cr.filter(r => r.parent !== k && rpCovers(r.target, k));
+  const zc = z => z === 'dont' ? 'g-lifesteal' : z === 'do' ? 'g-chemistry' : 'g-area';
+  const zone = (z, title, hint) => {
+    let items = own.filter(r => r.mode === z).map(r => `<span class="crchip" style="--zc:var(--${zc(z)})">${esc(rpName(r.target))} <em>${esc(rpBadge(r))}</em><button data-rm="${r.id}" aria-label="Remove">×</button></span>`).join('');
+    if (z === 'dont') items += linked.filter(r => r.mode === 'dont').map(r => `<span class="crchip linked" style="--zc:var(--${zc(z)})" title="Set on ${esc(rpName(r.parent))}: a Don't works both ways">${esc(rpName(r.parent))} <em>from its card</em></span>`).join('');
+    if (z === 'do') items += linked.filter(r => r.mode === 'do').map(r => `<span class="crchip linked" style="--zc:var(--${zc(z)})" title="This card only comes with ${esc(rpName(r.parent))}">needs ${esc(rpName(r.parent))} <em>from its card</em></span>`).join('');
+    if (z === 'weight') items += linked.filter(r => r.mode === 'weight').map(r => `<span class="crchip linked" style="--zc:var(--${zc(z)})">x${r.k} with ${esc(rpName(r.parent))} <em>from its card</em></span>`).join('');
+    return `<div class="crzone ${RP.zone === z ? 'active' : ''}" data-zone="${z}"><h4>${title} <small>${hint}</small></h4><div class="crlist">${items || '<small style="color:var(--dim)">Drag cards here, or select this box and tap cards.</small>'}</div></div>`;
+  };
+  const branches = [...new Set(S.weapons.flatMap(w => rpWeaponKeys(w).filter(x => /^b:/.test(x))).concat(S.pass.filter(x => x.mast != null).map(x => 'pm:' + x.id + ':' + (x.mast ? 'B' : 'A'))))];
+  if (RP.branch && !branches.includes(RP.branch)) branches.push(RP.branch);
+  const tags = [['g', GORDER], ['a', Object.values(RP_ATK)], ['t', ['phys', 'fire', 'ice', 'shock', 'arcane', 'soul', 'flame']], ['k', ['w', 'm', 'b', 'f', 'p']]];
+  const warn = rpHealth();
+  el.innerHTML = `<div class="rp-row" style="justify-content:space-between"><span class="rp-ey">${esc(rpKindLabel(k))} · rules</span><button class="btn" data-rp="close">Close</button></div>
+    <h2>${esc(rpName(k))}</h2>
+    <div class="rp-row"><span class="rp-lab">Taps</span><button class="btn ${RP.pick === 'add' ? 'on' : ''}" data-rp="pick-add">Add to the selected box</button><button class="btn ${RP.pick === 'open' ? 'on' : ''}" data-rp="pick-open">Open that card instead</button></div>
+    <div class="rp-row"><span class="rp-lab">New rules</span>
+      <select id="rp-scope" aria-label="Scope"><option value="weapon" ${RP.scope === 'weapon' ? 'selected' : ''}>this weapon</option><option value="run" ${RP.scope === 'run' ? 'selected' : ''}>the whole run</option></select>
+      <select id="rp-sample" aria-label="Sample"><option value="">any sample</option>${D.samples.map(x => `<option value="${x.id}" ${RP.sample === x.id ? 'selected' : ''}>only as ${esc(x.name)}</option>`).join('')}</select>
+      <select id="rp-branch" aria-label="Branch"><option value="">any branch</option>${branches.map(b => `<option value="${esc(b)}" ${RP.branch === b ? 'selected' : ''}>only with ${esc(rpName(b))}</option>`).join('')}</select>
+      <select id="rp-k" aria-label="Weight">${[0, 0.25, 0.5, 2, 3, 5].map(v => `<option value="${v}" ${+RP.k === v ? 'selected' : ''}>weight x${v}</option>`).join('')}</select></div>
+    ${zone('dont', "Don't", 'never held together (both ways)')}
+    ${zone('do', 'Do', 'only comes while this is held')}
+    ${zone('weight', 'Weight', 'more or less likely while this is held')}
+    <div class="rp-row" style="flex-direction:column;align-items:stretch"><span class="rp-lab">Groups (tap to add to the selected box)</span>${tags.map(([g, vs]) => `<div class="rp-tags">${vs.map(v => `<button data-tag="${g}:${v}">${esc(rpName('tag:' + g + ':' + v).replace(/^All /, ''))}</button>`).join('')}</div>`).join('')}</div>
+    <div class="rp-row" style="flex-direction:column;align-items:stretch"><span class="rp-lab">Health</span>${warn.length ? warn.map(t => `<p class="rp-warn">${esc(t)}</p>`).join('') : '<p class="rp-ok">No contradictions, nothing unreachable, and every weapon on the dish can still get 3 modifiers.</p>'}</div>
+    <div class="rp-row"><button class="btn" data-rp="copy">Copy rules</button><button class="btn" data-rp="save">Save rules to the game</button><small style="color:var(--dim)">${S.cr.length} rule${S.cr.length === 1 ? '' : 's'} in all</small></div>`;
+}
+$('#rpanel').addEventListener('click', e => {
+  const z = e.target.closest('.crzone'), rm = e.target.closest('[data-rm]'), tg = e.target.closest('[data-tag]'), b = e.target.closest('[data-rp]');
+  if (rm) { S.cr = S.cr.filter(r => r.id !== rm.dataset.rm); save(); rpRender(); render(); return; }
+  if (tg) { rpAdd('tag:' + tg.dataset.tag, RP.zone); return; }
+  if (b) {
+    const a = b.dataset.rp;
+    if (a === 'close') rpClose();
+    if (a === 'pick-add' || a === 'pick-open') { RP.pick = a.slice(5); rpRender(); }
+    if (a === 'copy') copyText(JSON.stringify(S.cr, null, 1), 'Rules');
+    if (a === 'save') rpSave();
+    return;
+  }
+  if (z) { RP.zone = z.dataset.zone; rpRender(); }
+});
+$('#rpanel').addEventListener('change', e => {
+  if (e.target.id === 'rp-scope') RP.scope = e.target.value;
+  if (e.target.id === 'rp-sample') RP.sample = e.target.value;
+  if (e.target.id === 'rp-branch') RP.branch = e.target.value;
+  if (e.target.id === 'rp-k') { RP.k = +e.target.value; RP.zone = 'weight'; rpRender(); }
+});
+$('#rulesbtn').onclick = () => {
+  if (RP.open) { rpClose(); return; }
+  const k = rpNodeKey(NODES[S.sel]);
+  if (k) rpOpen(k); else { RP.key = null; RP.pick = 'open'; rpShow(true); rpRender(); }
+};
+$('#simbtn').onclick = () => { S.sim = !S.sim; save(); $('#simbtn').classList.toggle('on', S.sim); renderRack(); toast(S.sim ? 'Simulate: greyed cards could not be dealt with the cards on the dish.' : 'Simulate off.'); };
+$('#simbtn').classList.toggle('on', !!S.sim);
+// Rules between cards on the dish, drawn as dashed links (red Don't, green Do, amber Weight).
+function rpLinks() {
+  const stage = $('#stage'), old = stage.querySelector('svg.rlinks'); if (old) old.remove();
+  if (!S.cr.length || !LAST) return;
+  const nodes = LAST.all.filter(n => n.el && rpNodeKey(n)).map(n => ({ n, k: rpNodeKey(n) }));
+  let h = '';
+  for (const r of S.cr) {
+    const a = nodes.find(o => o.k === r.parent); if (!a) continue;
+    for (const b of nodes.filter(o => o !== a && rpCovers(r.target, o.k))) {
+      const x1 = a.n.x + a.n.wd / 2, y1 = a.n.y + a.n.h / 2, x2 = b.n.x + b.n.wd / 2, y2 = b.n.y + b.n.h / 2, mx = (x1 + x2) / 2, my = Math.min(y1, y2) - 40;
+      h += `<path d="M${x1} ${y1} Q${mx} ${my} ${x2} ${y2}" style="stroke:var(--${r.mode === 'dont' ? 'g-lifesteal' : r.mode === 'do' ? 'g-chemistry' : 'g-area'})"/>`;
+    }
+  }
+  if (!h) return;
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); svg.setAttribute('class', 'rlinks');
+  svg.setAttribute('width', parseFloat(stage.style.width) || 0); svg.setAttribute('height', parseFloat(stage.style.height) || 0);
+  svg.innerHTML = h; stage.appendChild(svg);
+}
+// Save to the game: the artifact's database (collection "rules", doc "current"), then a comment asks Claude to apply them.
+async function rpSave() {
+  if (!DB) { toast(CAPS ? 'Saving needs a claude.ai sign-in. Use Copy rules and paste them to Claude instead.' : 'Still connecting. Try again in a moment.'); return; }
+  const bad = rpHealth().filter(t => /both Do and Don't|can never come/.test(t));
+  if (bad.length) { toast('Fix first: ' + bad[0]); return; }
+  try { await DB.collection('rules').doc('current').set({ rules: S.cr, savedAt: new Date().toISOString(), status: 'queued', version: D.version, count: S.cr.length }); }
+  catch (e) { toast('The list refused the save: ' + ((e && e.code) || (e && e.message) || 'unknown error') + '.'); return; }
+  let sent = false;
+  try { if (CM && (await CM.canSendToClaude()) === 'available') { await CM.sendToClaude({ anchor: await CM.anchorFor($('#rulesbtn')), text: `Apply ${S.cr.length} card rule${S.cr.length === 1 ? '' : 's'} from the planner to the game (database collection "rules", doc "current").` }); sent = true; } } catch (e) { }
+  toast(sent ? `Saved ${S.cr.length} rules. Claude has been asked to put them in the game.` : `Saved ${S.cr.length} rules. Ask Claude to apply the saved card rules.`);
+}
 
 // ---------------------------------------------------------------- boot
 try { if (window.claude && window.claude.hot && window.claude.hot.snapshot) window.claude.hot.snapshot(() => S); } catch (e) { }

@@ -1,5 +1,13 @@
 # claude/sharp-hypatia-icfi8l
 
+## 2026-10-30 Planner: card rules panel (Do, Don't, Weight), simulate, health, save; rules generator
+- Systems: tests/tools (planner, rules generator), docs
+- Files: tests/tools/planner/template.html, tests/tools/rules/genrules.js (new), CARD_RULES.md, ARCHITECTURE.md, NOTES.md
+- What: the planner opens any card in a side panel with Don't, Do and Weight boxes (drag or tap cards and groups in; scope, sample, branch and weight for new rules; a Don't shows on both cards). Simulate greys rack cards the dish's build would stop, with the reason; Health flags contradictions, unreachable Do cards and thin drafts; rules on cards both on the dish draw as dashed links. Save rules to the game writes the artifact database (rules/current) and comments to Claude; genrules.js validates them against the live game and writes web/js/cardrules.js.
+- Save data: none in the game.
+- Hooks: none.
+- Risk: none (the game's rules stay empty until saved and applied).
+
 ## 2026-10-30 Card rules engine: Do, Don't and Weight
 - Systems: card rules (new), draft, modifier cards, branches back, weapons (slot draft), settings, tests
 - Files: web/js/cardrules.js (new, generated data, empty), web/js/cardrulesengine.js (new), web/js/draft.js (one line), web/index.html, CARD_RULES.md, ARCHITECTURE.md, tests/cardrulestest.js (new)
