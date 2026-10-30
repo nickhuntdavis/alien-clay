@@ -274,6 +274,7 @@ v10Loot = (orig => function (req) {
   const own = G.weapons.filter(Boolean), have = new Set(own.map(w => w.def.v10atk));
   let pool = v10Pool().filter(id => !own.some(w => (w.sid || w.id) === id) && !have.has(v10Atk(id)));
   if (!pool.length) pool = v10Pool().filter(id => !own.some(w => (w.sid || w.id) === id));
+  if (pool.every(id => crWeight('w:' + id, { w: null }) === 1)) return orig.apply(this, arguments); // (no rule on these weapons: keep the game's own deal, kindred screens included)
   const keyed = pool.map(id => ({ id, r: Math.pow(Math.random(), 1 / Math.max(1e-6, crWeight('w:' + id, { w: null }))) })).filter(o => crWeight('w:' + o.id, { w: null }) > 0);
   keyed.sort((a, b) => b.r - a.r); // (weighted order: Efraimidis and Spirakis)
   return keyed.slice(0, 3).map(o => optNewWeapon(o.id, 0));
