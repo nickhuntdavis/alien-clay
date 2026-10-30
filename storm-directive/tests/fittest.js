@@ -13,7 +13,9 @@ const { chromium } = require('playwright');
     let w = slot('v_shock_beam'); w.up = { p: 'C' }; if (titles(w, 6).includes('Packet Loss')) bad.push('Packet Loss offered');
     // Soulmate Signal on A: no Conjoined Twins.
     w = slot('s_twin'); w.up = { p: 'A' }; if (titles(w, 10).includes('Conjoined Twins')) bad.push('Conjoined Twins on A');
-    // Standard Issue's branch fit rules went with its old branches (baseline1.js); Homing stays off it by the audit (moddead.js).
+    // Standard Issue Through and Through: no Homing modifier.
+    w = slot('v_phys_proj'); w.up = { p: 'B' }; if (modCardOk(w, 'homing')) bad.push('Homing on Through and Through');
+    // (Homing on Ricochet Brain is off by the modifier audit, moddead.js, so only the rule above is checked.)
     // Switched at Birth: never on a status-bound weapon; no card when only those are held.
     slot('v_ice_pool'); { const c = sabCard(); if (!c || c.elem !== 'soul') bad.push('Nocturnal Emission must switch to Parasite only: ' + (c && c.elem)); }
     slot('v_phys_proj'); const c = sabCard(); if (!c) bad.push('no Switched at Birth on Standard Issue');
