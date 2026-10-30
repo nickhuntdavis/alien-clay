@@ -66,6 +66,8 @@ const { chromium } = require('playwright');
       al_golive: { pre: () => ring(6, 70), act: () => {}, sec: 0.6, ok: () => G.enemies.some(e => e.chargeT > G.t) || 'nothing Charged' }, // (alpha2.js: gated on Unwanted Contact C)
       be_defib: { pre: () => { G.P.maxHp = 1000; G.player.hp = 300; ring(4, 100); }, act: () => {}, sec: 0.6, ok: () => (G.enemies.some(e => e.dazeT > G.t) && G.player.hp > 300) || 'not performed' }, // (beta2.js: gated on Little Prick B)
       be_bloodbag: { pre: () => { G.P.maxHp = 1000; G.player.hp = 300; foe(150, 0); }, act: () => {}, sec: 1, ok: () => (G.player.hp > 300 && !!(G.be2 && G.be2.bag)) || 'no heal' }, // (beta2.js: gated on Sister Cousin B; heals, deals no damage)
+      pv_card: { pre: () => { ring(4, 100); }, act: () => {}, sec: 1.2, ok: () => (G.pv2 && G.pv2.card && G.enemies.some(e => fightCd(e).bars.acid > 0)) || 'no Corrosion built' }, // (private2.js: gated on Acid Spit B; builds Corrosion, deals no damage)
+      pv_expelled: { pre: () => { ring(4, 100); }, act: () => {}, sec: 0.6, ok: () => G.enemies.some(e => e.fearT > G.t) || 'nothing Feared' }, // (private2.js: gated on Rent Free B)
       tonic_immobility: { pre: () => ring(5, 120), act: () => {}, sec: 0.5, ok: () => G.enemies.some(e => e.dazeT > G.t) || 'nothing staggered' },
       shed_the_lining: { pre: () => { G.player.face = 0; foe(120, 0); foe(160, 40); }, act: () => {}, sec: 3, ok: () => G.enemies.some(e => e.bleeds && e.bleeds.length) || 'nothing bleeding' },
       vanishing_twin: { pre: () => { foe(150, 0); foe(160, 50); }, act: () => {}, sec: 0.6, ok: () => (G.fst && G.fst.possess > 0) || 'nothing Possessed' },
@@ -109,7 +111,7 @@ const { chromium } = require('playwright');
         const minSt = run(t.sec || 0.5);
         const dm = dealt(), msg = t.ok ? t.ok(av) : true;
         if (msg !== true) bad.push(label + ': ' + msg);
-        if (d.type && id !== 'sofa_crevice' && id !== 'be_bloodbag' && !(id === 'x4_friends' && !(flags && flags.includes('plusones'))) && !(flags && flags.includes('thick')) && !(dm > 0)) bad.push(label + ': no damage');
+        if (d.type && id !== 'sofa_crevice' && id !== 'be_bloodbag' && id !== 'pv_card' && !(id === 'x4_friends' && !(flags && flags.includes('plusones'))) && !(flags && flags.includes('thick')) && !(dm > 0)) bad.push(label + ': no damage');
         return { w, dm, paid: st0 - minSt };
       } catch (err) { bad.push(label + ' threw: ' + err.message + ' ' + (err.stack || '').split('\n')[1]); return null; }
     };
