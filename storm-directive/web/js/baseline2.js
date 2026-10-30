@@ -22,8 +22,8 @@
 //    2 s and come back at 50% health with every status cleared (a wrap of genesLethal, which both hurtPlayer and the DoT ticks reach);
 //    the robot skeleton costume for the rest of the run.
 //  - Rename: Maximum Gains reads "Shotgun" (WEAPONS, W24, W24_BY, W24_DESC).
-//  - Costumes (a drawPlates wrap after baseline1.js's): segmented plates and a red eye (a head outline and a red dot after Come back), a
-//    spinning toothed blade, a speed streak and the sidecar pod. Shapes, not colours, so Lab view reads.
+//  - Costumes: baselinelook.js draws them with your body (the Sperminator's endoskeleton, husk and skull, the chainsaw, the goggles),
+//    reading G.bl2 (skel, huskT) and f.sawOn, f.hail from here; this file draws only the mark's crosshair and the sidecar pod (drawPlates).
 //  Copy: every card, tag, cost and float is TODO_COPY:<id> (the user writes it); names the user gave are kept.
 // Simplifications: a "heavy hit" is applied directly (a Shell layer off and Poise up, baseline1.js bl1Heavy); the husk is p.iframes; the
 // sidecar is a plain orbit body, not a modifiers.js pet. Fit rules in fitcheck.js for the old Shotgun cards are left alone (inert now).
@@ -324,49 +324,7 @@ function bl2Costume(px, py) {
   if (!G || !G.player) return;
   const w = bl2W(), p = bl2P(), S2 = G.bl2; if (!w || !p) return;
   const pl = G.player, k = S * (typeof playerScale === 'function' ? playerScale() : 1), face = bl2Head(), t = G.realT;
-  const raw = RAW_COL; RAW_COL = true;
-  ctx.save(); ctx.translate(px, py); ctx.rotate(face + (pl.yaw || 0)); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-  if (p === 'A') {
-    const skel = S2 && S2.skel, husk = S2 && S2.huskT > G.t;
-    if (husk) { // a dry brown husk
-      ctx.globalAlpha = 0.75; ctx.fillStyle = '#8b6f47'; ctx.beginPath(); ctx.ellipse(0, 0, 9 * k, 6.5 * k, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = 'rgb(70,52,30)'; ctx.lineWidth = 1 * k; ctx.stroke();
-    } else if (skel) { // the robot skeleton: the head is an outline with a red dot
-      ctx.globalAlpha = 0.95; ctx.strokeStyle = 'rgb(40,44,42)'; ctx.lineWidth = 1.4 * k;
-      ctx.beginPath(); ctx.ellipse(1.5 * k, 0, 7.4 * k, 5 * k, 0, 0, Math.PI * 2); ctx.stroke();
-      ctx.fillStyle = '#ff2e2e'; ctx.beginPath(); ctx.arc(4.6 * k, 0, 1.7 * k, 0, Math.PI * 2); ctx.fill();
-    } else { // segmented metal plates and a red eye
-      ctx.globalAlpha = 0.6; ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.ellipse(1.5 * k, 0, 7.2 * k, 4.8 * k, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.globalAlpha = 0.95; ctx.strokeStyle = 'rgb(48,54,50)'; ctx.lineWidth = 1 * k; ctx.stroke();
-      ctx.lineWidth = 0.9 * k; ctx.beginPath(); // the seams between the plates
-      ctx.moveTo(-1.8 * k, -4.4 * k); ctx.lineTo(-1.8 * k, 4.4 * k); ctx.moveTo(1.6 * k, -4.9 * k); ctx.lineTo(1.6 * k, 4.9 * k); ctx.moveTo(-5 * k, 0); ctx.lineTo(3.4 * k, 0); ctx.stroke();
-      const g = 0.7 + 0.3 * Math.sin(t * 6);
-      ctx.fillStyle = '#ff2e2e'; ctx.globalAlpha = g; ctx.beginPath(); ctx.arc(4.8 * k, 0, 1.9 * k, 0, Math.PI * 2); ctx.fill();
-      ctx.globalAlpha = 0.3 * g; ctx.beginPath(); ctx.arc(4.8 * k, 0, 3.4 * k, 0, Math.PI * 2); ctx.fill();
-    }
-  }
-  if (p === 'B') { // a toothed blade in front of the head, spinning while the saw runs
-    const f = bl2F(w), on = G.t - (f.sawOn || -9) < 0.3, big = f.hail ? 1.45 : 1, R = 5.2 * k * big, cx = (9 + 5 * big) * k, N = 9;
-    ctx.globalAlpha = 0.95; ctx.strokeStyle = 'rgb(48,54,50)'; ctx.lineWidth = 1.6 * k;
-    ctx.beginPath(); ctx.moveTo(5 * k, 0); ctx.lineTo(cx, 0); ctx.stroke(); // the arm
-    ctx.save(); ctx.translate(cx, 0); ctx.rotate(t * (on ? 32 : 3));
-    ctx.fillStyle = '#ffffff'; ctx.globalAlpha = 0.9; ctx.beginPath(); ctx.arc(0, 0, R, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = 'rgb(48,54,50)'; ctx.lineWidth = 1 * k; ctx.stroke();
-    ctx.fillStyle = 'rgb(48,54,50)';
-    for (let i = 0; i < N; i++) { // the teeth
-      const a = i / N * Math.PI * 2; ctx.save(); ctx.rotate(a); ctx.beginPath(); ctx.moveTo(R - 0.4 * k, -1.3 * k); ctx.lineTo(R + 2.4 * k, 0); ctx.lineTo(R - 0.4 * k, 1.3 * k); ctx.closePath(); ctx.fill(); ctx.restore();
-    }
-    ctx.beginPath(); ctx.arc(0, 0, 1.1 * k, 0, Math.PI * 2); ctx.fill();
-    ctx.restore();
-  }
-  if (p === 'C') { // a speed streak behind the tail
-    const r = bl2Spd() / bl2Top();
-    if (r > 0.5) {
-      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.3 * k; const L = Math.min(1.4, r) * 24 * k;
-      for (let i = -1; i <= 1; i++) { ctx.globalAlpha = (i ? 0.35 : 0.55) * Math.min(1, (r - 0.4) * 2); const o = (Math.sin(t * 20 + i) * 2) * k; ctx.beginPath(); ctx.moveTo(-17 * k, i * 4.6 * k); ctx.lineTo(-17 * k - L + o, i * 4.6 * k); ctx.stroke(); }
-    }
-  }
-  ctx.restore();
+  const raw = RAW_COL; RAW_COL = true; // (the costumes on the head are baselinelook.js's: here only the mark and the sidecar, in the world)
   if (p === 'A') for (const e of bl1S().marks) { // the mark's crosshair ring in the world
     if (e.dead || !e.bl2mk) continue;
     const x = sx(e.x), y = sy(e.y), r = (e.r + 9) * S, a = t * 1.5;

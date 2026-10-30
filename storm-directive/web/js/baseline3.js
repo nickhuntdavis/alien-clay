@@ -16,14 +16,13 @@
 //      C Biting    bites Bleed (fightStatus) and heal you 4% of the damage dealt. Lv 6: Chew toy (a bitten enemy is held 0.5 s:
 //                  e.snareT and a stun), Rabies (biting a Bleeding enemy spreads Bleed to neighbours within 60). Wild: a bite on a
 //                  Shelled enemy strips a layer. Lv 9: Jaws (bites on enemies under 20% health kill outright, not bosses; heal 10% max health).
-//  - Costumes (drawPlates wrap, same transform as baseline1.js bl1Costume): Kung fu two small fists circling the head (one punches
-//    out on a kick); Samurai a thin blade beside the head that sweeps on a cut, and a topknot bump; Biting a row of teeth along the
-//    head's leading edge that chomp on each bite. Shapes, not colours, so Lab view reads.
+//  - Costumes: baselinelook.js draws them with your body (Kung fu's belt and fists, Samurai's topknot and katana, Biting's teeth),
+//    reading f.kickT, f.cutT and f.biteT from here.
 //  Copy: every card text is TODO_COPY:<id> (BASELINE_COPY_IDS.md); the branch and Lv 6 card names the user gave are kept.
 // Simplifications: "a hit" for the kick counts swings, not enemies hit; the reflected shot is cancelled and its damage (at least two
 // swings' worth) lands on the shooter instead of flying back as a bullet; Jaws heals 10% of max health.
-// Hooks: wupReg (weapons24.js), wupOn stats/fire/dmg/hit/kill/tick, hookOn('fire:after'); wraps wupStats (base retune) and
-// drawPlates (bodymods.js). No shared file is edited. Loads after baseline1.js (reuses bl1Heavy, bl1Src, bl1Say).
+// Hooks: wupReg (weapons24.js), wupOn stats/fire/dmg/hit/kill/tick, hookOn('fire:after'); wraps wupStats (base retune).
+// No shared file is edited. Loads after baseline1.js (reuses bl1Heavy, bl1Src, bl1Say).
 
 const BL3 = { HG: 'v_phys_contact', reach: 70, reach0: 110, dmg: 14, dmg0: 30, rate: 2.2, cd0: 0.6, kickEvery: 5, kickDist: 170, flyDist: 200,
   arc: 160 * Math.PI / 180, iaiIdle: 1.5, parryPad: 24, spreadR: 60, reflWin: 1, reflLife: 8, chew: 0.5, lowHp: 0.2, lowSamurai: 0.3 };
@@ -226,45 +225,5 @@ function hgInstall(w) {
       { name: 'Jaws', best: 'C', desc: 'Bites on enemies under 20% health kill outright (not bosses) and heal 10%. Swallowed whole.', apply: set('jaws') }] });
 })();
 
-// ---------------------------------------------------------------- costumes
-function hgCostume(px, py) {
-  if (!G || !G.player) return;
-  const w = hgW(), p = hgP(); if (!w || !p) return;
-  const f = w.hg, pl = G.player, k = S * (typeof playerScale === 'function' ? playerScale() : 1), face = pl.hd != null ? pl.hd : pl.face, t = G.realT;
-  const raw = RAW_COL; RAW_COL = true;
-  ctx.save(); ctx.translate(px, py); ctx.rotate(face + (pl.yaw || 0)); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-  if (p === 'A') { // Kung fu: two small fists circling the head; one punches out on a kick
-    const kick = Math.max(0, 1 - (t - (f.kickT || -9)) / 0.25);
-    for (let i = 0; i < 2; i++) {
-      const a = t * 5 + i * Math.PI, out = 11 + (i === 0 ? kick * 9 : 0), x = 1.5 * k + Math.cos(i === 0 && kick > 0 ? 0 : a) * out * k, y = (i === 0 && kick > 0 ? 0 : Math.sin(a) * out * 0.8) * k;
-      ctx.strokeStyle = 'rgb(40,36,34)'; ctx.lineWidth = 1 * k; ctx.globalAlpha = 0.4;
-      ctx.beginPath(); ctx.moveTo(1.5 * k, 0); ctx.lineTo(x, y); ctx.stroke();
-      ctx.globalAlpha = 0.95; ctx.fillStyle = '#f4d6c0'; ctx.beginPath(); ctx.arc(x, y, 2.9 * k, 0, TAU); ctx.fill();
-      ctx.strokeStyle = 'rgb(40,36,34)'; ctx.lineWidth = 1 * k; ctx.stroke();
-      ctx.strokeStyle = 'rgb(40,36,34)'; ctx.lineWidth = 0.7 * k; ctx.beginPath(); ctx.moveTo(x + 0.4 * k, y - 1.6 * k); ctx.lineTo(x + 0.4 * k, y + 1.6 * k); ctx.stroke(); // (the knuckles)
-    }
-  }
-  if (p === 'B') { // Samurai: a thin blade beside the head that sweeps on a cut, and a topknot bump
-    const cut = Math.max(0, 1 - (t - (f.cutAt || -9)) / 0.22), sw = (1 - cut) * 0 + cut * -1.3;
-    ctx.save(); ctx.translate(2 * k, 8.5 * k); ctx.rotate(sw);
-    ctx.strokeStyle = 'rgb(30,32,34)'; ctx.lineWidth = 2.4 * k; ctx.globalAlpha = 0.9; ctx.beginPath(); ctx.moveTo(-3 * k, 0); ctx.lineTo(0, 0); ctx.stroke(); // (the hilt)
-    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.3 * k; ctx.globalAlpha = 1; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(17 * k, 0); ctx.stroke();
-    ctx.strokeStyle = 'rgb(30,32,34)'; ctx.lineWidth = 0.5 * k; ctx.beginPath(); ctx.moveTo(0, 0.5 * k); ctx.lineTo(17 * k, 0.5 * k); ctx.stroke();
-    ctx.restore();
-    ctx.fillStyle = 'rgb(30,32,34)'; ctx.globalAlpha = 0.95; ctx.beginPath(); ctx.arc(-1 * k, -6.4 * k, 2.6 * k, 0, TAU); ctx.fill(); // (the topknot)
-    ctx.strokeStyle = 'rgb(30,32,34)'; ctx.lineWidth = 1 * k; ctx.beginPath(); ctx.moveTo(0.5 * k, -4.4 * k); ctx.lineTo(-1 * k, -6 * k); ctx.stroke();
-  }
-  if (p === 'C') { // Biting: a row of teeth along the leading edge that chomp on each bite
-    const bite = Math.max(0, 1 - (t - (f.biteT || -9)) / 0.18), r0 = (7.6 - bite * 2.6) * k;
-    ctx.strokeStyle = 'rgb(120,40,50)'; ctx.lineWidth = 1.4 * k; ctx.globalAlpha = 0.85;
-    ctx.beginPath(); ctx.arc(1.5 * k, 0, 6.6 * k, -1.0, 1.0); ctx.stroke(); // (the gum line)
-    ctx.fillStyle = '#ffffff'; ctx.strokeStyle = 'rgb(50,48,44)'; ctx.lineWidth = 0.6 * k; ctx.globalAlpha = 1;
-    for (let i = 0; i < 6; i++) {
-      const a = -0.9 + i * 0.36, bx = 1.5 * k + Math.cos(a) * r0, by = Math.sin(a) * r0, tx = 1.5 * k + Math.cos(a) * (r0 + 3.2 * k), ty = Math.sin(a) * (r0 + 3.2 * k), n = 1.35 * k;
-      ctx.beginPath(); ctx.moveTo(bx - Math.sin(a) * n, by + Math.cos(a) * n); ctx.lineTo(tx, ty); ctx.lineTo(bx + Math.sin(a) * n, by - Math.cos(a) * n); ctx.closePath(); ctx.fill(); ctx.stroke();
-    }
-  }
-  ctx.restore();
-  ctx.globalAlpha = 1; RAW_COL = raw;
-}
-drawPlates = (orig => function (px, py) { orig(px, py); try { hgCostume(px, py); } catch (e) { } })(drawPlates);
+// (The costumes are baselinelook.js's, drawn with your body; this file only keeps the state they read: f.kickT, f.cutT, f.biteT.)
+

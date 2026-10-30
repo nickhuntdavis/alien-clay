@@ -9,7 +9,8 @@ const { chromium } = require('playwright');
   const r = await page.evaluate(() => {
     const bad = [], chk = (n, c, i) => { if (!c) bad.push(n + (i !== undefined ? ' [' + JSON.stringify(i) + ']' : '')); };
     const cv = document.createElement('canvas'); cv.width = cv.height = 200; const g = cv.getContext('2d');
-    for (const k of BL_KINDS) for (const act of [0, 1]) { try { blDrawLook(g, k, 100, 100, 12, 0.5, 1.3, { act, speed: act, mark: !!act }); } catch (e) { bad.push('draw ' + k + ' threw ' + e.message); } }
+    for (const k of BL_KINDS) for (const v of [0, 1]) { try { blDrawLook(g, k, 100, 100, 12, 0.5, 1.3, { act: v, speed: v * 1.2, saw: !!v, hail: !!v, kick: v, cut: v, bite: v, blood: !!v, skel: !!v }); blDrawLook(g, k, 100, 100, 12, 0.5, 1.3, { husk: true, cut: 0.5, bite: 0.5 }); } catch (e) { bad.push('draw ' + k + ' threw ' + e.message); } }
+    chk('every kind has a drawer', BL_KINDS.every(k => typeof BL_WEAP[k] === 'function'));
     chk('six weapon kinds', BL_KINDS.length === 6);
     chk('Standard Issue stage flags are its own', SIV_FLAG.A === 'A' && SIV_FLAG.C === 'C' && !BL_BY_WEAPON.v_phys_proj, [SIV_FLAG.A, SIV_FLAG.C]);
     // each weapon's three letters map to three distinct costume flags in its stage tables
@@ -30,12 +31,12 @@ const { chromium } = require('playwright');
     const cs = genLoot({ kind: 'fork', w: G.weapons[0], lv: 3 }); cs[1].apply(); const cs2 = genLoot({ kind: 'fork', w: G.weapons[1], lv: 3 }); cs2[2].apply(); genLoot({ kind: 'fork', w: G.weapons[2], lv: 3 })[0].apply();
     G.weapons[0].firedT = 90; G.weapons[1].firedT = 95; G.weapons[2].firedT = 99; chk('last fired hero wins (Biting; Standard Issue has none)', blPick() && blPick().kind === 'biting', blPick() && blPick().kind);
     G.weapons[0].firedT = 99.5; chk('then Evil Dead', blPick() && blPick().kind === 'evil', blPick() && blPick().kind);
-    let drawn = 0; const dl = blDrawLook; blDrawLook = function () { drawn++; return dl.apply(this, arguments); };
+    let drawn = 0; const keep = Object.assign({}, BL_WEAP); for (const k of BL_KINDS) BL_WEAP[k] = function () { drawn++; return keep[k].apply(this, arguments); };
     try { for (let f = 0; f < 120; f++) update(1 / 60); render(); } catch (e) { bad.push('in-run draw threw ' + e.message); }
     chk('the weapon costume is drawn with your body', drawn > 0, drawn);
     genLoot({ kind: 'fork', smb: { lv: 3 } })[2].apply(); drawn = 0; render();
     chk('a sample branch costume hides it', drawn === 0 && blSmbKind() === 'robocop', [drawn, blSmbKind()]);
-    blDrawLook = dl;
+    Object.assign(BL_WEAP, keep);
     return { bad };
   });
   if (errors.length) console.log('ERRORS', errors.slice(0, 5).join(' | '));

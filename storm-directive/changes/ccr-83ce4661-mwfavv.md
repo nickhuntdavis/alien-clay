@@ -1,3 +1,11 @@
+## 30 Oct 2026 Shotgun and Hand-to-gland costumes redrawn in the high-detail style (v10.228)
+- Systems: baseline costumes, baseline branches (Shotgun, Hand-to-gland), tests
+- Files: baselinelook.js, baseline2.js, baseline3.js; tests baselinelooktest.js, baseline3test.js, wpnshot.js (new)
+- What: the six weapon branch costumes are shaded like the sample bodies and drawn in the head's frame, fitted to whichever sample wears them: Sperminator's torn-open chrome endoskeleton with a red eye (a dry husk for Come back's 2 s, then the whole chrome skull, both eyes and metal vertebrae), Evil Dead's chainsaw (the chain runs, the motor smokes and the tip throws blood while it cuts; a longer bar with Hail to the King), Riding shotgun's goggles on a leather strap with wind at speed, Kung fu's black belt and taped fists (a strike on a kick), Samurai's topknot and sheathed katana (drawn and swept on a cut; the old drawing read a field that was never set, so the cut never showed), Biting's gums and teeth (gape and snap on a bite, blood after). The old flat versions under the body in baseline2.js and baseline3.js are gone (the mark crosshair and the sidecar pod stay).
+- Save data: none.
+- Hooks: none new. baseline3.js no longer wraps drawPlates; baseline2.js's drawPlates wrap draws only the crosshair and the pod.
+- Risk: none for play (drawing only). The Sperminator's Shell layers still draw as brown bands under its costume.
+
 ## 30 Oct 2026 Sample branches: Rambo, Dirty Harry and Robocop move from Standard Issue to the Baseline sample; costumes redrawn and finally visible (v10.227)
 - Systems: sample branches (new), baseline branches, baseline costumes, weapons24 (branch hooks), draft, fit rules, tests
 - Files: samplebranch.js (new), baseline1.js, baselinelook.js, fitcheck.js, index.html; tests baseline1test.js, baselinelooktest.js, smbshot.js (new), wup1test.js, sivtest.js, fittest.js, combo10test.js

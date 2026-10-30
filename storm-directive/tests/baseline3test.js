@@ -142,8 +142,8 @@ const { chromium } = require('playwright');
     });
     // Costumes draw for every branch (no errors), and nothing without a branch.
     block('costumes', () => {
-      sc = scene([[60, 0, 1e5]]); render(); hgCostume(sx(G.player.x), sy(G.player.y));
-      for (const i of [0, 1, 2]) { sc = scene([[60, 0, 1e5, 1]]); pick(sc.w, 3, i); run(70, null, true); render(); hgCostume(sx(G.player.x), sy(G.player.y)); chk('costume branch letter ' + i, hgP() === 'ABC'[i], hgP()); }
+      sc = scene([[60, 0, 1e5]]); render(); blInRun(sx(G.player.x), sy(G.player.y)); // (the costume is baselinelook.js's)
+      for (const i of [0, 1, 2]) { sc = scene([[60, 0, 1e5, 1]]); pick(sc.w, 3, i); run(70, null, true); render(); blInRun(sx(G.player.x), sy(G.player.y)); /* (the costume is baselinelook.js's) */ chk('costume branch letter ' + i, hgP() === 'ABC'[i], hgP()); }
     });
     return { bad, out };
   });

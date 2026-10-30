@@ -12,9 +12,21 @@
 //      robocop  a chrome helmet over the front of the head with ear pieces, rivets and a black visor; a red scanner light
 //               sweeps the visor, faster while a mark is live. The back of the head stays bare.
 //    The sample branch screen draws the same costumes on its cards (samplebranch.js smbLookKind).
-//  - WEAPON BRANCH costumes (the six Shotgun and Hand-to-gland heroes): `blDrawLook`, drawn after your body inside the sharp
-//    canvas pass (a drawSeqMods wrap) at the head's size, for the hero weapon you fired last; hidden while a sample branch
-//    costume is worn (one head, one costume). The stage previews (fbdemo.js MGV and NWV) know their flags.
+//  - WEAPON BRANCH costumes (the six Shotgun and Hand-to-gland heroes, BL_WEAP), shaded the same way and drawn after your body
+//    inside the sharp canvas pass (a drawSeqMods wrap), in the head's frame fitted to your sample's head (SL_SHAPE), for the
+//    hero weapon you fired last; hidden while a sample branch costume is worn (one head, one costume):
+//      sperm    Sperminator: the right half of the head torn open on a chrome endoskeleton with a red eye; after Come back the
+//               whole chrome skull, both eyes and metal vertebrae down the midpiece; a dry brown husk for the 2 s before.
+//      evil     Evil Dead: a red chainsaw on the right flank, its bar past the nose (longer with Hail to the King); the chain
+//               runs, the motor smokes and the tip throws blood while it cuts.
+//      ride     Riding shotgun: amber riding goggles in chrome rims on a stitched leather strap; wind streams off you at speed.
+//      kungfu   Kung fu: a black belt knotted at the neck, its ends trailing; taped fists up in a guard, the right one strikes
+//               on a kick, the left jabs on a hit.
+//      samurai  Samurai: an oiled topknot tied with white cord; a katana in a black lacquer scabbard on the left flank, drawn
+//               and swept across the front on a cut.
+//      biting   Biting: gums and a row of teeth round the front (canines at the corners) over a dark maw; it gapes and snaps
+//               on a bite, blood on the canines after one, and a string of drool.
+//    `blDrawLook` draws any of them on another canvas (the stage previews, fbdemo.js MGV and NWV, and tests).
 // Units: u = the head's half-length. The frame is rotated to the sperm's heading, +x forward. act (0 to 1) is a pulse that
 // follows firing; speed (0 to 1) follows swim speed.
 // Hooks: wraps samplelooks.js SL_HEAD.baseline, sets SL_UNDER.baseline, wraps seqsel.js drawSeqMods; edits MGV_FLAG, NWV_FLAG
@@ -22,52 +34,214 @@
 
 const BL_KINDS = ['sperm', 'evil', 'ride', 'kungfu', 'samurai', 'biting'];
 const BL_BY_WEAPON = { v_phys_spread: { A: 'sperm', B: 'evil', C: 'ride' }, v_phys_contact: { A: 'kungfu', B: 'samurai', C: 'biting' } };
-const BL_RED = '#e03a4e', BL_STEEL = '#aab4c0', BL_DARK = 'rgb(30,34,32)', BL_HALO = 'rgba(255,255,255,0.85)';
+const BL_DARK = 'rgb(30,34,32)';
+// The six weapon branch costumes, in the head's frame (units of k: the head is centred on (1, 0), 7.5 long and 5 wide either
+// side of its axis, +x forward, +y the right flank), shaded like the sample bodies. o: act (a firing pulse), speed (0 to 1 of
+// top swim speed), skel and husk (Sperminator after Come back, and the 2 s husk before it), saw (the chainsaw is running),
+// hail (Hail to the King's longer bar), kick, cut, bite (0 to 1 pulses that fade).
+const blE = (x, y, rx, ry, k, r) => { ctx.beginPath(); ctx.ellipse(x * k, y * k, rx * k, ry * k, r || 0, 0, TAU); };
+function blChrome(y0, y1, k) { // a chrome fill whose reflections run along the head
+  const g = ctx.createLinearGradient(0, y0 * k, 0, y1 * k);
+  for (const [o, c] of [[0, '#4b535c'], [0.12, '#eef3f7'], [0.3, '#b4bec8'], [0.5, '#69737d'], [0.64, '#d8e0e7'], [0.85, '#8a949e'], [1, '#3f474f']]) g.addColorStop(o, c);
+  return g;
+}
+function blGlow(x, y, r, col, a) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; const g = ctx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, col); g.addColorStop(1, 'rgba(0,0,0,0)'); ctx.globalAlpha *= a; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill(); ctx.restore(); }
+const BL_SKIN = { lit: '#f6d2b4', mid: '#dfa47e', dk: '#9a6142', edge: 'rgba(70,36,20,0.85)' };
 
-function blDrawLook(g, kind, x, y, u, ang, t, o) {
-  o = o || {}; const act = o.act || 0, spd = o.speed || 0, lw = Math.max(1, u * 0.28);
-  g.save(); g.translate(x, y); g.rotate(ang); g.lineCap = 'round'; g.lineJoin = 'round'; g.setLineDash([]);
-  const line = (pts, w, col, halo) => { // a polyline with a pale halo under it
-    g.beginPath(); g.moveTo(pts[0][0] * u, pts[0][1] * u); for (let i = 1; i < pts.length; i++) g.lineTo(pts[i][0] * u, pts[i][1] * u);
-    if (halo !== false) { g.strokeStyle = BL_HALO; g.lineWidth = w + u * 0.34; g.stroke(); }
-    g.strokeStyle = col; g.lineWidth = w; g.stroke();
-  };
-  const dot = (cx, cy, r, fill, edge) => { g.beginPath(); g.arc(cx * u, cy * u, r * u, 0, Math.PI * 2); g.fillStyle = fill; g.fill(); g.lineWidth = Math.max(1, u * 0.16); g.strokeStyle = edge || BL_DARK; g.stroke(); };
-  const wave = (i, n, amp) => Math.sin(t * (9 + act * 8) - i / n * 6) * amp;
-  if (kind === 'sperm') { // Sperminator: steel plates across the head, a red eye, steel rings down the tail
-    for (const px of [-0.45, 0.1, 0.65]) line([[px, -0.85 + Math.abs(px) * 0.3], [px, 0.85 - Math.abs(px) * 0.3]], u * 0.34, BL_STEEL);
-    dot(0.62, -0.18, 0.3, '#ff2e2e', '#7a0d0d');
-    for (const rx of [-2.0, -3.0, -4.0]) { g.beginPath(); g.ellipse(rx * u, 0, 0.22 * u, 0.62 * u, 0, 0, Math.PI * 2); g.strokeStyle = BL_HALO; g.lineWidth = u * 0.5; g.stroke(); g.strokeStyle = BL_STEEL; g.lineWidth = u * 0.3; g.stroke(); }
-  } else if (kind === 'evil') { // a chainsaw on its head: motor, bar, and chain teeth running along it
-    const L = 3.6, off = ((t * (6 + act * 10)) % 0.5);
-    g.fillStyle = '#e07a1f'; g.fillRect(0.9 * u, -0.6 * u, 1.0 * u, 1.2 * u); g.strokeStyle = BL_DARK; g.lineWidth = Math.max(1, u * 0.16); g.strokeRect(0.9 * u, -0.6 * u, 1.0 * u, 1.2 * u);
-    g.beginPath(); g.moveTo(1.9 * u, -0.38 * u); g.lineTo(L * u, -0.3 * u); g.arc(L * u, 0, 0.3 * u, -Math.PI / 2, Math.PI / 2); g.lineTo(1.9 * u, 0.38 * u); g.closePath(); g.fillStyle = BL_STEEL; g.fill(); g.strokeStyle = BL_DARK; g.stroke();
-    g.fillStyle = BL_DARK; for (let i = 0; i < 6; i++) { const cx = (1.95 + i * 0.5 + off) * u; if (cx > (L + 0.2) * u) continue; g.fillRect(cx - u * 0.07, -0.5 * u, u * 0.14, u * 0.2); g.fillRect(cx - u * 0.07, 0.3 * u, u * 0.14, u * 0.2); }
-    if (act > 0.15) { g.fillStyle = BL_RED; for (let i = 0; i < 5; i++) { g.beginPath(); g.arc((L + 0.3 + Math.random() * 0.8) * u, (Math.random() - 0.5) * 1.6 * u, u * 0.1, 0, Math.PI * 2); g.fill(); } }
-  } else if (kind === 'ride') { // goggles, and speed lines that stretch with your swim speed
-    line([[0.1, -0.85], [0.1, 0.85]], u * 0.22, BL_DARK, false);
-    for (const s of [-1, 1]) dot(0.62, s * 0.42, 0.36, '#2a2f36', '#ffffff');
-    dot(0.55, -0.55, 0.1, '#ffffff', '#ffffff');
-    for (const [yy, ph] of [[-1.15, 0], [0, 0.4], [1.15, 0.8]]) { const L = 1.6 + spd * 3.6 + Math.sin(t * 12 + ph) * 0.3; g.globalAlpha = 0.55 + 0.4 * spd; line([[-1.6, yy], [-1.6 - L, yy]], u * 0.22, BL_DARK); g.globalAlpha = 1; }
-  } else if (kind === 'kungfu') { // a white headband with a knot, and two fists circling the head (they jab on a hit)
-    line([[0.1, -0.95], [0.1, 0.95]], u * 0.46, '#ffffff'); dot(-0.15, -1.0, 0.2, '#ffffff'); line([[-0.15, -1.0], [-0.9, -1.55]], u * 0.2, '#ffffff'); line([[-0.15, -1.0], [-0.7, -0.45]], u * 0.2, '#ffffff');
-    for (const s of [0, 1]) { const a = t * 2.2 + s * Math.PI, r = 2.6 + act * 1.4; dot(Math.cos(a) * r, Math.sin(a) * r * 0.8, 0.8, '#f0b88e'); line([[Math.cos(a) * r + 0.15, Math.sin(a) * r * 0.8 - 0.45], [Math.cos(a) * r + 0.15, Math.sin(a) * r * 0.8 + 0.45]], u * 0.14, BL_DARK, false); }
-  } else if (kind === 'samurai') { // a topknot and a katana held out to the side; it cuts an arc when it strikes
-    dot(-0.3, -1.3, 0.55, BL_DARK, '#ffffff'); line([[-0.3, -0.85], [-0.3, -1.1]], u * 0.3, BL_DARK, false);
-    const sw = -0.5 - act * 1.4;
-    g.save(); g.translate(0.5 * u, -0.9 * u); g.rotate(sw);
-    line([[0, 0], [1.1, 0]], u * 0.6, BL_DARK); line([[1.1, 0], [5.4, 0]], u * 0.5, BL_DARK, false); line([[1.1, 0], [5.4, 0]], u * 0.28, '#f4f6f8', false); g.restore();
-    if (act > 0.15) { g.beginPath(); g.arc(0, 0, 3.2 * u, -1.9, -0.2); g.strokeStyle = 'rgba(255,255,255,0.8)'; g.lineWidth = u * 0.3; g.stroke(); }
-  } else if (kind === 'biting') { // a row of teeth round the front of the head that chomps; a little blood
-    const open = 0.15 + 0.5 * Math.abs(Math.sin(t * 5 + act * 3)) + act * 0.3;
-    for (const s of [-1, 1]) for (let i = 0; i < 5; i++) {
-      const a = s * (0.2 + i * 0.24), rr = 1.15; const bx = Math.cos(a) * rr * 1.0, by = Math.sin(a) * rr * 0.72;
-      g.beginPath(); g.moveTo((bx - Math.sin(a) * 0.3) * u, (by + Math.cos(a) * 0.3) * u); g.lineTo((bx + Math.cos(a) * (0.95 + open * 0.7)) * u, (by + Math.sin(a) * (0.95 + open * 0.7)) * u); g.lineTo((bx + Math.sin(a) * 0.3) * u, (by - Math.cos(a) * 0.3) * u); g.closePath();
-      g.fillStyle = '#ffffff'; g.fill(); g.lineWidth = Math.max(1, u * 0.14); g.strokeStyle = BL_DARK; g.stroke();
-    }
-    dot(1.9, 0.0, 0.14, BL_RED, BL_RED);
+function blSperm(k, now, o) { // Sperminator: the right half of the head torn open on a chrome endoskeleton with a red eye
+  if (o.husk) { // the dry husk while it comes back
+    const hg = ctx.createRadialGradient(2 * k, -1.5 * k, 0.5 * k, 1 * k, 0, 8.5 * k); hg.addColorStop(0, '#b89466'); hg.addColorStop(1, '#5e4428');
+    blE(1, 0, 8.1, 5.6, k); ctx.fillStyle = hg; ctx.fill(); ctx.strokeStyle = 'rgba(52,36,18,0.9)'; ctx.lineWidth = 0.45 * k; ctx.stroke();
+    ctx.strokeStyle = 'rgba(52,36,18,0.6)'; ctx.lineWidth = 0.25 * k; ctx.beginPath();
+    for (const [x0, y0, x1, y1] of [[-5, -2, 2, -3.2], [-3, 2.5, 5, 1.8], [0, -0.5, 7, -0.2], [-6, 0.5, -1, 0.8]]) { ctx.moveTo(x0 * k, y0 * k); ctx.quadraticCurveTo((x0 + x1) / 2 * k, ((y0 + y1) / 2 + 0.8) * k, x1 * k, y1 * k); }
+    ctx.stroke(); return;
   }
-  g.restore();
+  const head = () => blE(1, 0, 7.55, 5.05, k);
+  const eye = (y, a) => { ctx.fillStyle = '#16090a'; blE(5.0, y, 1.45, 1.15, k); ctx.fill(); blGlow(5.1 * k, y * k, 3.4 * k, 'rgba(255,40,30,0.85)', a); ctx.fillStyle = '#ff3b2a'; blE(5.15, y, 0.7, 0.6, k); ctx.fill(); ctx.fillStyle = 'rgba(255,230,210,0.95)'; blE(5.35, y - 0.18, 0.22, 0.18, k); ctx.fill(); };
+  const pulse = 0.75 + 0.25 * Math.sin(now * 5) + 0.3 * (o.act || 0);
+  if (o.skel) { // after Come back: the whole skull, both eyes, and a spine of vertebrae down the midpiece
+    for (let i = 0; i < 4; i++) { const x = -6.2 - i * 1.45; ctx.fillStyle = blChrome(-1.3, 1.3, k); ctx.beginPath(); ctx.roundRect((x - 0.55) * k, -1.25 * k, 1.1 * k, 2.5 * k, 0.35 * k); ctx.fill(); ctx.strokeStyle = 'rgb(32,36,42)'; ctx.lineWidth = 0.22 * k; ctx.stroke(); }
+    head(); ctx.fillStyle = blChrome(-5, 5, k); ctx.fill(); ctx.strokeStyle = 'rgb(32,36,42)'; ctx.lineWidth = 0.45 * k; ctx.stroke();
+    ctx.strokeStyle = 'rgba(30,34,40,0.75)'; ctx.lineWidth = 0.28 * k; ctx.beginPath(); // (the cranial seams and the temple vents)
+    ctx.moveTo(-5.8 * k, 0); ctx.lineTo(2.6 * k, 0); ctx.moveTo(-1.5 * k, -4.6 * k); ctx.quadraticCurveTo(-0.6 * k, 0, -1.5 * k, 4.6 * k);
+    for (const s of [-1, 1]) for (let i = 0; i < 3; i++) { ctx.moveTo((-4.6 + i * 0.9) * k, s * 2.6 * k); ctx.lineTo((-4.6 + i * 0.9) * k, s * 3.7 * k); }
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(14,16,20,0.85)'; ctx.beginPath(); ctx.moveTo(8.4 * k, 0); ctx.lineTo(7.0 * k, -0.7 * k); ctx.lineTo(7.0 * k, 0.7 * k); ctx.closePath(); ctx.fill(); // (the nasal cavity)
+    eye(-1.9, pulse); eye(1.9, pulse);
+    blGlow(3.2 * k, -2.6 * k, 2.6 * k, 'rgba(255,255,255,0.7)', 1); return;
+  }
+  // The torn half: clipped to the head and to the right of a ragged line just off the axis.
+  const tear = [[-6.9, -0.2], [-5.2, 0.5], [-3.9, -0.4], [-2.4, 0.6], [-0.9, -0.3], [0.6, 0.7], [2.1, -0.2], [3.4, 0.5], [4.6, -0.6], [6.0, 0.2], [7.2, -0.5], [8.8, 0.1]];
+  const torn = () => { ctx.beginPath(); tear.forEach(([x, y], i) => (i ? ctx.lineTo(x * k, y * k) : ctx.moveTo(x * k, y * k))); ctx.lineTo(8.8 * k, 6 * k); ctx.lineTo(-6.9 * k, 6 * k); ctx.closePath(); };
+  ctx.save(); head(); ctx.clip(); torn(); ctx.clip();
+  head(); ctx.fillStyle = blChrome(-1, 5.2, k); ctx.fill();
+  ctx.strokeStyle = 'rgba(30,34,40,0.8)'; ctx.lineWidth = 0.28 * k; ctx.beginPath(); // (plate seams, a piston along the cheek)
+  ctx.moveTo(-1.8 * k, 0.5 * k); ctx.quadraticCurveTo(-1.2 * k, 3 * k, -2.2 * k, 5 * k); ctx.moveTo(2.4 * k, 0.4 * k); ctx.quadraticCurveTo(2.9 * k, 2.8 * k, 2.2 * k, 5 * k);
+  ctx.moveTo(-5 * k, 3.1 * k); ctx.lineTo(1.2 * k, 3.6 * k); ctx.moveTo(-5 * k, 3.7 * k); ctx.lineTo(1.2 * k, 4.2 * k); ctx.stroke();
+  ctx.fillStyle = '#2c3238'; for (const [x, y] of [[-4, 1.6], [0.4, 1.4], [-5.2, 3.4], [1.3, 3.9]]) { blE(x, y, 0.32, 0.32, k); ctx.fill(); }
+  ctx.fillStyle = 'rgba(255,255,255,0.75)'; for (const [x, y] of [[-4.1, 1.5], [0.3, 1.3]]) { blE(x, y, 0.12, 0.12, k); ctx.fill(); }
+  ctx.restore();
+  // The ragged edge of the membrane where it peeled back, a darker lip with a highlight.
+  ctx.save(); head(); ctx.clip();
+  ctx.beginPath(); tear.forEach(([x, y], i) => (i ? ctx.lineTo(x * k, (y - 0.15) * k) : ctx.moveTo(x * k, (y - 0.15) * k)));
+  ctx.strokeStyle = 'rgba(120,70,64,0.9)'; ctx.lineWidth = 0.55 * k; ctx.stroke(); ctx.strokeStyle = 'rgba(255,225,215,0.55)'; ctx.lineWidth = 0.18 * k; ctx.translate(0, -0.3 * k); ctx.stroke();
+  ctx.restore();
+  eye(1.9, pulse);
+}
+
+function blEvil(k, now, o) { // Evil Dead: a chainsaw on the right flank, its bar past the nose; the chain runs while it cuts
+  const on = !!o.saw, L = o.hail ? 19.5 : 15.5, jig = on ? (Math.random() - 0.5) * 0.25 * k : 0;
+  ctx.save(); ctx.translate(0.4 * k + jig, 6.1 * k + jig); ctx.rotate(-0.2);
+  // The guide bar: steel, a groove down it, a riveted nose.
+  const bg = ctx.createLinearGradient(0, -1.05 * k, 0, 1.05 * k); bg.addColorStop(0, '#e8edf1'); bg.addColorStop(0.45, '#9aa4ae'); bg.addColorStop(1, '#4a525a');
+  ctx.fillStyle = bg; ctx.beginPath(); ctx.moveTo(3 * k, -0.95 * k); ctx.lineTo(L * k, -0.85 * k); ctx.arc(L * k, 0, 0.85 * k, -Math.PI / 2, Math.PI / 2); ctx.lineTo(3 * k, 0.95 * k); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = 'rgba(20,22,26,0.9)'; ctx.lineWidth = 0.3 * k; ctx.stroke();
+  ctx.strokeStyle = 'rgba(30,34,40,0.6)'; ctx.lineWidth = 0.2 * k; ctx.beginPath(); ctx.moveTo(3.4 * k, 0); ctx.lineTo((L - 0.6) * k, 0); ctx.stroke();
+  ctx.fillStyle = '#2a2f35'; blE(L - 0.1, 0, 0.32, 0.32, k); ctx.fill();
+  // The chain: cutters round the bar's edge, moving forward along the top while it runs (a blur of them at speed).
+  const off = on ? (now * 26) % 1.1 : 0.3;
+  ctx.fillStyle = '#23272c';
+  for (let x = 3.3 + off; x < L; x += 1.1) { ctx.fillRect(x * k, -1.35 * k, 0.55 * k, 0.45 * k); ctx.fillRect((L + 3.3 - x) * k, 0.9 * k, 0.55 * k, 0.45 * k); }
+  if (on) { ctx.strokeStyle = 'rgba(220,226,232,0.55)'; ctx.lineWidth = 0.35 * k; ctx.beginPath(); ctx.moveTo(3.3 * k, -1.15 * k); ctx.lineTo(L * k, -1.05 * k); ctx.moveTo(3.3 * k, 1.15 * k); ctx.lineTo(L * k, 1.05 * k); ctx.stroke(); }
+  // The motor: a red housing with cooling fins, the top handle and the pull-start.
+  const mg = ctx.createLinearGradient(0, -2.3 * k, 0, 2.3 * k); mg.addColorStop(0, '#f06a3a'); mg.addColorStop(0.5, '#c23a1c'); mg.addColorStop(1, '#5a1608');
+  ctx.fillStyle = mg; ctx.beginPath(); ctx.roundRect(-3.6 * k, -2.2 * k, 7 * k, 4.4 * k, 1.1 * k); ctx.fill(); ctx.strokeStyle = 'rgba(40,10,4,0.9)'; ctx.lineWidth = 0.32 * k; ctx.stroke();
+  ctx.strokeStyle = 'rgba(40,10,4,0.65)'; ctx.lineWidth = 0.28 * k; ctx.beginPath(); for (let i = 0; i < 4; i++) { const x = -2.6 + i * 0.75; ctx.moveTo(x * k, -1.5 * k); ctx.lineTo(x * k, 1.5 * k); } ctx.stroke();
+  ctx.strokeStyle = '#1d2024'; ctx.lineWidth = 0.6 * k; ctx.beginPath(); ctx.moveTo(-2.2 * k, -2.1 * k); ctx.quadraticCurveTo(0.2 * k, -4.0 * k, 2.4 * k, -2.1 * k); ctx.stroke(); // (the top handle)
+  ctx.strokeStyle = '#d8dde2'; ctx.lineWidth = 0.25 * k; ctx.beginPath(); ctx.moveTo(-1.6 * k, 2.2 * k); ctx.lineTo(-1.6 * k, 3.1 * k); ctx.stroke();
+  ctx.fillStyle = '#1d2024'; ctx.beginPath(); ctx.roundRect(-2.5 * k, 3.0 * k, 1.8 * k, 0.6 * k, 0.3 * k); ctx.fill(); // (the pull-start grip)
+  ctx.fillStyle = 'rgba(255,255,255,0.35)'; blE(-0.5, -1.2, 2.2, 0.5, k); ctx.fill(); // (the shine on the housing)
+  if (on) { // exhaust out of the back, and what the chain throws off the tip
+    for (let i = 0; i < 3; i++) { const p = (now * 2.5 + i / 3) % 1; ctx.fillStyle = `rgba(200,204,210,${(0.45 * (1 - p)).toFixed(3)})`; blE(-4 - p * 4, -1 + Math.sin(i * 2.1 + now * 7) * 0.8, 0.6 + p * 1.2, 0.6 + p * 1.2, k); ctx.fill(); }
+    ctx.fillStyle = '#8c1420'; for (let i = 0; i < 4; i++) { const a = Math.random() * 1.6 - 0.8, r = 1 + Math.random() * 2.2; blE(L + 0.6 + Math.cos(a) * r, Math.sin(a) * r, 0.22, 0.22, k); ctx.fill(); }
+  }
+  ctx.restore();
+}
+
+function blRide(k, now, o) { // Riding shotgun: riding goggles on a leather strap round the head; wind streams off you at speed
+  const spd = o.speed || 0;
+  if (spd > 0.5) { // the wind: streaks peeling off the flanks
+    const a = Math.min(1, (spd - 0.5) * 2.2);
+    for (const [y, ph, len] of [[-5.6, 0, 1], [5.6, 1.7, 1], [-3.2, 0.8, 0.7], [3.2, 2.6, 0.7]]) {
+      const L = (10 + spd * 16) * len, x0 = -1 + Math.sin(now * 13 + ph) * 1.2;
+      const g = ctx.createLinearGradient(x0 * k, 0, (x0 - L) * k, 0); g.addColorStop(0, `rgba(255,255,255,${(0.75 * a).toFixed(3)})`); g.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.strokeStyle = g; ctx.lineWidth = 0.35 * k; ctx.beginPath(); ctx.moveTo(x0 * k, y * k); ctx.quadraticCurveTo((x0 - L / 2) * k, (y * 1.12) * k, (x0 - L) * k, (y * 1.3) * k); ctx.stroke();
+    }
+  }
+  // The strap: leather round the head, stitched, with a buckle at the back.
+  ctx.strokeStyle = 'rgba(40,22,10,0.85)'; ctx.lineWidth = 1.25 * k; blE(1, 0, 7.25, 4.8, k); ctx.stroke();
+  ctx.strokeStyle = '#7a4c28'; ctx.lineWidth = 0.85 * k; ctx.stroke();
+  ctx.setLineDash([0.3 * k, 0.45 * k]); ctx.strokeStyle = 'rgba(235,205,160,0.7)'; ctx.lineWidth = 0.13 * k; blE(1, 0, 7.25, 4.8, k); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = '#c9b06a'; ctx.strokeStyle = 'rgba(60,44,10,0.9)'; ctx.lineWidth = 0.22 * k; ctx.beginPath(); ctx.roundRect(-6.85 * k, -0.85 * k, 1.1 * k, 1.7 * k, 0.25 * k); ctx.fill(); ctx.stroke();
+  // The goggles: a leather mask, two round lenses in chrome rims, amber glass with a moving glint.
+  ctx.fillStyle = '#3b2414'; ctx.beginPath(); ctx.ellipse(5.4 * k, -2.15 * k, 2.35 * k, 2.25 * k, 0, 0, TAU); ctx.ellipse(5.4 * k, 2.15 * k, 2.35 * k, 2.25 * k, 0, 0, TAU); ctx.fill();
+  ctx.fillRect(4.6 * k, -0.6 * k, 1.6 * k, 1.2 * k);
+  for (const s of [-1, 1]) {
+    const cx = 5.5 * k, cy = s * 2.15 * k;
+    ctx.strokeStyle = blChrome(s * 2.15 - 2, s * 2.15 + 2, k); ctx.lineWidth = 0.55 * k; ctx.beginPath(); ctx.arc(cx, cy, 1.75 * k, 0, TAU); ctx.stroke();
+    const lg = ctx.createRadialGradient(cx - 0.5 * k, cy - 0.6 * k, 0.1 * k, cx, cy, 1.6 * k); lg.addColorStop(0, '#f7c76a'); lg.addColorStop(0.55, '#b06a1e'); lg.addColorStop(1, '#3a1a06');
+    ctx.fillStyle = lg; ctx.beginPath(); ctx.arc(cx, cy, 1.5 * k, 0, TAU); ctx.fill();
+    const gl = now * 0.9 + s;
+    ctx.strokeStyle = 'rgba(255,255,255,0.8)'; ctx.lineWidth = 0.28 * k; ctx.beginPath(); ctx.arc(cx, cy, 1.05 * k, gl % TAU, gl % TAU + 0.9); ctx.stroke();
+  }
+}
+
+function blKungfu(k, now, o) { // Kung fu: a black belt knotted at the neck, and two taped fists up in a guard; one strikes on a kick
+  // The belt: a band round the neck, a square knot, two ends that trail and flutter.
+  for (const s of [-1, 1]) {
+    ctx.strokeStyle = '#121314'; ctx.lineWidth = 0.95 * k; ctx.beginPath(); ctx.moveTo(-6.7 * k, s * 0.4 * k);
+    for (let i = 1; i <= 6; i++) { const f = i / 6; ctx.lineTo((-6.7 - f * 7) * k, (s * (0.6 + f * 2.2) + Math.sin(now * 9 - f * 5 + s) * 0.5 * f) * k); }
+    ctx.stroke();
+  }
+  ctx.strokeStyle = '#121314'; ctx.lineWidth = 1.4 * k; ctx.beginPath(); ctx.moveTo(-6.1 * k, -2.1 * k); ctx.quadraticCurveTo(-6.9 * k, 0, -6.1 * k, 2.1 * k); ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 0.25 * k; ctx.stroke();
+  ctx.fillStyle = '#1a1b1d'; ctx.beginPath(); ctx.roundRect(-7.5 * k, -1.0 * k, 1.8 * k, 2.0 * k, 0.45 * k); ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 0.18 * k; ctx.stroke();
+  // The fists: in a guard either side of the head, bobbing; the right one shoots out on a kick, the left jabs on a hit.
+  const kick = o.kick || 0, jab = o.act || 0;
+  for (const s of [-1, 1]) {
+    const bob = Math.sin(now * 6 + (s > 0 ? 0 : 1.6)) * 0.4, out = s > 0 ? kick * 8 : jab * 3;
+    const x = 6.4 + out + bob, y = s * (6.6 - out * 0.35);
+    if (out > 1) { ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 0.3 * k; ctx.beginPath(); for (const dy of [-0.9, 0, 0.9]) { ctx.moveTo((x - 1.8) * k, (y + dy) * k); ctx.lineTo((x - 1.8 - out * 0.9) * k, (y + dy) * k); } ctx.stroke(); }
+    ctx.save(); ctx.translate(x * k, y * k); ctx.scale(1.35, 1.35);
+    const fg = ctx.createRadialGradient(0.4 * k, -0.7 * k, 0.2 * k, 0, 0, 2.2 * k); fg.addColorStop(0, BL_SKIN.lit); fg.addColorStop(0.6, BL_SKIN.mid); fg.addColorStop(1, BL_SKIN.dk);
+    ctx.fillStyle = fg; ctx.beginPath(); ctx.roundRect(-1.6 * k, -1.35 * k, 3.2 * k, 2.7 * k, 1.0 * k); ctx.fill(); ctx.strokeStyle = BL_SKIN.edge; ctx.lineWidth = 0.28 * k; ctx.stroke();
+    ctx.fillStyle = BL_SKIN.lit; for (let i = 0; i < 4; i++) { blE(1.45, -1.0 + i * 0.66, 0.36, 0.3, k); ctx.fill(); ctx.stroke(); } // (the knuckles)
+    ctx.strokeStyle = 'rgba(90,50,30,0.5)'; ctx.lineWidth = 0.15 * k; ctx.beginPath(); for (let i = 1; i < 4; i++) { ctx.moveTo(0.2 * k, (-1.33 + i * 0.66) * k); ctx.lineTo(1.2 * k, (-1.33 + i * 0.66) * k); } ctx.stroke();
+    ctx.fillStyle = '#f2efe8'; ctx.beginPath(); ctx.roundRect(-1.75 * k, -1.4 * k, 1.3 * k, 2.8 * k, 0.4 * k); ctx.fill(); ctx.strokeStyle = 'rgba(120,112,100,0.8)'; ctx.lineWidth = 0.15 * k; ctx.stroke(); // (the hand wrap)
+    ctx.beginPath(); ctx.moveTo(-1.5 * k, -1.1 * k); ctx.lineTo(-0.7 * k, 1.2 * k); ctx.moveTo(-1.0 * k, -1.3 * k); ctx.lineTo(-0.5 * k, 0.1 * k); ctx.stroke();
+    ctx.restore();
+  }
+}
+
+function blSamurai(k, now, o) { // Samurai: an oiled topknot, and a katana in its scabbard on the left flank; drawn and swept on a cut
+  const cut = o.cut || 0;
+  // The topknot: the folded queue lying forward along the crown, a white cord at its root, and the gloss of the oil.
+  const hg = ctx.createLinearGradient(0, -1 * k, 0, 1 * k); hg.addColorStop(0, '#3a3c40'); hg.addColorStop(0.5, '#0c0d0f'); hg.addColorStop(1, '#000000');
+  ctx.fillStyle = hg; ctx.beginPath(); ctx.moveTo(-4.4 * k, -1.05 * k); ctx.quadraticCurveTo(-1 * k, -0.95 * k, 2.6 * k, -0.45 * k); ctx.quadraticCurveTo(3.4 * k, 0, 2.6 * k, 0.45 * k); ctx.quadraticCurveTo(-1 * k, 0.95 * k, -4.4 * k, 1.05 * k); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#0e0f11'; blE(-4.6, 0, 1.55, 1.45, k); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 0.22 * k; ctx.beginPath(); ctx.moveTo(-3.6 * k, -0.45 * k); ctx.quadraticCurveTo(-0.5 * k, -0.5 * k, 2.2 * k, -0.2 * k); ctx.stroke();
+  ctx.beginPath(); ctx.arc(-4.8 * k, -0.4 * k, 0.8 * k, -2.4, -0.9); ctx.stroke();
+  ctx.strokeStyle = '#f4f2ec'; ctx.lineWidth = 0.35 * k; ctx.beginPath(); ctx.moveTo(-3.3 * k, -1.0 * k); ctx.lineTo(-3.3 * k, 1.0 * k); ctx.moveTo(-2.8 * k, -0.95 * k); ctx.lineTo(-2.8 * k, 0.95 * k); ctx.stroke();
+  // The katana: scabbard of black lacquer along the left flank (-y), round guard, a handle in its diamond wrap.
+  const Y = -6.6;
+  ctx.save(); ctx.translate(0, Y * k);
+  const sg = ctx.createLinearGradient(0, -0.75 * k, 0, 0.75 * k); sg.addColorStop(0, '#5a5e66'); sg.addColorStop(0.3, '#16181c'); sg.addColorStop(1, '#050506');
+  ctx.fillStyle = sg; ctx.beginPath(); ctx.moveTo(-0.6 * k, -0.62 * k); ctx.quadraticCurveTo(5 * k, -0.95 * k, 10.6 * k, -0.15 * k); ctx.quadraticCurveTo(11 * k, 0.35 * k, 10.4 * k, 0.5 * k); ctx.quadraticCurveTo(5 * k, -0.05 * k, -0.6 * k, 0.62 * k); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = 'rgba(0,0,0,0.9)'; ctx.lineWidth = 0.22 * k; ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,0.45)'; ctx.lineWidth = 0.15 * k; ctx.beginPath(); ctx.moveTo(0 * k, -0.42 * k); ctx.quadraticCurveTo(5 * k, -0.72 * k, 9.8 * k, -0.15 * k); ctx.stroke();
+  ctx.fillStyle = '#b08a3e'; ctx.fillRect(1.6 * k, -0.68 * k, 0.4 * k, 1.3 * k); // (the cord fitting)
+  const tg = ctx.createRadialGradient(-0.9 * k, -0.4 * k, 0.1 * k, -0.9 * k, 0, 1.4 * k); tg.addColorStop(0, '#d9b45a'); tg.addColorStop(1, '#5c4314');
+  ctx.fillStyle = tg; blE(-0.9, 0, 0.42, 1.35, k); ctx.fill(); ctx.strokeStyle = 'rgba(30,20,4,0.9)'; ctx.lineWidth = 0.18 * k; ctx.stroke(); // (the guard)
+  if (cut < 0.05) { // (the handle is in the scabbard's mouth only while the blade is in)
+    ctx.fillStyle = '#1b1c20'; ctx.beginPath(); ctx.roundRect(-5.6 * k, -0.55 * k, 4.4 * k, 1.1 * k, 0.4 * k); ctx.fill();
+    ctx.strokeStyle = '#ece6d8'; ctx.lineWidth = 0.17 * k; ctx.beginPath(); for (let x = -5.2; x < -1.6; x += 0.8) { ctx.moveTo(x * k, -0.5 * k); ctx.lineTo((x + 0.4) * k, 0); ctx.lineTo(x * k, 0.5 * k); } ctx.stroke();
+    ctx.fillStyle = '#7a6024'; ctx.beginPath(); ctx.roundRect(-5.95 * k, -0.6 * k, 0.5 * k, 1.2 * k, 0.2 * k); ctx.fill();
+  }
+  ctx.restore();
+  if (cut >= 0.05) { // drawn: the blade sweeps across the front, a pale arc behind it
+    const a = -1.25 + (1 - cut) * 2.3, R = 13;
+    ctx.save(); ctx.translate(2.5 * k, 0);
+    ctx.strokeStyle = `rgba(255,255,255,${(0.55 * cut).toFixed(3)})`; ctx.lineWidth = 1.4 * k; ctx.beginPath(); ctx.arc(0, 0, R * 0.8 * k, a - 0.9, a); ctx.stroke();
+    ctx.rotate(a);
+    ctx.fillStyle = '#1b1c20'; ctx.beginPath(); ctx.roundRect(2.2 * k, -0.5 * k, 3.6 * k, 1.0 * k, 0.4 * k); ctx.fill();
+    const bl = ctx.createLinearGradient(0, -0.5 * k, 0, 0.5 * k); bl.addColorStop(0, '#ffffff'); bl.addColorStop(0.5, '#c9d2da'); bl.addColorStop(1, '#6c7680');
+    ctx.fillStyle = bl; ctx.beginPath(); ctx.moveTo(6.2 * k, -0.42 * k); ctx.quadraticCurveTo(11 * k, -0.55 * k, (R + 1.2) * k, -0.05 * k); ctx.lineTo(6.2 * k, 0.4 * k); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = 'rgba(30,34,40,0.8)'; ctx.lineWidth = 0.15 * k; ctx.stroke();
+    ctx.fillStyle = '#c9a24a'; blE(6.0, 0, 0.35, 1.0, k); ctx.fill();
+    ctx.restore();
+  }
+}
+
+function blBiting(k, now, o) { // Biting: gums and a row of teeth round the front of the head; it gapes, then snaps shut on a bite
+  const b = o.bite || 0, gape = 0.06 + 0.04 * Math.sin(now * 2.3) + Math.sin(Math.min(1, b) * Math.PI) * 0.32, snap = b > 0 ? 1 - b * 0.12 : 1;
+  const A0 = 1.05, at = (an, r) => [(1 + Math.cos(an) * 7.15 * r) * k, Math.sin(an) * 4.75 * r * k];
+  // The maw behind the teeth (dark, wider while it gapes).
+  ctx.fillStyle = `rgba(40,6,10,${(0.55 + gape).toFixed(3)})`; ctx.beginPath(); ctx.ellipse(1 * k, 0, 7.15 * k, 4.75 * k, 0, -A0, A0); ctx.ellipse(1 * k, 0, (6.1 - gape * 4) * k, (3.9 - gape * 2.4) * k, 0, A0, -A0, true); ctx.closePath(); ctx.fill();
+  // The gums: a fleshy band along the front edge.
+  const gg = ctx.createLinearGradient(3 * k, 0, 9 * k, 0); gg.addColorStop(0, '#8e2a3a'); gg.addColorStop(0.6, '#d0566a'); gg.addColorStop(1, '#f08a98');
+  ctx.strokeStyle = 'rgba(70,10,20,0.9)'; ctx.lineWidth = 1.5 * k; ctx.beginPath(); ctx.ellipse(1 * k, 0, 7.15 * k, 4.75 * k, 0, -A0, A0); ctx.stroke();
+  ctx.strokeStyle = gg; ctx.lineWidth = 1.05 * k; ctx.stroke();
+  // The teeth: incisors in the middle, canines bigger at the corners, smaller ones round the sides; they splay as it gapes.
+  const teeth = [[-0.95, 0.7], [-0.72, 1.05], [-0.5, 1.6], [-0.3, 0.95], [-0.1, 0.85], [0.1, 0.85], [0.3, 0.95], [0.5, 1.6], [0.72, 1.05], [0.95, 0.7]];
+  for (const [a0, sz] of teeth) {
+    const an = a0 * (1 + gape * 0.25) * snap, [bx, by] = at(an, 1.02), nx = Math.cos(an), ny = Math.sin(an) * 0.75, nl = Math.hypot(nx, ny), ux = nx / nl, uy = ny / nl;
+    const L = (0.95 + sz * 0.75 + b * 0.25) * k, W = (0.38 + sz * 0.16) * k;
+    const tg = ctx.createLinearGradient(bx, by, bx + ux * L, by + uy * L); tg.addColorStop(0, '#d9cfb4'); tg.addColorStop(0.45, '#fffdf6'); tg.addColorStop(1, '#e9e3d2');
+    ctx.fillStyle = tg; ctx.beginPath(); ctx.moveTo(bx - uy * W, by + ux * W); ctx.quadraticCurveTo(bx + ux * L * 0.6 - uy * W * 0.8, by + uy * L * 0.6 + ux * W * 0.8, bx + ux * L, by + uy * L); ctx.quadraticCurveTo(bx + ux * L * 0.6 + uy * W * 0.8, by + uy * L * 0.6 - ux * W * 0.8, bx + uy * W, by - ux * W); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = 'rgba(70,60,44,0.85)'; ctx.lineWidth = 0.16 * k; ctx.stroke();
+    if (o.blood && sz > 1.2) { ctx.fillStyle = 'rgba(150,14,26,0.85)'; blE((bx + ux * L * 0.75) / k, (by + uy * L * 0.75) / k, 0.22, 0.22, k); ctx.fill(); }
+  }
+  // A string of drool off the front, swinging.
+  const dx = 8.9, dy = 0.9 + Math.sin(now * 2.1) * 0.3, dl = 1.2 + 0.5 * Math.sin(now * 1.3);
+  ctx.strokeStyle = 'rgba(225,240,245,0.6)'; ctx.lineWidth = 0.18 * k; ctx.beginPath(); ctx.moveTo(8.3 * k, 0.6 * k); ctx.quadraticCurveTo((dx + 0.3) * k, dy * k, (dx + dl) * k, (dy + 0.2) * k); ctx.stroke();
+  ctx.fillStyle = 'rgba(225,240,245,0.75)'; blE(dx + dl, dy + 0.25, 0.3, 0.36, k); ctx.fill();
+}
+const BL_WEAP = { sperm: blSperm, evil: blEvil, ride: blRide, kungfu: blKungfu, samurai: blSamurai, biting: blBiting };
+// On any canvas: g at (x, y) facing ang, u = the head's half-length in pixels (the head's centre at x, y). Stage previews and tests.
+function blDrawLook(g, kind, x, y, u, ang, t, o) {
+  const keep = ctx, raw = RAW_COL; ctx = g; RAW_COL = true;
+  try { const k = u / 7.5; ctx.save(); ctx.translate(x, y); ctx.rotate(ang); ctx.translate(-k, 0); ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.setLineDash([]); BL_WEAP[kind](k, t, o || {}); ctx.restore(); }
+  finally { ctx = keep; RAW_COL = raw; }
 }
 
 // ---------------------------------------------------------------- in the run
@@ -83,18 +257,29 @@ function blPick() { // the hero weapon you fired last (a costume per weapon woul
   }
   return best;
 }
-const BL_BIG = 1; // (the head's own size: v10.226's 1.5x only made up for the costume being drawn under the body)
+// The costume's live state for the weapon that wears it (see the drawers above).
+function blState(w, kind) {
+  const f2 = w.bl2 || {}, fh = w.hg || {}, S2 = G.bl2 || {}, rt = G.realT, pl = G.player;
+  const o = { act: Math.max(0, 1 - (G.t - (w.firedT || -9)) / 0.3) };
+  if (kind === 'sperm') { o.skel = !!S2.skel; o.husk = S2.huskT > G.t; }
+  if (kind === 'evil') { o.saw = G.t - (f2.sawOn || -9) < 0.3; o.hail = !!f2.hail; }
+  if (kind === 'ride') o.speed = typeof bl2Spd === 'function' ? Math.min(1.4, bl2Spd() / bl2Top()) : Math.min(1, Math.hypot(pl.vx || 0, pl.vy || 0) / 165);
+  if (kind === 'kungfu') o.kick = Math.max(0, 1 - (rt - (fh.kickT || -9)) / 0.25);
+  if (kind === 'samurai') o.cut = Math.max(0, 1 - (G.t - (fh.cutT == null ? -9 : fh.cutT)) / 0.25);
+  if (kind === 'biting') { o.bite = Math.max(0, 1 - (rt - (fh.biteT || -9)) / 0.3); o.blood = rt - (fh.biteT || -9) < 4; }
+  return o;
+}
 function blInRun(px, py) {
   if (blSmbKind()) return; // (a sample branch costume is on the head)
-  const pk = blPick(); if (!pk) return;
-  const pl = G.player, k = S * (typeof playerScale === 'function' ? playerScale() : 1), face = (pl.hd != null ? pl.hd : pl.face) + (pl.yaw || 0);
-  const w = pk.w;
-  const act = Math.max(0, 1 - (G.t - (w.firedT || -9)) / 0.3);
-  const sp = Math.min(1, Math.hypot(pl.vx || 0, pl.vy || 0) / 165);
+  let pk = blPick(); if (!pk) return;
+  if (G.bl2 && G.bl2.huskT > G.t && typeof bl2W === 'function' && bl2W() && bl2P() === 'A') pk = { w: bl2W(), kind: 'sperm' }; // (the husk shows whatever fired last)
+  const pl = G.player, id = G.s10 && G.s10.id, D = id && typeof SL !== 'undefined' && SL[id], sh = (id && typeof SL_SHAPE !== 'undefined' && SL_SHAPE[id]) || [1, 7.5, 5];
+  const k = S * (typeof playerScale === 'function' ? playerScale() : 1) * (D ? D.size : 1), face = (pl.hd != null ? pl.hd : pl.face) + (pl.yaw || 0);
   const raw = RAW_COL; RAW_COL = true;
-  const ga = ctx.globalAlpha; ctx.globalAlpha = (G.oob ? 0.5 : 1) * (G.peek && G.peek.t > G.t ? 0.2 : 1);
-  blDrawLook(ctx, pk.kind, px, py, 7.5 * k * BL_BIG, face, G.realT, { act, speed: sp, mark: !!(G.bl1 && G.bl1.marks && G.bl1.marks.length) });
-  ctx.globalAlpha = ga; RAW_COL = raw;
+  ctx.save(); ctx.globalAlpha = (G.oob ? 0.5 : 1) * (G.peek && G.peek.t > G.t ? 0.2 : 1);
+  ctx.translate(px, py); ctx.rotate(face); ctx.translate((sh[0] - 1) * k, 0); ctx.scale(sh[1] / 7.5, sh[2] / 5); // (fitted to this sample's head)
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.setLineDash([]);
+  try { BL_WEAP[pk.kind](k, G.realT, blState(pk.w, pk.kind)); } finally { ctx.restore(); RAW_COL = raw; }
 }
 drawSeqMods = (orig => function (x, y, face, alpha, scale, body) { orig.apply(this, arguments); if (G && body && body === G.player) try { blInRun(x, y); } catch (e) { } })(drawSeqMods); // (inside youhd.js's pass: after the body, on its canvas)
 
@@ -114,7 +299,8 @@ for (const id of Object.keys(BL_BY_WEAPON)) {
     const kind = BL_KINDS.find(k => pv.F && pv.F.has(k)); if (!kind) return;
     if (pv.me && pv.me.x < 0.3) pv.me.x = 0.3; // (clear of the stage's arrow buttons, with room for the costume behind the head)
     const act = Math.max(0, 1 - (pv.t - (pv.lastShot || -9)) / 0.3);
-    blDrawLook(g, kind, hx, hy, hr * 1.2 * 1.25, pv.me.a || 0, pv.t, { act: pv.shotFlash || act, speed: 0.6 });
+    const pulse = (pv.t % 1.4) < 0.3 ? 1 - (pv.t % 1.4) / 0.3 : 0; // (the stage has no chainsaw, kick, cut or bite of its own: a beat every 1.4 s)
+    blDrawLook(g, kind, hx, hy, hr * 1.2 * 1.25, pv.me.a || 0, pv.t, { act: pv.shotFlash || act, speed: 1, saw: true, kick: pulse, cut: pulse, bite: pulse, blood: true });
   })(O.me);
 }
 
