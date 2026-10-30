@@ -144,6 +144,9 @@ details.wb.onmap { border-color: var(--accent); }
 .chip.blocked b::after { content: ' ⊘'; color: var(--g-lifesteal); }
 .btn.on { border-color: var(--accent); background: var(--hi); }
 .stage svg.rlinks path { fill: none; stroke-width: 2.4; stroke-dasharray: 6 5; opacity: .85; }
+.node.xp.taken, .node.xb.taken, .node.xm.taken, .node.xw.taken { box-shadow: 0 0 0 3px var(--accent); }
+.node.xb, .node.xm { opacity: .92; }
+.bpop[hidden] { display: none; }
 .bpop { position: absolute; top: 52px; right: 10px; z-index: 30; width: min(360px, calc(100% - 20px)); max-height: 70%; overflow: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 10px 30px #0004; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
 .bphead { display: flex; justify-content: space-between; align-items: center; font: 800 16px var(--display); }
 .bpgroup { display: flex; flex-direction: column; gap: 5px; }
@@ -205,6 +208,7 @@ details.wb.onmap { border-color: var(--accent); }
       <button class="btn" id="copy">Copy build</button>
       <button class="btn" id="ideas">Copy ideas</button>
       <button class="btn" id="saveall" title="Writes your blocks to the planner's list and asks Claude to fold them into ideas.md">Save to ideas.md</button>
+      <button class="btn" id="fullbtn" title="Show every branch the sample's weapons can take">Full tree</button>
       <button class="btn" id="buildsbtn" title="Load a build: your saved ideas, a sample's start or a Baseline hero">Builds</button>
       <button class="btn" id="rulesbtn" title="Open a card's Do, Don't and Weight rules">Rules</button>
       <button class="btn" id="simbtn" title="Grey out what the cards on the dish would stop from being dealt">Simulate</button>
@@ -249,7 +253,7 @@ const SAB_DESC = t => `Attacks switch to ${tname(t)} damage: 35% of them, then 7
 $('#ver').textContent = 'data from v' + D.version;
 
 // ---------------------------------------------------------------- state
-let S = { sample: D.samples[0].id, rules: true, sel: null, zoom: 1, weapons: [], custom: [], over: {}, feats: [], pass: [], gates: [], seq: 1, cr: [], crSeq: 1, sim: false, crRemoved: [] };
+let S = { sample: D.samples[0].id, rules: true, sel: null, zoom: 1, weapons: [], custom: [], over: {}, feats: [], pass: [], gates: [], seq: 1, cr: [], crSeq: 1, sim: false, crRemoved: [], full: false };
 let FOCUS = null;
 try { const s = JSON.parse(localStorage.getItem('sp_planner_v1') || 'null'); if (s && s.weapons) S = Object.assign(S, s); if (!S.custom) S.custom = []; if (!S.over) S.over = {}; for (const k of ['feats', 'pass', 'gates', 'cr', 'crRemoved']) if (!S[k]) S[k] = []; if (!S.crSeq) S.crSeq = 1; } catch (e) { }
 const save = () => { if (window.__rsChecked) S.savedAt = Date.now(); try { localStorage.setItem('sp_planner_v1', JSON.stringify(S)); } catch (e) { } if (window.__rsChecked) rsQueue(); }; // (and to your account: rsQueue below. Saves made while the page loads keep the old time, so they never beat a newer copy from another device.)
@@ -500,7 +504,7 @@ function render() {
   (function walk(n, d, par) { n.depth = d; n.parent = par; all.push(n); n.children.forEach(c => walk(c, d + 1, n)); })(root, 0, null);
   for (const n of all) {
     const el = document.createElement('div');
-    el.className = 'node ' + n.kind + (n.kind === 'root' ? ' root' : '') + (n.kind === 'hint' ? ' hintnode' : '') + (n.ov ? ' edited' : '') + (S.sel === n.id ? ' sel' : '');
+    el.className = 'node ' + n.kind + (n.kind === 'root' ? ' root' : '') + (n.kind === 'hint' || n.kind === 'xnone' ? ' hintnode' : '') + (n.ov ? ' edited' : '') + (n.taken ? ' taken' : '') + (S.sel === n.id ? ' sel' : '');
     el.dataset.n = n.id; el.style.setProperty('--c', n.col); el.tabIndex = n.kind === 'hint' ? -1 : 0;
     el.innerHTML = nodeHtml(n); stage.appendChild(el); n.el = el;
   }
@@ -1377,6 +1381,80 @@ $('#buildsbtn').onclick = () => { BP.open = !BP.open; BP.arm = null; bpRender();
   if (!bpDishEmpty()) return; // (the user started building meanwhile)
   if (mine) bpApplyIdeas(mine); else if (base) bpApply(base);
 })();
+
+// ---------------------------------------------------------------- full tree (the user, 30 Oct: "when I select a sample, I want to see its full branch set")
+// A view, not a build: the sample's own weapons, each with every Lv 3 branch, that branch's Lv 6 cards and wild card, and the
+// Lv 9 masteries. What your build has taken is highlighted. Any node opens in the rules panel; "Take into the build" copies it.
+const FT_KINDS = new Set(['xw', 'xp', 'xb', 'xm', 'xnone']);
+function ftWeapons() { // the sample's own weapons (starter of), else its type pool
+  const sm = sampleOf();
+  const own = Object.values(D.weapons).filter(w => w.starter === sm.id || (w.alt && w.alt[sm.id])).map(w => w.id); // (and any weapon with a branch set of this sample's own: Obligatory Podcast for Alpha)
+  return (own.length ? own : (sm.weapons || [])).filter(id => D.weapons[id]);
+}
+function ftTree() {
+  NODES = {};
+  const mk = (id, o) => (NODES[id] = Object.assign({ id, children: [] }, o));
+  const smp = sampleOf();
+  const root = mk('root', { kind: 'root', title: smp.name, ey: 'Strain ' + smp.strain + ' · ' + smp.origin + ' · full tree', desc: smp.passive + ': ' + smp.pdesc, col: tvar((smp.types || ['phys'])[0]), smp });
+  const built = id => S.weapons.find(x => x.id === id);
+  for (const id of ftWeapons()) {
+    const Wd = W(id), b = built(id), col = tvar(Wd.type);
+    const wn = mk('xw_' + id, { kind: 'xw', wid: id, title: Wd.name, ey: Wd.atk + ' · ' + tname(Wd.type) + (b ? ' · in your build' : '') + (Wd.altOf ? ' · ' + (sampleOf().name) + "'s own branches" : ''), desc: Wd.desc, col, taken: !!b });
+    root.children.push(wn);
+    if (!Wd.promises.length) { wn.children.push(mk('xn_' + id, { kind: 'xnone', wid: id, title: 'No branches', ey: Wd.dlv ? 'branches through its built-in Delivery modifier' : 'this weapon has no branch screens', desc: '', col: 'var(--line)' })); continue; }
+    for (const P of Wd.promises) {
+      const pn = mk('xp_' + id + '_' + P.k, { kind: 'xp', wid: id, L: P.k, title: P.name, ey: 'Lv 3 · ' + P.k + (P.tag ? ' · ' + P.tag : ''), desc: P.desc, col, taken: !!(b && b.promise === P.k) });
+      wn.children.push(pn);
+      P.branches.forEach((o, i) => pn.children.push(mk('xb_' + id + '_' + P.k + '_' + i, { kind: 'xb', wid: id, L: P.k, i, title: o.name, ey: 'Lv 6', desc: o.desc, col, taken: !!(b && b.promise === P.k && b.wbr === i) })));
+      if (P.wild) pn.children.push(mk('xb_' + id + '_' + P.k + '_wild', { kind: 'xb', wid: id, L: P.k, i: 'wild', title: P.wild.name, ey: 'Lv 6 · wild card', desc: P.wild.desc, col, taken: !!(b && b.promise === P.k && b.wbr === 'wild') }));
+    }
+    Wd.masteries.forEach((x, i) => wn.children.push(mk('xm_' + id + '_' + i, { kind: 'xm', wid: id, i, title: x.name, ey: 'Lv 9 mastery' + (x.best ? ' · best with ' + x.best.split('').map(k => (Wd.promises.find(q => q.k === k) || {}).name || k).join(', ') : ''), desc: x.desc, col, taken: !!(b && b.wmast === i) })));
+  }
+  if (!root.children.length) root.children.push(mk('xn_none', { kind: 'xnone', title: 'No weapons of its own', ey: 'this sample starts no weapons', desc: '', col: 'var(--line)' }));
+  return root;
+}
+buildTree = (orig => function () { return S.full ? ftTree() : orig.apply(this, arguments); })(buildTree);
+// Taking a full-tree node into the build (it follows the build's own rules: a branch replaces the weapon's branch at that tier).
+function ftTake(n) {
+  let w = S.weapons.find(x => x.id === n.wid);
+  if (!w) { if (S.weapons.length >= MAXW) { toast('Your build already has four weapons.'); return; } w = bpNewWeapon(n.wid); S.weapons.push(w); }
+  if (n.kind === 'xp') { w.promise = n.L; w.wbr = null; w.wmast = null; }
+  if (n.kind === 'xb') { w.promise = n.L; w.wbr = n.i; }
+  if (n.kind === 'xm') { if (S.rules && (!w.promise || w.wbr == null)) { toast('Masteries open at Lv 9, after a Lv 3 branch and a Lv 6 card.'); return; } w.wmast = n.i; }
+  save(); render(); toast('In your build: ' + n.title + '.');
+}
+function ftDetailHtml(n) {
+  let h = `<span class="ey">${esc(n.ey)}</span><h2>${esc(n.title)}</h2>${n.desc ? `<p>${esc(n.desc)}</p>` : ''}`;
+  if (n.kind !== 'xnone') h += `<div class="row">${n.kind === 'xw' ? '' : `<button class="btn" data-act="fttake">${n.taken ? 'In your build' : 'Take into the build'}</button>`}${rpNodeKey(n) ? `<button class="btn" data-act="rules">Do, Don't and Weight</button><small style="color:var(--dim)">${rpSummary(rpNodeKey(n))}</small>` : ''}</div>`;
+  h += `<div class="row"><small style="color:var(--dim)">Full tree: every branch this sample's weapons can take. Switch back to Build to edit your build on the dish.</small></div>`;
+  return h;
+}
+renderDetail = (orig => function () {
+  const n = NODES[S.sel];
+  if (S.full && n && FT_KINDS.has(n.kind)) { $('#detail').innerHTML = ftDetailHtml(n); return; }
+  return orig.apply(this, arguments);
+})(renderDetail);
+$('#detail').addEventListener('click', e => {
+  const b = e.target.closest('[data-act="fttake"]'); if (!b) return;
+  const n = NODES[S.sel]; if (n && FT_KINDS.has(n.kind)) ftTake(n);
+}, true);
+rpNodeKey = (orig => function (n) {
+  if (n && FT_KINDS.has(n.kind)) {
+    const Wd = W(n.wid);
+    if (n.kind === 'xw') return 'w:' + n.wid;
+    if (n.kind === 'xp') return 'b:' + n.wid + ':' + n.L;
+    if (n.kind === 'xb') { const P = Wd.promises.find(q => q.k === n.L), o = P && (n.i === 'wild' ? P.wild : P.branches[n.i]); return o ? 'wb:' + n.wid + ':' + o.name : null; }
+    if (n.kind === 'xm') { const x = Wd.masteries[n.i]; return x ? 'wb:' + n.wid + ':' + x.name : null; }
+    return null;
+  }
+  return orig.apply(this, arguments);
+})(rpNodeKey);
+dropPlan = (orig => function (p, n) {
+  if (S.full && !(p && p.k === 'move') && !RP.open) return { ok: false, why: 'Full tree is a view. Switch back to Build to put cards on the dish.' };
+  return orig.apply(this, arguments);
+})(dropPlan);
+$('#fullbtn').onclick = () => { S.full = !S.full; S.sel = 'root'; save(); $('#fullbtn').classList.toggle('on', S.full); $('#fullbtn').textContent = S.full ? 'Build' : 'Full tree'; render(); setTimeout(() => $('#zfit').click(), 30); };
+$('#fullbtn').classList.toggle('on', !!S.full); $('#fullbtn').textContent = S.full ? 'Build' : 'Full tree';
 
 // ---------------------------------------------------------------- boot
 try { if (window.claude && window.claude.hot && window.claude.hot.snapshot) window.claude.hot.snapshot(() => S); } catch (e) { }
