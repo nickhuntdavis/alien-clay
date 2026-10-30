@@ -1,6 +1,7 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
+- (ccr-83ce4661-mwfavv, 30 Oct) Planner (republished): Build tree view (one tree of alternatives per sample, order checks, card rules per path, a path into a build, Copy tree) and sample branches as chips in the Branches tab. Test: `./run.sh plannertreetest` (it rebuilds the planner).
 - (ccr-83ce4661-mwfavv, 30 Oct) v10.233: card rules reach sample branches (`sb:<sample>:<L>`, `sbc:<sample>:<card>`; CARD_RULES.md); Quick draw and Acid bath gates are Do rules g1, g2 again; the planner makes rules on sample branches and was republished.
 - (30 Oct) MOD_DEAD, MATRIX_NA and DLV.deny are card rules now (cardrules.js, CARD_RULES_OWNS): after editing any of those tables or a new modifier audit, run `node tests/tools/rules/importtables.js`.
 - Version v10.232 (versionCode 511): Alpha and Beta reimagined (ALPHA_REDESIGN.md: hustle-culture branches on Red Flagship, Soulmate Signal, Unwanted Contact and Obligatory Podcast, Alpha only via samplebranches.js wupRegFor; 4 gated cards as card rules g4 to g7; 12 costumes in alphalook.js; copy in alphacopy.js); MOD_DEAD, MATRIX_NA and DLV.deny are card rules (555). Beta reimagined (BETA_REDESIGN.md: near-death branches on Little Prick, One of These Days and Sister Cousin, Beta only; 4 gated cards as card rules g8 to g11; 9 costumes in betalook.js; copy in betacopy.js). Planner shows sample branches.

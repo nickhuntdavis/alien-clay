@@ -1,3 +1,11 @@
+## 30 Oct 2026 Planner: build trees, and sample branches in the rack (tool only; planner republished)
+- Systems: planner (tool), tests
+- Files: tests/tools/planner/template.html; tests/plannertreetest.js (new)
+- What: the planner's Branches tab lists the sample's own branches (Rambo, Dirty Harry, Robocop, their run Lv 20 cards and Lv 25 masteries) as chips, and the sperm's prompt names them; before, they were only a button at the foot of the sperm's panel. A Build tree view (beside Full tree): one tree per sample, every node a card that can hold any number of alternatives, each line out to a leaf one run. Cards are added from the rack, by the node's "Add next" buttons, or "Start from everything" (every own weapon and sample branch with its cards and the masteries that suit them, to prune); nodes drag onto another to move. With Game rules on, a card must follow its path (a Lv 6 card after its Lv 3 branch, a mastery after a Lv 6 card, a modifier after a weapon that takes it, one sample branch a run); card rules are checked against each path (a held-back card is dashed red with the reason). "Open this path as a build" puts a path on the dish; Copy tree gives the tree as indented text. Kept in S.trees (with the dish, in your account).
+- Save data: none in the game (planner state S.trees).
+- Hooks: none (planner only).
+- Risk: none for the game.
+
 ## 30 Oct 2026 Card rules reach sample branches; the planner can make them (v10.233)
 - Systems: card rules, sample branches, baseline branches, planner (tool), tests
 - Files: cardrulesengine.js, cardrules.js (regenerated), baseline1.js; tests/tools/planner/template.html; tests/baseline1test.js; CARD_RULES.md, ARCHITECTURE.md
