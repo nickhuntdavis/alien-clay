@@ -1039,8 +1039,9 @@ function rpWhy(k, w) {
   let doSeen = false, doMet = false; const names = [];
   for (const r of S.cr) {
     if (r.target !== k && r.parent !== k && !/^tag:/.test(r.target) && !rpCovers(r.target, k) && !rpCovers(r.parent, k)) continue;
-    if (!rpLive(r)) continue;
     const held = (r.scope || 'weapon') === 'weapon' && w ? HW : HR;
+    if (r.mode === 'do' && rpCovers(r.target, k)) { doSeen = true; names.push(rpName(r.parent)); if (rpLive(r) && rpCond(r, held, w) && held.some(h => rpCovers(r.parent, h))) doMet = true; continue; } // (conditions qualify a Do rule's parent: cardrulesengine.js)
+    if (!rpLive(r)) continue;
     if (!rpCond(r, held, w)) continue;
     if (r.mode === 'dont') {
       if (rpCovers(r.target, k) && held.some(h => rpCovers(r.parent, h))) return (r.src ? 'Game table (' + r.src + '): ' : 'Blocked by ') + rpName(r.parent);

@@ -25,6 +25,9 @@ boxes. The planner exports a rule list; a generator writes `web/js/cardrules.js`
    card means holding its branch, so the parent side needs nothing extra.
 8. **Conditions** (the user's "this sample" and "this weapon or sample branch"): a rule can carry `sample: '<sampleId>'` (only in runs
    as that sample) and `branch: '<key>'` (only while that key is held, e.g. `b:v_phys_proj:C` or a passive branch `pm:m_slip:A`).
+   On a Don't or Weight rule a condition switches the rule on or off. On a Do rule it qualifies the parent: the target still needs a
+   qualifying parent in every run, so `{ parent: 'b:v_shock_beam:B', mode: 'do', target: 'f:al_morning', sample: 'alpha' }` means
+   Morning Routine comes only as Alpha with Life Coach, never for another sample (30 Oct, the Alpha gates).
 9. **Players never see the rules** unless Settings > Game > rule debug is on: then dealt cards carry a `[rules: ...]` line and the
    first card a `[held back: ...]` list.
 10. **Branch and fork screens never go empty**: if every option is ruled out, the screen shows them all rather than lock the weapon.

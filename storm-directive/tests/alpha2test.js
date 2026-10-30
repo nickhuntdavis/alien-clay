@@ -176,7 +176,7 @@ const { chromium } = require('playwright');
       render();
     });
     block('Diamond Hands', () => {
-      sc = scene(OP, [[100, 0]]); const card = CARDS.find(c => c.id === 'pass_al_diamond'); chk('Diamond Hands card', !!card && card.maxRank === 1 && cardOk(card));
+      sc = scene(OP, [[100, 0]]); const card = CARDS.find(c => c.id === 'pass_al_diamond'); chk('Diamond Hands card (gated: not dealt without Crypto Bro, cardrules.js)', !!card && card.maxRank === 1 && !cardOk(card));
       stamInit(); G.stam.cur = 40; AL1.onPumpBurst.forEach(f => f(null, sc.es[0])); chk('without the passive: nothing', G.stam.cur === 40, G.stam.cur);
       G.muts = G.muts || {}; G.muts.pass_al_diamond = 1; AL1.onPumpBurst.forEach(f => f(null, sc.es[0])); chk('Diamond Hands: +5 stamina on a pump burst', G.stam.cur === 45, G.stam.cur);
     });

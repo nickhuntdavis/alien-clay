@@ -47,14 +47,16 @@ function crName(key) {
   } catch (e) { }
   return key;
 }
+// Every branch set a weapon has: the shared one and any sample's own (samplebranches.js), so keys name Alpha's branches too.
+const crSpecs = wid => [typeof SBR !== 'undefined' && SBR.alt[wid] ? SBR.base[wid] : WUP[wid]].concat(typeof SBR !== 'undefined' && SBR.alt[wid] ? Object.values(SBR.alt[wid]) : []).filter(Boolean);
 function crKnown(key) {
   if (typeof key !== 'string' || key.indexOf(':') < 0) return false;
   const [t, rest] = crSplit(key);
   if (t === 'w') return !!WEAPONS[rest];
   if (t === 'm') return !!MODS10[rest];
   if (t === 'mf') { const [id, c] = rest.split(':'); return !!(MODS10[id] && typeof MSB !== 'undefined' && MSB[id] && ['A', 'B', 'A1', 'A2', 'B1', 'B2'].includes(c)); }
-  if (t === 'b') { const [wid, L] = rest.split(':'); return !!(WUP[wid] && WUP[wid][L]); }
-  if (t === 'wb') { const i = rest.indexOf(':'), wid = rest.slice(0, i), nm = rest.slice(i + 1), S = WUP[wid]; if (!S) return false; return ['A', 'B', 'C'].some(L => S[L] && [...S[L].lv6, S[L].wild].some(c => c && c.name === nm)) || (S.lv10 || []).some(c => c.name === nm); }
+  if (t === 'b') { const [wid, L] = rest.split(':'); return crSpecs(wid).some(S => S[L]); }
+  if (t === 'wb') { const i = rest.indexOf(':'), wid = rest.slice(0, i), nm = rest.slice(i + 1); return crSpecs(wid).some(S => ['A', 'B', 'C'].some(L => S[L] && [...S[L].lv6, S[L].wild].some(c => c && c.name === nm)) || (S.lv10 || []).some(c => c.name === nm)); }
   if (t === 'f') return !!F10[rest];
   if (t === 'p') return MUT_REG.some(x => x.id === rest);
   if (t === 'pm') { const [id, c] = rest.split(':'); return !!(SPM_BR[id] && (c === 'A' || c === 'B')); }
@@ -163,8 +165,13 @@ function crWhy(key, ctx) {
   const H = crHeldSets(w);
   let doSeen = false, doMet = false; const doNames = [];
   for (const r of rules) {
-    if (!crLive(r)) continue;
-    const held = crHeldIn(H, r, w); if (!crCond(r, held, w)) continue;
+    const held = crHeldIn(H, r, w);
+    if (r.mode === 'do' && crCovers(r.target, key)) { // (a Do rule's conditions qualify its parent: "needs Life Coach, as Alpha" still gates the card in every other run)
+      doSeen = true; doNames.push(crName(r.parent));
+      if (crLive(r) && crCond(r, held, w) && held.some(h => crCovers(r.parent, h))) doMet = true;
+      continue;
+    }
+    if (!crLive(r) || !crCond(r, held, w)) continue;
     if (r.mode === 'dont') {
       if (crCovers(r.target, key) && held.some(h => crCovers(r.parent, h))) return 'blocked by ' + crName(r.parent);
       if (!(kt === 'w' && (r.scope || 'weapon') === 'weapon') && crCovers(r.parent, key)) { const h = held.find(x => crCovers(r.target, x)); if (h) return 'blocked by ' + crName(h); } // (a weapon is never "on" another weapon's modifiers)
