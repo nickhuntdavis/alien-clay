@@ -1199,13 +1199,15 @@ async function rpSave() {
 // tables (D.builtin: matrix N/A, Delivery denials, the audit by Delivery form) are locked: shown, simulated and health-checked.
 const rpSig = r => [r.parent, r.mode, r.target, r.scope || 'weapon', r.form == null ? '-' : r.form, [].concat(r.with || []).join('+'), [].concat(r.unless || []).join('+'), r.sample || '', r.branch || ''].join('|'); // (two audit rows differ only by Delivery form)
 const rpIsDefault = r => (D.rules0 || []).some(x => rpSig(x) === rpSig(r));
-(function rpSeed() {
+function rpSeedDefaults() { // (also after a live update hands over the old page's state, and after loading your account's copy)
   for (const r0 of D.rules0 || []) {
     if (S.cr.some(r => rpSig(r) === rpSig(r0)) || S.crRemoved.includes(rpSig(r0))) continue;
     S.cr.push(Object.assign({}, r0, { id: 'r' + (S.crSeq++) }));
   }
+  if (!S.crRemoved) S.crRemoved = [];
   save();
-})();
+}
+rpSeedDefaults();
 const rpForm = w => { const m = w && w.mods.find(x => M(x.id) && M(x.id).group === 'delivery'); return m ? m.id : ''; };
 function rpBuiltinWhy(k, w) { // a locked rule that keeps modifier k off weapon w as it stands
   if (!S.rules || !w || !/^m:/.test(k)) return null;
@@ -1258,6 +1260,7 @@ async function rsPush() {
 function rsAdopt(st, cr) { // the account's copy is newer: take it whole
   S = Object.assign({ sample: D.samples[0].id, rules: true, sel: null, zoom: 1, weapons: [], custom: [], over: {}, feats: [], pass: [], gates: [], seq: 1, cr: [], crSeq: 1, sim: false, crRemoved: [] }, st, { cr });
   try { localStorage.setItem('sp_planner_v1', JSON.stringify(S)); } catch (e) { }
+  rpSeedDefaults();
   $('#sample').value = S.sample; $('#rules').checked = S.rules; $('#simbtn').classList.toggle('on', !!S.sim);
   render();
 }
@@ -1377,6 +1380,7 @@ $('#buildsbtn').onclick = () => { BP.open = !BP.open; BP.arm = null; bpRender();
 
 // ---------------------------------------------------------------- boot
 try { if (window.claude && window.claude.hot && window.claude.hot.snapshot) window.claude.hot.snapshot(() => S); } catch (e) { }
-function start(hot) { if (hot && hot.weapons) S = Object.assign(S, hot); render(); if (!S.weapons.length) { S.sel = 'root'; render(); } }
+// (a live update hands over the old page's state: put this version's default rules back in)
+function start(hot) { if (hot && hot.weapons) { S = Object.assign(S, hot); rpSeedDefaults(); } render(); if (!S.weapons.length) { S.sel = 'root'; render(); } }
 (window.claude && window.claude.hot && window.claude.hot.ready) ? window.claude.hot.ready(start) : start(null);
 </script>
