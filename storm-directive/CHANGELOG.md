@@ -2,7 +2,23 @@
 
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
-## v10.231 (versionCode 510): 2026-10-30 Alpha reimagined (hustle culture, Alpha-only branches), per-sample branch sets, dealing tables as editable rules (`claude/sharp-hypatia-icfi8l`)
+## v10.232 (versionCode 511): 2026-10-30 Alpha and Beta reimagined (Alpha: hustle culture; Beta: near-death; each sample only), planner sample branches, per-sample branch sets, dealing tables as editable rules (`claude/sharp-hypatia-icfi8l`)
+### 2026-10-30 Beta reimagined: near-death branches, gated cards, costumes (Beta only)
+- Systems: weapon branches (sample branch sets), Feats, sperm passives, card rules, baseline costumes (Beta kinds), tests
+- Files: beta1.js, beta2.js, betalook.js, betacopy.js (new), cardrules.js (g8 to g11), index.html, BETA_REDESIGN.md, BETA_COPY_IDS.md, tests/beta1test.js, beta2test.js, betalooktest.js, betagatetest.js (new), featstest.js
+- What: while a run is played as Beta, Little Prick (IV Drip / Adrenaline Shot / Blood Draw), One of These Days (Flatline / DNR / Triage) and Sister Cousin (Next of Kin / Organ Donor / Transfusion) take Beta's own A&E branches, each paying off at low health; four cards dealt only on their branch (Defibrillator, Morphine Drip, Famous Last Words, Blood Bag); nine costumes. Other samples keep the shared sets.
+- Save data: none.
+- Hooks: none in shared files. beta1.js wraps rateBonus, mutSpeed, healPlayer, duePop; beta2.js wraps modHit, mutSpeed; betalook.js wraps blDrawLook, blPick, BL_WEAP entries and PV_OWN flags; hookOn hurt:before / hurt:late / fire:after.
+- Risk: Beta balance (low-health payoffs stack with Not Dead Yet: Shared Circulation doubles seeker lifesteal while low).
+
+### 2026-10-30 Planner: sample branches
+- Systems: tests/tools (planner)
+- Files: tests/tools/planner/planner.js, tests/tools/planner/template.html
+- What: the planner reads samplebranch.js's SMB_REG: a sample with its own branches (Baseline: Rambo, Dirty Harry, Robocop) shows them on the sperm (run Lv 15 branch, Lv 20 card or wildcard, Lv 25 mastery), picked in the sperm's detail panel or taken from the Full tree; kept per sample. The Builds menu's "Sample branches" group replaces the Standard Issue hero builds.
+- Save data: none in the game.
+- Hooks: none.
+- Risk: none.
+
 ### 2026-10-30 Merge of main (v10.230: sample branches) into this branch
 - Systems: card rules, baseline branches
 - Files: baseline1.js, cardrules.js, ARCHITECTURE.md, NOTES.md
@@ -66,6 +82,15 @@ Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, 
 - Save data: none.
 - Hooks: none.
 - Risk: none (the gates behave as before, now through the rule engine; the built-in tables stay where they are).
+
+## v10.231 (versionCode 510): 2026-10-30 Every open placeholder written; modifier masteries state their numbers (`ccr-83ce4661-mwfavv`)
+### 30 Oct 2026 Every open placeholder written (v10.231)
+- Systems: weapons (Obligatory Podcast), card rules, progress (Mode Select), Delivery modifiers, modifier masteries
+- Files: podcast.js, cardrulesengine.js, progress.js, delivforms.js, slicecopy.js
+- What: a scan of the running game (static data, the generated card families against their copy tables, and the Mode Select, Settings and Field Guide screens) found five lines still showing TODO_COPY: the Obligatory Podcast's description, the card rule debug setting's label and hint, the Race's RACE MODE tag, and Area on a Ranged-delivery weapon. All written. The 20 branchless modifier masteries (Homing, Piercing and the rest) said "pushes its effect one step further" for every modifier; each now states its rank 4 numbers (modifiers.js modV: one more step of the same size).
+- Save data: none.
+- Hooks: none.
+- Risk: none for play. The remaining TODO_COPY strings in the code are keys that copy tables fill at load (slicecopy, holdcopy, cellcopy, kinall, atklock, delivforms, acrocopy); none reaches the screen.
 
 ## v10.230 (versionCode 509): 2026-10-30 Sample branch copy written; Claude writes all player-facing copy from now on (`ccr-83ce4661-mwfavv`)
 ### 30 Oct 2026 Sample branch copy written; Claude now writes all copy (v10.230)

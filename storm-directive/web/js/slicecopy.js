@@ -110,6 +110,19 @@ for (const id in SLICE_MODS) {
     ['br_' + id + '_A1']: A1, ['br_' + id + '_A2']: A2, ['br_' + id + '_B1']: B1, ['br_' + id + '_B2']: B2,
     ['mastery_' + id]: 'Mastery: choose one of two final upgrades. One weapon mastery a build.' });
 }
+// Modifier masteries without branches (modmatrix.js: the 4th card is one more step of the same size, modifiers.js modV).
+Object.assign(SLICE_COPY, {
+  mastery_homing: 'Turns harder again (11).', mastery_piercing: '+2 more enemies (8 in all).',
+  mastery_ricochet: '5 bounces, losing 5% each. A beam bounces 12 times.', mastery_returning: '6 hits; the way back hits 60% harder.',
+  mastery_orbiting: 'Six bodies. A beam ring gets a second ring inside it.', mastery_delayed: '12 placed at once; blasts +60% damage.',
+  mastery_lobbed: 'Lands sooner again; +45% area.', mastery_trail: 'A piece every 12 units, 70 at most.',
+  mastery_selfcentred: '115% damage around you; +45% area.', mastery_sweep: 'A sweep of nearly half a circle.',
+  mastery_anchored: 'Reaches 820; 60% thicker.', mastery_volley: 'Six shots a volley.',
+  mastery_nth: 'Every third attack, and harder again (x3.9).', mastery_growing: 'Grows to three and a half times.',
+  mastery_scaling: 'Scales up to x3.5.', mastery_multiplying: 'Splits hit at 70%; 24 in flight.',
+  mastery_summoned: 'Five pets on this weapon. Still eight in total.', mastery_gravity: 'Wider again, six at once.',
+  mastery_lunge: 'Up to 400 units.', mastery_area: '+100% area.',
+});
 const slCopy = s => (typeof s === 'string' && s.startsWith('TODO_COPY:') ? SLICE_COPY[s.slice(10)] || (s.startsWith('TODO_COPY:mastery_') ? 'Mastery: pushes its effect one step further. One weapon mastery a build.' : s) : s);
 
 // ---------------------------------------------------------------- plain modifier names (user, 23 Oct: "simple descriptive names, not clever ones")

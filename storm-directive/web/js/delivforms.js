@@ -844,6 +844,7 @@ const XD_COPY = {
   xd_ranged_connecting: 'Everything in the strike\'s area is linked for a few seconds and shares the damage. A joint account.',
   xd_ranged_pull: 'The strike drags nearby enemies into its centre before it lands. Then it lands.',
   xd_ranged_knock: 'The strike throws enemies outward from where it lands. Seating is reassigned.',
+  xd_ranged_area: 'The strike lands on a wider patch (+25% area a rank), and its pulls and pushes reach further. Delivered to the whole street.',
 };
 const xdCopy = k => XD_COPY[k] || 'TODO_COPY:' + k;
 modCard = (orig => function (w, id) {
