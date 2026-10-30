@@ -39,7 +39,10 @@ const path = require('path'), fs = require('fs');
         ranks: sc ? sc.slice(0, 3) : (MODUP[id] ? [fix(m.desc)].concat(MODUP[id]) : [fix(m.desc)]),
         br: MSB[id] || null, brText: sc ? sc.slice(3) : null };
     }
-    const samples = SAMPLES10.filter(s => s.strain <= 9).map(s => ({ id: s.id, strain: s.strain, name: fix(s.name), origin: fix(s.origin), types: s.types.map(t => S10_TYPES[t]), passive: fix(s.passive), pdesc: fix(s.pdesc), weapons: s.weapons, fit: (typeof S10_FIT !== 'undefined' && S10_FIT[s.id]) || [] }));
+    // Every sample in the game (the user, 30 Oct: "what about all the other samples?"), plus any defined but on hold (typepools.js
+    // takes Private Schooled off the rack): those carry held: true.
+    const all = SAMPLES10.slice(); if (typeof S10_BY !== 'undefined') for (const id of Object.keys(S10_BY)) if (!all.some(x => x.id === id)) all.push(Object.assign({ held: true }, S10_BY[id]));
+    const samples = all.filter(s => s && s.id).sort((a, b) => (a.strain || 99) - (b.strain || 99)).map(s => ({ id: s.id, strain: s.strain, name: fix(s.name), origin: fix(s.origin), types: (s.types || []).map(t => S10_TYPES[t] || t).filter(Boolean), passive: fix(s.passive), pdesc: fix(s.pdesc), weapons: (s.weapons || []).filter(id => WEAPONS[id]), fit: ((typeof S10_FIT !== 'undefined' && S10_FIT[s.id]) || []).filter(id => WEAPONS[id]), held: !!s.held, old: /^v9_/.test(s.id) }));
     // Feats (feats10.js): the drafted pool in F10_ORDER plus each sample's Unique Feat; forks at levels 3 and 5.
     const feat = f => ({ id: f.id, name: fix(f.name), type: F10_INT[f.type] || f.type || null, atk: f.atk ? (ATK[f.atk] || f.atk) : null, trig: !!f.trig, stam: f.stam || 0, does: fix(f.does), line: fix(f.line), sample: f.sample || null,
       forks: { 3: (f.forks && f.forks[3] || []).map(o => ({ name: fix(o.title), desc: fix(o.desc) })), 5: (f.forks && f.forks[5] || []).map(o => ({ name: fix(o.title), desc: fix(o.desc) })) } });

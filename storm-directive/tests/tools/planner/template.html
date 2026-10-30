@@ -831,7 +831,7 @@ map.addEventListener('keydown', e => { if (e.target.matches('input, textarea')) 
 
 // ---------------------------------------------------------------- toolbar
 const sel = $('#sample');
-sel.innerHTML = D.samples.map(s => `<option value="${esc(s.id)}">${esc(s.name)} (strain ${s.strain})</option>`).join('');
+sel.innerHTML = ['current', 'old', 'held'].map(g => { const ss = D.samples.filter(s => (s.held ? 'held' : s.old ? 'old' : 'current') === g); return ss.length ? `<optgroup label="${{ current: 'Samples', old: 'Older samples', held: 'On hold (not in the game)' }[g]}">${ss.map(s => `<option value="${esc(s.id)}">${esc(s.name)} (strain ${s.strain})${s.held ? ' · on hold' : ''}</option>`).join('')}</optgroup>` : ''; }).join('');
 sel.value = S.sample; sel.onchange = () => { S.sample = sel.value; save(); render(); };
 $('#rules').checked = S.rules; $('#rules').onchange = e => { S.rules = e.target.checked; save(); renderRack(); toast(S.rules ? 'Game rules on: fit, one per group, 5 slots, forks in order.' : 'Game rules off: anything hangs off anything. What the game would refuse lands as a card block.'); };
 let clearArm = 0;
