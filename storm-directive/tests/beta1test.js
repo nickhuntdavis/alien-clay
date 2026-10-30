@@ -52,7 +52,7 @@ const { chromium } = require('playwright');
       const names = { [LP]: ['Saline Bag', 'Cannula', 'Air Bubble', 'Epinephrine', 'Racing Heart', 'Overdose', 'Phlebotomist', 'Butterfly Needle', 'Squeamish', 'Drip Feed', 'Crash Cart', 'Blood Bank'],
         [DD]: ['Code Blue', 'Heart Monitor', 'Beep', 'Living Will', 'Last Rites', 'Paperwork', 'Waiting Room', 'Walk-in Clinic', 'Wrong Patient', 'Time of Death', 'Organ Harvest', 'Mass Casualty'] };
       const keys = { [LP]: ['iv', 'adren', 'draw'], [DD]: ['flatline', 'dnr', 'triage'] }, pre = { [LP]: 'be_lp', [DD]: 'be_dd' };
-      const ok = (txt, id) => typeof txt === 'string' && txt.length > 0 && (txt === 'TODO_COPY:' + id || (typeof BETA_COPY !== 'undefined' && BETA_COPY[id] === txt));
+      const ok = (txt, id) => typeof txt === 'string' && txt.length > 0 && (typeof BETA_COPY !== 'undefined' && BETA_COPY[id] === txt);
       const slug = n => n.toLowerCase().replace(/[^a-z]/g, '');
       for (const wid of [LP, DD]) {
         const S = wupSpecFor(wid, 'beta'), have = [];

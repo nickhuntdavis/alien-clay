@@ -20,7 +20,7 @@ const fs = require('fs'), path = require('path');
         chk(k + ' draws something', ink() > 40, ink()); }
       catch (e) { bad.push('draw ' + k + ' threw ' + e.message); }
     }
-    try { blDrawLook(g, 'rambo', 120, 120, 14, 0, 1, {}); blDrawLook(g, 'al_grind', 120, 120, 14, 0, 1, {}); } catch (e) { bad.push('earlier kinds through the wrap threw ' + e.message); }
+    try { blDrawLook(g, 'sperm', 120, 120, 14, 0, 1, {}); blDrawLook(g, 'al_grind', 120, 120, 14, 0, 1, {}); } catch (e) { bad.push('earlier kinds through the wrap threw ' + e.message); }
     // a canvas of full-size pictures: colour, then Lab grey; healthy and low
     const shots = {};
     for (const k of BE_KINDS) {

@@ -181,7 +181,7 @@ const { chromium } = require('playwright');
     // ================= gated cards
     block('Defibrillator', () => {
       const sc = scene(SC, ringPts(6).map(([x, y]) => [x * 0.6, y * 0.6])); const card = CARDS.find(c => c.id === 'feat_be_defib');
-      chk('Defibrillator card', !!card && card.kind === 'acquire' && /^TODO_COPY:|[A-Za-z]/.test(card.desc) && card.eligible(G));
+      chk('Defibrillator card', !!card && card.kind === 'acquire' && !/TODO_COPY/.test(card.desc) && /[A-Za-z]/.test(card.desc) && card.eligible(G));
       const w = f10Give('be_defib', 1); stamInit(); G.stam.cur = G.stam.v = 100; w.cd = 0; G.player.hp = MAX * 0.4;
       const inR = sc.es.filter(e => Math.hypot(e.x - sc.p.x, e.y - sc.p.y) < 140).length, ok = featTap(w);
       chk('Defibrillator performs on a tap', ok === true, ok);
@@ -206,7 +206,7 @@ const { chromium } = require('playwright');
       chk('Blood Bag gate reads Sister Cousin B', typeof F10.be_bloodbag.gate === 'function' && F10.be_bloodbag.gate() === false);
     });
     block('Morphine Drip', () => {
-      const sc = scene(SC, line(2, 80)); const card = CARDS.find(c => c.id === 'pass_be_morphine'); chk('Morphine Drip card', !!card && card.maxRank === 1 && /^TODO_COPY:|[A-Za-z]/.test(card.desc));
+      const sc = scene(SC, line(2, 80)); const card = CARDS.find(c => c.id === 'pass_be_morphine'); chk('Morphine Drip card', !!card && card.maxRank === 1 && !/TODO_COPY/.test(card.desc) && /[A-Za-z]/.test(card.desc));
       lowHp(); chk('without the passive: x1', hookMul('hurtMul', null, 'contact', 't') === 1);
       G.muts = G.muts || {}; G.muts.pass_be_morphine = 1;
       chk('low: 20% less', Math.abs(hookMul('hurtMul', null, 'contact', 't') - 0.8) < 0.001, hookMul('hurtMul', null, 'contact', 't'));
@@ -214,7 +214,7 @@ const { chromium } = require('playwright');
       G.player.hp = MAX; chk('full health: no help', hookMul('hurtMul', null, 'contact', 't') === 1);
     });
     block('Famous Last Words', () => {
-      const sc = scene(SC, [[80, 0], [0, 120], [-150, 0], [400, 0]]); const card = CARDS.find(c => c.id === 'pass_be_lastwords'); chk('Famous Last Words card', !!card && card.maxRank === 1 && /^TODO_COPY:|[A-Za-z]/.test(card.desc));
+      const sc = scene(SC, [[80, 0], [0, 120], [-150, 0], [400, 0]]); const card = CARDS.find(c => c.id === 'pass_be_lastwords'); chk('Famous Last Words card', !!card && card.maxRank === 1 && !/TODO_COPY/.test(card.desc) && /[A-Za-z]/.test(card.desc));
       G.muts = G.muts || {}; G.level = 7; G.player.hp = MAX * 0.07; hookRun('hurt', 10, null, null);
       chk('without the passive: nothing', sc.es.every(e => lost(e) === 0));
       G.muts.pass_be_lastwords = 1; G.player.hp = MAX * 0.2; hookRun('hurt', 10, null, null); chk('above 10%: nothing', sc.es.every(e => lost(e) === 0));
