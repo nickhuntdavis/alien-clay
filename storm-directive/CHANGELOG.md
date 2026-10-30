@@ -2,6 +2,15 @@
 
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
+## v10.230 (versionCode 509): 2026-10-30 Sample branch copy written; Claude writes all player-facing copy from now on (`ccr-83ce4661-mwfavv`)
+### 30 Oct 2026 Sample branch copy written; Claude now writes all copy (v10.230)
+- Systems: sample branches, baseline branches, docs
+- Files: samplebranch.js, baseline1.js; CLAUDE.md, voice_and_tone.md
+- What: the five open sample branch lines are written (Rambo's and Dirty Harry's branch cards, and the Lv 15, 20 and 25 screen subtitles), so the sample branch screens show no TODO_COPY. CLAUDE.md's copy rule is reversed by the user's decision: Claude writes all player-facing text in the voice guide's register, ships no placeholders, and lists every new line in the reply for the user to read.
+- Save data: none.
+- Hooks: none.
+- Risk: none for play. Other sessions keep the old placeholder rule until this CLAUDE.md reaches main.
+
 ## v10.229 (versionCode 508): 2026-10-30 Sample branches (Baseline: Rambo, Dirty Harry, Robocop at Lv 15), Standard Issue's own branches back, all nine hero costumes redrawn and visible (`ccr-83ce4661-mwfavv`)
 ### 30 Oct 2026 Shotgun and Hand-to-gland costumes redrawn in the high-detail style (v10.228)
 - Systems: baseline costumes, baseline branches (Shotgun, Hand-to-gland), tests
