@@ -20,7 +20,7 @@
 // v10Loot, genLoot. SETTINGS_DEF.push('ruleDebug'). Loads last (after every other wrap of those functions).
 
 // ---------------------------------------------------------------- settings
-SETTINGS_DEF.push({ id: 'ruleDebug', tab: 'game', label: 'TODO_COPY:set_ruledebug', hint: 'TODO_COPY:set_ruledebug_hint', opts: [[false, 'OFF'], [true, 'ON']] });
+SETTINGS_DEF.push({ id: 'ruleDebug', tab: 'game', label: 'Card rule notes', hint: 'Testing: each dealt card names the card rules that touched it, and a list shows the cards the rules held back.', opts: [[false, 'OFF'], [true, 'ON']] });
 SET_DEFAULTS.ruleDebug = false;
 try { SET.ruleDebug = JSON.parse(localStorage.getItem('sd_settings') || '{}').ruleDebug === true; } catch (e) { SET.ruleDebug = false; }
 const crDebug = () => !!(typeof SET !== 'undefined' && SET.ruleDebug);

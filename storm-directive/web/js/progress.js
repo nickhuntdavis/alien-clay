@@ -4,7 +4,7 @@
 // that run to open it; the v9 samples are locked here too). The other modes open by winning (META.modeWon, set on victory):
 //  - Endless (s006) once you have beaten the Petri Dish; Level 1 (s007) and the race course (s011) once you have won The Race.
 //  - Developer mode's Unlock Everything (META.devAll) opens them all.
-// The Race's mode tag is a placeholder while it gets a new name (TODO_COPY:mode_race_tag).
+// The Race's mode tag reads RACE MODE (beside the Petri Dish's WAVE MODE).
 // Hooks: none (wraps game.js victory, samples10.js s10Modes and s10Samples; loads after dsheads.js). Save data: META.modeWon { <mode>: 1 }.
 
 const PROGRESS = { need: { s006: 's002', s007: 's001', s011: 's001' } };
@@ -36,7 +36,7 @@ if (typeof s10Modes === 'function') {
     const r = orig.apply(this, arguments);
     document.querySelectorAll('#sampleList [data-mode]').forEach(b => {
       if (!modeOpen(b.dataset.mode)) { b.remove(); return; }
-      if (b.dataset.mode === 's001') { const em = b.querySelector('.sx-txt em'); if (em) em.textContent = 'TODO_COPY:mode_race_tag'; }
+      if (b.dataset.mode === 's001') { const em = b.querySelector('.sx-txt em'); if (em) em.textContent = 'RACE MODE'; }
     });
     return r;
   })(s10Modes);

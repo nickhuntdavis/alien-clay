@@ -16,7 +16,7 @@ const POD = { id: 'v_phys_podcast', base: 'v_phys_spread', pulses: 3, gap: 0.1, 
   const b = WEAPONS[POD.base], row = W24_BY[POD.base];
   if (!b || !row || WEAPONS[POD.id]) return;
   const d = Object.assign({}, b, { base: JSON.parse(JSON.stringify(b.base || {})), lv: JSON.parse(JSON.stringify(b.lv || {})),
-    stars: (b.stars || []).slice(), name: 'Obligatory Podcast', desc: 'TODO_COPY:w_podcast_desc', icon: 'OP', pod: 1, w24: 1, archived: 0 });
+    stars: (b.stars || []).slice(), name: 'Obligatory Podcast', desc: 'Three widening sound waves a shot. They pass through everything and push it back a little. Views expressed are the host\'s own.', icon: 'OP', pod: 1, w24: 1, archived: 0 });
   d.play = d.desc;
   d.base.range = Math.round((b.base.range || 260) * POD.reach); d.base.knock = POD.knock;
   WEAPONS[POD.id] = d;
