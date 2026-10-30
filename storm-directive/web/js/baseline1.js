@@ -22,8 +22,8 @@
 //    within 350 is sprayed with Acid, 60% of its Corrosion bar, and an Acid pool is left for 8 s).
 //  - The costume on the body is baselinelook.js's; this file draws only the mark's crosshair in the world.
 //  The mark (bl1SetMark, bl1Mark, bl1Unmark, G.bl1.marks, e.bl1mk) is shared with baseline2.js's Sperminator.
-//  Copy: names, tags, costs and card lines are the user's (written on request, baselinecopy.js); the two branch lines whose
-//  facts changed are TODO_COPY:smb_rambo_desc and TODO_COPY:smb_harry_desc.
+//  Copy: names, tags, costs and card lines from baselinecopy.js; the Rambo and Dirty Harry branch lines were rewritten for every
+//  weapon (30 Oct).
 // Hooks: smbReg (samplebranch.js); hookOn('fire') (the mark keeps every weapon on it), hookOn('fire:after'), hookOn('dmgMul'),
 // hookOn('tick'); wraps computeStats, weapons24.js wupDmgMul, wupHit and wupKill (every weapon, not only branched ones),
 // aimList (spsteer.js / aimplus.js), targetScore (game.js), drawPlates (bodymods.js: the crosshair); a pointerup listener on
@@ -194,11 +194,11 @@ targetScore = (orig => function (dir, e, d2) {
   const none = () => {};
   smbReg('baseline', {
     A: { name: 'Rambo', kind: 'rambo', tag: 'Spray, then spray again', costs: 'each shot is 15% weaker.',
-      lv3: { desc: 'TODO_COPY:smb_rambo_desc', apply: none },
+      lv3: { desc: 'Every weapon: 25% faster fire, magazines two thirds bigger, reloads a third quicker. Also how fertilisation works.', apply: none },
       lv6: [C('Faster and faster', 'Each shot in a magazine comes 5% sooner than the last, up to twice as fast. A reload resets it, as reloads do.', 'faster'), C('First blood', 'Hits Bleed (30% of the hit over 3 s). Shots on a Bleeding enemy do 20% more. Spilt first, counted later.', 'blood')],
       wild: C('Hot Start', 'The first shot of every magazine does double damage. It is always the most enthusiastic one.', 'hot') },
     B: { name: 'Dirty Harry', kind: 'harry', tag: 'Make every round count', costs: 'the fire rate is halved.',
-      lv3: { desc: 'TODO_COPY:smb_harry_desc', apply: none },
+      lv3: { desc: 'Every weapon hits 2.2x as hard with +10 crit chance, and ranged ones reach 120 further. Only one ever needs to land.', apply: none },
       lv6: [C('Lucky shot', 'Every hit on an Elite is a crit (1.6x). Bosses are not Elites, whatever they have told you.', 'lucky'), C('The Sixth Round', 'The last round in each magazine hits 50% harder, knocks a Shell layer off and staggers. It has been saving up.', 'six')],
       wild: C('Feeling Lucky?', 'A crit does double damage, but your crit chance is halved. Results may vary.', 'feel') },
     C: { name: 'Robocop', kind: 'robocop', tag: 'One target, all of you', costs: 'your shots will not leave the mark.',

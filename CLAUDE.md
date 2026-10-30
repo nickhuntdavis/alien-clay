@@ -10,20 +10,16 @@ Spawn Prawn is an Android autorun bullet-storm roguelite. You are a sperm cell, 
 - Tests: `storm-directive/tests/` (Playwright, headless Chromium).
 - Combat redesign (v10 spec, the only combat build since v10.125 removed the v9 fallback): `redesign docs/`. Read `redesign docs/CLAUDE.md` first; `COMBAT_MATRIX.md` there is the single source of rules.
 - Visual style guide: `storm-directive/STYLE.md`. Read it before redesigning anything drawn in the world.
-- Voice guide: `storm-directive/voice_and_tone.md`. The user writes all player-facing text (see Copy below); use the guide to write good briefs.
+- Voice guide: `storm-directive/voice_and_tone.md`. You write all player-facing text in this voice (see Copy below).
 - System map: `storm-directive/ARCHITECTURE.md`. Change log: `storm-directive/changes/<branch>.md` per session, folded into `storm-directive/CHANGELOG.md` on merge into `main`.
 
-## Copy: the user writes it, you write the brief
-Never write player-facing text yourself (card names and descriptions, narrator lines, enemy and boss names, tutorials, Field Guide, menus, buttons, toasts, achievements). This includes rewording existing text.
-1. Build the feature with a placeholder string `TODO_COPY:<id>` (e.g. `TODO_COPY:card_spermicide_desc`) wherever text is needed. Placeholders must not crash or overflow the UI.
-2. In your reply, give one brief per placeholder:
-   - **ID** and **where it appears** (screen, trigger, how long it stays up).
-   - **Job**: what the player must understand or feel from it.
-   - **Facts to convey**: numbers, mechanics, damage types (use the game's terms, e.g. "Feat", "unstable reaction").
-   - **Length limit**: characters or words that fit the UI.
-   - **Neighbours**: 1 to 3 existing lines it sits beside, quoted, so the voice matches.
-3. When the user sends the copy, drop it in, replace the placeholders, and grep that no `TODO_COPY` remains before shipping. If some are still open at ship time, say which in one line.
-Internal text (code comments, commit messages, changelog fragments, NOTES.md) is still yours to write.
+## Copy: you write it
+You write all player-facing text (the user's decision, 30 Oct 2026): card names and descriptions, narrator lines, enemy and boss names, tutorials, Field Guide, menus, buttons, toasts, achievements, and rewording existing text when a mechanic changes. This replaces the old rule (the user wrote it from your briefs); older docs that say the user writes copy (ENEMY_HANDOFF.md, UI_PRINCIPLES.md, `redesign docs/`) are out of date on this point.
+1. Write it in the voice of `storm-directive/voice_and_tone.md` and run its section 7 checklist on every line. Keep the facts exact (numbers, damage types, "Feat", "unstable reaction") and fit the UI's length.
+2. Names the user gives are kept exactly as given.
+3. Ship no `TODO_COPY` placeholders: write the line instead, and grep that none of yours remain before shipping. When you touch a feature that still has old `TODO_COPY` placeholders, write those too.
+4. In your reply, list every new or changed line (where it appears, then the text) so the user can read it through and change any.
+Internal text (code comments, commit messages, changelog fragments, NOTES.md) is yours too.
 Card quip lines (the per-sample consciousness one-liners in `Card_Copy_Draft_All.xlsx`, `GIFT_LINES.md`, `FEATS.md` 3) were retired on 29 Oct 2026: cards show the name and what it does. The sheet is kept as an archive only.
 
 ## Working with the user

@@ -54,7 +54,7 @@ forkCards = (orig => function (req) { return req && req.smb ? smbCards(req.smb.l
 draftTitle = (orig => function (req) {
   if (!req || !req.smb) return orig(req);
   const P = smbSpec() && smbSpec()[smbS().p], lv = req.smb.lv;
-  return [smbName().toUpperCase() + ': ' + (lv === 3 || !P ? 'SAMPLE BRANCH' : P.name.toUpperCase()), lv === 3 ? 'TODO_COPY:smb_sub_branch' : lv === 6 ? 'TODO_COPY:smb_sub_card' : 'TODO_COPY:smb_sub_mastery'];
+  return [smbName().toUpperCase() + ': ' + (lv === 3 || !P ? 'SAMPLE BRANCH' : P.name.toUpperCase()), lv === 3 ? 'This one changes the whole sample. Take one: the other two are gone for the run.' : lv === 6 ? 'How it grows from here. Take one: the others are gone for the run.' : "The sample's mastery. Any will take; each says which branch it suits."];
 })(draftTitle);
 
 // ---------------------------------------------------------------- a live picture of the sample on each card
