@@ -17,7 +17,7 @@
 
   // Branch cards to leave out, by weapon: (w, up) -> [card titles].
   const FIT_BRANCH = {
-    v_phys_proj: (w, u) => [], // (the movie-cop branches, baseline1.js: no clash with any modifier)
+    v_phys_proj: (w, u) => has(w, 'homing') ? ['Through and Through'] : [],
     v_phys_spread: (w, u) => [], // (movie-hero branches, baseline2.js: the old rules went with the old cards)
     v_phys_contact: (w, u) => [], // (movie-hero branches, baseline2.js / baseline3.js: the old rules went with the old cards)
     v_phys_burst: (w, u) => [
@@ -35,7 +35,7 @@
   };
   // Modifiers to leave out, by weapon: (w, up) -> [modifier ids].
   const FIT_MOD = {
-    v_phys_proj: (w, u) => [],
+    v_phys_proj: (w, u) => u.p === 'B' ? ['homing'] : [],
     v_phys_spread: (w, u) => [], // (movie-hero branches, baseline2.js / baseline3.js: the old rules went with the old cards)
     v_phys_contact: (w, u) => [], // (movie-hero branches, baseline2.js / baseline3.js: the old rules went with the old cards)
     v_phys_burst: (w, u) => u.l6 === 'Elbow Room' ? ['selfcentred', 'lobbed', 'delayed'] : [],

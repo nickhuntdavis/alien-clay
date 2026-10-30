@@ -2,7 +2,7 @@
 
 Rewritten 29 Oct 2026. Direction: **the game has a tone, not characters.** There is no narrator persona and no inner voice to write for. Every line is a label, a caption or a log entry in the game's own register: deadpan, clinical, juvenile with a straight face.
 
-This supersedes the persona sections of the older guides (`redesign docs/VOICE_GUIDE.md` sections on the Scientist and the consciousness, `redesign docs/CONSCIOUSNESS.md`). Their rules on brevity, British spelling and progressive disclosure still agree with this one. The user writes all player-facing text; use this guide to write briefs and to judge drift.
+This supersedes the persona sections of the older guides (`redesign docs/VOICE_GUIDE.md` sections on the Scientist and the consciousness, `redesign docs/CONSCIOUSNESS.md`). Their rules on brevity, British spelling and progressive disclosure still agree with this one. Claude writes all player-facing text with this guide (the user's decision, 30 Oct 2026) and uses it to judge drift.
 
 ---
 

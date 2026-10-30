@@ -5,8 +5,6 @@
 // CARD_RULES_OWNS: the game tables these rules replace as dealing filters (moddead.js MOD_DEAD, matrixna.js MATRIX_NA, dlvrun.js DLV.deny).
 const CARD_RULES_OWNS = {"audit":true,"matrix":true,"delivery":true};
 const CARD_RULES = [
-  {"id":"g1","parent":"b:v_phys_proj:B","mode":"do","target":"f:quick_draw","scope":"run"},
-  {"id":"g2","parent":"b:v_phys_proj:C","mode":"do","target":"f:acid_bath","scope":"run"},
   {"id":"g3","parent":"b:v_phys_spread:A","mode":"do","target":"p:pass_comeback","scope":"run"},
   {"id":"g4","parent":"b:v_shock_beam:B","mode":"do","target":"f:al_morning","scope":"run","sample":"alpha"},
   {"id":"g5","parent":"b:v_shock_beam:C","mode":"do","target":"p:pass_al_diamond","scope":"run","sample":"alpha"},

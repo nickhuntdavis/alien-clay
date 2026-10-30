@@ -16,7 +16,7 @@ const { chromium } = require('playwright');
       try { g.clearRect(0, 0, 240, 240); blDrawLook(g, k, 120, 120, 14, 0.5, 1.7, { act, speed: act }); const d = g.getImageData(0, 0, 240, 240).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 0) n++; chk(k + ' draws something', n > 40, n); }
       catch (e) { bad.push('draw ' + k + ' threw ' + e.message); }
     }
-    try { blDrawLook(g, 'rambo', 120, 120, 14, 0, 1, {}); } catch (e) { bad.push('Baseline kind through the wrap threw ' + e.message); }
+    try { blDrawLook(g, 'sperm', 120, 120, 14, 0, 1, {}); } catch (e) { bad.push('Baseline kind through the wrap threw ' + e.message); }
     // the three stage tables map the Alpha names, and the letters follow the run's sample
     const names = { RFV_FLAG: [RFV_FLAG, ['Grindset', 'Life Coach', 'Crypto Bro'], 'v_shock_beam'], TWV_FLAG: [TWV_FLAG, ['Wingman', 'Situationship', 'Power Couple'], 's_twin'], UCV_FLAG: [UCV_FLAG, ['Networking Event', 'Cold Caller', 'Influencer'], 's_tesla'] };
     for (const id in names) {
@@ -44,7 +44,7 @@ const { chromium } = require('playwright');
       G.weapons[1].firedT = 100; chk('the pick follows the weapon fired last', blPick().w === G.weapons[1]);
       try { for (let f = 0; f < 120; f++) update(1 / 60); render(); blInRun(sx(G.player.x), sy(G.player.y)); alTwinHearts(); } catch (e) { bad.push('in-run draw threw ' + e.message); } });
     // an Alpha run that also holds a Baseline hero weapon: the one fired last wins
-    run('alpha', () => { G.weapons = [makeSlot('v_shock_beam', false, 1), makeSlot('v_phys_proj', false, 1), null, null]; recomputeAll(); G.weapons[0].up = { p: 'B' };
+    run('alpha', () => { G.weapons = [makeSlot('v_shock_beam', false, 1), makeSlot('v_phys_spread', false, 1), null, null]; recomputeAll(); G.weapons[0].up = { p: 'B' }; // (Shotgun: Standard Issue's heroes are sample branches now)
       const cs = genLoot({ kind: 'fork', w: G.weapons[1], lv: 3 }); if (cs && cs[0] && cs[0].apply) cs[0].apply();
       G.weapons[0].firedT = 90; G.weapons[1].firedT = 95; const a = blPick(); chk('Baseline weapon fired last wins in an Alpha run', a && !AL_KINDS.includes(a.kind), a && a.kind);
       G.weapons[0].firedT = 99; chk('and the Alpha one when it fires last', blPick() && blPick().kind === 'al_coach', blPick() && blPick().kind); });

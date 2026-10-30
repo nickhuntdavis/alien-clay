@@ -2,8 +2,15 @@
 
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
+## v10.231 (versionCode 510): 2026-10-30 Alpha reimagined (hustle culture, Alpha-only branches), per-sample branch sets, dealing tables as editable rules (`claude/sharp-hypatia-icfi8l`)
+### 2026-10-30 Merge of main (v10.230: sample branches) into this branch
+- Systems: card rules, baseline branches
+- Files: baseline1.js, cardrules.js, ARCHITECTURE.md, NOTES.md
+- What: Rambo, Dirty Harry and Robocop are Baseline sample branches now (main's samplebranch.js), so Quick draw and Acid bath keep main's gate (the sample branch taken) and their two Do rules on Standard Issue (g1, g2) are dropped. Come back stays a Do rule on Shotgun's Sperminator (g3). samplebranch.js (sample-level branches) and samplebranches.js (per-sample weapon branch sets, for Alpha and Beta) are separate systems and both load.
+- Save data: none.
+- Hooks: none.
+- Risk: the planner's Baseline hero presets still name Standard Issue's old branch letters.
 
-## v10.228 (versionCode 507): 2026-10-30 Alpha reimagined (hustle culture, Alpha-only branches), per-sample branch sets, dealing tables as editable rules (`claude/sharp-hypatia-icfi8l`)
 ### 2026-10-30 Fix: new-weapon screens keep the game's own deal when no rule names a weapon
 - Systems: card rules
 - Files: cardrulesengine.js
@@ -59,6 +66,32 @@ Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, 
 - Save data: none.
 - Hooks: none.
 - Risk: none (the gates behave as before, now through the rule engine; the built-in tables stay where they are).
+
+## v10.230 (versionCode 509): 2026-10-30 Sample branch copy written; Claude writes all player-facing copy from now on (`ccr-83ce4661-mwfavv`)
+### 30 Oct 2026 Sample branch copy written; Claude now writes all copy (v10.230)
+- Systems: sample branches, baseline branches, docs
+- Files: samplebranch.js, baseline1.js; CLAUDE.md, voice_and_tone.md
+- What: the five open sample branch lines are written (Rambo's and Dirty Harry's branch cards, and the Lv 15, 20 and 25 screen subtitles), so the sample branch screens show no TODO_COPY. CLAUDE.md's copy rule is reversed by the user's decision: Claude writes all player-facing text in the voice guide's register, ships no placeholders, and lists every new line in the reply for the user to read.
+- Save data: none.
+- Hooks: none.
+- Risk: none for play. Other sessions keep the old placeholder rule until this CLAUDE.md reaches main.
+
+## v10.229 (versionCode 508): 2026-10-30 Sample branches (Baseline: Rambo, Dirty Harry, Robocop at Lv 15), Standard Issue's own branches back, all nine hero costumes redrawn and visible (`ccr-83ce4661-mwfavv`)
+### 30 Oct 2026 Shotgun and Hand-to-gland costumes redrawn in the high-detail style (v10.228)
+- Systems: baseline costumes, baseline branches (Shotgun, Hand-to-gland), tests
+- Files: baselinelook.js, baseline2.js, baseline3.js; tests baselinelooktest.js, baseline3test.js, wpnshot.js (new)
+- What: the six weapon branch costumes are shaded like the sample bodies and drawn in the head's frame, fitted to whichever sample wears them: Sperminator's torn-open chrome endoskeleton with a red eye (a dry husk for Come back's 2 s, then the whole chrome skull, both eyes and metal vertebrae), Evil Dead's chainsaw (the chain runs, the motor smokes and the tip throws blood while it cuts; a longer bar with Hail to the King), Riding shotgun's goggles on a leather strap with wind at speed, Kung fu's black belt and taped fists (a strike on a kick), Samurai's topknot and sheathed katana (drawn and swept on a cut; the old drawing read a field that was never set, so the cut never showed), Biting's gums and teeth (gape and snap on a bite, blood after). The old flat versions under the body in baseline2.js and baseline3.js are gone (the mark crosshair and the sidecar pod stay).
+- Save data: none.
+- Hooks: none new. baseline3.js no longer wraps drawPlates; baseline2.js's drawPlates wrap draws only the crosshair and the pod.
+- Risk: none for play (drawing only). The Sperminator's Shell layers still draw as brown bands under its costume.
+
+### 30 Oct 2026 Sample branches: Rambo, Dirty Harry and Robocop move from Standard Issue to the Baseline sample; costumes redrawn and finally visible (v10.227)
+- Systems: sample branches (new), baseline branches, baseline costumes, weapons24 (branch hooks), draft, fit rules, tests
+- Files: samplebranch.js (new), baseline1.js, baselinelook.js, fitcheck.js, index.html; tests baseline1test.js, baselinelooktest.js, smbshot.js (new), wup1test.js, sivtest.js, fittest.js, combo10test.js
+- What: a sample now has its own branch tree: at run Lv 15 the Baseline sample picks Rambo, Dirty Harry or Robocop (a live picture of each costume on its card), at Lv 20 that branch's card or wildcard, at Lv 25 a mastery; every effect acts on every weapon held, not one gun. Standard Issue has its old branches back (Ricochet Brain, Through and Through, Marked for Bonking). The hero costumes were drawn on the slide under youhd.js's sharp body canvas, so the body hid them (v10.226's 1.5x only let the edges poke out): the three sample costumes are now drawn in the head's own frame on that canvas, at the head's size, shaded like the sample bodies; the six weapon costumes draw in the same pass at 1x and give way while a sample costume is worn.
+- Save data: none (run state G.smb).
+- Hooks: none in shared files. samplebranch.js hookOn('tick'), wraps forkCards, draftTitle, UI.renderLootCards, UI.openLoot. baseline1.js now wraps weapons24.js wupDmgMul, wupHit, wupKill and adds hookOn('fire', 'baseline1:mark', 45). baselinelook.js wraps samplelooks.js SL_HEAD.baseline, sets SL_UNDER.baseline, wraps seqsel.js drawSeqMods (was drawPlates).
+- Risk: balance (Rambo and Dirty Harry now change every weapon, not one; Belt-Fed now works on any branch, it did nothing off Rambo before); TODO_COPY: smb_rambo_desc, smb_harry_desc, smb_sub_branch, smb_sub_card, smb_sub_mastery. Tests and sims never see the screens (TUT_OFF) unless SMB.force.
 
 ## v10.227 (versionCode 506): 2026-10-30 Card rules: Do, Don't and Weight between cards, edited in the Loadout Planner (`claude/sharp-hypatia-icfi8l`)
 ### 2026-10-30 Planner: card rules panel (Do, Don't, Weight), simulate, health, save; rules generator

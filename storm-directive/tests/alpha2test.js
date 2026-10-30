@@ -46,7 +46,7 @@ const { chromium } = require('playwright');
       sc = scene(OP, line(3, 60), { sample: 'baseline' });
       chk('other samples get no podcast branches', !WUP[OP] && !genLoot({ kind: 'fork', w: sc.w, lv: 3 }).some(c => c.title === 'Hot Take'));
       chk('baseline run still has the shared Unwanted Contact set', WUP[UC].A.name === "It's Spreading");
-      for (const id of [UC, OP]) { const S = wupSpecFor(id, 'alpha'); for (const k of ['A', 'B', 'C']) chk(id + ' ' + k + ' text is copy or placeholder', /^(TODO_COPY:|[A-Z])/.test(S[k].lv3.desc) && S[k].lv6.length === 2 && !!S[k].wild); }
+      for (const id of [UC, OP]) { const S = wupSpecFor(id, 'alpha'); for (const k of ['A', 'B', 'C']) chk(id + ' ' + k + ' text is copy or placeholder', /^(TODO_COPY:|[A-Z0-9])/.test(S[k].lv3.desc) && S[k].lv6.length === 2 && !!S[k].wild); }
     });
 
     // ================= Unwanted Contact

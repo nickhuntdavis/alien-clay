@@ -1,5 +1,7 @@
 # Baseline reimagined (29 Oct 2026)
 
+**Update 30 Oct (the user):** Rambo, Dirty Harry and Robocop are no longer Standard Issue's branches but the Baseline SAMPLE's (samplebranch.js: Lv 15 branch, Lv 20 card, Lv 25 mastery; every weapon), and Standard Issue has its old branches back. Part 1 below describes the weapon version; baseline1.js's header has the current numbers.
+
 The user's design (ideas.md, second batch; decisions below). Baseline stops being the plain control sample and becomes the
 action-movie human: each of its weapons has three Lv 3 branches named after a film hero, each a different way to play the
 weapon, and some Feats, modifiers and passives are only dealt once a branch is taken (gates). The sperm's body wears the branch.

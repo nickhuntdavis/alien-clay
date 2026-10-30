@@ -42,7 +42,7 @@ const { chromium } = require('playwright');
     });
     block('inheritance: a branch rule covers its Lv 6 cards; a modifier rule covers its forks', () => {
       set([{ id: 'r3', parent: 'm:charged', mode: 'dont', target: 'b:' + SI + ':B', scope: 'weapon' }]);
-      chk('covers Lucky shot', crCovers('b:' + SI + ':B', 'wb:' + SI + ':Lucky shot'));
+      chk('covers Gathering Momentum', crCovers('b:' + SI + ':B', 'wb:' + SI + ':Gathering Momentum')); // (Through and Through's Lv 6 card: Dirty Harry moved to the Baseline sample, samplebranch.js)
       chk('m covers mf', crCovers('m:range', 'mf:range:A1'));
       const [a] = fresh([SI]); modAdd(a, 'charged'); a.up = { p: 'B' }; // (held before the rule mattered: it stays)
       const six = genLoot({ kind: 'fork', w: a, lv: 6 });

@@ -209,6 +209,8 @@ function alTwinHearts() {
   }
 }
 drawPlates = (orig => function (px, py) { orig(px, py); try { alTwinHearts(); } catch (e) { } })(drawPlates);
+// baselinelook.js's in-run pass draws BL_WEAP[kind](k, t, o) on a canvas already at the head: Alpha's kinds answer there too.
+for (const kind of AL_KINDS) BL_WEAP[kind] = (k, t, o) => alDrawLook(ctx, kind, k, 0, 7.5 * k, 0, t, o);
 
 // ---------------------------------------------------------------- on the branch screens
 // Lv 3 passes the card name; Lv 6 and 9 pass the branch letter. While the run is Alpha the letters read as the Alpha kind.

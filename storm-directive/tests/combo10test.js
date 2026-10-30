@@ -47,8 +47,7 @@ const { chromium } = require('playwright');
       return { gated, hinted, offered, fx: n, dmg: Math.round(key ? dmg[key] : 0), err: (G.c10err || []).slice(0, 2).join(' ; ') };
     };
     // (some combos need the arena to line up: up to 3 tries each)
-    const RETIRED = ['c10_popquiz', 'c10_papertrail']; // (built on Standard Issue's old Marked for Bonking and Ricochet Brain, replaced by baseline1.js; combos are off in the shipped game while weapon fusion is on, wfusion.js)
-    for (const c of C10.filter(c => (!only || c.id === only) && !RETIRED.includes(c.id))) { let x, t = 0; do { x = run(c); t++; } while (!(x.fx > 0) && t < 3); x.tries = t; R[c.id] = x; }
+    for (const c of C10.filter(c => !only || c.id === only)) { let x, t = 0; do { x = run(c); t++; } while (!(x.fx > 0) && t < 3); x.tries = t; R[c.id] = x; }
     // The weapon draft: holding Standard Issue (Projectile), one card is a partner, even Little Prick (also Projectile).
     let partner = 0;
     for (let i = 0; i < 20; i++) {

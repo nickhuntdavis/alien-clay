@@ -33,11 +33,7 @@ const { chromium } = require('playwright');
     return { bad, out };
   });
   const shots = [];
-  // Standard Issue's branch screens use the plain layout since its movie-cop branches (baseline1.js) have no scenes yet: three cards, no stage.
-  { const plain = await page.evaluate(() => { G.level = 4; G.lootQueue = []; G.state = 'play'; UI.openLoot({ kind: 'wup', v10ok: true }); return { n: (UI.lootOpts || []).length, titles: (UI.lootOpts || []).map(o => o.title), draft: !$('draft').classList.contains('hidden') && getComputedStyle($('draft')).display !== 'none' }; });
-    r.out.plain = plain; if (plain.n !== 3 || plain.titles.join() !== 'Rambo,Dirty Harry,Robocop') r.bad.push('plain branch screen: ' + JSON.stringify(plain));
-    await page.evaluate(() => { UI.pickLoot(0); G.lootQueue = []; UI.openLoot({ kind: 'wup', v10ok: true }); UI.pickLoot(0); }); }
-  for (let tier = 2; tier <= 1; tier++) { // (tier 4, the Lv 10 mastery, is gone: weapons stop at Lv 9 since v10.148, wmods.js MM.lvlCap)
+  for (let tier = 2; tier <= 3; tier++) { // (tier 4, the Lv 10 mastery, is gone: weapons stop at Lv 9 since v10.148, wmods.js MM.lvlCap)
     const head = await page.evaluate(() => {
       G.level = 4; G.lootQueue = []; G.state = 'play';
       UI.openLoot({ kind: 'wup', v10ok: true });
