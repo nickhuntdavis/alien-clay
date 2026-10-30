@@ -19,4 +19,4 @@ const MATRIX_NA = {
 };
 const matrixNa = (w, id) => !!(w && w.def && !w.isSpell && (MATRIX_NA[w24Key(w)] || []).includes(id))
   && !(id === 'knock' && typeof mwR === 'function' && mwR(w, 'ranged')); // (Ranged replaces the snap and the pulse: Knockback throws from the strike, delivforms.js)
-modOk = (orig => function (w, id) { return !matrixNa(w, id) && orig(w, id); })(modOk);
+modOk = (orig => function (w, id) { return ((typeof CARD_RULES_OWNS !== 'undefined' && CARD_RULES_OWNS.matrix) || !matrixNa(w, id)) && orig(w, id); })(modOk); // (card rules own it when CARD_RULES_OWNS.matrix: cardrules.js)

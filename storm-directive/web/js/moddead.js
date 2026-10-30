@@ -40,6 +40,7 @@ const MOD_LIVE_WITH = {
 const modDeliveryOf = w => { for (const id of (w && w.m10) || []) if (MM_GROUP[id] === 'delivery') return id; return ''; };
 const modWoken = (w, id) => { const l = (MOD_LIVE_WITH[w24Key(w)] || {})[id]; return !!l && l.some(m => ((w && w.m10) || []).includes(m)); };
 modOk = (orig => function (w, id) {
+  if (typeof CARD_RULES_OWNS !== 'undefined' && CARD_RULES_OWNS.audit) return orig(w, id); // (the dealing filter is card rules now: cardrules.js; the table stays for passivefeat.js)
   const d = MOD_DEAD[w24Key(w)];
   if (d && d[modDeliveryOf(w)] && d[modDeliveryOf(w)].includes(id) && !modWoken(w, id)) return false;
   return orig(w, id);

@@ -11,6 +11,8 @@
 //    this weapon or sample branch".
 //  - INHERITANCE: a rule on a weapon branch also covers that branch's Lv 6 cards and wild card; a rule on a modifier also covers its
 //    forks and masteries. Holding a Lv 6 card implies holding its branch, so parents need nothing extra.
+//  - CONDITIONS on a rule, in its scope: `form` (the weapon's Delivery form: its first Delivery modifier, '' for none), `with` (keys that must be held) and `unless`
+//    (keys that turn it off). Rules carry `src` when they came from a game table (audit, matrix, delivery): see CARD_RULES_OWNS.
 //  - Held cards are never removed. Rules only stop new deals. If a fork or branch screen would be left empty, it is shown unfiltered
 //    rather than locking the weapon.
 //  - DEBUG (Settings > Game > ruleDebug): dealt cards carry a line naming the rules that touched them, and a held-back list.
@@ -116,25 +118,56 @@ function crHeldFor(scope, w) {
   return all.concat(run);
 }
 const crHeld = (pattern, ctx) => !!G && crHeldFor((ctx && ctx.scope) || 'run', ctx && ctx.w).some(k => crCovers(pattern, k));
-function crLive(r) { // the rule's conditions (sample, branch) hold in this run
+function crLive(r) { // the rule's run-wide conditions (sample, branch) hold
   if (r.sample && !(G.s10 && G.s10.id === r.sample)) return false;
   if (r.branch && !crHeld(r.branch, { scope: 'run' })) return false;
   return true;
 }
 const crRules = () => (typeof CARD_RULES !== 'undefined' ? CARD_RULES : []);
+// The rule's own conditions against what is held in its scope: `with` (every key held: e.g. the Delivery form an audit row needs)
+// and `unless` (any key held turns the rule off: e.g. Knockback is fine on Panic Button once it has Ranged).
+const crForm = w => { for (const id of (w && w.m10) || []) if (mmGroup(id) === 'delivery') return id; return ''; }; // (the weapon's Delivery form: its first Delivery modifier, as moddead.js reads it)
+function crCond(r, held, w) {
+  if (r.form != null && (!w || crForm(w) !== r.form)) return false;
+  if (r.with) for (const k of [].concat(r.with)) if (!held.some(h => crCovers(k, h))) return false;
+  if (r.unless) for (const k of [].concat(r.unless)) if (held.some(h => crCovers(k, h))) return false;
+  return true;
+}
+// An index of the rules by the keys they name, rebuilt when CARD_RULES changes (tests swap it).
+const CRX = { src: [], byKey: new Map(), tags: [] };
+function crIndex() {
+  const R = crRules();
+  if (R.length === CRX.src.length && R.every((r, i) => r === CRX.src[i])) return CRX;
+  CRX.src = R.slice(); CRX.byKey = new Map(); CRX.tags = [];
+  const put = (k, r) => { const L = CRX.byKey.get(k); if (L) L.push(r); else CRX.byKey.set(k, [r]); };
+  for (const r of R) { put(r.parent, r); if (/^tag:/.test(r.target)) CRX.tags.push(r); else put(r.target, r); }
+  return CRX;
+}
+function crRulesFor(key) { // every rule that could name this card, directly or through inheritance or a tag
+  const X = crIndex(), out = new Set(X.tags), add = k => { for (const r of X.byKey.get(k) || []) out.add(r); };
+  add(key);
+  const [t, rest] = crSplit(key);
+  if (t === 'wb') { const wid = rest.slice(0, rest.indexOf(':')); for (const L of ['A', 'B', 'C']) add('b:' + wid + ':' + L); }
+  if (t === 'mf') add('m:' + rest.split(':')[0]);
+  if (t === 'pm') add('p:' + rest.split(':')[0]);
+  return out;
+}
+function crHeldSets(w) { return { weapon: w ? crHeldFor('weapon', w) : null, run: crHeldFor('run', null) }; }
+const crHeldIn = (H, r, w) => ((r.scope || 'weapon') === 'weapon' && w ? H.weapon : H.run);
 
 // ---------------------------------------------------------------- the verdict
 // null when the card may be dealt, else the reason (for the debug line).
 function crWhy(key, ctx) {
   if (!G || !crRules().length) return null;
-  const w = ctx && ctx.w;
-  let doSeen = false, doMet = false, doNames = [];
-  for (const r of crRules()) {
+  const w = ctx && ctx.w, kt = crSplit(key)[0], rules = crRulesFor(key); if (!rules.size) return null;
+  const H = crHeldSets(w);
+  let doSeen = false, doMet = false; const doNames = [];
+  for (const r of rules) {
     if (!crLive(r)) continue;
-    const held = crHeldFor(r.scope || 'weapon', w);
+    const held = crHeldIn(H, r, w); if (!crCond(r, held, w)) continue;
     if (r.mode === 'dont') {
       if (crCovers(r.target, key) && held.some(h => crCovers(r.parent, h))) return 'blocked by ' + crName(r.parent);
-      if (crCovers(r.parent, key) && held.some(h => crCovers(r.target, h))) return 'blocked by ' + crName(held.find(h => crCovers(r.target, h)));
+      if (!(kt === 'w' && (r.scope || 'weapon') === 'weapon') && crCovers(r.parent, key)) { const h = held.find(x => crCovers(r.target, x)); if (h) return 'blocked by ' + crName(h); } // (a weapon is never "on" another weapon's modifiers)
     } else if (r.mode === 'do' && crCovers(r.target, key)) {
       doSeen = true; doNames.push(crName(r.parent));
       if (held.some(h => crCovers(r.parent, h))) doMet = true;
@@ -147,17 +180,23 @@ const crAllowed = (key, ctx) => crWhy(key, ctx) === null;
 // The weight factor for a card in a random deal (product of every live Weight rule whose parent is held).
 function crWeight(key, ctx) {
   if (!G || !crRules().length) return 1;
-  let k = 1;
-  for (const r of crRules()) if (r.mode === 'weight' && crLive(r) && crCovers(r.target, key) && crHeldFor(r.scope || 'weapon', ctx && ctx.w).some(h => crCovers(r.parent, h))) k *= r.k == null || isNaN(+r.k) ? 1 : Math.max(0, +r.k);
+  const w = ctx && ctx.w, rules = crRulesFor(key); if (!rules.size) return 1;
+  const H = crHeldSets(w); let k = 1;
+  for (const r of rules) {
+    if (r.mode !== 'weight' || !crLive(r) || !crCovers(r.target, key)) continue;
+    const held = crHeldIn(H, r, w); if (!crCond(r, held, w) || !held.some(h => crCovers(r.parent, h))) continue;
+    k *= r.k == null || isNaN(+r.k) ? 1 : Math.max(0, +r.k);
+  }
   return k;
 }
 // What the debug line says about a dealt card.
 function crNote(key, ctx) {
-  const out = [];
-  for (const r of crRules()) {
-    if (!crLive(r)) continue;
-    if (r.mode === 'do' && crCovers(r.target, key)) out.push('only with ' + crName(r.parent));
-    if (r.mode === 'weight' && crCovers(r.target, key) && crHeldFor(r.scope || 'weapon', ctx && ctx.w).some(h => crCovers(r.parent, h))) out.push('x' + r.k + ' from ' + crName(r.parent));
+  const w = ctx && ctx.w, H = crHeldSets(w), out = [];
+  for (const r of crRulesFor(key)) {
+    if (!crLive(r) || !crCovers(r.target, key)) continue;
+    const held = crHeldIn(H, r, w); if (!crCond(r, held, w)) continue;
+    if (r.mode === 'do') out.push('only with ' + crName(r.parent));
+    if (r.mode === 'weight' && held.some(h => crCovers(r.parent, h))) out.push('x' + r.k + ' from ' + crName(r.parent));
   }
   return out.join('; ');
 }
@@ -167,7 +206,7 @@ const crLog = (key, why) => { if (crDebug() && G) { const L = G.crHeldBack || (G
 // Modifiers: modOk is asked for every modifier on every weapon (modsFor, the cards, the hold view).
 modOk = (orig => function (w, id) {
   if (!orig(w, id)) return false;
-  if (!crRules().length || !G || modCount(w, id) > 0) return true; // (a held modifier still ranks up)
+  if (!crRules().length || !G) return true; // (a rank-up is a deal too: the old tables blocked them the same way)
   const why = crWhy('m:' + id, { w }); if (why) { crLog('m:' + id, why); return false; }
   return true;
 })(modOk);

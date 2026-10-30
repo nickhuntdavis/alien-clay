@@ -54,12 +54,12 @@ const path = require('path'), fs = require('fs');
     // Current rules (CARD_RULES.md): the rule file's rules load as the planner's editable defaults; the built-in tables (matrix N/A,
     // Delivery weapons' denied modifiers, the audit's dead modifiers by Delivery form) load as locked rules with their reason.
     const rules0 = (typeof CARD_RULES !== 'undefined' ? CARD_RULES : []).map(r => Object.assign({}, r));
-    const builtin = [], roster = new Set(Object.keys(weapons)), okMod = id => !!mods[id];
-    for (const [wid, ids] of Object.entries(typeof MATRIX_NA !== 'undefined' ? MATRIX_NA : {})) if (roster.has(wid)) for (const id of ids) if (okMod(id))
+    const builtin = [], roster = new Set(Object.keys(weapons)), okMod = id => !!mods[id], OWN = typeof CARD_RULES_OWNS !== 'undefined' ? CARD_RULES_OWNS : {}; // (tables the rules own are editable rules, not locked ones)
+    for (const [wid, ids] of Object.entries(typeof MATRIX_NA !== 'undefined' && !OWN.matrix ? MATRIX_NA : {})) if (roster.has(wid)) for (const id of ids) if (okMod(id))
       builtin.push({ w: wid, mod: id, src: 'matrix', why: 'N/A in the modifier matrix: the weapon already does this', unless: ['v_phys_burst', 's_lard', 'v_phys_contact'].includes(wid) && id === 'knock' ? 'ranged' : '' });
-    for (const [wid, ids] of Object.entries((typeof DLV !== 'undefined' && DLV.deny) || {})) if (roster.has(wid)) for (const id of ids) if (okMod(id))
+    for (const [wid, ids] of Object.entries((typeof DLV !== 'undefined' && !OWN.delivery && DLV.deny) || {})) if (roster.has(wid)) for (const id of ids) if (okMod(id))
       builtin.push({ w: wid, mod: id, src: 'delivery', why: 'does nothing on this Delivery weapon' });
-    for (const [wid, forms] of Object.entries(typeof MOD_DEAD !== 'undefined' ? MOD_DEAD : {})) if (roster.has(wid)) for (const [form, ids] of Object.entries(forms)) for (const id of ids) if (okMod(id))
+    for (const [wid, forms] of Object.entries(typeof MOD_DEAD !== 'undefined' && !OWN.audit ? MOD_DEAD : {})) if (roster.has(wid)) for (const [form, ids] of Object.entries(forms)) for (const id of ids) if (okMod(id))
       builtin.push({ w: wid, mod: id, form, src: 'audit', why: 'the modifier audit found it does nothing here' + (form ? ' (with ' + (MODS10[form] ? MODS10[form].name : form) + ')' : '') });
     return { version: APP_VERSION, types, samples, weapons, mods, maxW: MAX_WEAPONS, mmOpen: MM.open, gnames: MM_GNAME, feats, featSlots: F10_SLOTS, passives, passSlots: SP.base + SP.at.length, families, rules0, builtin };
   });

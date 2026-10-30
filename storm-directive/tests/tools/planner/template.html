@@ -1006,16 +1006,26 @@ function rpWeaponKeys(w) {
 const rpRunKeys = () => S.feats.map(f => 'f:' + f.id).concat(S.pass.map(x => 'p:' + x.id), S.pass.filter(x => x.mast != null).map(x => 'pm:' + x.id + ':' + (x.mast ? 'B' : 'A')), ['s:' + S.sample]);
 const rpHeldFor = (scope, w) => (scope === 'weapon' && w ? rpWeaponKeys(w) : S.weapons.flatMap(rpWeaponKeys)).concat(rpRunKeys());
 const rpLive = r => !(r.sample && r.sample !== S.sample) && !(r.branch && !rpHeldFor('run', null).some(h => rpCovers(r.branch, h)));
-// The verdict for a card against the dish's build (null: it could be dealt).
+// The verdict for a card against the dish's build (null: it could be dealt). Same rules as the game (cardrulesengine.js crWhy).
+const rpFormOf = w => { const m = w && w.mods.find(x => M(x.id) && M(x.id).group === 'delivery'); return m ? m.id : ''; };
+function rpCond(r, held, w) {
+  if (r.form != null && (!w || rpFormOf(w) !== r.form)) return false;
+  if (r.with) for (const c of [].concat(r.with)) if (!held.some(h => rpCovers(c, h))) return false;
+  if (r.unless) for (const c of [].concat(r.unless)) if (held.some(h => rpCovers(c, h))) return false;
+  return true;
+}
 function rpWhy(k, w) {
   if (!S.cr.length || !k) return null;
+  const kt = rpSplit(k)[0], HW = w ? rpHeldFor('weapon', w) : null, HR = rpHeldFor('run', null);
   let doSeen = false, doMet = false; const names = [];
   for (const r of S.cr) {
+    if (r.target !== k && r.parent !== k && !/^tag:/.test(r.target) && !rpCovers(r.target, k) && !rpCovers(r.parent, k)) continue;
     if (!rpLive(r)) continue;
-    const held = rpHeldFor(r.scope || 'weapon', w);
+    const held = (r.scope || 'weapon') === 'weapon' && w ? HW : HR;
+    if (!rpCond(r, held, w)) continue;
     if (r.mode === 'dont') {
-      if (rpCovers(r.target, k) && held.some(h => rpCovers(r.parent, h))) return 'Blocked by ' + rpName(r.parent);
-      if (rpCovers(r.parent, k)) { const h = held.find(x => rpCovers(r.target, x)); if (h) return 'Blocked by ' + rpName(h); }
+      if (rpCovers(r.target, k) && held.some(h => rpCovers(r.parent, h))) return (r.src ? 'Game table (' + r.src + '): ' : 'Blocked by ') + rpName(r.parent);
+      if (!(kt === 'w' && (r.scope || 'weapon') === 'weapon') && rpCovers(r.parent, k)) { const h = held.find(x => rpCovers(r.target, x)); if (h) return 'Blocked by ' + rpName(h); }
     } else if (r.mode === 'do' && rpCovers(r.target, k)) { doSeen = true; names.push(rpName(r.parent)); if (held.some(h => rpCovers(r.parent, h))) doMet = true; }
   }
   return doSeen && !doMet ? 'Needs ' + names.join(' or ') : null;
@@ -1048,7 +1058,8 @@ function rpAdd(target, zone) {
 function rpShow(on) { RP.open = on; $('#rpanel').classList.toggle('open', on); $('#rulesbtn').classList.toggle('on', on); }
 function rpOpen(k) { if (!k) return; RP.key = k; RP.pick = 'add'; rpShow(true); rpRender(); }
 function rpClose() { rpShow(false); render(); }
-const rpBadge = r => [r.scope === 'run' ? 'run' : 'weapon', r.sample ? (D.samples.find(x => x.id === r.sample) || {}).name : '', r.branch ? 'if ' + rpName(r.branch) : '', r.mode === 'weight' ? 'x' + r.k : ''].filter(Boolean).join(' · ');
+const RP_SRC = { audit: 'audit: does nothing', matrix: 'matrix N/A', delivery: 'Delivery weapon' };
+const rpBadge = r => [r.src ? RP_SRC[r.src] || r.src : '', r.scope === 'run' ? 'run' : 'weapon', r.form != null ? (r.form ? 'with ' + rpName('m:' + r.form) : 'no Delivery') : '', r.with ? 'with ' + [].concat(r.with).map(rpName).join(', ') : '', r.unless ? 'unless ' + [].concat(r.unless).map(rpName).join(', ') : '', r.sample ? (D.samples.find(x => x.id === r.sample) || {}).name : '', r.branch ? 'if ' + rpName(r.branch) : '', r.mode === 'weight' ? 'x' + r.k : ''].filter(Boolean).join(' · ');
 function rpSummary(k) {
   const own = S.cr.filter(r => r.parent === k), linked = S.cr.filter(r => r.parent !== k && rpCovers(r.target, k));
   const n = m => own.filter(r => r.mode === m).length;
@@ -1084,7 +1095,7 @@ function rpRender() {
   const zc = z => z === 'dont' ? 'g-lifesteal' : z === 'do' ? 'g-chemistry' : 'g-area';
   const zone = (z, title, hint) => {
     let items = own.filter(r => r.mode === z).map(r => `<span class="crchip${rpIsDefault(r) ? ' game' : ''}" style="--zc:var(--${zc(z)})" ${rpIsDefault(r) ? 'title="In the game now (a default). Remove it here and save to take it out."' : ''}>${esc(rpName(r.target))} <em>${esc(rpBadge(r) + (rpIsDefault(r) ? ' · in game' : ''))}</em><button data-rm="${r.id}" aria-label="Remove">×</button></span>`).join('');
-    if (z === 'dont') items += linked.filter(r => r.mode === 'dont').map(r => `<span class="crchip linked" style="--zc:var(--${zc(z)})" title="Set on ${esc(rpName(r.parent))}: a Don't works both ways">${esc(rpName(r.parent))} <em>from its card</em></span>`).join('');
+    if (z === 'dont') items += linked.filter(r => r.mode === 'dont').map(r => `<span class="crchip linked" style="--zc:var(--${zc(z)})" title="Set on ${esc(rpName(r.parent))}: a Don't works both ways">${esc(rpName(r.parent))} <em>${r.src ? esc(RP_SRC[r.src] || r.src) + (r.form != null ? ' · ' + (r.form ? 'with ' + esc(rpName('m:' + r.form)) : 'no Delivery') : '') : 'from its card'}</em></span>`).join('');
     if (z === 'do') items += linked.filter(r => r.mode === 'do').map(r => `<span class="crchip linked" style="--zc:var(--${zc(z)})" title="This card only comes with ${esc(rpName(r.parent))}">needs ${esc(rpName(r.parent))} <em>from its card</em></span>`).join('');
     if (z === 'weight') items += linked.filter(r => r.mode === 'weight').map(r => `<span class="crchip linked" style="--zc:var(--${zc(z)})">x${r.k} with ${esc(rpName(r.parent))} <em>from its card</em></span>`).join('');
     return `<div class="crzone ${RP.zone === z ? 'active' : ''}" data-zone="${z}"><h4>${title} <small>${hint}</small></h4><div class="crlist">${items || '<small style="color:var(--dim)">Drag cards here, or select this box and tap cards.</small>'}</div></div>`;
@@ -1171,7 +1182,7 @@ async function rpSave() {
 // ---------------------------------------------------------------- the game's current rules as defaults
 // The rule file's rules (D.rules0) seed the editable rules once; a default you remove stays removed (S.crRemoved). The built-in
 // tables (D.builtin: matrix N/A, Delivery denials, the audit by Delivery form) are locked: shown, simulated and health-checked.
-const rpSig = r => r.parent + '|' + r.mode + '|' + r.target;
+const rpSig = r => [r.parent, r.mode, r.target, r.scope || 'weapon', r.form == null ? '-' : r.form, [].concat(r.with || []).join('+'), [].concat(r.unless || []).join('+'), r.sample || '', r.branch || ''].join('|'); // (two audit rows differ only by Delivery form)
 const rpIsDefault = r => (D.rules0 || []).some(x => rpSig(x) === rpSig(r));
 (function rpSeed() {
   for (const r0 of D.rules0 || []) {

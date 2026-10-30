@@ -10,7 +10,7 @@ const { chromium } = require('playwright');
   await page.evaluate(() => { if (typeof P11 !== 'undefined') Object.assign(P11, { cap: 99, start: 1, dmgTo: 1, dmgLv: 0, farK: 1, foeHp: 1 }); }); // (weapon mechanics, not pacing: the V11 power curve off, power11.js)
   // (moddead.js hides audit-dead combos from modOk, e.g. Homing on a naked Standard Issue, whose aimed shots never need to
   // turn: this file tests each modifier's mechanics, so the draft filter is cleared as in sim/modaudit.js; tests/moddead.js covers it)
-  await page.evaluate(() => { if (typeof MOD_DEAD !== 'undefined') for (const k in MOD_DEAD) delete MOD_DEAD[k]; });
+  await page.evaluate(() => { if (typeof MOD_DEAD !== 'undefined') for (const k in MOD_DEAD) delete MOD_DEAD[k]; if (typeof CARD_RULES !== 'undefined') for (let i = CARD_RULES.length - 1; i >= 0; i--) if (CARD_RULES[i].src === 'audit') CARD_RULES.splice(i, 1); }); // (the audit's dealing filter is card rules now: cardrules.js)
   const r = await page.evaluate(() => {
     const bad = [], out = {};
     const fresh = () => {

@@ -1,6 +1,7 @@
 // Builds the MOD_DEAD table for web/js/moddead.js from the NO-OP lines of the modifier audit.
 //   NODE_PATH=/opt/node22/lib/node_modules node tools/moddead.js [out/modaudit_r1.txt] > /tmp/table.txt
 // Prints the one-line-per-weapon table body; paste it between the markers in moddead.js (or run with --write).
+// Then run tests/tools/rules/importtables.js: the dealing filter is card rules now (cardrules.js), the table feeds passivefeat.js.
 const { chromium } = require('playwright'), fs = require('fs'), path = require('path');
 const A = process.argv.slice(2), file = A.find(a => !a.startsWith('--')) || path.resolve(__dirname, '../out/modaudit_r1.txt');
 (async () => {

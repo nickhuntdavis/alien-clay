@@ -32,7 +32,21 @@ boxes. The planner exports a rule list; a generator writes `web/js/cardrules.js`
 ## Current rules in the planner (30 Oct)
 - The rule file's rules (`CARD_RULES`) load as the planner's defaults, marked "in game". Removing one is remembered; Restore brings them back. Saving writes the full list, defaults included, so the file and the planner stay the same.
 - The Baseline gates now live there as Do rules (Quick draw with Dirty Harry, Acid bath with Robocop, Come back with Sperminator).
-- The game's built-in tables load as LOCKED rules: matrix N/A (`MATRIX_NA`, matrixna.js), the Delivery weapons' denied modifiers (`DLV.deny`, dlvrun.js) and the modifier audit's dead modifiers by Delivery form (`MOD_DEAD`, moddead.js). They show on each weapon's and modifier's panel, count in Simulate and Health, and are not saved. Moving them into the rule file (so they could be edited) is a later step; the fit-check rules in fitcheck.js are functions and are not shown.
+- (Superseded below: the tables are editable rules now.) The game's built-in tables loaded as LOCKED rules: matrix N/A (`MATRIX_NA`, matrixna.js), the Delivery weapons' denied modifiers (`DLV.deny`, dlvrun.js) and the modifier audit's dead modifiers by Delivery form (`MOD_DEAD`, moddead.js). They show on each weapon's and modifier's panel, count in Simulate and Health, and are not saved. Moving them into the rule file (so they could be edited) is a later step; the fit-check rules in fitcheck.js are functions and are not shown.
+
+## The game tables are rules now (30 Oct, the user: "make them editable")
+- `tests/tools/rules/importtables.js` moved the three dealing tables into `cardrules.js` as rules tagged `src`: the modifier audit's dead
+  modifiers (`MOD_DEAD`, 530, `src: 'audit'`, with `form`: the weapon's Delivery form, '' for none, and `unless` for MOD_LIVE_WITH),
+  matrix N/A (`MATRIX_NA`, 12, `src: 'matrix'`, Knockback with `unless: ['m:ranged']`) and the Delivery weapons' denials (`DLV.deny`,
+  6, `src: 'delivery'`). `CARD_RULES_OWNS` in the same file tells moddead.js, matrixna.js and dlvrun.js to stand down as filters.
+- They are one-way: a Don't whose parent is a weapon with `weapon` scope never blocks the weapon itself (a weapon is never "on"
+  another weapon's modifiers).
+- `cardrulestest.js` proves the game deals exactly the same modifiers in 238 weapon and Delivery states with the tables in charge
+  and with the rules in charge.
+- `MOD_DEAD` stays as data for passivefeat.js (dead modifiers come off a weapon that moves into the Passive Feat slot). After a new
+  audit (`tests/sim/modaudit.js`, `tests/tools/moddead.js --write`), rerun `importtables.js`: it replaces the audit rules (an audit
+  rule you removed in the planner comes back) and keeps the planner's own.
+- In the planner they load as editable defaults with a badge (audit: does nothing / matrix N/A / Delivery weapon, plus the form).
 
 ## Workflow
 1. In the planner: Rules (or a card's "Do, Don't and Weight" button) opens the card in the side panel. Drag or tap cards into the

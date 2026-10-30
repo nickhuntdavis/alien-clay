@@ -20,7 +20,7 @@ const ONLY_W = arg('--w', ''), ONLY_M = arg('--mod', ''), SECS = +arg('--secs', 
     await page.evaluate(() => {
       META.seenSt = {}; for (const k in STATUS_INTRO) META.seenSt[k] = 1; META.seen = {}; for (const k in ENEMY_INTRO) META.seen[k] = 1;
       MATRIX_ONLY.force = true; // (what the shipped game offers, not every modifier)
-      if (typeof MOD_DEAD !== 'undefined') for (const k in MOD_DEAD) delete MOD_DEAD[k]; // (moddead.js hides dead combos from modOk, which plans this audit: test every combo again, or the regenerated table forgets them)
+      if (typeof MOD_DEAD !== 'undefined') for (const k in MOD_DEAD) delete MOD_DEAD[k]; if (typeof CARD_RULES !== 'undefined') for (let i = CARD_RULES.length - 1; i >= 0; i--) if (CARD_RULES[i].src === 'audit') CARD_RULES.splice(i, 1); // (and the audit's rules: cardrules.js) // (moddead.js hides dead combos from modOk, which plans this audit: test every combo again, or the regenerated table forgets them)
       self.AUD = { m: null };
       hookOn('hit:late', 'audit', (e, d, src) => { const M = AUD.m; if (!M) return; M.dmg += d; if (src.dot) M.dot += d; else { M.hits++; if (src.elem && src.elem !== 'phys') M.typed++; } M.names.add(src.wname || (src.w && src.w.def && src.w.def.name) || src.elem || '?'); if (src.mult && src.mult !== 1) M.mult++; });
       hookOn('kill', 'audit', () => { if (AUD.m) AUD.m.kills++; });

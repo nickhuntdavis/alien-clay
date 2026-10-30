@@ -103,6 +103,29 @@ const { chromium } = require('playwright');
       SET.ruleDebug = false;
       chk('a dealt card carries the rules line', cs.some(c => /\[rules: /.test(c.desc || '')), cs.map(c => c.desc).slice(0, 3));
     });
+    // The game tables moved into rules (importtables.js): every weapon in every Delivery form is dealt exactly the same modifiers
+    // with the tables in charge (CARD_RULES_OWNS off, their rules out) as with the rules in charge.
+    block('tables and rules agree', () => {
+      const OWN = Object.assign({}, CARD_RULES_OWNS), tableRules = SHIPPED.filter(r => r.src), other = SHIPPED.filter(r => !r.src);
+      chk('the tables are owned by rules', OWN.audit && OWN.matrix && OWN.delivery, OWN);
+      chk('imported rules present', tableRules.length > 400, tableRules.length);
+      const mods = Object.keys(MODS10), deliv = mods.filter(id => mmGroup(id) === 'delivery');
+      const states = [];
+      for (const wid of MATRIX_ONLY.weapons) if (WEAPONS[wid]) {
+        states.push([wid, []]);
+        for (const d of deliv) states.push([wid, [d]]);
+        states.push([wid, ['ranged']], [wid, ['ricochet']], [wid, ['piercing']]); // (the two exceptions: Ranged, MOD_LIVE_WITH)
+      }
+      const dealt = (wid, extra) => { const [w] = fresh([wid]); for (const x of extra) modAdd(w, x); recomputeAll(); if (extra.some(x => !(w.m10 || []).includes(x))) return null; return mods.filter(id => { try { return modOk(w, id); } catch (e) { return false; } }).join(','); };
+      const old = {}, now = {};
+      for (const k of Object.keys(OWN)) CARD_RULES_OWNS[k] = false; set(other);
+      for (const [wid, ex] of states) old[wid + '+' + ex.join('+')] = dealt(wid, ex);
+      for (const k of Object.keys(OWN)) CARD_RULES_OWNS[k] = OWN[k]; set(SHIPPED);
+      for (const [wid, ex] of states) now[wid + '+' + ex.join('+')] = dealt(wid, ex);
+      let n = 0; const diff = [];
+      for (const k of Object.keys(old)) { if (old[k] == null) continue; n++; if (old[k] !== now[k]) diff.push(k + ' old[' + old[k] + '] new[' + now[k] + ']'); }
+      chk('same modifiers dealt in ' + n + ' weapon states', !diff.length, diff.slice(0, 3));
+    });
     set(SHIPPED);
     return { bad };
   });

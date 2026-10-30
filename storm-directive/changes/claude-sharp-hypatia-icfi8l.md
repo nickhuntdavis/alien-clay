@@ -1,5 +1,13 @@
 # claude/sharp-hypatia-icfi8l
 
+## 2026-10-30 The game's dealing tables become editable card rules
+- Systems: card rules, modifier cards (moddead, matrixna), Delivery weapons (dlvrun), tests/tools (planner, rules), tests
+- Files: web/js/cardrules.js (551 rules, CARD_RULES_OWNS), web/js/cardrulesengine.js, web/js/moddead.js, web/js/matrixna.js, web/js/dlvrun.js (one guard line each), tests/tools/rules/importtables.js (new), tests/tools/rules/rulesfile.js (new), tests/tools/rules/genrules.js, tests/tools/moddead.js (comment), tests/tools/planner/planner.js, tests/tools/planner/template.html, tests/cardrulestest.js, tests/modstest.js, tests/sim/modaudit.js, CARD_RULES.md
+- What: MOD_DEAD (530), MATRIX_NA (12) and DLV.deny (6) are rules in cardrules.js, so the planner edits them; the three files stand down as dealing filters when CARD_RULES_OWNS says so. The engine gained `form`, `with` and `unless` conditions, a rule index (551 rules), and treats rank-ups as deals (as the tables did). Dealing is proven identical in 238 weapon and Delivery states.
+- Save data: none.
+- Hooks: moddead.js, matrixna.js and dlvrun.js each read CARD_RULES_OWNS in their existing modOk check (one line).
+- Risk: a session that adds rows to MOD_DEAD, MATRIX_NA or DLV.deny must rerun tests/tools/rules/importtables.js, or the new rows do nothing as filters. passivefeat.js still reads MOD_DEAD directly.
+
 ## 2026-10-30 Planner loads the game's current rules; Baseline gates become rules
 - Systems: card rules, baseline branches, tests/tools (planner)
 - Files: web/js/cardrules.js, web/js/baseline1.js, web/js/baseline2.js, tests/tools/planner/planner.js, tests/tools/planner/template.html, tests/baseline1test.js, tests/baseline2test.js, tests/cardrulestest.js, CARD_RULES.md

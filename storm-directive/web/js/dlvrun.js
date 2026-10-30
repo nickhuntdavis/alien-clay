@@ -51,7 +51,7 @@ mmHeld = (orig => function (w) {
 modOk = (orig => function (w, id) {
   const b = dlvOf(w); if (!b) return orig(w, id);
   if (id === b) return false; // (ranks with the weapon's level)
-  const D = DLV.deny[w24Key(w)]; if (D && D.includes(id)) return false;
+  const D = DLV.deny[w24Key(w)]; if (D && D.includes(id) && !(typeof CARD_RULES_OWNS !== 'undefined' && CARD_RULES_OWNS.delivery)) return false; // (card rules own it when CARD_RULES_OWNS.delivery)
   if (mmGroup(id) !== 'delivery') return orig(w, id);
   const r = dlvRow(w); if (!r || !r.xok.includes(id) || !w.m10) return false;
   const keep = w.m10; w.m10 = keep.filter(x => x !== b); // (the one-per-group rule, as if the built-in were not there)
