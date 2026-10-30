@@ -992,14 +992,16 @@ function rpName(k) {
   if (t === 'p') return PASS(r) ? PASS(r).name : r;
   if (t === 'pm') { const [id, c] = r.split(':'), P = PASS(id); return P && P.mast ? P.mast[c === 'B' ? 1 : 0].name + ' (' + P.name + ')' : r; }
   if (t === 's') { const sm = D.samples.find(x => x.id === r); return sm ? sm.name : r; }
-  if (t === 'tag') { const [g, v] = r.split(':'); return 'All ' + ({ g: (D.gnames[v] || v) + ' modifiers', a: (ATK_SHORT[v] || v) + ' cards', t: tname(v) + ' cards', k: { w: 'weapons', m: 'modifiers', b: 'branch cards', f: 'Feats', p: 'passives' }[v] }[g] || v); }
+  if (t === 'sb') { const [sid, L] = r.split(':'), sm = D.samples.find(x => x.id === sid), P = sm && sm.smb && sm.smb.promises.find(q => q.k === L); return P ? P.name : r; }
+  if (t === 'sbc') return r.slice(r.indexOf(':') + 1);
+  if (t === 'tag') { const [g, v] = r.split(':'); return 'All ' + ({ g: (D.gnames[v] || v) + ' modifiers', a: (ATK_SHORT[v] || v) + ' cards', t: tname(v) + ' cards', k: { w: 'weapons', m: 'modifiers', b: 'branch cards', f: 'Feats', p: 'passives', sb: 'sample branch cards' }[v] }[g] || v); }
   return k;
 }
-function rpKindLabel(k) { return { w: 'Weapon', m: 'Modifier', mf: 'Modifier fork', b: 'Lv 3 branch', wb: 'Branch card', f: 'Feat', p: 'Sperm passive', pm: 'Passive mastery', s: 'Sample', tag: 'Group' }[rpSplit(k)[0]] || 'Card'; }
+function rpKindLabel(k) { return { w: 'Weapon', m: 'Modifier', mf: 'Modifier fork', b: 'Lv 3 branch', wb: 'Branch card', f: 'Feat', p: 'Sperm passive', pm: 'Passive mastery', s: 'Sample', sb: 'Sample branch', sbc: 'Sample branch card', tag: 'Group' }[rpSplit(k)[0]] || 'Card'; }
 // Tags and inheritance (the same rules as the game: cardrulesengine.js crTagsOf and crCovers).
 function rpTags(k) {
   const [t, r] = rpSplit(k), out = [];
-  const kind = { w: 'w', m: 'm', mf: 'm', b: 'b', wb: 'b', f: 'f', p: 'p', pm: 'p' }[t]; if (kind) out.push('k:' + kind);
+  const kind = { w: 'w', m: 'm', mf: 'm', b: 'b', wb: 'b', f: 'f', p: 'p', pm: 'p', sb: 'sb', sbc: 'sb' }[t]; if (kind) out.push('k:' + kind);
   if (t === 'm' || t === 'mf') { const m = M(r.split(':')[0]); if (m) { out.push('g:' + m.group); for (const a of m.atk || []) out.push('a:' + a); } }
   if (t === 'w' || t === 'b' || t === 'wb') { const w = W(r.split(':')[0]); if (w) { out.push('a:' + (RP_ATK[w.atk] || w.atk)); out.push('t:' + w.type); } }
   if (t === 'f') { const f = FEAT(r); if (f) { if (f.atk) out.push('a:' + (RP_ATK[f.atk] || f.atk)); if (f.type) out.push('t:' + f.type); } }
@@ -1011,6 +1013,7 @@ function rpCovers(pat, k) {
   if (pt === 'tag') return rpTags(k).includes(pr);
   if (pt === 'm' && kt === 'mf') return kr.split(':')[0] === pr;
   if (pt === 'p' && kt === 'pm') return kr.split(':')[0] === pr;
+  if (pt === 'sb' && kt === 'sbc') { const [sid, L] = pr.split(':'), i = kr.indexOf(':'), sm = D.samples.find(x => x.id === sid), P = sm && sm.smb && sm.smb.promises.find(q => q.k === L); return kr.slice(0, i) === sid && !!P && [...P.branches, P.wild].some(o => o && o.name === kr.slice(i + 1)); }
   if (pt === 'b' && kt === 'wb') { const [wid, L] = pr.split(':'), i = kr.indexOf(':'); if (kr.slice(0, i) !== wid) return false; const P = W(wid) && W(wid).promises.find(x => x.k === L), nm = kr.slice(i + 1); return !!(P && [...P.branches, P.wild].some(o => o && o.name === nm)); }
   return false;
 }
@@ -1022,7 +1025,7 @@ function rpWeaponKeys(w) {
   if (w.wmast != null && wd.masteries[w.wmast]) out.push('wb:' + w.id + ':' + wd.masteries[w.wmast].name);
   return out;
 }
-const rpRunKeys = () => S.feats.map(f => 'f:' + f.id).concat(S.pass.map(x => 'p:' + x.id), S.pass.filter(x => x.mast != null).map(x => 'pm:' + x.id + ':' + (x.mast ? 'B' : 'A')), ['s:' + S.sample]);
+const rpRunKeys = () => S.feats.map(f => 'f:' + f.id).concat(S.pass.map(x => 'p:' + x.id), S.pass.filter(x => x.mast != null).map(x => 'pm:' + x.id + ':' + (x.mast ? 'B' : 'A')), ['s:' + S.sample], typeof rpSmbKeys === 'function' ? rpSmbKeys() : []);
 const rpHeldFor = (scope, w) => (scope === 'weapon' && w ? rpWeaponKeys(w) : S.weapons.flatMap(rpWeaponKeys)).concat(rpRunKeys());
 const rpLive = r => !(r.sample && r.sample !== S.sample) && !(r.branch && !rpHeldFor('run', null).some(h => rpCovers(r.branch, h)));
 // The verdict for a card against the dish's build (null: it could be dealt). Same rules as the game (cardrulesengine.js crWhy).
@@ -1120,9 +1123,9 @@ function rpRender() {
     if (z === 'weight') items += linked.filter(r => r.mode === 'weight').map(r => `<span class="crchip linked" style="--zc:var(--${zc(z)})">x${r.k} with ${esc(rpName(r.parent))} <em>from its card</em></span>`).join('');
     return `<div class="crzone ${RP.zone === z ? 'active' : ''}" data-zone="${z}"><h4>${title} <small>${hint}</small></h4><div class="crlist">${items || '<small style="color:var(--dim)">Drag cards here, or select this box and tap cards.</small>'}</div></div>`;
   };
-  const branches = [...new Set(S.weapons.flatMap(w => rpWeaponKeys(w).filter(x => /^b:/.test(x))).concat(S.pass.filter(x => x.mast != null).map(x => 'pm:' + x.id + ':' + (x.mast ? 'B' : 'A'))))];
+  const branches = [...new Set(S.weapons.flatMap(w => rpWeaponKeys(w).filter(x => /^b:/.test(x))).concat(S.pass.filter(x => x.mast != null).map(x => 'pm:' + x.id + ':' + (x.mast ? 'B' : 'A')), rpRunKeys().filter(x => /^sb:/.test(x))))];
   if (RP.branch && !branches.includes(RP.branch)) branches.push(RP.branch);
-  const tags = [['g', GORDER], ['a', Object.values(RP_ATK)], ['t', ['phys', 'fire', 'ice', 'shock', 'arcane', 'soul', 'flame']], ['k', ['w', 'm', 'b', 'f', 'p']]];
+  const tags = [['g', GORDER], ['a', Object.values(RP_ATK)], ['t', ['phys', 'fire', 'ice', 'shock', 'arcane', 'soul', 'flame']], ['k', ['w', 'm', 'b', 'f', 'p', 'sb']]];
   const warn = rpHealth();
   el.innerHTML = `<div class="rp-row" style="justify-content:space-between"><span class="rp-ey">${esc(rpKindLabel(k))} · rules</span><button class="btn" data-rp="close">Close</button></div>
     <h2>${esc(rpName(k))}</h2>
@@ -1495,6 +1498,23 @@ function smbAttach(root) {
   return root;
 }
 buildTree = (orig => function () { return smbAttach(orig.apply(this, arguments)); })(buildTree);
+// Card rules (CARD_RULES.md): a sample branch is sb:<sample>:<A|B|C>, its Lv 20 cards and Lv 25 masteries sbc:<sample>:<name>.
+function rpSmbKeys() {
+  const X = smbD(), h = smbHeld(); if (!X || !h.p) return [];
+  const P = X.promises.find(q => q.k === h.p), out = ['sb:' + S.sample + ':' + h.p];
+  const o = P && h.br != null && (h.br === 'wild' ? P.wild : P.branches[h.br]); if (o) out.push('sbc:' + S.sample + ':' + o.name);
+  const x = h.mast != null && X.masteries[h.mast]; if (x) out.push('sbc:' + S.sample + ':' + x.name);
+  return out;
+}
+rpNodeKey = (orig => function (n) {
+  if (n && SMB_KINDS.has(n.kind)) {
+    if (n.kind === 'smbp') return 'sb:' + S.sample + ':' + n.P.k;
+    if (n.kind === 'xsp') return n.L ? 'sb:' + S.sample + ':' + n.L : null;
+    if (n.kind === 'smbb' || n.kind === 'smbx' || n.kind === 'xsb' || n.kind === 'xsm') return 'sbc:' + S.sample + ':' + n.title;
+    return null;
+  }
+  return orig.apply(this, arguments);
+})(rpNodeKey);
 function smbPick(kind, L, i) {
   const X = smbD(); if (!X) return;
   const m = smbMine();
@@ -1520,7 +1540,7 @@ function smbDetailRows(n) {
 }
 renderDetail = (orig => function () {
   const n = NODES[S.sel];
-  if (n && SMB_KINDS.has(n.kind)) { $('#detail').innerHTML = `<span class="ey">${esc(n.ey)}</span><h2>${esc(n.title)}</h2>${n.desc ? `<p>${esc(n.desc)}</p>` : ''}` + smbDetailRows(n) + `<div class="row"><small style="color:var(--dim)">Sample branches open by run level and act on every weapon you hold. Card rules do not reach them yet.</small></div>`; return; }
+  if (n && SMB_KINDS.has(n.kind)) { $('#detail').innerHTML = `<span class="ey">${esc(n.ey)}</span><h2>${esc(n.title)}</h2>${n.desc ? `<p>${esc(n.desc)}</p>` : ''}` + smbDetailRows(n) + (rpNodeKey(n) ? `<div class="row"><span class="lab">Rules</span><button class="btn" data-act="rules">Do, Don't and Weight</button><small style="color:var(--dim)">${rpSummary(rpNodeKey(n))}</small></div>` : '') + `<div class="row"><small style="color:var(--dim)">Sample branches open by run level and act on every weapon you hold.</small></div>`; return; }
   const r = orig.apply(this, arguments);
   if (n && n.kind === 'root' && !S.full) $('#detail').insertAdjacentHTML('beforeend', smbDetailRows(n));
   return r;
@@ -1529,7 +1549,6 @@ $('#detail').addEventListener('click', e => {
   const b = e.target.closest('[data-smb]'); if (!b) return;
   e.stopPropagation(); const [k, L, i] = JSON.parse(b.dataset.smb); smbPick(k, L, i);
 }, true);
-rpNodeKey = (orig => function (n) { return n && SMB_KINDS.has(n.kind) ? null : orig.apply(this, arguments); })(rpNodeKey);
 bpApply = (orig => function (p) { orig.apply(this, arguments); if (p && p.smb) { const m = smbMine(); m.p = p.smb.p || null; m.br = p.smb.br != null ? p.smb.br : null; m.mast = null; save(); render(); } })(bpApply);
 buildText = (orig => function () { return orig.apply(this, arguments).split('\n').filter(l => !/- Sample branch: pick one on the sperm$/.test(l)).join('\n'); })(buildText);
 document.head.insertAdjacentHTML('beforeend', '<style>.node.xsp.taken, .node.xsb.taken, .node.xsm.taken { box-shadow: 0 0 0 3px var(--accent); } .node.smbhint { border-style: dashed; background: transparent; color: var(--dim); } .node.smbhint b { font-weight: 500; color: var(--dim); }</style>');

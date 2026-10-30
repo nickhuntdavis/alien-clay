@@ -258,8 +258,8 @@ feat({ id: 'acid_bath', name: 'Acid bath', icon: 'AB', ico: 'flask', type: 'acid
   forks: { 3: [bl1Fk('bigger', 'Industrial Spill', 'The pool is 50% wider. Somebody should have put a sign up.'), bl1Fk('full', 'Mostly Liquid', 'The spray fills 90% of the Corrosion bar instead of 60%. The rest is a formality.')],
     5: [bl1Fk('two', 'Double Dose', 'A second target, the next Elite, gets the same bath. Acid is not fussy.'), bl1Fk('longer', 'Slow Leak', 'The pool lasts 14 s instead of 8. Nobody has come to clean it up.')] } });
 
-for (const id of ['quick_draw', 'acid_bath']) { // only once the branch is taken (and never twice)
-  const c = typeof CARDS !== 'undefined' && CARDS.find(x => x.id === 'feat_' + id); if (c) c.eligible = g => !!(F10[id].gate() && !f10Own(id)); // (Rambo / Dirty Harry / Robocop are sample branches now: samplebranch.js)
+for (const id of ['quick_draw', 'acid_bath']) { // never twice; only once the branch is taken (rules g1, g2)
+  const c = typeof CARDS !== 'undefined' && CARDS.find(x => x.id === 'feat_' + id); if (c) c.eligible = g => !f10Own(id); // (the branch gate is a Do rule in cardrules.js: sb:baseline:B / sb:baseline:C, editable in the planner)
 }
 // Shotgun's and Hand-to-gland's new branches (baseline2.js, baseline3.js) have no stage scenes yet: weapon tier screens opened
 // from a 'wup' box use the plain layout (the branch screens at weapon Lv 3, 6 and 9 open in the Weapon Draft: branchback.js).

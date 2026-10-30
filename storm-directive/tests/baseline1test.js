@@ -112,17 +112,36 @@ const { chromium } = require('playwright');
     // Gated Feats
     block('Feats', () => {
       const QD = CARDS.find(c => c.id === 'feat_quick_draw'), AB = CARDS.find(c => c.id === 'feat_acid_bath');
-      let sc = scene([[150, 0, 1e5]]); chk('Quick draw not dealt without Dirty Harry', !QD.eligible(G)); chk('Acid bath not dealt without Robocop', !AB.eligible(G));
-      take(1); chk('Quick draw dealt on Dirty Harry', QD.eligible(G)); chk('Acid bath still gated', !AB.eligible(G));
+      let sc = scene([[150, 0, 1e5]]); chk('Quick draw not dealt without Dirty Harry', !cardOk(QD)); chk('Acid bath not dealt without Robocop', !cardOk(AB)); // (Do rules g1, g2: cardrules.js)
+      take(1); chk('Quick draw dealt on Dirty Harry', cardOk(QD)); chk('Acid bath still gated', !cardOk(AB));
       const qd = f10Give('quick_draw', 1); chk('Quick draw slot', !!qd); if (typeof stamInit === 'function') { stamInit(); G.stam.cur = G.stam.v = 100; }
       qd.cd = 0; sc.es[0].aimT = 5; run(40);
       chk('Quick draw answers a wind-up', qd.cd > 1, [qd.cd]);
-      sc = scene([[150, 0, 1e5]]); take(2); chk('Acid bath dealt on Robocop', AB.eligible(G));
+      sc = scene([[150, 0, 1e5]]); take(2); chk('Acid bath dealt on Robocop', cardOk(AB));
       const ab = f10Give('acid_bath', 1); if (typeof stamInit === 'function') { stamInit(); G.stam.cur = G.stam.v = 100; }
       const c = fightCd(sc.es[0]); c.def = 'shell'; c.layers = 2; c.maxHp = sc.es[0].maxHp;
       ab.cd = 0; const ok = f10Go(ab, null);
       chk('Acid bath performs', ok && fightCd(sc.es[0]).bars.acid >= 0.59 && G.zones.some(z => z.bl1bath), [ok, fightCd(sc.es[0]).bars.acid, G.zones.length]);
       run(60); chk('Acid bath pool hurts', lost(sc.es[0]) > 0);
+    });
+    // Card rules know the sample branches (cardrulesengine.js: sb:<sample>:<L>, sbc:<sample>:<card>).
+    block('card rules', () => {
+      chk('keys resolve', crKnown('sb:baseline:B') && crKnown('sbc:baseline:Lucky shot') && crKnown('sbc:baseline:Belt-Fed') && !crKnown('sb:baseline:D') && !crKnown('sbc:baseline:Nope'));
+      chk('names', crName('sb:baseline:C') === 'Robocop' && crName('sbc:baseline:Lucky shot') === 'Lucky shot', [crName('sb:baseline:C')]);
+      chk('a branch covers its cards, not the masteries', crCovers('sb:baseline:B', 'sbc:baseline:Lucky shot') && !crCovers('sb:baseline:A', 'sbc:baseline:Lucky shot') && !crCovers('sb:baseline:A', 'sbc:baseline:Belt-Fed'));
+      const keep = CARD_RULES.splice(0, CARD_RULES.length);
+      try {
+        CARD_RULES.push({ id: 't1', parent: 'b:v_phys_proj:A', mode: 'dont', target: 'sb:baseline:B', scope: 'run' }, { id: 't2', parent: 'p:sp_runs', mode: 'dont', target: 'sbc:baseline:Hot Start', scope: 'run', branch: 'sb:baseline:A' });
+        let sc = scene([]); genLoot({ kind: 'fork', w: sc.w, lv: 3 })[0].apply(); // (Standard Issue: Ricochet Brain)
+        let t3 = genLoot({ kind: 'fork', smb: { lv: 3 } }).map(c => c.title);
+        chk("a Don't takes Dirty Harry off the Lv 15 screen", t3.join() === 'Rambo,Robocop', t3);
+        sc = scene([]); t3 = genLoot({ kind: 'fork', smb: { lv: 3 } }).map(c => c.title); chk('and leaves it without the parent', t3.length === 3, t3);
+        take(0); G.muts = { sp_runs: 1 };
+        const t6 = genLoot({ kind: 'fork', smb: { lv: 6 } }).map(c => c.title); chk('a branch-conditioned rule on a Lv 20 card', t6.join() === 'Faster and faster,First blood', t6);
+        chk('the sample branch is held', crHeld('sb:baseline:A', { scope: 'run' }) && !crHeld('sb:baseline:B', { scope: 'run' }));
+        CARD_RULES.splice(0, CARD_RULES.length, { id: 't3', parent: 's:baseline', mode: 'dont', target: 'sb:baseline:A', scope: 'run' }, { id: 't4', parent: 's:baseline', mode: 'dont', target: 'sb:baseline:B', scope: 'run' }, { id: 't5', parent: 's:baseline', mode: 'dont', target: 'sb:baseline:C', scope: 'run' });
+        sc = scene([]); chk('never an empty sample branch screen', genLoot({ kind: 'fork', smb: { lv: 3 } }).length === 3);
+      } finally { CARD_RULES.splice(0, CARD_RULES.length, ...keep); }
     });
     // Costumes draw for every branch (no errors), on you and on a card; none without a branch.
     block('costumes', () => {

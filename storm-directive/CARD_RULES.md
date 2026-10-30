@@ -20,7 +20,8 @@ boxes. The planner exports a rule list; a generator writes `web/js/cardrules.js`
 6. **Weight** is a third box: while the parent is held, the target is `k` times as likely in the random deals (modifier cards, Feat
    and passive cards, new weapons). `k` 0 removes it from random deals; branch and fork screens show every option, so weight does
    not touch them. Rule shape: `{ mode: 'weight', k: 2, ... }`.
-7. **Inheritance**: a rule on a weapon branch (`b:`) also covers that branch's Lv 6 cards and wild card (`wb:`); a rule on a
+7. **Inheritance**: a rule on a weapon branch (`b:`) also covers that branch's Lv 6 cards and wild card (`wb:`), and a rule on a sample
+   branch (`sb:`) its Lv 20 cards and wild card (`sbc:`; the Lv 25 masteries are open to every branch, so they are not covered); a rule on a
    modifier (`m:`) covers its forks and masteries (`mf:`); a rule on a passive (`p:`) covers its masteries (`pm:`). Holding a Lv 6
    card means holding its branch, so the parent side needs nothing extra.
 8. **Conditions** (the user's "this sample" and "this weapon or sample branch"): a rule can carry `sample: '<sampleId>'` (only in runs
@@ -34,7 +35,7 @@ boxes. The planner exports a rule list; a generator writes `web/js/cardrules.js`
 
 ## Current rules in the planner (30 Oct)
 - The rule file's rules (`CARD_RULES`) load as the planner's defaults, marked "in game". Removing one is remembered; Restore brings them back. Saving writes the full list, defaults included, so the file and the planner stay the same.
-- The Baseline gates now live there as Do rules (Quick draw with Dirty Harry, Acid bath with Robocop, Come back with Sperminator).
+- The Baseline gates now live there as Do rules (Quick draw with Dirty Harry `sb:baseline:B`, Acid bath with Robocop `sb:baseline:C`: sample branches since 30 Oct; Come back with Sperminator `b:v_phys_spread:A`).
 - (Superseded below: the tables are editable rules now.) The game's built-in tables loaded as LOCKED rules: matrix N/A (`MATRIX_NA`, matrixna.js), the Delivery weapons' denied modifiers (`DLV.deny`, dlvrun.js) and the modifier audit's dead modifiers by Delivery form (`MOD_DEAD`, moddead.js). They show on each weapon's and modifier's panel, count in Simulate and Health, and are not saved. Moving them into the rule file (so they could be edited) is a later step; the fit-check rules in fitcheck.js are functions and are not shown.
 
 ## The game tables are rules now (30 Oct, the user: "make them editable")
@@ -71,7 +72,9 @@ boxes. The planner exports a rule list; a generator writes `web/js/cardrules.js`
 | `p:<passiveId>` | a sperm passive (mutations.js id, e.g. `p:m_slip`, `p:pass_comeback`) |
 | `pm:<passiveId>:<A\|B>` | a sperm passive's mastery branch (spmast.js `G.spB`) |
 | `s:<sampleId>` | a sample (only meaningful as a held parent, or as a rule's `sample` condition) |
-| `tag:<kind>:<value>` | a group of cards, target side only: `tag:g:<modifier group>` (delivery, flight, crowd, tempo, chemistry, area, lifesteal), `tag:a:<attack type>` (proj, spread, contact, burst, beam, pool: weapons and Feats), `tag:t:<damage type>` (phys, fire, ice, shock, arcane, soul, flame), `tag:k:<w\|m\|b\|f\|p>` (all weapons, modifiers, branch cards, Feats, passives) |
+| `sb:<sampleId>:<A\|B\|C>` | a sample branch (samplebranch.js, taken at run Lv 15: `G.smb.p`), e.g. `sb:baseline:B` (Dirty Harry) |
+| `sbc:<sampleId>:<card name>` | a sample branch's Lv 20 card or wild card, or a Lv 25 mastery, by its name (`G.smb.l6`, `G.smb.l10`) |
+| `tag:<kind>:<value>` | a group of cards, target side only: `tag:g:<modifier group>` (delivery, flight, crowd, tempo, chemistry, area, lifesteal), `tag:a:<attack type>` (proj, spread, contact, burst, beam, pool: weapons and Feats), `tag:t:<damage type>` (phys, fire, ice, shock, arcane, soul, flame), `tag:k:<w\|m\|b\|f\|p\|sb>` (all weapons, modifiers, branch cards, Feats, passives, sample branch cards) |
 
 ## The data file `web/js/cardrules.js` (generated; header says so)
 ```js
@@ -91,5 +94,5 @@ enables target). Rules whose parent or target key does not resolve in the live g
 - `crTagsOf(key)`: the tags of a card key (modifier group, attack type, damage type, kind).
 - `crKnown(key)`: does the key resolve to a real card in the live game (used by the generator and the tests).
 - Dealing: modifier cards go through `modOk`; branch cards through the fork screens (weapons24.js `wupForkCards`, modslice.js
-  `forkCards`); Feat and sperm passive acquire cards through their draft `eligible`; a new weapon through the slot draft (`v10Pool`).
+  `forkCards`, and samplebranch.js's Lv 15 / 20 / 25 screens: `forkCards` with `req.smb`, never left empty); Feat and sperm passive acquire cards through their draft `eligible`; a new weapon through the slot draft (`v10Pool`).
   All of them consult `crAllowed` and nothing else changes.

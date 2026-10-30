@@ -17,9 +17,10 @@
 //    rather than locking the weapon.
 //  - DEBUG (Settings > Game > ruleDebug): dealt cards carry a line naming the rules that touched them, and a held-back list.
 // Keys: w:<weaponId> m:<modId> mf:<modId>:<A|B|A1|A2|B1|B2> b:<weaponId>:<A|B|C> wb:<weaponId>:<card name> f:<featId>
-// p:<passiveId> pm:<passiveId>:<A|B> s:<sampleId>; targets may also be tag:g:<group> tag:a:<attack> tag:t:<type> tag:k:<w|m|b|f|p>.
+// p:<passiveId> pm:<passiveId>:<A|B> s:<sampleId> sb:<sampleId>:<A|B|C> (a sample branch, samplebranch.js) sbc:<sampleId>:<card name>
+// (its Lv 20 card, wild card or Lv 25 mastery); targets may also be tag:g:<group> tag:a:<attack> tag:t:<type> tag:k:<w|m|b|f|p|sb>.
 // Hooks: one line in draft.js draftCards (crCardW weight); wraps modOk, modDraftCands, wupForkCards, forkCards, cardOk, kinPool,
-// v10Loot, genLoot. SETTINGS_DEF.push('ruleDebug'). Loads last (after every other wrap of those functions).
+// v10Loot, genLoot (and the sample branch screens through forkCards req.smb). SETTINGS_DEF.push('ruleDebug'). Loads last (after every other wrap of those functions).
 
 // ---------------------------------------------------------------- settings
 SETTINGS_DEF.push({ id: 'ruleDebug', tab: 'game', label: 'Card rule notes', hint: 'Testing: each dealt card names the card rules that touched it, and a list shows the cards the rules held back.', opts: [[false, 'OFF'], [true, 'ON']] });
@@ -37,16 +38,21 @@ function crName(key) {
     if (t === 'w') return (WEAPONS[rest] && WEAPONS[rest].name) || rest;
     if (t === 'm') return (MODS10[rest] && MODS10[rest].name) || rest;
     if (t === 'mf') { const [id, c] = rest.split(':'), N = MSB[id], i = { A: 0, B: 1, A1: 2, A2: 3, B1: 4, B2: 5 }[c]; return (N && N[i]) || (MODS10[id] ? MODS10[id].name + ' ' + c : rest); }
-    if (t === 'b') { const [wid, L] = rest.split(':'); return (WUP[wid] && WUP[wid][L] && WUP[wid][L].name) || rest; }
+    if (t === 'b') { const [wid, L] = rest.split(':'), S = (WUP[wid] && WUP[wid][L] ? WUP[wid] : crSpecs(wid).find(x => x[L])); return (S && S[L] && S[L].name) || rest; } // (a sample's own set too: samplebranches.js)
     if (t === 'wb') return rest.slice(rest.indexOf(':') + 1);
     if (t === 'f') return (F10[rest] && F10[rest].name) || rest;
     if (t === 'p') { const m = MUT_REG.find(x => x.id === rest); return (m && m.title) || rest; }
     if (t === 'pm') { const [id, c] = rest.split(':'), B = SPM_BR[id]; return B ? B[c === 'B' ? 2 : 0] : rest; }
     if (t === 's') { const s = SAMPLES10.find(x => x.id === rest); return (s && s.name) || rest; }
+    if (t === 'sb') { const [sid, L] = rest.split(':'), X = crSmb(sid); return (X && X[L] && X[L].name) || rest; }
+    if (t === 'sbc') return rest.slice(rest.indexOf(':') + 1);
     if (t === 'tag') return 'all ' + rest.replace(':', ' ');
   } catch (e) { }
   return key;
 }
+// A sample's own branch set (samplebranch.js SMB_REG), and the names of the cards it deals after the branch.
+const crSmb = sid => (typeof SMB_REG !== 'undefined' && SMB_REG[sid]) || null;
+const crSmbCards = (X, L) => (X && X[L] ? [...X[L].lv6, X[L].wild].filter(Boolean).map(c => c.name) : []);
 // Every branch set a weapon has: the shared one and any sample's own (samplebranches.js), so keys name Alpha's branches too.
 const crSpecs = wid => [typeof SBR !== 'undefined' && SBR.alt[wid] ? SBR.base[wid] : WUP[wid]].concat(typeof SBR !== 'undefined' && SBR.alt[wid] ? Object.values(SBR.alt[wid]) : []).filter(Boolean);
 function crKnown(key) {
@@ -61,13 +67,15 @@ function crKnown(key) {
   if (t === 'p') return MUT_REG.some(x => x.id === rest);
   if (t === 'pm') { const [id, c] = rest.split(':'); return !!(SPM_BR[id] && (c === 'A' || c === 'B')); }
   if (t === 's') return SAMPLES10.some(x => x.id === rest);
+  if (t === 'sb') { const [sid, L] = rest.split(':'), X = crSmb(sid); return !!(X && ['A', 'B', 'C'].includes(L) && X[L]); }
+  if (t === 'sbc') { const i = rest.indexOf(':'), X = crSmb(rest.slice(0, i)), nm = rest.slice(i + 1); return !!X && (['A', 'B', 'C'].some(L => crSmbCards(X, L).includes(nm)) || (X.lv10 || []).some(c => c.name === nm)); }
   if (t === 'tag') { const [k, v] = rest.split(':'); return ['g', 'a', 't', 'k'].includes(k) && !!v; }
   return false;
 }
 // The tags of a card key: its kind, modifier group, attack types, damage type.
 function crTagsOf(key) {
   const [t, rest] = crSplit(key), out = [];
-  const kind = { w: 'w', m: 'm', mf: 'm', b: 'b', wb: 'b', f: 'f', p: 'p', pm: 'p' }[t]; if (kind) out.push('k:' + kind);
+  const kind = { w: 'w', m: 'm', mf: 'm', b: 'b', wb: 'b', f: 'f', p: 'p', pm: 'p', sb: 'sb', sbc: 'sb' }[t]; if (kind) out.push('k:' + kind);
   try {
     if (t === 'm' || t === 'mf') { const id = rest.split(':')[0]; out.push('g:' + mmGroup(id)); for (const a of (MODS10[id] && MODS10[id].atk) || []) out.push('a:' + a); }
     if (t === 'w') { const d = WEAPONS[rest]; if (d) { if (d.v10atk) out.push('a:' + d.v10atk); if (d.elem) out.push('t:' + d.elem); } }
@@ -76,7 +84,7 @@ function crTagsOf(key) {
   } catch (e) { }
   return out;
 }
-// Descendants for inheritance: a branch's Lv 6 cards and wild card; a modifier's forks and masteries.
+// Descendants for inheritance: a branch's Lv 6 cards and wild card (a weapon's, or a sample's Lv 20 ones); a modifier's forks and masteries.
 function crCovers(pattern, key) {
   if (pattern === key) return true;
   const [pt, pr] = crSplit(pattern), [kt, kr] = crSplit(key);
@@ -87,6 +95,7 @@ function crCovers(pattern, key) {
     const P = WUP[wid] && WUP[wid][L], nm = kr.slice(i + 1); return !!(P && [...P.lv6, P.wild].some(c => c && c.name === nm));
   }
   if (pt === 'p' && kt === 'pm') return kr.split(':')[0] === pr;
+  if (pt === 'sb' && kt === 'sbc') { const [sid, L] = pr.split(':'), i = kr.indexOf(':'); return kr.slice(0, i) === sid && crSmbCards(crSmb(sid), L).includes(kr.slice(i + 1)); }
   return false;
 }
 
@@ -110,6 +119,7 @@ function crRunKeys() {
   for (const [id, r] of Object.entries(G.muts || {})) if (r > 0) out.push('p:' + id);
   for (const [id, c] of Object.entries(G.spB || {})) out.push('pm:' + id + ':' + c);
   if (G.s10 && G.s10.id) out.push('s:' + G.s10.id);
+  if (G.s10 && G.smb && G.smb.p) { const sid = G.s10.id; out.push('sb:' + sid + ':' + G.smb.p); for (const nm of [G.smb.l6, G.smb.l10]) if (nm) out.push('sbc:' + sid + ':' + nm); } // (the sample branch taken, samplebranch.js)
   return out;
 }
 // Everything held that counts for a rule of this scope, for a candidate on weapon w (null: a candidate on no weapon).
@@ -152,6 +162,7 @@ function crRulesFor(key) { // every rule that could name this card, directly or 
   if (t === 'wb') { const wid = rest.slice(0, rest.indexOf(':')); for (const L of ['A', 'B', 'C']) add('b:' + wid + ':' + L); }
   if (t === 'mf') add('m:' + rest.split(':')[0]);
   if (t === 'pm') add('p:' + rest.split(':')[0]);
+  if (t === 'sbc') { const sid = rest.slice(0, rest.indexOf(':')); for (const L of ['A', 'B', 'C']) add('sb:' + sid + ':' + L); }
   return out;
 }
 function crHeldSets(w) { return { weapon: w ? crHeldFor('weapon', w) : null, run: crHeldFor('run', null) }; }
@@ -239,6 +250,19 @@ wupForkCards = (orig => function (req) {
   const ok = cs.filter(c => { const k = keyOf(c); if (!k) return true; const why = crWhy(k, { w }); if (why) crLog(k, why); return !why; });
   return ok.length ? ok : cs; // (never an empty branch screen: the rules give way)
 })(wupForkCards);
+// The key of a card on a sample branch screen (samplebranch.js: req.smb; lv 3 the branches, 6 the cards, 10 the masteries).
+function crSmbKey(req, c) {
+  const sid = G && G.s10 && G.s10.id, X = crSmb(sid); if (!X || !c) return null;
+  if (req.smb.lv === 3) { const L = ['A', 'B', 'C'].find(k => X[k] && X[k].name === c.title); return L ? 'sb:' + sid + ':' + L : null; }
+  return 'sbc:' + sid + ':' + c.title;
+}
+// Sample branch screens: every option is shown unless a rule rules it out (never an empty screen).
+forkCards = (orig => function (req) {
+  const cs = orig(req);
+  if (!req || !req.smb || !crRules().length || !G || !cs || !cs.length) return cs;
+  const ok = cs.filter(c => { const k = crSmbKey(req, c); if (!k) return true; const why = crWhy(k, { w: null }); if (why) crLog(k, why); return !why; });
+  return ok.length ? ok : cs;
+})(forkCards);
 // Modifier forks and masteries (modslice.js: req.ms).
 forkCards = (orig => function (req) {
   const cs = orig(req);
@@ -291,6 +315,7 @@ genLoot = (orig => function (req) {
     else if (c.wmId) k = 'm:' + c.wmId;
     else if (c.id && /^feat_/.test(c.id)) k = 'f:' + c.id.replace(/^feat_/, '').replace(/_up$/, '');
     else if (c.def && c.def.w24 !== undefined && WEAPONS[c.def.sigOf || c.def.id || '']) k = 'w:' + (c.def.sigOf || c.def.id);
+    else if (req && req.smb) k = crSmbKey(req, c);
     else if (req && req.xbr && req.xbr.w) { const wid = crWKey(req.xbr.w), S = WUP[wid], L = S && ['A', 'B', 'C'].find(x => S[x] && S[x].name === c.title); k = L ? 'b:' + wid + ':' + L : 'wb:' + wid + ':' + c.title; }
     const note = k ? crNote(k, { w: (req && req.xbr && req.xbr.w) || null }) : '';
     if (note) c.desc = (c.desc || '') + ' [rules: ' + note + ']';
