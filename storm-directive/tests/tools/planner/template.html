@@ -1457,6 +1457,83 @@ dropPlan = (orig => function (p, n) {
 $('#fullbtn').onclick = () => { S.full = !S.full; S.sel = 'root'; save(); $('#fullbtn').classList.toggle('on', S.full); $('#fullbtn').textContent = S.full ? 'Build' : 'Full tree'; render(); setTimeout(() => $('#zfit').click(), 30); };
 $('#fullbtn').classList.toggle('on', !!S.full); $('#fullbtn').textContent = S.full ? 'Build' : 'Full tree';
 
+// ---------------------------------------------------------------- sample branches (the user, 30 Oct: "add sample branches to the planner")
+// A sample's own branch tree (samplebranch.js: Baseline's Rambo, Dirty Harry and Robocop), opened by run level, not weapon level.
+// It hangs off the sperm: Lv 15 branch, then Lv 20 card or wildcard, then a Lv 25 mastery (any branch may take any). Picked in the
+// sperm's detail panel or from the Full tree; kept per sample in S.smb[sampleId] = { p, br, mast }.
+const SMB_KINDS = new Set(['smbp', 'smbb', 'smbx', 'smbhint', 'xsp', 'xsb', 'xsm']);
+const smbD = () => sampleOf().smb || null;
+const smbMine = () => { S.smb = S.smb || {}; return S.smb[S.sample] || (S.smb[S.sample] = { p: null, br: null, mast: null }); };
+const smbHeld = () => (smbD() && S.smb && S.smb[S.sample]) || { p: null, br: null, mast: null };
+const smbCol = () => tvar((sampleOf().types || ['phys'])[0]);
+function smbAttach(root) {
+  const X = smbD(); if (!X) return root;
+  const mk = (id, o) => (NODES[id] = Object.assign({ id, children: [] }, o));
+  const h = smbHeld(), col = smbCol(), at = X.at;
+  if (S.full) { // every branch, its cards and the masteries
+    const top = mk('xs_root', { kind: 'xsp', L: null, title: sampleOf().name + "'s own branches", ey: 'Sample branches · run Lv ' + at.join(', '), desc: 'The whole sperm branches, not one weapon: every weapon you hold gets it.', col });
+    root.children.unshift(top);
+    for (const P of X.promises) {
+      const pn = mk('xs_' + P.k, { kind: 'xsp', L: P.k, title: P.name, ey: 'Run Lv ' + at[0] + ' · sample branch ' + P.k + (P.tag ? ' · ' + P.tag : ''), desc: P.desc, col, taken: h.p === P.k });
+      top.children.push(pn);
+      P.branches.forEach((o, i) => pn.children.push(mk('xs_' + P.k + '_' + i, { kind: 'xsb', L: P.k, i, title: o.name, ey: 'Run Lv ' + at[1], desc: o.desc, col, taken: h.p === P.k && h.br === i })));
+      if (P.wild) pn.children.push(mk('xs_' + P.k + '_wild', { kind: 'xsb', L: P.k, i: 'wild', title: P.wild.name, ey: 'Run Lv ' + at[1] + ' · wild card', desc: P.wild.desc, col, taken: h.p === P.k && h.br === 'wild' }));
+    }
+    X.masteries.forEach((x, i) => top.children.push(mk('xs_m' + i, { kind: 'xsm', i, title: x.name, ey: 'Run Lv ' + at[2] + ' mastery' + (x.best ? ' · suits ' + x.best.split('').map(k => (X.promises.find(q => q.k === k) || {}).name || k).join(', ') : ''), desc: x.desc, col, taken: h.mast === i })));
+    return root;
+  }
+  const P = h.p && X.promises.find(q => q.k === h.p);
+  if (!P) { root.children.unshift(mk('smbhint', { kind: 'smbhint', title: 'Sample branch: pick one on the sperm', ey: 'run Lv ' + at[0] + ' · ' + X.promises.map(q => q.name).join(' / '), desc: '', col: 'var(--line)' })); return root; }
+  const pn = mk('smbp', { kind: 'smbp', P, title: P.name, ey: 'Sample branch ' + P.k + ' · run Lv ' + at[0] + (P.tag ? ' · ' + P.tag : ''), desc: P.desc, col });
+  root.children.unshift(pn);
+  const o = h.br === 'wild' ? P.wild : h.br != null ? P.branches[h.br] : null;
+  if (o) {
+    const bn = mk('smbb', { kind: 'smbb', P, title: o.name, ey: 'Run Lv ' + at[1] + (h.br === 'wild' ? ' · wild card' : ''), desc: o.desc, col }); pn.children.push(bn);
+    const x = h.mast != null && X.masteries[h.mast];
+    if (x) bn.children.push(mk('smbx', { kind: 'smbx', title: x.name, ey: 'Run Lv ' + at[2] + ' mastery', desc: x.desc, col }));
+  }
+  return root;
+}
+buildTree = (orig => function () { return smbAttach(orig.apply(this, arguments)); })(buildTree);
+function smbPick(kind, L, i) {
+  const X = smbD(); if (!X) return;
+  const m = smbMine();
+  if (kind === 'p') { if (m.p !== L) { m.br = null; } m.p = L; }
+  if (kind === 'b') { m.p = L; m.br = i; }
+  if (kind === 'x') { if (S.rules && (!m.p || m.br == null)) { toast('Sample masteries open at run Lv ' + X.at[2] + ', after a branch and its Lv ' + X.at[1] + ' card.'); return; } m.mast = i; }
+  if (kind === 'rm') { m.p = null; m.br = null; m.mast = null; }
+  if (kind === 'rmb') { m.br = null; m.mast = null; }
+  if (kind === 'rmx') m.mast = null;
+  save(); render();
+}
+function smbDetailRows(n) {
+  const X = smbD(); if (!X) return '';
+  const h = smbHeld(), Bt = (label, on, act) => `<button class="btn opt ${on ? 'on' : ''}" data-smb='${esc(JSON.stringify(act))}'>${esc(label)}</button>`;
+  if (n.kind === 'root' || n.kind === 'smbhint') return `<div class="row"><span class="lab">Sample branch (run Lv ${X.at[0]})</span>${X.promises.map(P => Bt(P.k + ' · ' + P.name, h.p === P.k, ['p', P.k])).join('')}</div>`;
+  if (n.kind === 'smbp') return `<div class="row"><span class="lab">Lv ${X.at[1]}</span>${n.P.branches.map((o, i) => Bt(o.name, h.br === i, ['b', n.P.k, i])).join('')}${n.P.wild ? Bt('Wild: ' + n.P.wild.name, h.br === 'wild', ['b', n.P.k, 'wild']) : ''}</div><div class="row">${Bt('Remove sample branch', false, ['rm'])}</div>`;
+  if (n.kind === 'smbb') return `<div class="row"><span class="lab">Lv ${X.at[2]} mastery</span>${X.masteries.map((x, i) => Bt(x.name + (x.best ? ' (suits ' + x.best.split('').join(', ') + ')' : ''), h.mast === i, ['x', null, i])).join('')}</div><div class="row">${Bt('Remove', false, ['rmb'])}</div>`;
+  if (n.kind === 'smbx') return `<div class="row">${Bt('Remove mastery', false, ['rmx'])}</div>`;
+  if (n.kind === 'xsp' && n.L) return `<div class="row">${Bt(n.taken ? 'In your build' : 'Take into the build', n.taken, ['p', n.L])}</div>`;
+  if (n.kind === 'xsb') return `<div class="row">${Bt(n.taken ? 'In your build' : 'Take into the build', n.taken, ['b', n.L, n.i])}</div>`;
+  if (n.kind === 'xsm') return `<div class="row">${Bt(n.taken ? 'In your build' : 'Take into the build', n.taken, ['x', null, n.i])}</div>`;
+  return '';
+}
+renderDetail = (orig => function () {
+  const n = NODES[S.sel];
+  if (n && SMB_KINDS.has(n.kind)) { $('#detail').innerHTML = `<span class="ey">${esc(n.ey)}</span><h2>${esc(n.title)}</h2>${n.desc ? `<p>${esc(n.desc)}</p>` : ''}` + smbDetailRows(n) + `<div class="row"><small style="color:var(--dim)">Sample branches open by run level and act on every weapon you hold. Card rules do not reach them yet.</small></div>`; return; }
+  const r = orig.apply(this, arguments);
+  if (n && n.kind === 'root' && !S.full) $('#detail').insertAdjacentHTML('beforeend', smbDetailRows(n));
+  return r;
+})(renderDetail);
+$('#detail').addEventListener('click', e => {
+  const b = e.target.closest('[data-smb]'); if (!b) return;
+  e.stopPropagation(); const [k, L, i] = JSON.parse(b.dataset.smb); smbPick(k, L, i);
+}, true);
+rpNodeKey = (orig => function (n) { return n && SMB_KINDS.has(n.kind) ? null : orig.apply(this, arguments); })(rpNodeKey);
+bpApply = (orig => function (p) { orig.apply(this, arguments); if (p && p.smb) { const m = smbMine(); m.p = p.smb.p || null; m.br = p.smb.br != null ? p.smb.br : null; m.mast = null; save(); render(); } })(bpApply);
+buildText = (orig => function () { return orig.apply(this, arguments).split('\n').filter(l => !/- Sample branch: pick one on the sperm$/.test(l)).join('\n'); })(buildText);
+document.head.insertAdjacentHTML('beforeend', '<style>.node.xsp.taken, .node.xsb.taken, .node.xsm.taken { box-shadow: 0 0 0 3px var(--accent); } .node.smbhint { border-style: dashed; background: transparent; color: var(--dim); } .node.smbhint b { font-weight: 500; color: var(--dim); }</style>');
+
 // ---------------------------------------------------------------- boot
 try { if (window.claude && window.claude.hot && window.claude.hot.snapshot) window.claude.hot.snapshot(() => S); } catch (e) { }
 // (a live update hands over the old page's state: put this version's default rules back in)

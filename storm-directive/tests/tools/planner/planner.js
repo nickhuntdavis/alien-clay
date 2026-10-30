@@ -48,8 +48,12 @@ const path = require('path'), fs = require('fs');
     }
     // Every sample in the game (the user, 30 Oct: "what about all the other samples?"), plus any defined but on hold (typepools.js
     // takes Private Schooled off the rack): those carry held: true.
+    // Sample branches (samplebranch.js SMB_REG): a sample's own branch tree, opened by run level (SMB.at), the weapon branch shape.
+    const smbOf = id => { const X = typeof SMB_REG !== 'undefined' && SMB_REG[id]; if (!X) return null;
+      return { at: (typeof SMB !== 'undefined' && SMB.at) || [15, 20, 25], promises: ['A', 'B', 'C'].filter(k => X[k]).map(k => ({ k, name: fix(X[k].name), tag: fix(X[k].tag), desc: fix(X[k].lv3 && X[k].lv3.desc), branches: cards(X[k].lv6), wild: X[k].wild ? { name: fix(X[k].wild.name), desc: fix(X[k].wild.desc) } : null })),
+        masteries: (X.lv10 || []).map(c => ({ name: fix(c.name), desc: fix(c.desc), best: fix(c.best) })) }; };
     const all = SAMPLES10.slice(); if (typeof S10_BY !== 'undefined') for (const id of Object.keys(S10_BY)) if (!all.some(x => x.id === id)) all.push(Object.assign({ held: true }, S10_BY[id]));
-    const samples = all.filter(s => s && s.id).sort((a, b) => (a.strain || 99) - (b.strain || 99)).map(s => ({ id: s.id, strain: s.strain, name: fix(s.name), origin: fix(s.origin), types: (s.types || []).map(t => S10_TYPES[t] || t).filter(Boolean), passive: fix(s.passive), pdesc: fix(s.pdesc), weapons: (s.weapons || []).filter(id => WEAPONS[id]), fit: ((typeof S10_FIT !== 'undefined' && S10_FIT[s.id]) || []).filter(id => WEAPONS[id]), held: !!s.held, old: /^v9_/.test(s.id) }));
+    const samples = all.filter(s => s && s.id).sort((a, b) => (a.strain || 99) - (b.strain || 99)).map(s => ({ id: s.id, strain: s.strain, name: fix(s.name), origin: fix(s.origin), types: (s.types || []).map(t => S10_TYPES[t] || t).filter(Boolean), passive: fix(s.passive), pdesc: fix(s.pdesc), weapons: (s.weapons || []).filter(id => WEAPONS[id]), fit: ((typeof S10_FIT !== 'undefined' && S10_FIT[s.id]) || []).filter(id => WEAPONS[id]), held: !!s.held, old: /^v9_/.test(s.id), smb: smbOf(s.id) }));
     // Feats (feats10.js): the drafted pool in F10_ORDER plus each sample's Unique Feat; forks at levels 3 and 5.
     const feat = f => ({ id: f.id, name: fix(f.name), type: F10_INT[f.type] || f.type || null, atk: f.atk ? (ATK[f.atk] || f.atk) : null, trig: !!f.trig, stam: f.stam || 0, does: fix(f.does), line: fix(f.line), sample: f.sample || null,
       forks: { 3: (f.forks && f.forks[3] || []).map(o => ({ name: fix(o.title), desc: fix(o.desc) })), 5: (f.forks && f.forks[5] || []).map(o => ({ name: fix(o.title), desc: fix(o.desc) })) } });
@@ -78,7 +82,9 @@ const path = require('path'), fs = require('fs');
       const fit = (sm.fit || []).filter(id => weapons[id]).slice(0, 2), uf = F10_UNIQUE[sm.id];
       presets.push({ group: 'Sample starts', name: sm.name, sample: sm.id, weapons: fit.map(id => ({ id })), feats: uf ? [uf] : [], pass: [] });
     }
-    for (const wid of ['v_phys_proj', 'v_phys_spread', 'v_phys_contact']) for (const L of ['A', 'B', 'C']) {
+    for (const sm of samples) if (sm.smb) for (const P of sm.smb.promises)
+      presets.push({ group: 'Sample branches', name: sm.name + ': ' + P.name, sample: sm.id, weapons: (sm.fit.length ? sm.fit : sm.weapons).slice(0, 1).map(id => ({ id })), feats: [F10_UNIQUE[sm.id]].filter(Boolean), pass: [], smb: { p: P.k } });
+    for (const wid of ['v_phys_spread', 'v_phys_contact']) for (const L of ['A', 'B', 'C']) {
       const P = WUP[wid] && WUP[wid][L]; if (!P || !weapons[wid]) continue;
       const unlocks = rules0.filter(r => r.mode === 'do' && r.parent === 'b:' + wid + ':' + L).map(r => r.target);
       presets.push({ group: 'Baseline heroes', name: weapons[wid].name + ': ' + P.name, sample: 'baseline', weapons: [{ id: wid, promise: L }],
