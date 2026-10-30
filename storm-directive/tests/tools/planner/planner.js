@@ -30,6 +30,13 @@ const path = require('path'), fs = require('fs');
       weapons[id] = { id, name: r ? r.name : def.name, type: (r && r.type) || def.v10type || def.elem, atk: ATK[(r && r.atk) || def.v10atk] || (r && r.atk) || def.v10atk, starter: r && r.starter, desc: fix(typeof W24_DESC !== 'undefined' && W24_DESC[id]) || fix(def.desc),
         dlv: def.dlv || null, sab: MM_SAB[id] || null, mods: Array.from(new Set(mods.concat(extraMods))), promises,
         masteries: (S.lv10 || []).map(c => ({ name: fix(c.name), desc: fix(c.desc), best: fix(c.best) })) };
+      // A sample's own branch set (samplebranches.js: Alpha's hustle branches): the planner shows it when that sample is the sperm.
+      if (typeof sbrSamplesOf === 'function') for (const sm of sbrSamplesOf(id)) {
+        const X = wupSpecFor(id, sm) || {};
+        (weapons[id].alt || (weapons[id].alt = {}))[sm] = {
+          promises: ['A', 'B', 'C'].filter(k => X[k]).map(k => ({ k, name: fix(X[k].name), tag: fix(X[k].tag), desc: fix(X[k].lv3 && X[k].lv3.desc), branches: cards(X[k].lv6), wild: X[k].wild ? { name: fix(X[k].wild.name), desc: fix(X[k].wild.desc) } : null })),
+          masteries: (X.lv10 || []).map(c => ({ name: fix(c.name), desc: fix(c.desc), best: fix(c.best) })) };
+      }
     }
     const mods = {};
     for (const id of Array.from(new Set(MATRIX_ONLY.mods.concat(['area', 'bloodsucker', 'umbilical', 'melee', 'mines', 'dfa', 'ranged'])))) {

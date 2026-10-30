@@ -254,7 +254,7 @@ let FOCUS = null;
 try { const s = JSON.parse(localStorage.getItem('sp_planner_v1') || 'null'); if (s && s.weapons) S = Object.assign(S, s); if (!S.custom) S.custom = []; if (!S.over) S.over = {}; for (const k of ['feats', 'pass', 'gates', 'cr', 'crRemoved']) if (!S[k]) S[k] = []; if (!S.crSeq) S.crSeq = 1; } catch (e) { }
 const save = () => { if (window.__rsChecked) S.savedAt = Date.now(); try { localStorage.setItem('sp_planner_v1', JSON.stringify(S)); } catch (e) { } if (window.__rsChecked) rsQueue(); }; // (and to your account: rsQueue below. Saves made while the page loads keep the old time, so they never beat a newer copy from another device.)
 const sampleOf = () => D.samples.find(s => s.id === S.sample) || D.samples[0];
-const W = id => D.weapons[id], M = id => D.mods[id];
+const W = id => { const d = D.weapons[id], a = d && d.alt && d.alt[S.sample]; return a ? Object.assign({}, d, a, { altOf: S.sample }) : d; }, M = id => D.mods[id]; // (a sample with its own branch set for this weapon: samplebranches.js)
 const findW = u => S.weapons.find(w => w.u === u);
 const selW = () => { const n = NODES[S.sel]; return n && n.w ? n.w : null; };
 
