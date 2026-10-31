@@ -1,0 +1,272 @@
+[
+ {
+  "id": "sw1",
+  "parent": "s:baseline",
+  "mode": "weight",
+  "target": "tag:t:phys",
+  "scope": "run",
+  "k": 2,
+  "sample": "baseline"
+ },
+ {
+  "id": "sw2",
+  "parent": "s:baseline",
+  "mode": "weight",
+  "target": "tag:g:tempo",
+  "scope": "run",
+  "k": 1.5,
+  "sample": "baseline"
+ },
+ {
+  "id": "sw3",
+  "parent": "s:alpha",
+  "mode": "weight",
+  "target": "tag:t:shock",
+  "scope": "run",
+  "k": 2,
+  "sample": "alpha"
+ },
+ {
+  "id": "sw4",
+  "parent": "s:alpha",
+  "mode": "weight",
+  "target": "tag:g:tempo",
+  "scope": "run",
+  "k": 2,
+  "sample": "alpha"
+ },
+ {
+  "id": "sw5",
+  "parent": "s:alpha",
+  "mode": "weight",
+  "target": "tag:g:flight",
+  "scope": "run",
+  "k": 1.5,
+  "sample": "alpha"
+ },
+ {
+  "id": "sw6",
+  "parent": "s:alpha",
+  "mode": "weight",
+  "target": "tag:g:lifesteal",
+  "scope": "run",
+  "k": 0.5,
+  "sample": "alpha"
+ },
+ {
+  "id": "sw7",
+  "parent": "s:beta",
+  "mode": "weight",
+  "target": "tag:t:arcane",
+  "scope": "run",
+  "k": 2,
+  "sample": "beta"
+ },
+ {
+  "id": "sw8",
+  "parent": "s:beta",
+  "mode": "weight",
+  "target": "tag:g:lifesteal",
+  "scope": "run",
+  "k": 2.5,
+  "sample": "beta"
+ },
+ {
+  "id": "sw9",
+  "parent": "s:beta",
+  "mode": "weight",
+  "target": "tag:t:ice",
+  "scope": "run",
+  "k": 1.5,
+  "sample": "beta"
+ },
+ {
+  "id": "sw10",
+  "parent": "s:private",
+  "mode": "weight",
+  "target": "tag:t:fire",
+  "scope": "run",
+  "k": 2,
+  "sample": "private"
+ },
+ {
+  "id": "sw11",
+  "parent": "s:private",
+  "mode": "weight",
+  "target": "tag:t:soul",
+  "scope": "run",
+  "k": 2,
+  "sample": "private"
+ },
+ {
+  "id": "sw12",
+  "parent": "s:private",
+  "mode": "weight",
+  "target": "tag:g:chemistry",
+  "scope": "run",
+  "k": 2,
+  "sample": "private"
+ },
+ {
+  "id": "sw13",
+  "parent": "s:private",
+  "mode": "weight",
+  "target": "tag:g:crowd",
+  "scope": "run",
+  "k": 1.5,
+  "sample": "private"
+ },
+ {
+  "id": "sw14",
+  "parent": "s:ordered",
+  "mode": "weight",
+  "target": "tag:t:flame",
+  "scope": "run",
+  "k": 2,
+  "sample": "ordered"
+ },
+ {
+  "id": "sw15",
+  "parent": "s:ordered",
+  "mode": "weight",
+  "target": "tag:t:shock",
+  "scope": "run",
+  "k": 1.5,
+  "sample": "ordered"
+ },
+ {
+  "id": "sw16",
+  "parent": "s:ordered",
+  "mode": "weight",
+  "target": "tag:g:delivery",
+  "scope": "run",
+  "k": 2,
+  "sample": "ordered"
+ },
+ {
+  "id": "sw17",
+  "parent": "s:ordered",
+  "mode": "weight",
+  "target": "tag:g:area",
+  "scope": "run",
+  "k": 1.5,
+  "sample": "ordered"
+ },
+ {
+  "id": "sw18",
+  "parent": "s:redtail",
+  "mode": "weight",
+  "target": "tag:t:flame",
+  "scope": "run",
+  "k": 2,
+  "sample": "redtail"
+ },
+ {
+  "id": "sw19",
+  "parent": "s:redtail",
+  "mode": "weight",
+  "target": "tag:g:area",
+  "scope": "run",
+  "k": 2,
+  "sample": "redtail"
+ },
+ {
+  "id": "sw20",
+  "parent": "s:redtail",
+  "mode": "weight",
+  "target": "tag:g:chemistry",
+  "scope": "run",
+  "k": 1.5,
+  "sample": "redtail"
+ },
+ {
+  "id": "sw21",
+  "parent": "s:prawn",
+  "mode": "weight",
+  "target": "tag:t:soul",
+  "scope": "run",
+  "k": 2,
+  "sample": "prawn"
+ },
+ {
+  "id": "sw22",
+  "parent": "s:prawn",
+  "mode": "weight",
+  "target": "tag:g:lifesteal",
+  "scope": "run",
+  "k": 1.5,
+  "sample": "prawn"
+ },
+ {
+  "id": "sw23",
+  "parent": "s:prawn",
+  "mode": "weight",
+  "target": "tag:g:crowd",
+  "scope": "run",
+  "k": 1.5,
+  "sample": "prawn"
+ },
+ {
+  "id": "sw24",
+  "parent": "s:alien",
+  "mode": "weight",
+  "target": "tag:t:flame",
+  "scope": "run",
+  "k": 1.5,
+  "sample": "alien"
+ },
+ {
+  "id": "sw25",
+  "parent": "s:alien",
+  "mode": "weight",
+  "target": "tag:t:soul",
+  "scope": "run",
+  "k": 1.5,
+  "sample": "alien"
+ },
+ {
+  "id": "sw26",
+  "parent": "s:alien",
+  "mode": "weight",
+  "target": "tag:t:shock",
+  "scope": "run",
+  "k": 1.5,
+  "sample": "alien"
+ },
+ {
+  "id": "sw27",
+  "parent": "s:alien",
+  "mode": "weight",
+  "target": "tag:g:chemistry",
+  "scope": "run",
+  "k": 2,
+  "sample": "alien"
+ },
+ {
+  "id": "sw28",
+  "parent": "s:acro",
+  "mode": "weight",
+  "target": "tag:t:fire",
+  "scope": "run",
+  "k": 2,
+  "sample": "acro"
+ },
+ {
+  "id": "sw29",
+  "parent": "s:acro",
+  "mode": "weight",
+  "target": "tag:g:tempo",
+  "scope": "run",
+  "k": 2,
+  "sample": "acro"
+ },
+ {
+  "id": "sw30",
+  "parent": "s:acro",
+  "mode": "weight",
+  "target": "tag:g:flight",
+  "scope": "run",
+  "k": 1.5,
+  "sample": "acro"
+ }
+]

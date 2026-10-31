@@ -42,7 +42,7 @@ function crName(key) {
     if (t === 'f') return (F10[rest] && F10[rest].name) || rest;
     if (t === 'p') { const m = MUT_REG.find(x => x.id === rest); return (m && m.title) || rest; }
     if (t === 'pm') { const [id, c] = rest.split(':'), B = SPM_BR[id]; return B ? B[c === 'B' ? 2 : 0] : rest; }
-    if (t === 's') { const s = SAMPLES10.find(x => x.id === rest); return (s && s.name) || rest; }
+    if (t === 's') { const s = S10_BY[rest]; return (s && s.name) || rest; }
     if (t === 'tag') return 'all ' + rest.replace(':', ' ');
   } catch (e) { }
   return key;
@@ -60,7 +60,7 @@ function crKnown(key) {
   if (t === 'f') return !!F10[rest];
   if (t === 'p') return MUT_REG.some(x => x.id === rest);
   if (t === 'pm') { const [id, c] = rest.split(':'); return !!(SPM_BR[id] && (c === 'A' || c === 'B')); }
-  if (t === 's') return SAMPLES10.some(x => x.id === rest);
+  if (t === 's') return !!S10_BY[rest]; // (S10_BY, not SAMPLES10: Private Schooled is spliced off the rack by typepools.js but keeps its entry and its rules)
   if (t === 'tag') { const [k, v] = rest.split(':'); return ['g', 'a', 't', 'k'].includes(k) && !!v; }
   return false;
 }

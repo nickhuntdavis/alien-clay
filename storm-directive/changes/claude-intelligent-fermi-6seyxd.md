@@ -1,5 +1,13 @@
 # claude/intelligent-fermi-6seyxd
 
+## 2026-10-31 Sample weights: each sample is dealt cards to match (v10.234)
+- Systems: card rules
+- Files: web/js/cardrules.js (30 Weight rules sw1 to sw30, now 591 rules), web/js/cardrulesengine.js (crKnown/crName read S10_BY so Private Schooled's rules still validate), tests/tools/rules/sampleweights.json (new), CARD_RULES.md, planner data rebuilt
+- What: baseline, alpha, beta, private, ordered, redtail, prawn, alien and acro each weight damage types and modifier groups (table in CARD_RULES.md). Checked: alpha tempo modifiers x2 (beta x1), private fire projectile x2 (alpha x1).
+- Save data: none.
+- Hooks: none.
+- Risk: dealing shifts per sample (all nine, Private only when on the rack); the rules only change odds, never what is allowed.
+
 ## 2026-10-31 Planner: draft generator (idea to game)
 - Systems: tests/tools (planner)
 - Files: tests/tools/planner/draft.js (new), tests/tools/planner/fixtures/ideas-sample.json (new), tests/tools/planner/template.html (saved rows carry f), ideas.md (header)

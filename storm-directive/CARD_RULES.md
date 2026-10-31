@@ -37,6 +37,19 @@ boxes. The planner exports a rule list; a generator writes `web/js/cardrules.js`
 - The Baseline gates now live there as Do rules (Quick draw with Dirty Harry, Acid bath with Robocop, Come back with Sperminator).
 - (Superseded below: the tables are editable rules now.) The game's built-in tables loaded as LOCKED rules: matrix N/A (`MATRIX_NA`, matrixna.js), the Delivery weapons' denied modifiers (`DLV.deny`, dlvrun.js) and the modifier audit's dead modifiers by Delivery form (`MOD_DEAD`, moddead.js). They show on each weapon's and modifier's panel, count in Simulate and Health, and are not saved. Moving them into the rule file (so they could be edited) is a later step; the fit-check rules in fitcheck.js are functions and are not shown.
 
+## Sample weights (31 Oct)
+Each playable sample holds a parent `s:<id>` for the whole run, so Weight rules on it shape the deals (k is the multiplier). Rules `sw1` to `sw30`, mode weight, scope run, in `tests/tools/rules/sampleweights.json`:
+- Baseline: Force x2, tempo modifiers x1.5.
+- Alpha: Static x2, tempo x2, flight x1.5, lifesteal x0.5.
+- Beta: Blood x2, lifesteal x2.5, Mucus x1.5.
+- Private Schooled: Acid x2, Parasite x2, chemistry x2, crowd x1.5 (the sample is off the rack, so these sit idle).
+- Ordered Online: flame x2, Static x1.5, delivery x2, area x1.5.
+- Redtail: flame x2, area x2, chemistry x1.5.
+- Prawn Again: Parasite x2, lifesteal x1.5, crowd x1.5.
+- Not of This World: flame x1.5, Parasite x1.5, Static x1.5, chemistry x2.
+- Acro: Acid x2, tempo x2, flight x1.5.
+Regenerate: extract the current rules (`require('./tests/tools/rules/rulesfile').read().rules`), drop any `sw*` ids, append `sampleweights.json`, write the array to a file and run `node tests/tools/rules/genrules.js <file>` (it writes the whole file). Note: tag type keys are internal ids (`t:fire` is Acid, `t:flame` is as the game tags it).
+
 ## The game tables are rules now (30 Oct, the user: "make them editable")
 - `tests/tools/rules/importtables.js` moved the three dealing tables into `cardrules.js` as rules tagged `src`: the modifier audit's dead
   modifiers (`MOD_DEAD`, 530, `src: 'audit'`, with `form`: the weapon's Delivery form, '' for none, and `unless` for MOD_LIVE_WITH),
