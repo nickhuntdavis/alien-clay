@@ -645,7 +645,7 @@ function renderDetail() {
   if (rpNodeKey(n)) h += `<div class="row"><span class="lab">Rules</span><button class="btn" data-act="rules">Do, Don't and Weight</button><small style="color:var(--dim)">${rpSummary(rpNodeKey(n))}</small></div>`;
   d.innerHTML = h;
 }
-const typeRow = (o, dflt) => `<div class="row"><span class="lab">Type</span><select id="ideatype" aria-label="Type">${(dflt ? '' : '<option value="">State what it is…</option>') + IDEA_TYPES.map(t => `<option value="${esc(t)}" ${(o.type || dflt) === t ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select><small style="color:var(--dim)">What ideas.md should file it as.</small></div>`;
+let typeRow = (o, dflt) => `<div class="row"><span class="lab">Type</span><select id="ideatype" aria-label="Type">${(dflt ? '' : '<option value="">State what it is…</option>') + IDEA_TYPES.map(t => `<option value="${esc(t)}" ${(o.type || dflt) === t ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select><small style="color:var(--dim)">What ideas.md should file it as.</small></div>`;
 const saveRow = o => `<div class="row"><span class="lab">ideas.md</span><button class="btn" data-act="saveone">Save to ideas.md</button><small style="color:var(--dim)">${o.sid ? (o.savedAt ? 'Saved ' + new Date(o.savedAt).toLocaleString() : 'Saved') + '.' : 'Not saved yet.'}</small></div>`;
 $('#detail').addEventListener('change', e => {
   if (e.target.id !== 'ideatype') return;
@@ -887,7 +887,7 @@ function ideasText() {
   ideas.forEach((n, i) => {
     const path = []; for (let p = n.parent; p && p.kind !== 'root'; p = p.parent) path.unshift(p.title);
     const where = path.length ? `   (under ${path.join(' > ')})` : '   (on the sperm)';
-    if (n.c) { L.push(`${i + 1}. [${n.c.tag || 'custom'}] ${n.c.name || 'Untitled'}` + (n.c.of ? ` (variant of ${n.c.of})` : '') + where); if (n.c.text) L.push('   ' + n.c.text.replace(/\n/g, '\n   ')); }
+    if (n.c) { L.push(`${i + 1}. [${n.c.tag || 'custom'}] ${n.c.name || 'Untitled'}` + (n.c.of ? ` (variant of ${n.c.of})` : '') + where); if (n.c.text) L.push('   ' + n.c.text.replace(/\n/g, '\n   ')); if (fldText(n.c)) L.push('   Fields: ' + fldText(n.c)); }
     else { L.push(`${i + 1}. [Edit of ${n.ov.orig.name}] ${n.ov.name || 'Untitled'}` + where); if (n.ov.text) L.push('   ' + n.ov.text.replace(/\n/g, '\n   ')); L.push('   (was: ' + n.ov.orig.text.replace(/\n/g, ' / ') + ')'); }
   });
   if (gates.length) L.push('', gatesText(gates));
@@ -910,7 +910,7 @@ $('#ideas').onclick = () => { const t = ideasText(); if (!t) { toast('Nothing of
 // Blocks and edits are written to the artifact's database (collection "ideas", status "queued"); a comment sent to Claude then asks
 // the session that owns the planner to fold them into storm-directive/ideas.md and mark them "filed".
 let DB = null, CM = null, CAPS = false;
-const ideaSig = n => { if (n.g) return ['gate', n.g.k, n.g.id, gatePath(n)].join('|'); const o = n.c || n.ov; return [o.type || '', o.name || '', o.text || '', n.c ? o.tag : ''].join('|'); };
+const ideaSig = n => { if (n.g) return ['gate', n.g.k, n.g.id, gatePath(n)].join('|'); const o = n.c || n.ov; return [o.type || '', o.name || '', o.text || '', n.c ? o.tag : '', fldText(o)].join('|'); };
 const ideaNodes = () => (LAST ? LAST.all : []).filter(n => (n.c && !(n.c.card && n.c.name === n.c.of && n.c.text === cardText(n.c))) || n.ov || n.g);
 const cardText = c => c.cardText != null ? c.cardText : c.text; // (a card block's text as dealt; edits make it an idea)
 const unsavedNodes = () => ideaNodes().filter(n => { const o = n.c || n.ov || n.g; return !o.sid || o.savedSig !== ideaSig(n); });
@@ -932,7 +932,7 @@ async function saveIdeas(nodes) {
       const o = nd.c || nd.ov || nd.g, path = []; for (let p = nd.parent; p && p.kind !== 'root'; p = p.parent) path.unshift(p.title);
       const id = o.sid || ('i' + Date.now().toString(36) + '_' + (nd.c ? nd.c.u : nd.id));
       const row = nd.g ? { type: 'Gate', name: nd.title, text: `${nd.title} (${gateCard(nd.g).kindName}) is only available once ${path.join(' > ')} is taken.`, under: path.join(' > '), sample: smp.name, version: D.version, savedAt: now, status: 'queued', kind: 'gate', tag: 'Gate', variantOf: '', orig: null }
-        : { type: o.type || KIND_TYPE[nd.kind] || 'Other', name: o.name || 'Untitled', text: o.text || '', under: path.join(' > ') || '(on the sperm)', sample: smp.name, version: D.version, savedAt: now, status: 'queued',
+        : { type: o.type || KIND_TYPE[nd.kind] || 'Other', name: o.name || 'Untitled', text: (o.text || '') + (fldText(o) ? '\n\nFields: ' + fldText(o) : ''), under: path.join(' > ') || '(on the sperm)', sample: smp.name, version: D.version, savedAt: now, status: 'queued',
         kind: nd.c ? 'block' : 'edit', tag: nd.c ? nd.c.tag : nd.ey, variantOf: nd.c ? (nd.c.of || '') : '', orig: nd.ov ? nd.ov.orig : null };
       await DB.collection('ideas').doc(id).set(row);
       o.sid = id; o.savedAt = now; o.savedSig = ideaSig(nd); n++;
@@ -1582,7 +1582,7 @@ const ptKids = (T, pid) => T.nodes.filter(x => x.parent === pid);
 // What a card key is, for its node: title, eyebrow, text and colour.
 function ptInfo(k) {
   const [t, r] = rpSplit(k), smp = sampleOf(), X = smbD(), sx = (smp.types || ['phys'])[0];
-  if (/^x:/.test(k)) { const bn = ptT().nodes.find(x => x.key === k) || {}; return { title: bn.name || 'Untitled', ey: 'Idea · ' + (bn.type || bn.tag || 'Custom'), desc: bn.text || '', col: 'var(--idea)' }; }
+  if (/^x:/.test(k)) { const bn = ptT().nodes.find(x => x.key === k) || {}; return { title: bn.name || 'Untitled', ey: 'Idea · ' + (bn.type || bn.tag || 'Custom'), desc: ((bn.text || '') + (fldText(bn) ? ' [' + fldText(bn) + ']' : '')).trim(), col: 'var(--idea)' }; }
   const out = { title: rpName(k), ey: rpKindLabel(k), desc: '', col: 'var(--accent)' };
   try {
     if (t === 'w') { const w = W(r); out.ey = 'Weapon · ' + w.atk + ' · ' + tname(w.type); out.desc = w.desc; out.col = tvar(w.type); }
@@ -1791,7 +1791,7 @@ targetFor = (orig => function (p) {
 buildText = (orig => function () {
   if (!S.tree) return orig.apply(this, arguments);
   const smp = sampleOf(), L = [`${smp.name} (strain ${smp.strain}) · build tree, ${ptLeaves()} paths`];
-  (function walk(n, d) { for (const c of n.children) { if (c.kind !== 'pt') continue; L.push('  '.repeat(d) + '- ' + c.ey.replace(/^⊘ /, '').split(' · ')[0] + ': ' + c.title + (c.why ? ' [' + c.why + ']' : '')); walk(c, d + 1); } })(NODES.root, 0);
+  (function walk(n, d) { for (const c of n.children) { if (c.kind !== 'pt') continue; L.push('  '.repeat(d) + '- ' + c.ey.replace(/^⊘ /, '').split(' · ')[0] + ': ' + c.title + (c.pt && c.pt.blank ? (c.pt.text ? ' (' + c.pt.text.replace(/\s*\n\s*/g, ' / ') + ')' : '') + (fldText(c.pt) ? ' {' + fldText(c.pt) + '}' : '') : '') + (c.why ? ' [' + c.why + ']' : '')); walk(c, d + 1); } })(NODES.root, 0);
   if (L.length === 1) L.push('- (an empty tree)');
   return L.join('\n');
 })(buildText);
@@ -1908,6 +1908,54 @@ $('#sample').onchange = () => { S.sample = $('#sample').value; S.sel = 'root'; v
   }
   verUi();
 })();
+
+// ---------------------------------------------------------------- fields on blank blocks (the user, 31 Oct: "for weapons add in fields for damage
+// type, attack type and base stats. Likewise for other card types based on what each type holds in game")
+// Choosing a blank block's Type shows the fields that kind of card holds in the game. Values are kept in the block's f, are listed by Copy
+// build and Copy ideas, and go into the saved idea's text (so ideas.md carries them).
+const FLD_DT = { sel: () => Object.keys(D.types).map(tname) };
+const FLD_AT = { sel: () => Object.keys(RP_ATK) };
+const FLD = (() => {
+  const dt = (k, l) => ({ k, l, sel: FLD_DT.sel }), at = (k, l) => ({ k, l, sel: FLD_AT.sel }), n = (k, l, u) => ({ k, l, num: 1, u }), t = (k, l, ph) => ({ k, l, ph }), s = (k, l, sel) => ({ k, l, sel });
+  const weapons = () => Object.values(D.weapons).map(w => w.name), feats = () => D.feats.map(f => f.name), mods = () => Object.values(D.mods).map(m => m.name), pass = () => D.passives.map(p => p.name), samples = () => D.samples.filter(x => !x.old && !x.held).map(x => x.name);
+  const fam = () => Object.values(D.gnames);
+  return {
+    'Weapon': [dt('dt', 'Damage type'), at('at', 'Attack type'), n('dmg', 'Damage'), n('rof', 'Rate of fire', '/s'), n('mag', 'Magazine size'), n('rel', 'Reload', 's'), n('rng', 'Range'), n('crit', 'Crit chance', '%'), n('critb', 'Crit bonus', '%')],
+    'Lv 3 branch': [s('w', 'Weapon', weapons), t('costs', 'Costs (the trade-off)'), t('shows', 'What it looks like')],
+    'Lv 6 branch': [s('w', 'Weapon', weapons), t('par', 'Lv 3 branch it follows'), t('wild', 'Wild card? (yes or no)')],
+    'Lv 9 mastery': [s('w', 'Weapon', weapons), t('best', 'Best with branch (A, B, C)')],
+    'Modifier': [s('grp', 'Group', fam), at('at', 'Fits attack type'), t('r1', 'Rank 1'), t('r2', 'Rank 2'), t('r3', 'Rank 3')],
+    'Modifier fork': [s('mod', 'Modifier', mods), s('fk', 'Fork', () => ['A', 'B']), t('r2', 'At rank 2')],
+    'Modifier mastery': [s('mod', 'Modifier', mods), s('fk', 'Fork it follows', () => ['A', 'B']), t('r3', 'At rank 3')],
+    'Switched at Birth': [dt('dt', 'Damage type it switches to')],
+    'Feat': [dt('dt', 'Damage type'), at('at', 'Attack type'), n('stam', 'Stamina cost'), n('cd', 'Cooldown', 's'), n('dur', 'Duration', 's'), n('rng', 'Range'), n('dmg', 'Damage'), s('trig', 'Triggered', () => ['no', 'yes'])],
+    'Feat fork': [s('feat', 'Feat', feats), s('lv', 'Level', () => ['3', '5'])],
+    'Sperm passive': [s('fam', 'Family', () => ['Body', 'Trade-off', 'Rare', 'Rules', 'Defence', 'Fire', 'Any damage type']), n('max', 'Max rank'), s('rar', 'Rarity', () => ['Common', 'Uncommon', 'Rare', 'Epic', 'Mythical'])],
+    'Passive mastery': [s('pass', 'Passive', pass), s('fk', 'Mastery', () => ['A', 'B'])],
+    'Gate': [t('by', 'Unlocked by (the branch)'), t('card', 'The card it unlocks'), t('samp', 'Only in sample')],
+    'Sample': [dt('dt1', 'Damage type 1'), dt('dt2', 'Damage type 2'), t('pas', 'Passive'), t('feat', 'Unique Feat'), t('origin', 'Origin')],
+    'Sample branch': [s('samp', 'Sample', samples), s('lv', 'Run level', () => ['15', '20', '25']), t('costs', 'Costs (the trade-off)')],
+    'Enemy': [n('hp', 'Health'), n('spd', 'Speed'), n('dmg', 'Contact damage'), s('role', 'Role', () => ['Swarmer', 'Shooter', 'Tank', 'Elite', 'Boss']), dt('dt', 'Damage type')]
+  };
+})();
+const fldList = o => FLD[o && o.type] || [];
+function fldRows(o) {
+  const L = fldList(o); if (!L.length) return '';
+  const f = o.f || {};
+  return L.map(d => {
+    const v = f[d.k] == null ? '' : String(f[d.k]);
+    const ctl = d.sel ? `<select class="ptin" data-fld="${d.k}"><option value=""></option>${d.sel().map(x => `<option value="${esc(x)}" ${v === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select>`
+      : `<input class="ptin" data-fld="${d.k}" ${d.num ? 'type="number" step="any"' : `placeholder="${esc(d.ph || '')}"`} value="${esc(v)}">`;
+    return `<div class="row"><span class="lab">${esc(d.l)}${d.u ? ' (' + esc(d.u) + ')' : ''}</span>${ctl}</div>`;
+  }).join('');
+}
+const fldText = o => fldList(o).filter(d => o.f && o.f[d.k] != null && o.f[d.k] !== '').map(d => d.l + ': ' + o.f[d.k] + (d.u ? d.u : '')).join('; ');
+const fldOwner = () => { const n = NODES[S.sel]; if (!n) return null; if (S.tree) return n.pt && n.pt.blank ? ptT().nodes.find(y => y.id === n.pt.id) : null; return n.kind === 'custom' ? n.c : null; };
+$('#detail').addEventListener('input', e => { const el = e.target; if (!el.dataset || el.dataset.fld == null) return; const o = fldOwner(); if (!o) return; (o.f || (o.f = {}))[el.dataset.fld] = el.value; save(); });
+$('#detail').addEventListener('change', e => { const el = e.target; if (!el.dataset || el.dataset.fld == null) return; const o = fldOwner(); if (!o) return; (o.f || (o.f = {}))[el.dataset.fld] = el.value; save(); const keep = S.sel; render(); S.sel = keep; });
+// Show them: the fields follow the Type dropdown in both views (the Build view's block panel and the tree's blank block).
+{ const tr = typeRow; typeRow = (o, dflt) => tr(o, dflt) + fldRows(o); }
+ptDetailHtml = (orig => function (n) { let h = orig.apply(this, arguments); const x = n.pt && n.pt.blank ? ptT().nodes.find(y => y.id === n.pt.id) : null; if (x) h = h.replace(/(<div class="row"><textarea id="ptbt"[^]*?<\/textarea><\/div>)/, '$1' + fldRows(x)); return h; })(ptDetailHtml);
 
 // ---------------------------------------------------------------- collapsible left panel (the user, 31 Oct: click the space between the panel and the canvas)
 function rackApply() {
