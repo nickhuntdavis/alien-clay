@@ -888,7 +888,7 @@ function ideasText() {
     const path = []; for (let p = n.parent; p && p.kind !== 'root'; p = p.parent) path.unshift(p.title);
     const where = path.length ? `   (under ${path.join(' > ')})` : '   (on the sperm)';
     if (n.c) { L.push(`${i + 1}. [${n.c.tag || 'custom'}] ${n.c.name || 'Untitled'}` + (n.c.of ? ` (variant of ${n.c.of})` : '') + where); if (n.c.text) L.push('   ' + n.c.text.replace(/\n/g, '\n   ')); if (fldText(n.c)) L.push('   Fields: ' + fldText(n.c)); }
-    else { L.push(`${i + 1}. [Edit of ${n.ov.orig.name}] ${n.ov.name || 'Untitled'}` + where); if (n.ov.text) L.push('   ' + n.ov.text.replace(/\n/g, '\n   ')); L.push('   (was: ' + n.ov.orig.text.replace(/\n/g, ' / ') + ')'); }
+    else { L.push(`${i + 1}. [Edit of ${n.ov.orig.name}] ${n.ov.name || 'Untitled'}` + where); if (n.ov.text) L.push('   ' + n.ov.text.replace(/\n/g, '\n   ')); L.push('   (was: ' + n.ov.orig.text.replace(/\n/g, ' / ') + ')'); if (fldText(n.ov)) L.push('   Fields: ' + fldText(n.ov)); }
   });
   if (gates.length) L.push('', gatesText(gates));
   return L.join('\n');
@@ -1950,12 +1950,52 @@ function fldRows(o) {
   }).join('');
 }
 const fldText = o => fldList(o).filter(d => o.f && o.f[d.k] != null && o.f[d.k] !== '').map(d => d.l + ': ' + o.f[d.k] + (d.u ? d.u : '')).join('; ');
-const fldOwner = () => { const n = NODES[S.sel]; if (!n) return null; if (S.tree) return n.pt && n.pt.blank ? ptT().nodes.find(y => y.id === n.pt.id) : null; return n.kind === 'custom' ? n.c : null; };
+let fldOwner = () => { const n = NODES[S.sel]; if (!n) return null; if (S.tree) return n.pt && n.pt.blank ? ptT().nodes.find(y => y.id === n.pt.id) : null; return n.kind === 'custom' ? n.c : null; };
 $('#detail').addEventListener('input', e => { const el = e.target; if (!el.dataset || el.dataset.fld == null) return; const o = fldOwner(); if (!o) return; (o.f || (o.f = {}))[el.dataset.fld] = el.value; save(); });
 $('#detail').addEventListener('change', e => { const el = e.target; if (!el.dataset || el.dataset.fld == null) return; const o = fldOwner(); if (!o) return; (o.f || (o.f = {}))[el.dataset.fld] = el.value; save(); const keep = S.sel; render(); S.sel = keep; });
 // Show them: the fields follow the Type dropdown in both views (the Build view's block panel and the tree's blank block).
 { const tr = typeRow; typeRow = (o, dflt) => tr(o, dflt) + fldRows(o); }
 ptDetailHtml = (orig => function (n) { let h = orig.apply(this, arguments); const x = n.pt && n.pt.blank ? ptT().nodes.find(y => y.id === n.pt.id) : null; if (x) h = h.replace(/(<div class="row"><textarea id="ptbt"[^]*?<\/textarea><\/div>)/, '$1' + fldRows(x)); return h; })(ptDetailHtml);
+
+// Existing cards carry the same fields, filled from the game (the user, 31 Oct: "add this to all existing weapons and cards"). Change a field and the card
+// becomes an edited copy (as when you edit its name or text), so the change is listed by Copy ideas and saved to ideas.md; the game's own card is untouched.
+const FLD_RAR = ['Common', 'Uncommon', 'Rare', 'Epic', 'Mythical'];
+function nodeFld(n) { // { type, f } the game's values for a map node, or null
+  try {
+    const Wd = n.w && W(n.w.id), g = (o, k) => (o && o[k] != null && o[k] !== 0 ? String(o[k]) : '');
+    if (n.kind === 'root') { const s = n.smp; return { type: 'Sample', f: { dt1: tname((s.types || [])[0] || ''), dt2: tname((s.types || [])[1] || ''), pas: s.passive, feat: (FEAT(s.ufeat) || {}).name || '', origin: s.origin } }; }
+    if (n.kind === 'weapon') { const st = Wd.stats || {}; return { type: 'Weapon', f: { dt: tname(Wd.type), at: Wd.atk, dmg: g(st, 'dmg'), rof: g(st, 'rof'), mag: g(st, 'mag'), rel: g(st, 'rel'), rng: g(st, 'rng'), crit: g(st, 'crit'), critb: g(st, 'critb') } }; }
+    if (n.kind === 'promise') return { type: 'Lv 3 branch', f: { w: Wd.name, costs: n.P.costs || '', shows: n.P.shows || '' } };
+    if (n.kind === 'wbranch') { const P = Wd.promises.find(x => x.k === n.w.promise); return { type: 'Lv 6 branch', f: { w: Wd.name, par: P ? P.name : '', wild: n.w.wbr === 'wild' ? 'yes' : 'no' } }; }
+    if (n.kind === 'wmast') { const X = Wd.masteries[n.w.wmast]; return { type: 'Lv 9 mastery', f: { w: Wd.name, best: X ? X.best || '' : '' } }; }
+    if (n.kind === 'mod') return { type: 'Modifier', f: { grp: n.Md.gname, at: Array.isArray(n.Md.atk) ? '' : '', r1: n.Md.ranks[0] || '', r2: n.Md.ranks[1] || '', r3: n.Md.ranks[2] || '' } };
+    if (n.kind === 'mbranch') return { type: 'Modifier fork', f: { mod: n.Md.name, fk: n.m.br, r2: n.desc } };
+    if (n.kind === 'mmast') return { type: 'Modifier mastery', f: { mod: n.Md.name, fk: n.m.br, r3: n.desc } };
+    if (n.kind === 'sab') return { type: 'Switched at Birth', f: { dt: tname(n.w && W(n.w.id).sab) } };
+    if (n.kind === 'feat') { const F = n.F, b = F.base || {}; return { type: 'Feat', f: { dt: F.type ? tname(F.type) : '', at: F.atk || '', stam: g(F, 'stam'), cd: g(b, 'cd'), dur: g(b, 'dur'), rng: g(b, 'rng'), dmg: g(b, 'dmg'), trig: F.trig ? 'yes' : 'no' } }; }
+    if (n.kind === 'ffork') return { type: 'Feat fork', f: { feat: n.F.name, lv: String(n.lv) } };
+    if (n.kind === 'pass') return { type: 'Sperm passive', f: { fam: FAM(n.P.family), max: String(n.P.maxRank || ''), rar: n.P.rarity == null ? '' : FLD_RAR[n.P.rarity] || '' } };
+    if (n.kind === 'pmast') return { type: 'Passive mastery', f: { pass: n.P.name, fk: n.p.mast ? 'B' : 'A' } };
+  } catch (e) { }
+  return null;
+}
+function fldExisting(n) {
+  const d = nodeFld(n); if (!d) return '';
+  const o = { type: d.type, f: Object.assign({}, d.f, n.ov && n.ov.f || {}) };
+  return `<div class="row"><span class="lab">Card fields</span><small style="color:var(--dim)">${esc(d.type)}: the game's values. Change one to make an edited copy.</small></div>` + fldRows(o);
+}
+function fldEnsureOv(n) {
+  if (!S.over[n.id]) { const d = nodeFld(n); S.over[n.id] = { name: n.title, text: n.desc, orig: { name: n.title, text: n.desc }, type: d ? d.type : '', f: {} }; }
+  const ov = S.over[n.id]; if (!ov.type) { const d = nodeFld(n); ov.type = d ? d.type : ''; } ov.f = ov.f || {}; return ov;
+}
+const fldIsExisting = n => n && !S.tree && n.kind !== 'custom' && n.kind !== 'gate' && n.kind !== 'hint' && !!nodeFld(n);
+renderDetail = (orig => function () {
+  const r = orig.apply(this, arguments), n = NODES[S.sel];
+  if (n && fldIsExisting(n)) $('#detail').insertAdjacentHTML('beforeend', fldExisting(n));
+  return r;
+})(renderDetail);
+// Existing nodes: edits go to the card's edited copy.
+fldOwner = (orig => function () { const n = NODES[S.sel]; if (fldIsExisting(n)) return fldEnsureOv(n); return orig.apply(this, arguments); })(fldOwner);
 
 // ---------------------------------------------------------------- collapsible left panel (the user, 31 Oct: click the space between the panel and the canvas)
 function rackApply() {

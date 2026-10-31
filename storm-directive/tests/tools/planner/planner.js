@@ -26,15 +26,16 @@ const path = require('path'), fs = require('fs');
       let w = null; try { w = makeSlot(id); } catch (e) { }
       const mods = w ? MATRIX_ONLY.mods.filter(m => { try { return modOk(w, m); } catch (e) { return false; } }) : [];
       const extraMods = w ? ['area', 'bloodsucker', 'umbilical'].filter(m => MODS10[m] && (() => { try { return modOk(w, m); } catch (e) { return false; } })()) : [];
-      const promises = ['A', 'B', 'C'].filter(k => S[k]).map(k => ({ k, name: fix(S[k].name), tag: fix(S[k].tag), desc: fix(S[k].lv3 && S[k].lv3.desc), branches: cards(S[k].lv6), wild: S[k].wild ? { name: fix(S[k].wild.name), desc: fix(S[k].wild.desc) } : null }));
+      const promises = ['A', 'B', 'C'].filter(k => S[k]).map(k => ({ k, name: fix(S[k].name), tag: fix(S[k].tag), costs: fix(S[k].costs), shows: fix(S[k].shows), desc: fix(S[k].lv3 && S[k].lv3.desc), branches: cards(S[k].lv6), wild: S[k].wild ? { name: fix(S[k].wild.name), desc: fix(S[k].wild.desc) } : null }));
       weapons[id] = { id, name: r ? r.name : def.name, type: (r && r.type) || def.v10type || def.elem, atk: ATK[(r && r.atk) || def.v10atk] || (r && r.atk) || def.v10atk, starter: r && r.starter, desc: fix(typeof W24_DESC !== 'undefined' && W24_DESC[id]) || fix(def.desc),
+        stats: (() => { try { const q = w && w.s || {}, r2 = x => Math.round(x * 100) / 100; return { dmg: r2(q.dmg || 0), rof: q.cd ? r2(1 / q.cd) : 0, mag: q.mag || 0, rel: r2(q.reload || 0), rng: q.range || 0, crit: Math.round((q.crit || 0) * 100), critb: Math.round(((typeof COMBAT !== 'undefined' && COMBAT.critMult || 1.6) - 1) * 100) }; } catch (e) { return {}; } })(),
         dlv: def.dlv || null, sab: MM_SAB[id] || null, mods: Array.from(new Set(mods.concat(extraMods))), promises,
         masteries: (S.lv10 || []).map(c => ({ name: fix(c.name), desc: fix(c.desc), best: fix(c.best) })) };
       // A sample's own branch set (samplebranches.js: Alpha's hustle branches): the planner shows it when that sample is the sperm.
       if (typeof sbrSamplesOf === 'function') for (const sm of sbrSamplesOf(id)) {
         const X = wupSpecFor(id, sm) || {};
         (weapons[id].alt || (weapons[id].alt = {}))[sm] = {
-          promises: ['A', 'B', 'C'].filter(k => X[k]).map(k => ({ k, name: fix(X[k].name), tag: fix(X[k].tag), desc: fix(X[k].lv3 && X[k].lv3.desc), branches: cards(X[k].lv6), wild: X[k].wild ? { name: fix(X[k].wild.name), desc: fix(X[k].wild.desc) } : null })),
+          promises: ['A', 'B', 'C'].filter(k => X[k]).map(k => ({ k, name: fix(X[k].name), tag: fix(X[k].tag), costs: fix(X[k].costs), shows: fix(X[k].shows), desc: fix(X[k].lv3 && X[k].lv3.desc), branches: cards(X[k].lv6), wild: X[k].wild ? { name: fix(X[k].wild.name), desc: fix(X[k].wild.desc) } : null })),
           masteries: (X.lv10 || []).map(c => ({ name: fix(c.name), desc: fix(c.desc), best: fix(c.best) })) };
       }
     }
@@ -50,19 +51,19 @@ const path = require('path'), fs = require('fs');
     // takes Private Schooled off the rack): those carry held: true.
     // Sample branches (samplebranch.js SMB_REG): a sample's own branch tree, opened by run level (SMB.at), the weapon branch shape.
     const smbOf = id => { const X = typeof SMB_REG !== 'undefined' && SMB_REG[id]; if (!X) return null;
-      return { at: (typeof SMB !== 'undefined' && SMB.at) || [15, 20, 25], promises: ['A', 'B', 'C'].filter(k => X[k]).map(k => ({ k, name: fix(X[k].name), tag: fix(X[k].tag), desc: fix(X[k].lv3 && X[k].lv3.desc), branches: cards(X[k].lv6), wild: X[k].wild ? { name: fix(X[k].wild.name), desc: fix(X[k].wild.desc) } : null })),
+      return { at: (typeof SMB !== 'undefined' && SMB.at) || [15, 20, 25], promises: ['A', 'B', 'C'].filter(k => X[k]).map(k => ({ k, name: fix(X[k].name), tag: fix(X[k].tag), costs: fix(X[k].costs), shows: fix(X[k].shows), desc: fix(X[k].lv3 && X[k].lv3.desc), branches: cards(X[k].lv6), wild: X[k].wild ? { name: fix(X[k].wild.name), desc: fix(X[k].wild.desc) } : null })),
         masteries: (X.lv10 || []).map(c => ({ name: fix(c.name), desc: fix(c.desc), best: fix(c.best) })) }; };
     const all = SAMPLES10.slice(); if (typeof S10_BY !== 'undefined') for (const id of Object.keys(S10_BY)) if (!all.some(x => x.id === id)) all.push(Object.assign({ held: true }, S10_BY[id]));
-    const samples = all.filter(s => s && s.id).sort((a, b) => (a.strain || 99) - (b.strain || 99)).map(s => ({ id: s.id, strain: s.strain, name: fix(s.name), origin: fix(s.origin), types: (s.types || []).map(t => S10_TYPES[t] || t).filter(Boolean), passive: fix(s.passive), pdesc: fix(s.pdesc), weapons: (s.weapons || []).filter(id => WEAPONS[id]), fit: ((typeof S10_FIT !== 'undefined' && S10_FIT[s.id]) || []).filter(id => WEAPONS[id]), held: !!s.held, old: /^v9_/.test(s.id), smb: smbOf(s.id) }));
+    const samples = all.filter(s => s && s.id).sort((a, b) => (a.strain || 99) - (b.strain || 99)).map(s => ({ id: s.id, strain: s.strain, name: fix(s.name), origin: fix(s.origin), types: (s.types || []).map(t => S10_TYPES[t] || t).filter(Boolean), passive: fix(s.passive), pdesc: fix(s.pdesc), weapons: (s.weapons || []).filter(id => WEAPONS[id]), fit: ((typeof S10_FIT !== 'undefined' && S10_FIT[s.id]) || []).filter(id => WEAPONS[id]), held: !!s.held, old: /^v9_/.test(s.id), smb: smbOf(s.id), ufeat: (typeof F10_UNIQUE !== 'undefined' && F10_UNIQUE[s.id]) || null }));
     // Feats (feats10.js): the drafted pool in F10_ORDER plus each sample's Unique Feat; forks at levels 3 and 5.
-    const feat = f => ({ id: f.id, name: fix(f.name), type: F10_INT[f.type] || f.type || null, atk: f.atk ? (ATK[f.atk] || f.atk) : null, trig: !!f.trig, stam: f.stam || 0, does: fix(f.does), line: fix(f.line), sample: f.sample || null,
+    const feat = f => ({ id: f.id, name: fix(f.name), type: F10_INT[f.type] || f.type || null, atk: f.atk ? (ATK[f.atk] || f.atk) : null, trig: !!f.trig, stam: f.stam || 0, base: f.base ? { dmg: f.base.dmg || 0, cd: f.base.cd || 0, dur: f.base.dur || 0, rng: f.base.range || f.base.area || f.base.r || 0 } : null, does: fix(f.does), line: fix(f.line), sample: f.sample || null,
       forks: { 3: (f.forks && f.forks[3] || []).map(o => ({ name: fix(o.title), desc: fix(o.desc) })), 5: (f.forks && f.forks[5] || []).map(o => ({ name: fix(o.title), desc: fix(o.desc) })) } });
     const feats = F10_ORDER.filter(id => F10[id]).map(id => feat(F10[id]));
     for (const [sid, fid] of Object.entries(F10_UNIQUE)) if (F10[fid] && !feats.some(f => f.id === fid)) feats.push(Object.assign(feat(F10[fid]), { sample: sid }));
     // Sperm passives (spassives.js over mutations.js): genome cards still dealt, with their A/B masteries (spmast.js SPM_BR).
     const cut = new Set(SP.cut);
     const passives = MUT_REG.filter(m => m.slot === 'genome' && m.kind === 'acquire' && !cut.has(m.id) && m.family !== 'mut:weapon')
-      .map(m => ({ id: m.id, name: fix(m.title), desc: fix(m.desc), family: fix(m.family).replace('mut:', ''), maxRank: m.maxRank || 3, flavour: fix(m.flavour),
+      .map(m => ({ id: m.id, name: fix(m.title), desc: fix(m.desc), family: fix(m.family).replace('mut:', ''), maxRank: m.maxRank || 3, rarity: m.rarity == null ? null : m.rarity, flavour: fix(m.flavour),
         mast: SPM_BR[m.id] ? [{ name: fix(SPM_BR[m.id][0]), desc: fix(SPM_BR[m.id][1]) }, { name: fix(SPM_BR[m.id][2]), desc: fix(SPM_BR[m.id][3]) }] : null }));
     const families = {}; for (const m of MUT_REG) families[m.family + '/' + m.slot + '/' + m.kind] = (families[m.family + '/' + m.slot + '/' + m.kind] || 0) + 1;
     // Current rules (CARD_RULES.md): the rule file's rules load as the planner's editable defaults; the built-in tables (matrix N/A,
