@@ -1582,6 +1582,7 @@ const ptKids = (T, pid) => T.nodes.filter(x => x.parent === pid);
 // What a card key is, for its node: title, eyebrow, text and colour.
 function ptInfo(k) {
   const [t, r] = rpSplit(k), smp = sampleOf(), X = smbD(), sx = (smp.types || ['phys'])[0];
+  if (/^x:/.test(k)) { const bn = ptT().nodes.find(x => x.key === k) || {}; return { title: bn.name || 'Untitled', ey: 'Idea · ' + (bn.tag || 'Custom'), desc: bn.text || '', col: 'var(--idea)' }; }
   const out = { title: rpName(k), ey: rpKindLabel(k), desc: '', col: 'var(--accent)' };
   try {
     if (t === 'w') { const w = W(r); out.ey = 'Weapon · ' + w.atk + ' · ' + tname(w.type); out.desc = w.desc; out.col = tvar(w.type); }
@@ -1613,6 +1614,7 @@ rpPayloadKey = (orig => function (p) { return p && PT_SMB.includes(p.k) ? ptPayl
 // The keys on the path down to a node (the sperm's sample first), and whether a card makes sense after them (null, or the reason).
 function ptPath(id) { const T = ptT(), out = []; for (let n = T.nodes.find(x => x.id === id); n; n = T.nodes.find(x => x.id === n.parent)) out.unshift(n.key); return ['s:' + S.sample].concat(out); }
 function ptWhyOrder(k, path) {
+  if (/^x:/.test(k)) return null; // (a blank block goes anywhere)
   const [t, r] = rpSplit(k), has = x => path.includes(x), any = re => path.some(x => re.test(x)), X = smbD();
   if (has(k)) return 'Already on this path.';
   if (t === 'w') { if (path.filter(x => /^w:/.test(x)).length >= MAXW) return 'A run holds ' + MAXW + ' weapons at most.'; return null; }
@@ -1634,7 +1636,7 @@ function ptWhyOrder(k, path) {
   return null;
 }
 // Card rules on a path (rpWhy reads what is held: here, the path).
-function ptWhyRules(k, path) { PT_HELD = path; try { return rpWhy(k, null); } finally { PT_HELD = null; } }
+function ptWhyRules(k, path) { if (/^x:/.test(k)) return null; PT_HELD = path; try { return rpWhy(k, null); } finally { PT_HELD = null; } }
 // The next cards worth offering under a node (its "Add next" buttons).
 function ptNext(k, suit) {
   const X = smbD(), out = [];
@@ -1677,6 +1679,7 @@ function ptAdd(pid, k, quiet) {
   const why = S.rules ? ptWhyOrder(k, path) : null; if (why) { if (!quiet) toast(why + (S.rules ? ' (Game rules are on.)' : '')); return false; }
   const id = T.seq++; T.nodes.push({ id, parent: pid, key: k }); return id;
 }
+function ptAddBlank(pid) { const T = ptT(), id = T.seq++; T.nodes.push({ id, parent: pid, key: 'x:' + id, blank: 1, name: '', text: '', tag: 'Custom' }); return id; }
 function ptRemove(id) { const T = ptT(), gone = new Set([id]); let more = true; while (more) { more = false; for (const x of T.nodes) if (!gone.has(x.id) && gone.has(x.parent)) { gone.add(x.id); more = true; } } T.nodes = T.nodes.filter(x => !gone.has(x.id)); }
 function ptMove(id, pid) {
   const T = ptT(), x = T.nodes.find(n => n.id === id); if (!x) return 'Gone.';
@@ -1705,6 +1708,7 @@ function ptToBuild(id) {
       if (bi >= 0) w.wbr = bi; else if (P && P.wild && P.wild.name === nm) w.wbr = 'wild'; else { const xi = W(w.id).masteries.findIndex(x => x.name === nm); if (xi >= 0) w.wmast = xi; } cur = w; } }
     if (t === 'm') { const w = (cur && W(cur.id).mods.includes(r)) ? cur : S.weapons.find(x => W(x.id).mods.includes(r)); if (w && !w.mods.some(m => m.id === r)) w.mods.push({ id: r, rank: 1, br: null, mast: null }); }
     if (t === 'mf') { const [mid, c] = r.split(':'); for (const w of S.weapons) { const m = w.mods.find(x => x.id === mid); if (m) { if (c.length === 1) { m.br = c; m.rank = Math.max(m.rank, 2); } else { m.mast = c; m.rank = 3; } } } }
+    if (t === 'x') { const bn = ptT().nodes.find(x => x.key === k) || {}; S.custom.push({ u: S.seq++, parent: cur ? 'w' + cur.u : 'root', tag: bn.tag || 'Custom', name: bn.name || 'Untitled', text: bn.text || '' }); }
     if (t === 'f' && FEAT(r)) S.feats.push({ u: S.seq++, id: r, f3: null, f5: null });
     if (t === 'p' && PASS(r)) S.pass.push({ u: S.seq++, id: r, rank: 1, mast: null });
     if (t === 'pm') { const [pid, c] = r.split(':'), x = S.pass.find(y => y.id === pid); if (x) x.mast = c === 'B' ? 1 : 0; }
@@ -1722,10 +1726,12 @@ function ptDetailHtml(n) {
   let h = `<span class="ey">${esc(n.ey)}</span><h2>${esc(n.title)}</h2>${n.desc ? `<p>${esc(n.desc)}</p>` : ''}`;
   if (n.why) h += `<div class="row"><small style="color:var(--g-lifesteal)">${esc(n.why)}</small></div>`;
   if (key) h += `<div class="row"><span class="lab">Path</span><small>${esc(path.slice(1).map(rpName).join(' > '))}</small></div>`;
-  const next = ptNext(key).filter(k => !ptKids(T, id).some(x => x.key === k)), ok = next.filter(k => !(S.rules && ptWhyOrder(k, path)));
+  if (n.pt && n.pt.blank) h += `<div class="row"><span class="lab">Tag</span><input id="ptbtag" class="ptin" value="${esc(n.pt.tag || '')}" placeholder="Tag"></div><div class="row"><span class="lab">Name</span><input id="ptbn" class="ptin" value="${esc(n.pt.name || '')}" placeholder="Name it"></div><div class="row"><textarea id="ptbt" class="ptin" rows="4" placeholder="What it does: numbers, trigger, feel.">${esc(n.pt.text || '')}</textarea></div>`;
+  const next = (n.pt && n.pt.blank ? [] : ptNext(key)).filter(k => !ptKids(T, id).some(x => x.key === k)), ok = next.filter(k => !(S.rules && ptWhyOrder(k, path)));
   if (ok.length) h += `<div class="row"><span class="lab">Add next</span>${ok.map(k => Bk(k, 'add', id)).join('')}${ok.length > 1 ? `<button class="btn" data-pt='${esc(JSON.stringify(['addall', id]))}'>All of these</button>` : ''}</div>`;
+  h += `<div class="row"><button class="btn" data-pt='${esc(JSON.stringify(['blank', id]))}'>Add a blank block here</button></div>`;
   h += `<div class="row"><small style="color:var(--dim)">Or tap any card in the rack to add it here${key ? '' : ' (a weapon, a Feat, a passive, a sample branch)'}. Every card under one node is an alternative: each line out to a leaf is one run.</small></div>`;
-  if (key) h += `<div class="row"><button class="btn" data-pt='${esc(JSON.stringify(['build', id]))}'>Open this path as a build</button><button class="btn" data-act="rules">Do, Don't and Weight</button><button class="btn danger" data-pt='${esc(JSON.stringify(['rm', id]))}'>Remove this and what follows</button></div>`;
+  if (key) h += `<div class="row"><button class="btn" data-pt='${esc(JSON.stringify(['build', id]))}'>Open this path as a build</button>${n.pt && n.pt.blank ? '' : '<button class="btn" data-act="rules">Do, Don\'t and Weight</button>'}<button class="btn danger" data-pt='${esc(JSON.stringify(['rm', id]))}'>Remove this and what follows</button></div>`;
   else h += `<div class="row"><button class="btn" data-pt='${esc(JSON.stringify(['seed']))}'>Start from everything</button><button class="btn danger" data-pt='${esc(JSON.stringify(['clear']))}'>Clear the tree</button><small style="color:var(--dim)">${T.nodes.length} cards, ${ptLeaves()} paths</small></div>`;
   return h;
 }
@@ -1742,18 +1748,28 @@ $('#detail').addEventListener('click', e => {
   e.stopPropagation(); const [a, id, k] = JSON.parse(b.dataset.pt);
   if (a === 'add') { const nid = ptAdd(id, k); if (nid) { save(); render(); } }
   if (a === 'addall') { const n = NODES[S.sel]; let c = 0; for (const x of ptNext(n.kind === 'root' ? null : n.key)) if (ptAdd(id, x, true)) c++; toast(c ? c + ' added.' : 'Nothing new to add.'); save(); render(); }
+  if (a === 'blank') { const nid = ptAddBlank(id); S.sel = 'pt' + nid; save(); render(); setTimeout(() => { const i = $('#ptbn'); if (i) i.focus(); }, 30); }
   if (a === 'rm') { ptRemove(id); S.sel = 'root'; save(); render(); }
   if (a === 'build') ptToBuild(id);
   if (a === 'seed') { ptSeedAll(); save(); render(); setTimeout(() => $('#zfit').click(), 30); toast('Every path is on the map: remove what you do not want.'); }
   if (a === 'clear') { if (Date.now() - ptClear > 2500) { ptClear = Date.now(); b.textContent = 'Clear? Tap again'; return; } ptT().nodes = []; S.sel = 'root'; save(); render(); }
 }, true);
+// Typing into a blank block of the tree (name, tag and text save as you type; the map redraws when you leave the box).
+$('#detail').addEventListener('input', e => {
+  const el = e.target; if (!S.tree || !/^ptb(n|t|tag)$/.test(el.id)) return;
+  const n = NODES[S.sel], x = n && n.pt && n.pt.blank ? ptT().nodes.find(y => y.id === n.pt.id) : null; if (!x) return;
+  if (el.id === 'ptbn') x.name = el.value; else if (el.id === 'ptbt') x.text = el.value; else x.tag = el.value; save();
+});
+$('#detail').addEventListener('change', e => { if (S.tree && /^ptb(n|t|tag)$/.test(e.target.id)) { const keep = S.sel; render(); S.sel = keep; } });
+document.head.insertAdjacentHTML('beforeend', '<style>.ptin{width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);font:inherit}</style>');
 // Rack chips and dragged nodes land in the tree; a node's key opens its rules.
-rpNodeKey = (orig => function (n) { return n && n.kind === 'pt' ? n.key : n && n.kind === 'pthint' ? null : orig.apply(this, arguments); })(rpNodeKey);
+rpNodeKey = (orig => function (n) { return n && n.kind === 'pt' ? (n.pt.blank ? null : n.key) : n && n.kind === 'pthint' ? null : orig.apply(this, arguments); })(rpNodeKey);
 dropPlan = (orig => function (p, n) {
   if (S.tree) {
     if (RP.open) return orig.apply(this, arguments);
     const pid = !n || n.kind === 'root' || n.kind === 'pthint' ? 'root' : n.kind === 'pt' ? n.pt.id : null; if (pid == null) return { ok: false, why: 'Drop it on a card in the tree.' };
     if (p.k === 'move') { const m = NODES[p.id]; if (!m || m.kind !== 'pt') return { ok: false, why: 'Only tree cards move here.' }; const why = m.pt.id === pid ? 'Already there.' : null; return why ? { ok: false, why } : { ok: true, run: () => { const w = ptMove(m.pt.id, pid); if (w) toast(w); } }; }
+    if (p.k === 'blank') return { ok: true, run: () => { const id = ptAddBlank(pid); S.sel = 'pt' + id; } };
     const k = ptPayloadKey(p); if (!k) return { ok: false, why: 'That card cannot go in a build tree.' };
     const path = pid === 'root' ? ['s:' + S.sample] : ptPath(pid);
     if (ptKids(ptT(), pid).some(x => x.key === k)) return { ok: false, why: rpName(k) + ' is already here.' };
