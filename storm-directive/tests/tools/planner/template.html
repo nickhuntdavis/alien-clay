@@ -1534,6 +1534,39 @@ bpApply = (orig => function (p) { orig.apply(this, arguments); if (p && p.smb) {
 buildText = (orig => function () { return orig.apply(this, arguments).split('\n').filter(l => !/- Sample branch: pick one on the sperm$/.test(l)).join('\n'); })(buildText);
 document.head.insertAdjacentHTML('beforeend', '<style>.node.xsp.taken, .node.xsb.taken, .node.xsm.taken { box-shadow: 0 0 0 3px var(--accent); } .node.smbhint { border-style: dashed; background: transparent; color: var(--dim); } .node.smbhint b { font-weight: 500; color: var(--dim); }</style>');
 
+// ---------------------------------------------------------------- sample personality (the user, 31 Oct: "Per-sample personality page. The sperm node's panel should show its identity in one place: own weapons, unique Feat, sample branches, its Do / Don't / Weight rules, and the typed blocks you have added for it. Right now these live in four views.")
+// Appended to the sperm's detail panel (own weapons and Best fit are already there, so they are not repeated). Read only: every edit still happens where it did.
+const SPR_MAX = 10; // chips shown per rule group before "+n more"
+const sprRules = id => S.cr.filter(r => r.sample === id || [r.parent, r.target].some(k => typeof k === 'string' && (k === 's:' + id || k.startsWith('sb:' + id) || k.startsWith('sbc:' + id))));
+function sprHtml() {
+  const sm = sampleOf(), id = sm.id, X = smbD();
+  const T = t => `<div class="sec spr"><h3>${t}</h3>`, dim = t => `<small style="color:var(--dim)">${t}</small>`;
+  let h = `<div class="spr-wrap"><div class="spr-top">Personality</div>`;
+  h += T('Identity') + `<small><b>${esc(sm.name)}</b> · strain ${esc(String(sm.strain))}${sm.types && sm.types.length ? ' · ' + sm.types.map(esc).join(', ') : ''}</small>` + (sm.passive ? `<small>${esc(sm.passive)}${sm.pdesc ? ': ' + esc(sm.pdesc) : ''}</small>` : '') + (sm.background ? `<small style="color:var(--dim)">${esc(sm.background)}</small>` : '') + '</div>';
+  const fs = D.feats.filter(f => f.sample === id);
+  h += T('Unique Feat') + (fs.length ? fs.map(f => `<small><b>${esc(f.name)}</b>${f.does ? ': ' + esc(f.does) : ''}</small>`).join('') : dim('None.')) + '</div>';
+  h += T('Sample branches' + (X ? ' · run Lv ' + X.at.join(' / ') : '')) + (X ? X.promises.map(P => `<small><b>${esc(P.k)} · ${esc(P.name)}</b>${P.tag ? ` <span style="color:var(--dim)">${esc(P.tag)}</span>` : ''}</small>`).join('') : dim('None: this sample has no branch set of its own.')) + '</div>';
+  const rs = sprRules(id), grp = (m, label) => {
+    const L = rs.filter(r => r.mode === m);
+    return `<div class="spr-g"><span class="lab">${label} ${L.length}</span>` + (L.length ? L.slice(0, SPR_MAX).map(r => `<button class="btn spr-chip" data-sprk='${esc(r.parent)}' title="Open ${esc(rpName(r.parent))} in the rules panel">${esc(rpName(r.parent))} -> ${esc(rpName(r.target))}${m === 'weight' ? ' x' + (r.k != null ? r.k : '?') : ''}</button>`).join('') + (L.length > SPR_MAX ? dim('+' + (L.length - SPR_MAX) + ' more') : '') : dim('none')) + '</div>';
+  };
+  h += T('Card rules') + grp('do', 'Do') + grp('dont', "Don't") + grp('weight', 'Weight') + '</div>';
+  const cu = S.custom, ov = Object.keys(S.over).map(k => S.over[k]), ver = typeof verLabel === 'function' ? verLabel() : 'data v' + D.version;
+  h += T('Your blocks') + `<small>${cu.length} block${cu.length === 1 ? '' : 's'}, ${ov.length} edit${ov.length === 1 ? '' : 's'} · ${esc(ver)}</small>`
+    + cu.concat(ov).map(o => `<small><b>${esc(o.name || 'Untitled')}</b> <span style="color:var(--dim)">${esc(o.type || (o.orig ? 'edit' : 'Other'))}</span></small>`).join('') + '</div></div>';
+  return h;
+}
+renderDetail = (orig => function () {
+  const r = orig.apply(this, arguments), n = NODES[S.sel];
+  if (n && n.kind === 'root') $('#detail').insertAdjacentHTML('beforeend', sprHtml());
+  return r;
+})(renderDetail);
+$('#detail').addEventListener('click', e => {
+  const b = e.target.closest('[data-sprk]'); if (!b) return;
+  e.stopPropagation(); rpOpen(b.dataset.sprk);
+}, true);
+document.head.insertAdjacentHTML('beforeend', '<style>.spr-wrap { display: flex; flex-direction: column; gap: 8px; border-top: 1px dashed var(--line); padding-top: 8px; } .spr-top { font: 700 13px var(--display); } .spr { display: flex; flex-direction: column; gap: 2px; } .spr small { font-size: 12px; } .spr-g { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; } .spr-chip { padding: 2px 7px; font: 500 11px var(--mono); }</style>');
+
 // ---------------------------------------------------------------- boot
 try { if (window.claude && window.claude.hot && window.claude.hot.snapshot) window.claude.hot.snapshot(() => S); } catch (e) { }
 // (a live update hands over the old page's state: put this version's default rules back in)
