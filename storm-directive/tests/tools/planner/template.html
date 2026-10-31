@@ -2554,6 +2554,36 @@ if (D.standby) {
   })(renderRack);
   try { renderRack(); } catch (e) { }
 }
+// ---------------------------------------------------------------- tooltips on every action button (the user, 31 Oct: "so that it's always clear what it will do")
+const TIP_PT = { addall: 'Add every card listed in this row under this card. Each one is an alternative: a separate line, a separate run.',
+  blank: 'Add an empty card under this one, to name and fill in yourself (set its Type to get its fields).',
+  rm: 'Delete this card and every card that comes after it in the tree. Live in code is never changed: this makes a version of your own.',
+  seed: 'Fill this sample\'s tree with every weapon, branch, card and mastery it has in the game, to prune down.',
+  clear: 'Delete every card in this sample\'s tree (tap twice). Live in code is never changed.' };
+const TIP_ACT = { rules: 'Open this card\'s rules: what it needs (Do), what can never come with it (Don\'t), and what it makes more or less likely (Weight).',
+  saveone: 'Save just this block to the ideas list (ideas.md), under this version.', copy: 'Make a copy of this block next to it.', rmc: 'Delete this block.',
+  over: 'Edit this card as a copy of your own: the game\'s card is not changed.', revert: 'Throw away your edits and go back to the game\'s card.', fttake: 'Put this card into your build.' };
+const TIP_RP = { close: 'Close the rules panel.', copy: 'Copy every rule as text, to paste to Claude.', 'pick-add': 'Tapping a card in the left panel adds it to the box you have selected (Don\'t, Do or Weight).',
+  'pick-open': 'Tapping a card in the left panel opens that card\'s rules instead.', restore: 'Bring back the game\'s own rules that you removed.', save: 'Save every rule and ask Claude to put them into the game.' };
+const TIP_ID = { buildmenu: 'Save or download this version\'s build.', bmsave: 'Save this version\'s ideas to the ideas list (ideas.md). Saving the same version again replaces its earlier save.',
+  bmdl: 'Download this version\'s tree, sample and ideas as a Markdown (.md) file.', clear: 'Delete everything in this version\'s tree (tap twice). Live in code is never changed.',
+  verSel: 'Live in code is the game as it is. Anything you change becomes a version of your own; pick one here to go back to it.', sample: 'The sample whose tree you are planning. "+ Add new…" makes a sample of your own.',
+  vername: 'This version\'s name.', rules: 'Game rules on: a card must make sense after the cards above it. Off: anything can go anywhere.' };
+function tipAll() {
+  for (const b of document.querySelectorAll('[data-pt]')) { if (b.title) continue; try { const a = JSON.parse(b.dataset.pt)[0]; if (TIP_PT[a]) b.title = TIP_PT[a]; } catch (e) { } }
+  for (const b of document.querySelectorAll('[data-act]')) if (!b.title && TIP_ACT[b.dataset.act]) b.title = TIP_ACT[b.dataset.act];
+  for (const b of document.querySelectorAll('[data-rp]')) if (!b.title && TIP_RP[b.dataset.rp]) b.title = TIP_RP[b.dataset.rp];
+  for (const b of document.querySelectorAll('[data-wm]')) if (!b.title) b.title = { allow: 'This modifier can come up for this weapon as normal.', deny: 'This modifier can never come up for this weapon (a Don\'t rule).', attach: 'This modifier is built into this weapon from the start.' }[b.dataset.wm.split(':')[0]] || '';
+  for (const b of document.querySelectorAll('[data-csedit]')) if (!b.title) b.title = 'Change this sample\'s name, background, passive, damage types and look.';
+  for (const b of document.querySelectorAll('[data-cbk]')) if (!b.title) b.title = 'Add this block of yours to the selected box.';
+  for (const b of document.querySelectorAll('[data-tag]')) if (!b.title) b.title = 'Add every card in this group to the selected box.';
+  for (const [id, t] of Object.entries(TIP_ID)) { const e = document.getElementById(id); if (e && !e.title) e.title = t; }
+}
+// No Build view any more: a path cannot be opened as a build, so that button goes.
+renderDetail = (orig => function () { const r = orig.apply(this, arguments); for (const b of document.querySelectorAll('#detail [data-pt]')) { try { if (JSON.parse(b.dataset.pt)[0] === 'build') b.remove(); } catch (e) { } } tipAll(); return r; })(renderDetail);
+rpRender = (orig => function () { const r = orig.apply(this, arguments); tipAll(); return r; })(rpRender);
+$('#zfit').title = 'Zoom so the whole tree fits on screen.'; $('#zin').title = 'Zoom in (or pinch, or Ctrl + scroll).'; $('#zout').title = 'Zoom out (or pinch, or Ctrl + scroll).';
+tipAll();
 // ---------------------------------------------------------------- boot
 try { if (window.claude && window.claude.hot && window.claude.hot.snapshot) window.claude.hot.snapshot(() => S); } catch (e) { }
 // (a live update hands over the old page's state: put this version's default rules back in)

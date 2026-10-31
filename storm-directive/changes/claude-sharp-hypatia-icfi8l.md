@@ -7,3 +7,11 @@
 - Save data: none.
 - Hooks: none.
 - Risk: none.
+
+## 2026-10-31 Planner: tooltips on every action button
+- Systems: tests/tools (planner)
+- Files: tests/tools/planner/template.html
+- What: every action button has a hover tooltip saying what it does; "Open this path as a build" is removed (no Build view now).
+- Save data: none.
+- Hooks: none.
+- Risk: none.
