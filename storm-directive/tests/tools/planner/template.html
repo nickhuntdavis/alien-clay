@@ -913,7 +913,19 @@ let DB = null, CM = null, CAPS = false;
 const ideaSig = n => { if (n.g) return ['gate', n.g.k, n.g.id, gatePath(n)].join('|'); const o = n.c || n.ov; return [o.type || '', o.name || '', o.text || '', n.c ? o.tag : '', fldText(o)].join('|'); };
 const ideaNodes = () => (LAST ? LAST.all : []).filter(n => (n.c && !(n.c.card && n.c.name === n.c.of && n.c.text === cardText(n.c))) || n.ov || n.g);
 const cardText = c => c.cardText != null ? c.cardText : c.text; // (a card block's text as dealt; edits make it an idea)
-const unsavedNodes = () => ideaNodes().filter(n => { const o = n.c || n.ov || n.g; return !o.sid || o.savedSig !== ideaSig(n); });
+// Ideas belong to the planner version they were saved from (the user, 31 Oct): one database row per idea per version, so saving the same version again
+// overwrites its earlier rows (and removes the ones you deleted); other versions' rows are never touched.
+const verKey = () => { const v = verCur(); return v ? v.id : 'live-' + S.sample; };
+const verLabel = () => { const v = verCur(); return v ? v.name : 'Live in code'; };
+const verStamp = () => verKey() + '|' + verLabel();
+const ideaDocId = nd => 'i_' + verKey() + '_' + (nd.c ? 'c' + nd.c.u : nd.id);
+async function ideaPrune() {
+  if (!DB) return 0; const keep = new Set(ideaNodes().map(ideaDocId)); let n = 0;
+  try { const q = await DB.collection('ideas').get();
+    for (const d of q.docs) { const x = d.data(); if (x && x.planVersionId === verKey() && !keep.has(d.id)) { await DB.collection('ideas').doc(d.id).delete(); n++; } } } catch (e) { return 0; }
+  return n;
+}
+const unsavedNodes = () => ideaNodes().filter(n => { const o = n.c || n.ov || n.g; return !o.sid || o.savedSig !== ideaSig(n) || o.sidv !== verStamp(); });
 (async () => {
   try { if (window.claude && window.claude.use) { DB = await window.claude.use('db'); CM = await window.claude.use('comments'); } } catch (e) { }
   CAPS = true; saveUi();
@@ -930,12 +942,12 @@ async function saveIdeas(nodes) {
   try {
     for (const nd of nodes) {
       const o = nd.c || nd.ov || nd.g, path = []; for (let p = nd.parent; p && p.kind !== 'root'; p = p.parent) path.unshift(p.title);
-      const id = o.sid || ('i' + Date.now().toString(36) + '_' + (nd.c ? nd.c.u : nd.id));
+      const id = ideaDocId(nd);
       const row = nd.g ? { type: 'Gate', name: nd.title, text: `${nd.title} (${gateCard(nd.g).kindName}) is only available once ${path.join(' > ')} is taken.`, under: path.join(' > '), sample: smp.name, version: D.version, savedAt: now, status: 'queued', kind: 'gate', tag: 'Gate', variantOf: '', orig: null }
         : { type: o.type || KIND_TYPE[nd.kind] || 'Other', name: o.name || 'Untitled', text: (o.text || '') + (fldText(o) ? '\n\nFields: ' + fldText(o) : ''), under: path.join(' > ') || '(on the sperm)', sample: smp.name, version: D.version, savedAt: now, status: 'queued',
         kind: nd.c ? 'block' : 'edit', tag: nd.c ? nd.c.tag : nd.ey, variantOf: nd.c ? (nd.c.of || '') : '', orig: nd.ov ? nd.ov.orig : null };
-      await DB.collection('ideas').doc(id).set(row);
-      o.sid = id; o.savedAt = now; o.savedSig = ideaSig(nd); n++;
+      await DB.collection('ideas').doc(id).set(Object.assign(row, { planVersion: verLabel(), planVersionId: verKey(), planSample: smp.id }));
+      o.sid = id; o.sidv = verStamp(); o.savedAt = now; o.savedSig = ideaSig(nd); n++;
     }
   } catch (e) { SAVING = false; save(); render(); toast('Saved ' + n + ' before the list refused: ' + (e && e.code || e && e.message || 'unknown error') + '.'); return; }
   SAVING = false; save(); render();
@@ -950,7 +962,7 @@ async function saveIdeas(nodes) {
   } catch (e) { }
   toast(sent ? `Saved ${n}. Claude has been asked to fold ${n === 1 ? 'it' : 'them'} into ideas.md.` : `Saved ${n} to the planner's list. Ask Claude to fold the queued ideas into ideas.md.`);
 }
-$('#saveall').onclick = () => { const u = unsavedNodes(); if (!u.length) { toast(ideaNodes().length ? 'Everything is saved already.' : 'Nothing of yours on the dish yet: drop a blank block, or edit a card.'); return; } saveIdeas(u); };
+$('#saveall').onclick = async () => { const u = unsavedNodes(); if (!u.length) { const gone = await ideaPrune(); toast(gone ? 'Removed ' + gone + ' idea' + (gone === 1 ? '' : 's') + ' you deleted from "' + verLabel() + '" in the list.' : ideaNodes().length ? 'Everything is saved already.' : 'Nothing of yours on the dish yet: drop a blank block, or edit a card.'); return; } await saveIdeas(u); await ideaPrune(); };
 
 // ---------------------------------------------------------------- card rules: Do, Don't and Weight (CARD_RULES.md)
 // A card opens in the side panel; cards dragged (or tapped) into its boxes become rules. Keys match the game's (cardrulesengine.js).

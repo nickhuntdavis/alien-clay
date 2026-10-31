@@ -2,6 +2,7 @@
 
 Ideas pasted from the Loadout Planner (https://claude.ai/artifact/6nudTiGo14jVZ8TjaprBk3, Copy ideas). The user's words are kept as typed.
 How it gets here: the planner's Save to ideas.md button writes each block (with the type the user picked: Weapon, Lv 3 branch, Modifier fork and so on) to the artifact's database, collection `ideas`, status `queued`, then sends Claude a comment. The session that owns the planner then reads the queued rows (ArtifactData list on the artifact URL), appends them here as a dated batch, commits, and marks each row `filed` (update `status`, pinned to its version). Copy ideas pasted into chat is folded the same way by hand.
+Versions (31 Oct 2026): every row carries `planVersion` (the planner version's name, "Live in code" when none) and `planVersionId`. Saving the same version again overwrites that version's rows (same document id) and deletes rows for blocks removed since, so when folding, a version's newest rows replace what an earlier fold of the same `planVersionId` filed. Group a fold by version name.
 How it is kept: each paste is a dated batch below, newest first. Status is `new`, `briefed` (a spec exists), `built vX`, or `dropped (why)`. When an idea is built, say which file and card, and leave the row in place so the planner's "under X" paths still make sense. Companion to `WEAPON_IDEAS.md` and `FEAT_IDEAS.md` (older idea banks).
 
 ## 29 Oct 2026, second batch (saved from the planner), Baseline, v10.220 data
