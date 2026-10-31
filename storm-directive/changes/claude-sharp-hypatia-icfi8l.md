@@ -1,12 +1,12 @@
 # claude/sharp-hypatia-icfi8l
 
-## 2026-10-31 Sample branches: the first screen opens at run Lv 5
+## 2026-10-31 Sample branches: steps at run Lv 5, 15 and 30
 - Systems: sample branches
 - Files: samplebranch.js (SMB.at 15 -> 5), baseline1.js (comments), tests/baseline1test.js, tests/smbshot.js
-- What: the sample's three branches are offered at run Lv 5 instead of Lv 15 (the Lv 20 cards and Lv 25 masteries are unchanged).
+- What: the sample's three branches are offered at run Lv 5 (was 15), the branch's cards and wildcard at Lv 15 (was 20) and the masteries at Lv 30 (was 25).
 - Save data: none.
 - Hooks: none.
-- Risk: Baseline's branch passives arrive much earlier, so early-run balance shifts; Lv 5 to Lv 20 is now a long stretch with no sample card.
+- Risk: Baseline's branch passives arrive much earlier, so early-run balance shifts; Lv 15 to Lv 30 is a long stretch with no sample card.
 
 ## 2026-10-31 Planner: versions dropdown, regular 13px buttons, collapsible left panel
 - Systems: tests/tools (planner)
