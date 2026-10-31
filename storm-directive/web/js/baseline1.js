@@ -4,17 +4,17 @@
 // samplebranch.js). Standard Issue keeps its own branches again (Ricochet Brain / Through and Through / Marked for Bonking,
 // wup1.js). Every effect below acts on every weapon you hold (never Feats), whichever weapons they are.
 //      A Rambo        every weapon fires 25% faster and 15% weaker; magazines two thirds bigger, reloads in 0.64 of the time.
-//                     Lv 20: Faster and faster (each shot in a magazine 5% sooner than the last, up to double; reload resets),
+//                     Lv 15: Faster and faster (each shot in a magazine 5% sooner than the last, up to double; reload resets),
 //                           First blood (hits Bleed; +20% on Bleeding enemies). Wild: Hot Start (the first shot of a magazine x2).
 //      B Dirty Harry  every weapon fires at half the rate for x2.2 damage, +10 points crit; ranged weapons +120 range.
-//                     Lv 20: Lucky shot (every hit on an Elite crits), The Sixth Round (the last round in a magazine hits 50%
+//                     Lv 15: Lucky shot (every hit on an Elite crits), The Sixth Round (the last round in a magazine hits 50%
 //                           harder, strips a Shell layer and staggers). Wild: Feeling Lucky? (crit damage doubled, chance halved).
 //      C Robocop      every 6 s a mark lands on the nearest Elite in range (else the nearest enemy): every weapon's shots stay on
 //                     it, +50% to it; tapping an enemy on the slide marks it by hand; every 4th shot is a small Force rocket
-//                     (150%, 40 area). The mark is also G.grudge, so the REVENGE directive follows it. Lv 20: Improved targeting
+//                     (150%, 40 area). The mark is also G.grudge, so the REVENGE directive follows it. Lv 15: Improved targeting
 //                     (unlocks the FINISHER aim directive), Prime Directive (marks last until the target dies and pass to the
 //                     next Elite). Wild: Double Booked (two marks at once).
-//      Lv 25 masteries: Belt-Fed (no reload, 30% weaker; best A), Made Your Day (a crit that kills refills that weapon's
+//      Lv 30 masteries: Belt-Fed (no reload, 30% weaker; best A), Made Your Day (a crit that kills refills that weapon's
 //                     magazine and its next shot crits; best B), Dead on Arrival (the mark takes triple and dies outright under
 //                     15% health, not bosses; best C).
 //  - Gated Feats (feats10.js feat(); eligible only once the branch is taken): Quick draw (B: when an enemy within 300 winds up
