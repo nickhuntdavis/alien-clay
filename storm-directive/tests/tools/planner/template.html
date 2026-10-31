@@ -187,6 +187,9 @@ details.wb.onmap { border-color: var(--accent); }
 .node.moving { opacity: .35; }
 .node.custom .ty, .node.edited .ty { font: 500 10px var(--mono); color: var(--dim); margin-top: 3px; }
 .node.custom .ty.unset { color: var(--g-lifesteal); }
+.ist { font: 600 9px var(--mono); text-transform: uppercase; letter-spacing: .04em; color: var(--dim); border: 1px solid currentColor; border-radius: 3px; padding: 0 4px; margin-left: 6px; opacity: .85; white-space: nowrap; }
+.ist.filed { color: var(--accent); }
+.ist.built { color: var(--pass); opacity: 1; }
 .detail select { padding: 4px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
 .slots { display: flex; gap: 4px; align-items: center; }
 .slots span { width: 22px; height: 8px; border-radius: 4px; background: var(--line); }
@@ -265,6 +268,7 @@ $('#ver').textContent = 'data from v' + D.version;
 // ---------------------------------------------------------------- state
 let S = { sample: D.samples[0].id, rules: true, sel: null, zoom: 1, weapons: [], custom: [], over: {}, feats: [], pass: [], gates: [], seq: 1, cr: [], crSeq: 1, sim: false, crRemoved: [], full: false };
 let FOCUS = null;
+let IDEA_ST = {}; // (doc id -> the saved row's status and builtIn, read from the "ideas" collection: shows Queued / Filed / Built on the block)
 try { const s = JSON.parse(localStorage.getItem('sp_planner_v1') || 'null'); if (s && s.weapons) S = Object.assign(S, s); if (!S.custom) S.custom = []; if (!S.over) S.over = {}; for (const k of ['feats', 'pass', 'gates', 'cr', 'crRemoved']) if (!S[k]) S[k] = []; if (!S.crSeq) S.crSeq = 1; } catch (e) { }
 const save = () => { if (window.__rsChecked) S.savedAt = Date.now(); try { localStorage.setItem('sp_planner_v1', JSON.stringify(S)); } catch (e) { } if (window.__rsChecked) rsQueue(); }; // (and to your account: rsQueue below. Saves made while the page loads keep the old time, so they never beat a newer copy from another device.)
 const sampleOf = () => D.samples.find(s => s.id === S.sample) || D.samples[0];
@@ -491,11 +495,11 @@ function nodeHtml(n) {
     return `<svg class="sperm" viewBox="0 0 120 60" aria-hidden="true"><defs><radialGradient id="hg" cx="35%" cy="35%" r="75%"><stop offset="0" stop-color="#ffffff" stop-opacity=".95"/><stop offset="1" style="stop-color:${n.col}"/></radialGradient></defs><g class="tail"><path d="M42 30 C 56 16, 66 44, 82 30 S 106 16, 118 30" fill="none" stroke="${n.col}" stroke-width="3" stroke-linecap="round"/></g><ellipse cx="26" cy="30" rx="19" ry="12.5" fill="url(#hg)" stroke="${n.col}" stroke-width="2"/><ellipse cx="21" cy="28.5" rx="7" ry="5" fill="${n.col}" opacity=".6"/></svg>
       <span class="ey"><i></i>${esc(n.ey)}</span><b>${esc(n.title)}</b><p>${esc(n.desc)}</p><div class="types">${s.types.map(t => `<span style="--tc:${tvar(t)}">${esc(tname(t))}</span>`).join('')}</div>`;
   }
-  if (n.kind === 'custom') return `<input class="cg" value="${esc(n.c.tag)}" placeholder="Tag" aria-label="Tag"><input class="ct" value="${esc(n.c.name)}" placeholder="Name it" aria-label="Name"><textarea class="cx" rows="2" placeholder="What it does: numbers, trigger, feel." aria-label="Text">${esc(n.c.text)}</textarea><div class="ty ${n.c.type ? '' : 'unset'}">${n.c.type ? esc(n.c.type) : 'type not set'}${n.c.sid ? (ideaSig(n) === n.c.savedSig ? ' · saved' : ' · changed since saved') : ''}</div>`;
+  if (n.kind === 'custom') return `<input class="cg" value="${esc(n.c.tag)}" placeholder="Tag" aria-label="Tag"><input class="ct" value="${esc(n.c.name)}" placeholder="Name it" aria-label="Name"><textarea class="cx" rows="2" placeholder="What it does: numbers, trigger, feel." aria-label="Text">${esc(n.c.text)}</textarea><div class="ty ${n.c.type ? '' : 'unset'}">${n.c.type ? esc(n.c.type) : 'type not set'}${n.c.sid ? (ideaSig(n) === n.c.savedSig ? ' · saved' : ' · changed since saved') : ''}${ideaBadge(n.c.sid)}</div>`;
   if (n.ov) {
     let h = `<span class="ey"><i></i>${esc(n.ey)} · edited</span><input class="ct" value="${esc(n.ov.name)}" placeholder="Name it" aria-label="Name"><textarea class="cx" rows="2" placeholder="What it does now" aria-label="Text">${esc(n.ov.text)}</textarea>`;
     if (n.kind === 'mod') h += `<div class="pips">${[1, 2, 3].map(r => `<span class="${n.rank >= r ? 'on' : ''}"></span>`).join('')}<em>${n.m.mast ? 'mastery' : 'Rank ' + n.rank}</em></div>`;
-    h += `<div class="ty">${esc(n.ov.type || KIND_TYPE[n.kind] || 'Other')}${n.ov.sid ? (ideaSig(n) === n.ov.savedSig ? ' · saved' : ' · changed since saved') : ''}</div>`;
+    h += `<div class="ty">${esc(n.ov.type || KIND_TYPE[n.kind] || 'Other')}${n.ov.sid ? (ideaSig(n) === n.ov.savedSig ? ' · saved' : ' · changed since saved') : ''}${ideaBadge(n.ov.sid)}</div>`;
     return h;
   }
   let h = `<span class="ey"><i></i>${esc(n.ey)}</span><b>${esc(n.title)}</b>`;
@@ -657,6 +661,11 @@ function renderDetail() {
 }
 let typeRow = (o, dflt) => `<div class="row"><span class="lab">Type</span><select id="ideatype" aria-label="Type">${(dflt ? '' : '<option value="">State what it is…</option>') + IDEA_TYPES.map(t => `<option value="${esc(t)}" ${(o.type || dflt) === t ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select><small style="color:var(--dim)">What ideas.md should file it as.</small></div>`;
 const saveRow = o => `<div class="row"><span class="lab">ideas.md</span><button class="btn" data-act="saveone">Save to ideas.md</button><small style="color:var(--dim)">${o.sid ? (o.savedAt ? 'Saved ' + new Date(o.savedAt).toLocaleString() : 'Saved') + '.' : 'Not saved yet.'}</small></div>`;
+const typeRow = (o, dflt) => `<div class="row"><span class="lab">Type</span><select id="ideatype" aria-label="Type">${(dflt ? '' : '<option value="">State what it is…</option>') + IDEA_TYPES.map(t => `<option value="${esc(t)}" ${(o.type || dflt) === t ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select><small style="color:var(--dim)">What ideas.md should file it as.</small></div>`;
+const ideaDocId = nd => (nd.c || nd.ov || nd.g || {}).sid || null; // (the saved row's doc id; null when never saved)
+const ideaStatus = id => { const r = id && IDEA_ST[id]; if (!r) return null; const s = String(r.status || 'queued'); return /^built/i.test(s) ? { k: 'built', t: 'Built ' + (r.builtIn ? String(r.builtIn).split(' ')[0] : s.replace(/^built\s*/i, '')).trim() } : s === 'filed' ? { k: 'filed', t: 'Filed' } : { k: 'queued', t: 'Queued' }; };
+const ideaBadge = id => { const b = ideaStatus(id); return b ? `<span class="ist ${b.k}" title="${esc(String((IDEA_ST[id] || {}).builtIn || ''))}">${esc(b.t)}</span>` : ''; };
+const saveRow = o => `<div class="row"><span class="lab">ideas.md</span><button class="btn" data-act="saveone">Save to ideas.md</button><small style="color:var(--dim)">${o.sid ? (o.savedAt ? 'Saved ' + new Date(o.savedAt).toLocaleString() : 'Saved') + '.' : 'Not saved yet.'}${ideaBadge(o.sid)}</small></div>`;
 $('#detail').addEventListener('change', e => {
   if (e.target.id !== 'ideatype') return;
   const n = NODES[S.sel]; const o = n && (n.c || n.ov); if (!o) return;
@@ -938,8 +947,12 @@ async function ideaPrune() {
 const unsavedNodes = () => ideaNodes().filter(n => { const o = n.c || n.ov || n.g; return !o.sid || o.savedSig !== ideaSig(n) || o.sidv !== verStamp(); });
 (async () => {
   try { if (window.claude && window.claude.use) { DB = await window.claude.use('db'); CM = await window.claude.use('comments'); } } catch (e) { }
-  CAPS = true; saveUi();
+  CAPS = true; saveUi(); await ideaStatusLoad();
 })();
+async function ideaStatusLoad() { // (one read of the collection: at boot and after each save)
+  if (!DB) return;
+  try { const q = await DB.collection('ideas').get(); IDEA_ST = {}; for (const d of q.docs) { const r = d.data(); if (r) IDEA_ST[d.id] = { status: r.status, builtIn: r.builtIn }; } render(); } catch (e) { }
+}
 function saveUi() { const b = $('#saveall'), u = unsavedNodes().length; b.innerHTML = 'Save to ideas.md' + (u ? `<span class="n">${u}</span>` : ''); b.disabled = CAPS && !DB; b.title = !CAPS ? '' : DB ? 'Writes your blocks to the planner\'s list and asks Claude to fold them into ideas.md' : 'Sign in to claude.ai to save. Copy ideas still works.'; }
 let SAVING = false;
 async function saveIdeas(nodes) {
@@ -960,7 +973,7 @@ async function saveIdeas(nodes) {
       o.sid = id; o.sidv = verStamp(); o.savedAt = now; o.savedSig = ideaSig(nd); n++;
     }
   } catch (e) { SAVING = false; save(); render(); toast('Saved ' + n + ' before the list refused: ' + (e && e.code || e && e.message || 'unknown error') + '.'); return; }
-  SAVING = false; save(); render();
+  SAVING = false; for (const nd of nodes) { const id = ideaDocId(nd); if (id && !IDEA_ST[id]) IDEA_ST[id] = { status: 'queued' }; } save(); render(); ideaStatusLoad();
   if (!n) { toast('Nothing new to save.'); return; }
   let sent = false;
   try {
