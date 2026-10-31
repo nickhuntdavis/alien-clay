@@ -1,6 +1,6 @@
 'use strict';
 // Spawn Prawn - Baseline reimagined, part 1: the movie-cop SAMPLE branches (ideas.md, 29 Oct 2026 second batch; the user,
-// 30 Oct: Rambo, Dirty Harry and Robocop are branches of the sample, not of Standard Issue, taken at sample Lv 15 through
+// 30 Oct: Rambo, Dirty Harry and Robocop are branches of the sample, not of Standard Issue, taken at sample Lv 5 through
 // samplebranch.js). Standard Issue keeps its own branches again (Ricochet Brain / Through and Through / Marked for Bonking,
 // wup1.js). Every effect below acts on every weapon you hold (never Feats), whichever weapons they are.
 //      A Rambo        every weapon fires 25% faster and 15% weaker; magazines two thirds bigger, reloads in 0.64 of the time.
@@ -35,7 +35,7 @@ const bl1S = () => G.bl1 || (G.bl1 = { marks: [], markT: 0, shots: 0 });
 const bl1Live = w => !!(G && G.weapons && G.weapons.includes(w));
 // The Standard Issue slot on the sperm (Quick draw fires from it when it is held).
 const bl1W = () => (G && G.weapons ? G.weapons.find(w => w && !w.isSpell && w.def && w24Key(w) === BL1.SI) : null);
-// The Baseline sample branch taken ('' until sample Lv 15), and its cards' flags.
+// The Baseline sample branch taken ('' until sample Lv 5), and its cards' flags.
 const bl1P = () => (smbId() === 'baseline' ? smbP() : '');
 const bl1H = k => bl1P() !== '' && smbHas(k);
 const bl1Gun = w => !!(w && !w.isSpell && w.def && w.s); // (a weapon, not a Feat)

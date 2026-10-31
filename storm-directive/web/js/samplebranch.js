@@ -1,6 +1,6 @@
 'use strict';
 // Spawn Prawn - sample branches (user, 30 Oct 2026): a sample grows a branch of its own, as a weapon does, but for the
-// whole sperm. At sample (run) Lv 15 a screen offers the sample's three branches; at Lv 20 the taken branch's two cards
+// whole sperm. At sample (run) Lv 5 a screen offers the sample's three branches; at Lv 20 the taken branch's two cards
 // and its wildcard; at Lv 25 the masteries (any branch may take any, each says which it suits). A branch is a passive on
 // every weapon you hold plus the cards that grow it, and the body wears it (the sample's costume: baselinelook.js).
 //  - smbReg(sampleId, spec): spec is the weapon branch shape (weapons24.js wupReg): { A, B, C: { name, tag, costs, kind,
@@ -13,7 +13,7 @@
 // Hooks: none in shared files. hookOn('tick'); wraps draft.js forkCards and draftTitle, ui.js UI.renderLootCards and UI.openLoot.
 // Loads after branchback.js, before baseline1.js. Save data: none.
 
-const SMB = { at: [15, 20, 25], force: false };
+const SMB = { at: [5, 20, 25], force: false };
 const SMB_REG = {};
 function smbReg(id, spec) { SMB_REG[id] = spec; }
 const smbS = () => G.smb || (G.smb = { p: '', l6: '', l10: '', q: -1, f: {} });

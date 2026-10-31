@@ -1,4 +1,4 @@
-// Baseline part 1 (baseline1.js, samplebranch.js): the movie-cop SAMPLE branches (Lv 15 / 20 / 25), acting on every weapon held;
+// Baseline part 1 (baseline1.js, samplebranch.js): the movie-cop SAMPLE branches (Lv 5 / 20 / 25), acting on every weapon held;
 // Standard Issue's own branches are back; the gated Feats, the FINISHER directive and the costumes.
 const { chromium } = require('playwright');
 (async () => {
@@ -41,14 +41,14 @@ const { chromium } = require('playwright');
       chk('sample branches', t3.join() === 'Rambo,Dirty Harry,Robocop', t3);
       SMB.force = true; const q = () => G.lootQueue.filter(x => x.smb).map(x => x.smb.lv);
       const gate = HOOKS.tick.find(h => h.name === 'samplebranch:gate').fn, hookSafe = (ev, dt) => gate(dt); // (only the gate: the director would open the screen and empty the queue)
-      G.level = 14; hookSafe('tick', 1 / 60); chk('nothing before Lv 15', !q().length, q());
-      G.level = 15; hookSafe('tick', 1 / 60); hookSafe('tick', 1 / 60); chk('the branch screen at Lv 15, once', q().join() === '3', q());
+      G.level = 4; hookSafe('tick', 1 / 60); chk('nothing before Lv 5', !q().length, q());
+      G.level = 5; hookSafe('tick', 1 / 60); hookSafe('tick', 1 / 60); chk('the branch screen at Lv 5, once', q().join() === '3', q());
       G.lootQueue = []; take(0); G.level = 19; hookSafe('tick', 1 / 60); chk('nothing at Lv 19', !q().length, q());
       G.level = 20; hookSafe('tick', 1 / 60); chk('the branch card at Lv 20', q().join() === '6', q());
       G.lootQueue = []; take(null, 0); G.level = 25; hookSafe('tick', 1 / 60); chk('the mastery at Lv 25', q().join() === '10', q());
       G.lootQueue = []; take(null, null, 0); G.level = 30; hookSafe('tick', 1 / 60); chk('nothing after the mastery', !q().length, q());
       chk('a taken step deals no cards', !genLoot({ kind: 'fork', smb: { lv: 3 } }).length);
-      sc = scene([]); G.s10 = { id: 'alpha' }; G.level = 15; hookSafe('tick', 1 / 60); chk('other samples have no sample branch', !q().length, q());
+      sc = scene([]); G.s10 = { id: 'alpha' }; G.level = 5; hookSafe('tick', 1 / 60); chk('other samples have no sample branch', !q().length, q());
       G.s10 = null; hookSafe('tick', 1 / 60); chk('no sample, no branch', !q().length, q());
       SMB.force = false;
       sc = scene([]); take(1); const t6 = genLoot({ kind: 'fork', smb: { lv: 6 } }).map(c => c.title + '/' + c.tag);

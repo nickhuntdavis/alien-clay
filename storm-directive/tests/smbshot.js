@@ -1,5 +1,5 @@
 // Sample branch costumes (baselinelook.js) in a run, on the sharp body canvas as on a phone (YOU_HD_FORCE), Arcade and Lab
-// view, plus the Lv 15 sample branch screen (samplebranch.js). Screenshots: out/smb_<kind>.png, out/smb_<kind>_lab.png,
+// view, plus the Lv 5 sample branch screen (samplebranch.js). Screenshots: out/smb_<kind>.png, out/smb_<kind>_lab.png,
 // out/smb_<kind>_zoom.png, out/smb_screen.png.
 const { chromium } = require('playwright');
 (async () => {
@@ -40,13 +40,13 @@ const { chromium } = require('playwright');
     await page.screenshot({ path: 'smb_' + kind + '_zoom.png', clip: { x: 0, y: 0, width: 400, height: 200 } });
     await page.evaluate(() => document.getElementById('zoomcv').remove());
   }
-  // the sample branch screen at Lv 15
+  // the sample branch screen at Lv 5
   const scr = await page.evaluate(() => {
     SET.view = 'arcade';
     UI.sample = 's001'; newGame(); G.state = 'play'; G.lootQueue = []; G.t = 100;
     G.s10 = { id: 'baseline', strain: 1, run: 1, ev: 0, shiftT: 12, shiftI: 0, trailT: 0, low: false };
     G.weapons = [makeSlot('v_phys_proj', false, 1), null, null, null]; recomputeAll();
-    SMB.force = true; G.level = 15; hookSafe('tick', 1 / 60);
+    SMB.force = true; G.level = 5; hookSafe('tick', 1 / 60);
     const req = G.lootQueue.find(q => q.smb); if (!req) return { err: 'no sample branch request' };
     G.lootQueue = []; UI.openLoot(req);
     return { title: $('lootTitle').textContent, sub: $('lootSub').textContent, cards: UI.lootOpts.map(o => o.title), pics: document.querySelectorAll('#lootCards canvas.smbPic').length };
