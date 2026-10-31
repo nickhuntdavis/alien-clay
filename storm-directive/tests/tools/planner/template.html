@@ -30,8 +30,8 @@ header { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
 header h1 { font: 800 22px/1 var(--display); margin: 0; letter-spacing: -0.01em; }
 header .sub { color: var(--dim); font-size: 13px; }
 header .ver { margin-left: auto; font: 500 11px var(--mono); color: var(--dim); }
-.bench { flex: 1; min-height: 0; display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 12px; }
-@media (max-width: 860px) { .bench { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) 44vh; } .rack { order: 2; } }
+.bench { flex: 1; min-height: 0; display: grid; grid-template-columns: 220px 16px minmax(0, 1fr); gap: 0; }
+@media (max-width: 860px) { .bench { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) 16px 44vh; } .rack { order: 2; } .gutter { order: 1; } }
 
 /* rack */
 .rack { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; display: flex; flex-direction: column; min-height: 0; min-width: 0; }
@@ -46,6 +46,11 @@ header .ver { margin-left: auto; font: 500 11px var(--mono); color: var(--dim); 
 .sec h3 i { width: 9px; height: 9px; border-radius: 50%; background: var(--c); display: inline-block; }
 .chips { display: flex; flex-direction: column; flex-wrap: nowrap; gap: 4px; }
 .chips .chip { width: 100%; }
+.chips .chip, .rackbody > .chip { flex-direction: row; flex-wrap: wrap; align-items: baseline; justify-content: space-between; column-gap: 8px; }
+.chip b { flex: 1 1 auto; min-width: 0; }
+.chip small { flex: 0 1 auto; margin-left: auto; text-align: right; }
+.chip .fits { flex: 1 0 100%; }
+.chip.blank small { flex: 1 0 100%; margin-left: 0; text-align: left; }
 .chip { --c: var(--accent); display: inline-flex; flex-direction: column; gap: 1px; padding: 3px 7px 3px 8px; border: 1px solid var(--line); border-left: 4px solid var(--c); border-radius: 7px;
   background: var(--panel); cursor: grab; user-select: none; -webkit-user-select: none; touch-action: pan-y; max-width: 100%; text-align: left; }
 .chip b { font: 700 13px/1.15 var(--display); }
@@ -186,11 +191,7 @@ details.wb.onmap { border-color: var(--accent); }
 .slots span.on { background: var(--accent); }
 </style>
 
-<header>
-  <h1>Prawn Loadout Planner</h1>
-  <span class="sub">Drag from the rack onto the dish. Tap a chip to add it to the selected node instead.</span>
-  <span class="ver" id="ver"></span>
-</header>
+<span id="ver" hidden></span>
 <div class="bench">
   <section class="rack" aria-label="Rack">
     <div class="tabs" role="tablist">
@@ -201,9 +202,9 @@ details.wb.onmap { border-color: var(--accent); }
     </div>
     <div class="rackbody" id="rack"></div>
   </section>
+  <div class="gutter" id="gutter" title="Click to show or hide the left panel" role="button"><i></i></div>
   <section class="dish" aria-label="Dish">
     <div class="dishbar">
-      <button class="btn" id="rackbtn" title="Show or hide the left panel">Panel</button>
       <label for="sample">Sperm <select id="sample"></select></label>
       <label><input type="checkbox" id="rules" checked> Game rules</label>
       <span class="sync" id="sync" title="Where your dish is kept"></span>
@@ -1820,7 +1821,8 @@ function verSnap() {
   return { weapons: verClone(S.weapons), custom: verClone(S.custom), over: verClone(S.over), feats: verClone(S.feats), pass: verClone(S.pass), gates: verClone(S.gates),
     smb: verClone(S.smb && S.smb[S.sample]), tree: verClone(S.trees && S.trees[S.sample]) };
 }
-const verSig = st => JSON.stringify([st.weapons, st.custom, st.over, st.feats, st.pass, st.gates, st.smb && [st.smb.p, st.smb.br, st.smb.mast], st.tree && st.tree.nodes && st.tree.nodes.length ? st.tree.nodes : null]);
+const verNoU = a => (a || []).map(x => { const y = Object.assign({}, x); delete y.u; return y; }); // (slot ids differ between loads)
+const verSig = st => JSON.stringify([verNoU(st.weapons), st.custom, st.over, verNoU(st.feats), verNoU(st.pass), st.gates, st.smb && [st.smb.p, st.smb.br, st.smb.mast], st.tree && st.tree.nodes && st.tree.nodes.length ? st.tree.nodes : null]);
 function verRestore(st) {
   S.weapons = verClone(st.weapons) || []; S.custom = verClone(st.custom) || []; S.over = verClone(st.over) || {}; S.feats = verClone(st.feats) || []; S.pass = verClone(st.pass) || []; S.gates = verClone(st.gates) || [];
   S.smb = S.smb || {}; if (st.smb) S.smb[S.sample] = verClone(st.smb); else delete S.smb[S.sample];
@@ -1887,14 +1889,13 @@ $('#sample').onchange = () => { S.sample = $('#sample').value; S.sel = 'root'; v
   verUi();
 })();
 
-// ---------------------------------------------------------------- collapsible left panel (the user, 31 Oct)
+// ---------------------------------------------------------------- collapsible left panel (the user, 31 Oct: click the space between the panel and the canvas)
 function rackApply() {
-  const b = document.querySelector('.bench'), off = !!S.rackOff;
-  b.classList.toggle('rackoff', off); $('#rackbtn').classList.toggle('on', !off);
-  if (typeof applyZoom === 'function') setTimeout(() => { try { $('#zfit').click(); } catch (e) { } }, 60);
+  const b = document.querySelector('.bench'); b.classList.toggle('rackoff', !!S.rackOff);
+  setTimeout(() => { try { $('#zfit').click(); } catch (e) { } }, 60);
 }
-document.head.insertAdjacentHTML('beforeend', '<style>.bench.rackoff{grid-template-columns:minmax(0,1fr);gap:0}.bench.rackoff .rack{display:none}@media (max-width:860px){.bench.rackoff{grid-template-rows:minmax(0,1fr)}}</style>');
-$('#rackbtn').onclick = () => { S.rackOff = !S.rackOff; save(); rackApply(); };
+document.head.insertAdjacentHTML('beforeend', '<style>.gutter{cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:8px}.gutter i{width:4px;height:44px;border-radius:2px;background:var(--line)}.gutter:hover{background:var(--hi)}.gutter:hover i{background:var(--accent)}.bench>.rack{grid-column:1;grid-row:1}.bench>.gutter{grid-column:2;grid-row:1}.bench>.dish{grid-column:3;grid-row:1}.bench.rackoff{grid-template-columns:0 16px minmax(0,1fr)}.bench.rackoff .rack{display:none}@media (max-width:860px){.bench>.rack,.bench>.gutter,.bench>.dish{grid-column:1;grid-row:auto}.gutter i{width:44px;height:4px}.bench.rackoff{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) 16px}}</style>');
+$('#gutter').onclick = () => { S.rackOff = !S.rackOff; save(); rackApply(); };
 rackApply();
 
 // ---------------------------------------------------------------- boot
