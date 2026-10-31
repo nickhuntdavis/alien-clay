@@ -921,7 +921,7 @@ $('#ideas').onclick = () => { const t = ideasText(); if (!t) { toast('Nothing of
 // the session that owns the planner to fold them into storm-directive/ideas.md and mark them "filed".
 let DB = null, CM = null, CAPS = false;
 const ideaSig = n => { if (n.g) return ['gate', n.g.k, n.g.id, gatePath(n)].join('|'); const o = n.c || n.ov; return [o.type || '', o.name || '', o.text || '', n.c ? o.tag : '', fldText(o)].join('|'); };
-const ideaNodes = () => (LAST ? LAST.all : []).filter(n => (n.c && !(n.c.card && n.c.name === n.c.of && n.c.text === cardText(n.c))) || n.ov || n.g);
+let ideaNodes = () => (LAST ? LAST.all : []).filter(n => (n.c && !(n.c.card && n.c.name === n.c.of && n.c.text === cardText(n.c))) || n.ov || n.g);
 const cardText = c => c.cardText != null ? c.cardText : c.text; // (a card block's text as dealt; edits make it an idea)
 // Ideas belong to the planner version they were saved from (the user, 31 Oct): one database row per idea per version, so saving the same version again
 // overwrites its earlier rows (and removes the ones you deleted); other versions' rows are never touched.
@@ -2281,6 +2281,153 @@ function rackApply() {
 document.head.insertAdjacentHTML('beforeend', '<style>.gutter{cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:8px}.gutter i{width:4px;height:44px;border-radius:2px;background:var(--line)}.gutter:hover{background:var(--hi)}.gutter:hover i{background:var(--accent)}.bench>.rack{grid-column:1;grid-row:1}.bench>.gutter{grid-column:2;grid-row:1}.bench>.dish{grid-column:3;grid-row:1}.bench.rackoff{grid-template-columns:0 16px minmax(0,1fr)}.bench.rackoff .rack{display:none}@media (max-width:860px){.bench>.rack,.bench>.gutter,.bench>.dish{grid-column:1;grid-row:auto}.gutter i{width:44px;height:4px}.bench.rackoff{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) 16px}}</style>');
 $('#gutter').onclick = () => { S.rackOff = !S.rackOff; save(); rackApply(); };
 rackApply();
+
+// ---------------------------------------------------------------- one view (the user, 31 Oct): the canvas always shows the sample's whole tree
+// The sample's tree (build tree: every weapon, branch, card and mastery as alternatives) is the only view. "Live in code" is that tree as the
+// game ships it; anything you change becomes a version of your own. The old Build view, Full tree, Builds, Rules, Simulate, Copy build and
+// Copy ideas buttons are gone (card rules stay on each card's "Do, Don't and Weight"); Save Build and Download Build sit in one Build menu.
+S.tree = true; S.full = false;
+for (const id of ['fullbtn', 'treebtn', 'buildsbtn', 'rulesbtn', 'simbtn', 'copy', 'ideas', 'saveall', 'exportmd']) { const b = document.getElementById(id); if (b) b.style.display = 'none'; }
+S.sim = false;
+// Live in code: the seeded tree.
+verLoadLive = (orig => function () {
+  orig.apply(this, arguments);
+  S.trees = S.trees || {}; S.trees[S.sample] = { seq: 1, nodes: [] }; ptSeedAll(); S.sel = 'root';
+  VER.liveSig[S.sample] = verSig(verSnap());
+})(verLoadLive);
+// A dish from the old Build view becomes a tree, so nothing made there is lost.
+function dishToTree() {
+  const T = ptT(); if (T.nodes.length) return false;
+  if (!(S.weapons.length || S.custom.length || S.feats.length || S.pass.length)) return false;
+  const at = {};
+  for (const w of S.weapons) {
+    const Wd = W(w.id); if (!Wd) continue; const wid = ptAdd('root', 'w:' + w.id, true); if (!wid) continue; at['w' + w.u] = wid;
+    if (w.promise) { const P = Wd.promises.find(q => q.k === w.promise), b = P && ptAdd(wid, 'b:' + w.id + ':' + w.promise, true);
+      if (b && w.wbr != null) { const o = w.wbr === 'wild' ? P.wild : P.branches[w.wbr], c = o && ptAdd(b, 'wb:' + w.id + ':' + o.name, true);
+        if (c && w.wmast != null && Wd.masteries[w.wmast]) ptAdd(c, 'wb:' + w.id + ':' + Wd.masteries[w.wmast].name, true); } }
+    for (const m of w.mods) { if (m.builtin) continue; const mm = ptAdd(wid, 'm:' + m.id, true); if (mm && m.br) ptAdd(mm, 'mf:' + m.id + ':' + m.br, true); }
+  }
+  for (const f of S.feats) ptAdd('root', 'f:' + f.id, true);
+  for (const p of S.pass) ptAdd('root', 'p:' + p.id, true);
+  const sm = S.smb && S.smb[S.sample]; if (sm && sm.p) ptAdd('root', 'sb:' + S.sample + ':' + sm.p, true);
+  for (const c of S.custom.slice().sort((a, b) => a.u - b.u)) { const par = at[c.parent] || 'root', id = ptAddBlank(par), x = T.nodes.find(y => y.id === id); Object.assign(x, { name: c.name || '', text: c.text || '', type: c.type || '', tag: c.tag || 'Custom', f: c.f || {} }); at['c' + c.u] = id; }
+  return true;
+}
+verRestore = (orig => function (st) { orig.apply(this, arguments); dishToTree(); })(verRestore);
+// Ideas (Save Build) come from the whole tree, collapsed parts included: blank blocks, game cards whose fields you changed, and a sample of your own.
+function ptChain(x) {
+  const T = ptT(); let top = { kind: 'root', title: sampleOf().name, parent: null }; const ups = [];
+  for (let p = T.nodes.find(y => y.id === x.parent); p; p = T.nodes.find(y => y.id === p.parent)) ups.unshift(p);
+  for (const p of ups) top = { kind: 'pt', title: rpName(p.key), parent: top };
+  return top;
+}
+ideaNodes = (orig => function () {
+  if (!S.tree) return orig.apply(this, arguments);
+  const out = [], cs = sampleOf();
+  if (cs.csample) { cs.type = 'Sample'; cs.text = [cs.background && 'Background: ' + cs.background, cs.passive && 'Passive: ' + cs.passive + (cs.pdesc ? ': ' + cs.pdesc : ''), cs.visual && 'Visual: ' + cs.visual].filter(Boolean).join('\n'); cs.f = { dt1: tname(cs.types[0] || ''), dt2: tname(cs.types[1] || ''), pas: cs.passive || '', origin: 'Custom' }; if (cs.u == null) cs.u = 'cs'; out.push({ id: 'root', kind: 'custom', c: cs, parent: null, title: cs.name }); }
+  for (const x of ptT().nodes) {
+    if (x.blank) { if (x.u == null) x.u = 't' + x.id; out.push({ id: 'pt' + x.id, kind: 'custom', c: x, parent: ptChain(x), title: x.name || 'Untitled', ey: 'Idea' }); continue; }
+    if (x.f && Object.values(x.f).some(v => v !== '' && v != null)) { const I = ptInfo(x.key), d = treeFld(x.key);
+      x.ovs = Object.assign(x.ovs || {}, { name: I.title, text: I.desc || '', orig: { name: I.title, text: I.desc || '' }, type: d ? d.type : '', f: x.f });
+      out.push({ id: 'pt' + x.id, kind: 'pt', ov: x.ovs, parent: ptChain(x), title: I.title, ey: I.ey }); }
+  }
+  return out;
+})(ideaNodes);
+// The whole tree as Markdown, for Download Build.
+function treeMd() {
+  const T = ptT(), L = [];
+  (function walk(pid, d) { for (const x of ptKids(T, pid)) {
+    const I = ptInfo(x.key), kind = x.blank ? 'Idea' + (x.type ? ' (' + x.type + ')' : '') : I.ey.replace(/^⊘ /, '').split(' · ')[0], f = fldText(x.blank ? x : Object.assign({ type: (treeFld(x.key) || {}).type }, { f: x.f }));
+    L.push('  '.repeat(d) + '- ' + kind + ': ' + (x.blank ? (x.name || 'Untitled') : I.title) + (x.blank && x.text ? ' (' + x.text.replace(/\s*\n\s*/g, ' / ') + ')' : '') + (f ? ' {' + f + '}' : ''));
+    walk(x.id, d + 1); } })('root', 0);
+  return L.length ? L.join('\n') : '- (an empty tree)';
+}
+ideasMarkdown = (orig => function () {
+  const smp = sampleOf(), d = new Date().toISOString().slice(0, 10), ideas = ideaNodes();
+  let h = `# Build: ${smp.name} · ${verLabel()}\n\nDownloaded from the Prawn Loadout Planner on ${d} (game data v${D.version}).\n\n`;
+  if (smp.csample) h += `## The sample\n\n- Name: ${smp.name}\n- Background: ${smp.background || ''}\n- Passive: ${smp.passive || ''}${smp.pdesc ? ': ' + smp.pdesc : ''}\n- Damage types: ${smp.types.map(tname).join(', ')}\n- Visual description: ${smp.visual || ''}\n\n`;
+  h += `## The tree\n\n${treeMd()}\n\n`;
+  const t = orig.apply(this, arguments); h += ideas.length ? '## Ideas\n\n' + t.slice(t.indexOf('| #')) : '';
+  return h;
+})(ideasMarkdown);
+// The Build menu: Save Build (to ideas.md) and Download Build (a .md file).
+$('.actrow').insertAdjacentHTML('afterbegin', '<div class="bmenu"><button class="btn" id="buildmenu">Build ▾</button><div class="bmpop" id="bmpop" hidden><button class="btn" id="bmsave">Save Build</button><button class="btn" id="bmdl">Download Build</button></div></div>');
+document.head.insertAdjacentHTML('beforeend', '<style>.bmenu{position:relative}.bmpop{position:fixed;z-index:60;display:flex;flex-direction:column;gap:4px;padding:6px;background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.2)}.bmpop[hidden]{display:none}.bmpop .btn{text-align:left;white-space:nowrap}.bmpop .n{margin-left:6px;padding:0 6px;border-radius:8px;background:var(--accent);color:#fff;font-size:11px}.csdlg{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;padding:16px}.csdlg[hidden]{display:none}.csbox{width:min(520px,100%);max-height:calc(100vh - 32px);overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 16px 48px rgba(0,0,0,.3);padding:18px;display:flex;flex-direction:column;gap:10px}.csbox h2{margin:0;font:700 18px var(--display)}.csbox label{display:flex;flex-direction:column;gap:4px;font:600 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--dim)}.csbox input,.csbox textarea,.csbox select{font:13px var(--body);color:inherit;text-transform:none;letter-spacing:0;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--panel2)}.csbox .two{display:flex;gap:8px}.csbox .two label{flex:1}.csbox .acts{display:flex;gap:8px;justify-content:flex-end}</style>');
+const bmPlace = () => { const r = $('#buildmenu').getBoundingClientRect(), p = $('#bmpop'); p.style.left = r.left + 'px'; p.style.top = (r.bottom + 4) + 'px'; };
+$('#buildmenu').onclick = e => { e.stopPropagation(); const p = $('#bmpop'); p.hidden = !p.hidden; if (!p.hidden) { const u = unsavedNodes().length; $('#bmsave').innerHTML = 'Save Build' + (u ? `<span class="n">${u}</span>` : ''); bmPlace(); } };
+document.addEventListener('click', e => { if (!e.target.closest('.bmenu')) $('#bmpop').hidden = true; });
+$('#bmsave').onclick = () => { $('#bmpop').hidden = true; $('#saveall').onclick(); };
+$('#bmdl').onclick = async () => {
+  $('#bmpop').hidden = true;
+  const md = ideasMarkdown(), safe = s => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const name = 'build-' + safe(sampleOf().name) + '-' + safe(verLabel()) + '-' + new Date().toISOString().slice(0, 10) + '.md';
+  let dl = null; try { dl = window.claude && window.claude.use ? await window.claude.use('downloads') : null; } catch (e) { }
+  if (dl) { try { const r = await dl.save({ filename: name, data: md }); toast(r && r.status === 'saved' ? 'Saved ' + name + '.' : 'Downloaded.'); return; } catch (e) { if (e && e.code === 'declined') { toast('Not saved.'); return; } } }
+  copyText(md, 'The build'); toast('Saving a file is not available here: the build is copied instead. Paste it into a .md file.');
+};
+// Clear empties the tree too.
+{ const c0 = $('#clear').onclick; $('#clear').onclick = function () { const armed = Date.now() - clearArm <= 2500; c0.apply(this, arguments); if (armed) { ptT().nodes = []; S.sel = 'root'; save(); render(); } }; }
+// ---------------------------------------------------------------- samples of your own (the user, 31 Oct: "Add new" in the sample list, with a dialogue)
+S.csamples = S.csamples || [];
+function csInject() { for (const c of S.csamples) { const o = D.samples.find(x => x.id === c.id); if (o) Object.assign(o, c); else D.samples.push(c); } }
+function sampleSelUi() {
+  csInject();
+  const s = $('#sample'), cat = x => x.csample ? 'mine' : x.held ? 'held' : x.old ? 'old' : 'current';
+  const grp = (g, label) => { const ss = D.samples.filter(x => cat(x) === g); return ss.length ? `<optgroup label="${label}">${ss.map(x => `<option value="${esc(x.id)}">${esc(x.name)}${x.csample ? '' : ' (strain ' + x.strain + ')'}${x.held ? ' · on hold' : ''}</option>`).join('')}</optgroup>` : ''; };
+  s.innerHTML = grp('current', 'Samples') + grp('mine', 'Your samples') + grp('old', 'Older samples') + grp('held', 'On hold (not in the game)') + '<option value="__newsample">+ Add new…</option>';
+  s.value = S.sample;
+}
+document.querySelector('label[for="sample"]').firstChild.textContent = 'Sample ';
+document.body.insertAdjacentHTML('beforeend', `<div class="csdlg" id="csdlg" hidden><form class="csbox" id="csform"><h2 id="cstitle">A new sample</h2>
+  <label>Name<input id="csname" required placeholder="What it is called"></label>
+  <label>Background<textarea id="csbg" rows="3" placeholder="Who or what it is, where it came from, how it behaves"></textarea></label>
+  <div class="two"><label>Passive<input id="cspas" placeholder="The passive's name"></label></div>
+  <label>What the passive does<textarea id="cspdesc" rows="2" placeholder="Numbers, trigger, feel"></textarea></label>
+  <div class="two"><label>Damage type 1<select id="csdt1"></select></label><label>Damage type 2<select id="csdt2"></select></label></div>
+  <label>Visual description<textarea id="csvis" rows="3" placeholder="How it looks: head, tail, colour, what it wears, how it moves"></textarea></label>
+  <div class="acts"><button type="button" class="btn danger" id="csdel" hidden>Delete sample</button><span style="flex:1"></span><button type="button" class="btn" id="cscancel">Cancel</button><button type="submit" class="btn on" id="csok">Create sample</button></div></form></div>`);
+const CS = { edit: null, delArm: 0 };
+function csOpen(edit) {
+  CS.edit = edit || null; const c = edit || {}, dts = Object.keys(D.types);
+  for (const [id, v] of [['csdt1', (c.types || [])[0] || 'phys'], ['csdt2', (c.types || [])[1] || '']]) $('#' + id).innerHTML = (id === 'csdt2' ? '<option value="">None</option>' : '') + dts.map(t => `<option value="${t}" ${t === v ? 'selected' : ''}>${esc(tname(t))}</option>`).join('');
+  $('#csname').value = c.name || ''; $('#csbg').value = c.background || ''; $('#cspas').value = c.passive || ''; $('#cspdesc').value = c.pdesc || ''; $('#csvis').value = c.visual || '';
+  $('#cstitle').textContent = edit ? 'Edit ' + edit.name : 'A new sample'; $('#csok').textContent = edit ? 'Save sample' : 'Create sample'; $('#csdel').hidden = !edit; $('#csdel').textContent = 'Delete sample';
+  $('#csdlg').hidden = false; setTimeout(() => $('#csname').focus(), 30);
+}
+const csClose = () => { $('#csdlg').hidden = true; };
+$('#cscancel').onclick = csClose;
+$('#csdlg').addEventListener('click', e => { if (e.target.id === 'csdlg') csClose(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#csdlg').hidden) csClose(); });
+$('#csform').onsubmit = e => {
+  e.preventDefault(); const name = $('#csname').value.trim(); if (!name) { $('#csname').focus(); return; }
+  const types = [$('#csdt1').value, $('#csdt2').value].filter(Boolean);
+  const v = { name, background: $('#csbg').value.trim(), passive: $('#cspas').value.trim(), pdesc: $('#cspdesc').value.trim(), visual: $('#csvis').value.trim(), types: types.length ? types : ['phys'] };
+  if (CS.edit) { Object.assign(CS.edit, v); const o = S.csamples.find(x => x.id === CS.edit.id); if (o) Object.assign(o, v); }
+  else { const c = Object.assign({ id: 'cs_' + Date.now().toString(36), strain: 'new', origin: 'Custom', weapons: [], fit: [], smb: null, ufeat: null, csample: true }, v); S.csamples.push(c); csInject(); S.sample = c.id; S.verSel = S.verSel || {}; S.verSel[c.id] = null; verOpen(); }
+  csClose(); save(); sampleSelUi(); render(); verUi(); toast(CS.edit ? 'Saved ' + name + '.' : 'Made ' + name + '. Add its weapons and ideas from the rack.');
+};
+$('#csdel').onclick = () => {
+  const c = CS.edit; if (!c) return;
+  if (Date.now() - CS.delArm > 3000) { CS.delArm = Date.now(); $('#csdel').textContent = 'Delete? Tap again'; return; }
+  S.csamples = S.csamples.filter(x => x.id !== c.id); D.samples = D.samples.filter(x => x.id !== c.id); if (S.trees) delete S.trees[c.id]; if (S.vers) delete S.vers[c.id];
+  S.sample = D.samples[0].id; csClose(); verOpen(); save(); sampleSelUi(); render(); verUi(); toast('Deleted ' + c.name + '.');
+};
+{ const s0 = $('#sample').onchange; $('#sample').onchange = function (e) { if ($('#sample').value === '__newsample') { $('#sample').value = S.sample; csOpen(null); return; } s0.apply(this, arguments); sampleSelUi(); }; }
+// The sperm's panel for a sample of your own: its background and look, and Edit.
+ptDetailHtml = (orig => function (n) {
+  let h = orig.apply(this, arguments); const s = sampleOf();
+  if (n.kind === 'root' && s.csample) h = h.replace(/(<h2>[^]*?<\/h2>)/, `$1<div class="row"><button class="btn" data-csedit>Edit this sample</button></div>${s.background ? `<p>${esc(s.background)}</p>` : ''}${s.visual ? `<div class="row"><span class="lab">Looks</span><small>${esc(s.visual)}</small></div>` : ''}`);
+  return h;
+})(ptDetailHtml);
+$('#detail').addEventListener('click', e => { if (e.target.closest('[data-csedit]')) { e.stopPropagation(); csOpen(sampleOf()); } }, true);
+// Start: your samples in the list, then the tree (a dish from the old Build view is turned into a tree; an empty Live tree is seeded).
+sampleSelUi();
+(() => {
+  if (!D.samples.some(x => x.id === S.sample)) S.sample = D.samples[0].id;
+  const moved = dishToTree();
+  if (!moved && !verCur() && !ptT().nodes.length) verOpen();
+  S.sel = S.sel || 'root'; ptUi();
+})();
 
 // ---------------------------------------------------------------- boot
 try { if (window.claude && window.claude.hot && window.claude.hot.snapshot) window.claude.hot.snapshot(() => S); } catch (e) { }
