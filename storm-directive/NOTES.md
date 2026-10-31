@@ -1,6 +1,7 @@
 # Handoff notes (keep short; update at the end of each session)
 
 ## Current state
+- (31 Oct) STANDBY (standby.js): the game is a blank slate. Only Zero is playable (placeholder Shot, no boxes, no rescues); every other sample, weapon, Feat, branch and modifier is parked, not deleted. Set STANDBY.on = false to restore. The user builds new samples one by one from here; new content goes in its own files and STANDBY.keep lists the samples that are live.
 - (30 Oct) MOD_DEAD, MATRIX_NA and DLV.deny are card rules now (cardrules.js, CARD_RULES_OWNS): after editing any of those tables or a new modifier audit, run `node tests/tools/rules/importtables.js`.
 - Version v10.234 (versionCode 513): sample branch screens at run Lv 5 (branch), 15 (cards) and 30 (mastery), was 15 / 20 / 25. The Loadout Planner (https://claude.ai/artifact/6nudTiGo14jVZ8TjaprBk3) is one tree view with versions, sharing, card fields, custom samples, Save / Download Build. Another session publishes the planner too: before publishing, read the live page and merge (only rebuild from tests/tools/planner when the live code matches the repo's template).
 - Version v10.233 (versionCode 512): Private Schooled reimagined (PRIVATE_REDESIGN.md: old-money branches on Acid Spit, Rent Free and Ewww, Gross, Private only; Rent Free Possesses under them; 4 gated cards as card rules g12 to g15; 9 costumes in privatelook.js; copy in privatecopy.js, 8 real-world facts checked).

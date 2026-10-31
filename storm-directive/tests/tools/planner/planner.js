@@ -9,7 +9,7 @@ const path = require('path'), fs = require('fs');
 (async () => {
   const b = await chromium.launch(); const page = await b.newPage();
   const errs = []; page.on('pageerror', e => errs.push(e.message));
-  await page.goto('file://' + path.resolve(__dirname, '../../../web/index.html')); await page.waitForTimeout(800);
+  await page.goto('file://' + path.resolve(__dirname, '../../../web/index.html') + '?standby'); // (standby.js: the blank slate, as the game is now) await page.waitForTimeout(800);
   const D = await page.evaluate(() => {
     const fix = s => String(s == null ? '' : s);
     MATRIX_ONLY.force = true; // (TUT_OFF is not set here, but be safe)
@@ -53,7 +53,8 @@ const path = require('path'), fs = require('fs');
     const smbOf = id => { const X = typeof SMB_REG !== 'undefined' && SMB_REG[id]; if (!X) return null;
       return { at: (typeof SMB !== 'undefined' && SMB.at) || [15, 20, 25], promises: ['A', 'B', 'C'].filter(k => X[k]).map(k => ({ k, name: fix(X[k].name), tag: fix(X[k].tag), costs: fix(X[k].costs), shows: fix(X[k].shows), desc: fix(X[k].lv3 && X[k].lv3.desc), branches: cards(X[k].lv6), wild: X[k].wild ? { name: fix(X[k].wild.name), desc: fix(X[k].wild.desc) } : null })),
         masteries: (X.lv10 || []).map(c => ({ name: fix(c.name), desc: fix(c.desc), best: fix(c.best) })) }; };
-    const all = SAMPLES10.slice(); if (typeof S10_BY !== 'undefined') for (const id of Object.keys(S10_BY)) if (!all.some(x => x.id === id)) all.push(Object.assign({ held: true }, S10_BY[id]));
+    const SB = typeof STANDBY !== 'undefined' && STANDBY.on;
+    const all = SAMPLES10.slice(); if (typeof S10_BY !== 'undefined' && !SB) for (const id of Object.keys(S10_BY)) if (!all.some(x => x.id === id)) all.push(Object.assign({ held: true }, S10_BY[id]));
     const samples = all.filter(s => s && s.id).sort((a, b) => (a.strain || 99) - (b.strain || 99)).map(s => ({ id: s.id, strain: s.strain, name: fix(s.name), origin: fix(s.origin), types: (s.types || []).map(t => S10_TYPES[t] || t).filter(Boolean), passive: fix(s.passive), pdesc: fix(s.pdesc), weapons: (s.weapons || []).filter(id => WEAPONS[id]), fit: ((typeof S10_FIT !== 'undefined' && S10_FIT[s.id]) || []).filter(id => WEAPONS[id]), held: !!s.held, old: /^v9_/.test(s.id), smb: smbOf(s.id), ufeat: (typeof F10_UNIQUE !== 'undefined' && F10_UNIQUE[s.id]) || null }));
     // Feats (feats10.js): the drafted pool in F10_ORDER plus each sample's Unique Feat; forks at levels 3 and 5.
     const feat = f => ({ id: f.id, name: fix(f.name), type: F10_INT[f.type] || f.type || null, atk: f.atk ? (ATK[f.atk] || f.atk) : null, trig: !!f.trig, stam: f.stam || 0, base: f.base ? { dmg: f.base.dmg || 0, cd: f.base.cd || 0, dur: f.base.dur || 0, rng: f.base.range || f.base.area || f.base.r || 0 } : null, does: fix(f.does), line: fix(f.line), sample: f.sample || null,
@@ -91,7 +92,8 @@ const path = require('path'), fs = require('fs');
       presets.push({ group: 'Baseline heroes', name: weapons[wid].name + ': ' + P.name, sample: 'baseline', weapons: [{ id: wid, promise: L }],
         feats: [F10_UNIQUE.baseline].concat(unlocks.filter(k => /^f:/.test(k)).map(k => k.slice(2))).filter(Boolean), pass: unlocks.filter(k => /^p:/.test(k)).map(k => k.slice(2)) });
     }
-    return { version: APP_VERSION, types, samples, weapons, mods, maxW: MAX_WEAPONS, mmOpen: MM.open, gnames: MM_GNAME, feats, featSlots: F10_SLOTS, passives, passSlots: SP.base + SP.at.length, families, rules0, builtin, presets };
+    if (SB) for (const sm of samples) if (STANDBY.keep.includes(sm.id)) { sm.weapons = []; sm.fit = []; } // (Zero's placeholder Shot is not a card to plan with)
+    return { standby: SB ? { parked: STANDBY.parked } : null, version: APP_VERSION, types, samples, weapons, mods, maxW: MAX_WEAPONS, mmOpen: MM.open, gnames: MM_GNAME, feats, featSlots: F10_SLOTS, passives, passSlots: SP.base + SP.at.length, families, rules0, builtin, presets };
   });
   const out = path.resolve(__dirname, '../../out/loadout-planner.html'); fs.mkdirSync(path.dirname(out), { recursive: true });
   const tpl = fs.readFileSync(path.join(__dirname, 'template.html'), 'utf8');

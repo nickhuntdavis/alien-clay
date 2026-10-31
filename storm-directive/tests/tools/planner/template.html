@@ -2544,6 +2544,16 @@ renderDetail = (orig => function () {
   for (const b of document.querySelectorAll('#detail [data-pt]')) { try { const [a, , k] = JSON.parse(b.dataset.pt); if (a === 'add' && k && !b.title) b.title = cardTip(k); } catch (e) { } }
   return r;
 })(renderDetail);
+// ---------------------------------------------------------------- standby (the user, 31 Oct: a blank slate; the game's standby.js)
+// While the game is on standby, the left panel holds only the blank block: every weapon, modifier, branch, Feat and passive of the parked
+// game is hidden (still in the data, so nothing is lost when the game comes off standby). Samples: Zero and your own.
+if (D.standby) {
+  renderRack = (orig => function () {
+    const tabs = document.querySelector('.tabs'); if (tabs) tabs.style.display = 'none';
+    $('#rack').innerHTML = `<div class="sec"><div class="chips">${chip({ k: 'blank' }, 'Blank block', 'A weapon, Feat, branch, modifier or anything else of your own. Drop it on the map, set its Type and fill it in.', 'var(--idea)', 'blank', '')}</div></div><p class="hint" style="color:var(--dim);font-size:12px">Blank slate: every weapon, Feat, branch and modifier of the old game is parked (${(D.standby.parked || []).length} samples on standby). Build ${esc(sampleOf().name)} up from blank blocks.</p>`;
+  })(renderRack);
+  try { renderRack(); } catch (e) { }
+}
 // ---------------------------------------------------------------- boot
 try { if (window.claude && window.claude.hot && window.claude.hot.snapshot) window.claude.hot.snapshot(() => S); } catch (e) { }
 // (a live update hands over the old page's state: put this version's default rules back in)
