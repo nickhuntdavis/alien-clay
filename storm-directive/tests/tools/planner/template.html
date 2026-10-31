@@ -579,7 +579,7 @@ function applyZoom() {
   st.style.transform = `scale(${z})`;
   sz.style.width = parseFloat(st.style.width) * z + 'px'; sz.style.height = parseFloat(st.style.height) * z + 'px';
 }
-function zoomTo(z) { S.zoom = Math.max(.4, Math.min(1.6, z)); save(); applyZoom(); }
+function zoomTo(z) { S.zoom = Math.max(.25, Math.min(2.5, z)); save(); applyZoom(); }
 $('#zin').onclick = () => zoomTo(S.zoom + .15);
 $('#zout').onclick = () => zoomTo(S.zoom - .15);
 $('#zfit').onclick = () => { const map = $('#map'), st = $('#stage'); zoomTo(Math.min(1.2, (map.clientWidth - 8) / parseFloat(st.style.width), (map.clientHeight - 8) / parseFloat(st.style.height))); map.scrollTo(0, 0); };
@@ -2164,6 +2164,28 @@ $('#exportmd').onclick = async () => {
   if (dl) { try { const r = await dl.save({ filename: name, data: md }); toast(r && r.status === 'saved' ? 'Saved ' + name + '.' : 'Exported.'); return; } catch (e) { if (e && e.code === 'declined') { toast('Not saved.'); return; } } }
   copyText(md, 'The Markdown'); toast('Saving a file is not available here: the Markdown is copied instead. Paste it into a .md file.');
 };
+// ---------------------------------------------------------------- pinch to zoom (the user, 31 Oct): two fingers on the canvas, or ctrl + wheel / a trackpad pinch
+function zoomAt(z, fx, fy) { // zoom about a point of the map's window (fx, fy: pixels from its top left)
+  const m = $('#map'), z0 = S.zoom, cx = (m.scrollLeft + fx) / z0, cy = (m.scrollTop + fy) / z0;
+  S.zoom = Math.max(.25, Math.min(2.5, z)); applyZoom(); m.scrollLeft = cx * S.zoom - fx; m.scrollTop = cy * S.zoom - fy;
+}
+(() => {
+  const m = $('#map'), P = new Map(); let pin = null, saveT = 0;
+  m.style.touchAction = 'none';
+  const geo = () => { const [a, b] = [...P.values()], r = m.getBoundingClientRect(); return { d: Math.hypot(a.x - b.x, a.y - b.y) || 1, fx: (a.x + b.x) / 2 - r.left, fy: (a.y + b.y) / 2 - r.top }; };
+  m.addEventListener('pointerdown', e => {
+    P.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (P.size === 2) { const g = geo(); pin = { d0: g.d, z0: S.zoom }; try { pan = null; m.classList.remove('panning'); if (typeof nodeDrag !== 'undefined') nodeDrag = null; } catch (x) { } e.stopPropagation(); }
+    else if (P.size > 2) e.stopPropagation();
+  }, true);
+  m.addEventListener('pointermove', e => {
+    if (!P.has(e.pointerId)) return; P.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pin && P.size >= 2) { const g = geo(); zoomAt(pin.z0 * g.d / pin.d0, g.fx, g.fy); e.stopPropagation(); e.preventDefault(); clearTimeout(saveT); saveT = setTimeout(save, 300); }
+  }, true);
+  const up = e => { const was = pin; P.delete(e.pointerId); if (P.size < 2) pin = null; if (was) e.stopPropagation(); };
+  m.addEventListener('pointerup', up, true); m.addEventListener('pointercancel', up, true);
+  m.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); const r = m.getBoundingClientRect(); zoomAt(S.zoom * Math.exp(-e.deltaY * 0.01), e.clientX - r.left, e.clientY - r.top); clearTimeout(saveT); saveT = setTimeout(save, 300); }, { passive: false });
+})();
 // ---------------------------------------------------------------- the detail drawer is a side panel overlay on the right (the user, 31 Oct)
 document.head.insertAdjacentHTML('beforeend', '<style>.dish > .detail{position:absolute;right:10px;width:360px;max-width:calc(100% - 20px);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.22);z-index:30}.dish > .detail[hidden]{display:none}.dclose{position:sticky;top:0;align-self:flex-end;margin:-4px -6px -22px 0;padding:0 8px;line-height:22px;z-index:2}.dtab{position:absolute;right:10px;z-index:30}.dtab[hidden]{display:none}</style>');
 document.querySelector('#map').insertAdjacentHTML('afterend', '<button class="btn dtab" id="dtab" hidden>Details</button>');
