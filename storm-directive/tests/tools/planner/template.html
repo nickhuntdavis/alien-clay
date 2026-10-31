@@ -508,6 +508,8 @@ const COLW = 212, ROOTW = 250, GX = 54, GY = 12, PAD = 24;
 let LAST = null;
 function render() {
   const stage = $('#stage'), root = buildTree();
+  S.collapsed = S.collapsed || {};
+  (function prune(n) { const c = S.collapsed[n.id]; n.nkids = n.children.filter(x => x.kind !== 'hint').length; if (c && n.nkids) { n.hiddenN = (function cnt(m) { return m.children.reduce((a, x) => a + (x.kind === 'hint' ? 0 : 1 + cnt(x)), 0); })(n); n.children = []; } else n.children.forEach(prune); })(root);
   stage.innerHTML = '';
   const all = [];
   (function walk(n, d, par) { n.depth = d; n.parent = par; all.push(n); n.children.forEach(c => walk(c, d + 1, n)); })(root, 0, null);
@@ -515,7 +517,7 @@ function render() {
     const el = document.createElement('div');
     el.className = 'node ' + n.kind + (n.kind === 'root' ? ' root' : '') + (n.kind === 'hint' || n.kind === 'xnone' ? ' hintnode' : '') + (n.ov ? ' edited' : '') + (n.taken ? ' taken' : '') + (S.sel === n.id ? ' sel' : '');
     el.dataset.n = n.id; el.style.setProperty('--c', n.col); el.tabIndex = n.kind === 'hint' ? -1 : 0;
-    el.innerHTML = nodeHtml(n); stage.appendChild(el); n.el = el;
+    el.innerHTML = nodeHtml(n); if (n.nkids) el.insertAdjacentHTML('beforeend', `<button class="ncol" data-col="${esc(n.id)}" title="${n.hiddenN ? 'Show' : 'Hide'} everything after this card">${n.hiddenN ? '+' + n.hiddenN : '−'}</button>`); stage.appendChild(el); n.el = el;
   }
   LAST = { root, all };
   layout();
@@ -552,6 +554,13 @@ function layout() {
   stage.style.width = Wt + 'px'; stage.style.height = Ht + 'px';
   applyZoom();
 }
+$('#stage').addEventListener('click', e => {
+  const b = e.target.closest('.ncol'); if (!b) return; e.stopPropagation(); e.preventDefault();
+  S.collapsed = S.collapsed || {}; const id = b.dataset.col; if (S.collapsed[id]) delete S.collapsed[id]; else S.collapsed[id] = true;
+  save(); render();
+}, true);
+$('#stage').addEventListener('pointerdown', e => { if (e.target.closest('.ncol')) e.stopPropagation(); }, true);
+document.head.insertAdjacentHTML('beforeend', '<style>.node .ncol{position:absolute;top:3px;right:3px;min-width:20px;height:20px;padding:0 5px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--dim);font:600 11px/18px var(--mono)!important;cursor:pointer;z-index:2}.node .ncol:hover{border-color:var(--accent);color:var(--ink,inherit)}</style>');
 // typing into a blank block: keep the state, re-flow the map, never rebuild (that would drop the caret)
 let typeT = 0;
 $('#stage').addEventListener('input', e => {
