@@ -2091,15 +2091,18 @@ rpSave = (orig => async function () {
 })(rpSave);
 // A weapon's modifiers: allowed (default), not allowed (a Don't rule) or attached (comes with the weapon, built in).
 S.attach = S.attach || {};
-const wmDeny = (k, mk) => S.cr.filter(r => r.mode === 'dont' && rpPlain(r) && ((r.parent === k && r.target === mk) || (r.parent === mk && r.target === k)));
+const wmCov = (pat, k) => pat === k || rpCovers(pat, k);
+const wmDeny = (k, mk) => S.cr.filter(r => r.mode === 'dont' && rpPlain(r) && ((wmCov(r.parent, k) && wmCov(r.target, mk)) || (wmCov(r.parent, mk) && wmCov(r.target, k)))); // (any Don't between the two, however it was set: here, in a box, or by a group)
+const wmExact = (k, mk) => wmDeny(k, mk).filter(r => (r.parent === k && r.target === mk) || (r.parent === mk && r.target === k));
 const wmState = (k, mid) => ((S.attach[k] || []).includes(mid) ? 'attach' : wmDeny(k, 'm:' + mid).length ? 'deny' : 'allow');
 function wmSet(k, mid, st) {
   const mk = 'm:' + mid; S.attach = S.attach || {};
-  for (const r of wmDeny(k, mk)) { if (rpIsDefault(r) && !S.crRemoved.includes(rpSig(r))) S.crRemoved.push(rpSig(r)); S.cr = S.cr.filter(x => x.id !== r.id); }
+  for (const r of wmExact(k, mk)) { if (rpIsDefault(r) && !S.crRemoved.includes(rpSig(r))) S.crRemoved.push(rpSig(r)); S.cr = S.cr.filter(x => x.id !== r.id); }
   S.attach[k] = (S.attach[k] || []).filter(x => x !== mid);
   if (st === 'deny') S.cr.push({ id: 'r' + (S.crSeq++), parent: k, mode: 'dont', target: mk, scope: 'weapon' });
   if (st === 'attach') S.attach[k].push(mid);
   save(); wmApply(); rpRender(); render();
+  if (st !== 'deny' && wmDeny(k, mk).length) toast(M(mid).name + ' is still held back by a group or conditional rule: ' + rpName(wmDeny(k, mk)[0].parent) + ' / ' + rpName(wmDeny(k, mk)[0].target) + '.');
 }
 function wmApply() { // attached modifiers are on the dish weapon already (built in, no remove button)
   for (const w of S.weapons) for (const mid of S.attach['w:' + w.id] || []) if (M(mid) && !w.mods.some(m => m.id === mid)) w.mods.push({ id: mid, rank: 1, br: null, mast: null, builtin: true });
@@ -2110,7 +2113,7 @@ function wmHtml(k) {
   const q = (RP.mq || '').toLowerCase(), ids = Object.keys(D.mods).filter(id => !q || M(id).name.toLowerCase().includes(q));
   const rank = id => ({ attach: 0, deny: 1, allow: 2 }[wmState(k, id)]);
   ids.sort((a, b) => rank(a) - rank(b) || M(a).name.localeCompare(M(b).name));
-  const rows = ids.slice(0, 80).map(id => { const st = wmState(k, id), B = (v, l) => `<button class="${st === v ? 'on' : ''}" data-wm="${v}:${esc(id)}">${l}</button>`;
+  const rows = ids.slice(0, 80).map(id => { const st = wmState(k, id), B = (v, l) => `<button class="${st === v ? 'on' : ''}" ${v === 'deny' && st === 'deny' && !wmExact(k, 'm:' + id).length ? 'title="Held back by a group rule"' : ''} data-wm="${v}:${esc(id)}">${l}</button>`;
     return `<div class="wmrow"><span title="${esc(M(id).gname)}">${esc(M(id).name)}</span><span class="wmb">${B('allow', 'Allow')}${B('deny', 'Not allowed')}${B('attach', 'Attach')}</span></div>`; }).join('');
   const nA = (S.attach[k] || []).length, nD = Object.keys(D.mods).filter(id => wmState(k, id) === 'deny').length;
   return `<div class="rp-row" style="flex-direction:column;align-items:stretch"><span class="rp-lab">Modifiers on this weapon (${nA} attached, ${nD} not allowed)</span>
