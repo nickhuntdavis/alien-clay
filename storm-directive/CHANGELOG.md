@@ -2,6 +2,23 @@
 
 Newest first. Sessions don't edit this file: they log in `changes/<branch>.md`, and those fragments are folded in here when a branch merges into `main` (rules: `CLAUDE.md` > Change log). System names come from `ARCHITECTURE.md`. History before v9.23 lives in `NOTES.md` > Recent changes and `git log`.
 
+## v10.234 (versionCode 513): 2026-10-31 Sample branches at run Lv 5 / 15 / 30; Loadout Planner overhaul (`claude/sharp-hypatia-icfi8l`)
+### 2026-10-31 Sample branches: steps at run Lv 5, 15 and 30
+- Systems: sample branches
+- Files: samplebranch.js (SMB.at 15 -> 5), baseline1.js (comments), tests/baseline1test.js, tests/smbshot.js
+- What: the sample's three branches are offered at run Lv 5 (was 15), the branch's cards and wildcard at Lv 15 (was 20) and the masteries at Lv 30 (was 25).
+- Save data: none.
+- Hooks: none.
+- Risk: Baseline's branch passives arrive much earlier, so early-run balance shifts; Lv 15 to Lv 30 is a long stretch with no sample card.
+
+### 2026-10-31 Planner: one tree view, versions, sharing, card fields, custom samples and more
+- Systems: tests/tools (planner)
+- Files: tests/tools/planner/template.html (on top of the build-tree version from ccr-83ce4661-mwfavv)
+- What: a Version dropdown next to the sample ("Live in code" by default; edits to Live become named versions kept per sample in S.vers; rename, add and delete); every button is regular weight at 13px; clicking the strip between the left panel and the canvas hides or shows it; the top title row is removed; the 'own' label sits on the name row; the buttons from Copy build on share one row; build trees take blank blocks (anywhere, with a Type dropdown and the fields each card type holds in the game, typed in the panel); every existing weapon and card shows the same fields filled from the game (planner.js now extracts weapon base stats, feat base values, passive rarity and a sample's Unique Feat) and editing one makes an edited copy (build-tree cards too); the details drawer is a right-hand side panel overlay; a Share this version button in the Version dropdown publishes a version to the artifact database (collection plans), listed for everyone under Shared and opened as their own copy; the rules panel of a weapon lists every modifier with Allow / Not allowed / Attach (Don't rules or built-in attachment), custom blocks get Do, Don't and Weight rules (planner-only, never saved to the game), and the panel's boxes no longer overlap; Save to ideas.md groups ideas by planner version (rows carry planVersion and planVersionId, one document per idea per version, so re-saving a version overwrites its rows and removes deleted ones; ideas.md header explains folding); cards with branches after them have a small button top right that collapses or expands everything after them; an Export .md button saves the version's ideas as a Markdown file (downloads capability declared); pinch (two fingers) or ctrl + wheel zooms the canvas about the pinch point, range 25% to 250%; the canvas is now one view, the sample's whole tree (Live in code = every weapon, branch, card and mastery seeded; old dishes are turned into trees), the Full tree, Build, Builds, Rules, Simulate, Copy build and Copy ideas buttons are gone, Save Build and Download Build (the tree, the sample and the ideas as Markdown) sit in a Build menu, Collapse all and Expand all buttons, hover details on card buttons, rule lines drawn only for the selected card, merged with another session's live additions (Dealing panel, sample personality, idea status badges, from the published page), the Sperm list is now Sample with an Add new dialogue (name, background, passive, damage types, visual description) for samples of your own; Trail is a planner attack type (starts from The Runs' stats; the game has no Trail type yet); a blank Weapon or Feat prefills empty stats with the median of the game's cards of the chosen attack type; the left panel is 220px, a single column of smaller chips with no damage-type name in the card text; Feats tab shortened.
+- Save data: none in the game.
+- Hooks: none.
+- Risk: none.
+
 ## v10.233 (versionCode 512): 2026-10-30 Private Schooled reimagined (old money, Private Schooled only) (`claude/sharp-hypatia-icfi8l`)
 ### 2026-10-30 Private Schooled reimagined: old money branches, gated cards, costumes (Private Schooled only)
 - Systems: weapon branches (sample branch sets), Feats, sperm passives, card rules, baseline costumes (Private kinds), tests
