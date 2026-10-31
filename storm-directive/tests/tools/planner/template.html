@@ -187,6 +187,9 @@ details.wb.onmap { border-color: var(--accent); }
 .node.moving { opacity: .35; }
 .node.custom .ty, .node.edited .ty { font: 500 10px var(--mono); color: var(--dim); margin-top: 3px; }
 .node.custom .ty.unset { color: var(--g-lifesteal); }
+.ist { font: 600 9px var(--mono); text-transform: uppercase; letter-spacing: .04em; color: var(--dim); border: 1px solid currentColor; border-radius: 3px; padding: 0 4px; margin-left: 6px; opacity: .85; white-space: nowrap; }
+.ist.filed { color: var(--accent); }
+.ist.built { color: var(--pass); opacity: 1; }
 .detail select { padding: 4px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
 .slots { display: flex; gap: 4px; align-items: center; }
 .slots span { width: 22px; height: 8px; border-radius: 4px; background: var(--line); }
@@ -221,6 +224,7 @@ details.wb.onmap { border-color: var(--accent); }
       <button class="btn" id="buildsbtn" title="Load a build: your saved ideas, a sample's start or a Baseline hero">Builds</button>
       <button class="btn" id="rulesbtn" title="Open a card's Do, Don't and Weight rules">Rules</button>
       <button class="btn" id="simbtn" title="Grey out what the cards on the dish would stop from being dealt">Simulate</button>
+      <button class="btn" id="dealbtn" title="What this sample would deal now, with weights, by damage type and modifier group">Dealing</button>
       <button class="btn danger" id="clear">Clear</button>
       </div>
     </div>
@@ -265,6 +269,7 @@ $('#ver').textContent = 'data from v' + D.version;
 // ---------------------------------------------------------------- state
 let S = { sample: D.samples[0].id, rules: true, sel: null, zoom: 1, weapons: [], custom: [], over: {}, feats: [], pass: [], gates: [], seq: 1, cr: [], crSeq: 1, sim: false, crRemoved: [], full: false };
 let FOCUS = null;
+let IDEA_ST = {}; // (doc id -> the saved row's status and builtIn, read from the "ideas" collection: shows Queued / Filed / Built on the block)
 try { const s = JSON.parse(localStorage.getItem('sp_planner_v1') || 'null'); if (s && s.weapons) S = Object.assign(S, s); if (!S.custom) S.custom = []; if (!S.over) S.over = {}; for (const k of ['feats', 'pass', 'gates', 'cr', 'crRemoved']) if (!S[k]) S[k] = []; if (!S.crSeq) S.crSeq = 1; } catch (e) { }
 const save = () => { if (window.__rsChecked) S.savedAt = Date.now(); try { localStorage.setItem('sp_planner_v1', JSON.stringify(S)); } catch (e) { } if (window.__rsChecked) rsQueue(); }; // (and to your account: rsQueue below. Saves made while the page loads keep the old time, so they never beat a newer copy from another device.)
 const sampleOf = () => D.samples.find(s => s.id === S.sample) || D.samples[0];
@@ -491,11 +496,11 @@ function nodeHtml(n) {
     return `<svg class="sperm" viewBox="0 0 120 60" aria-hidden="true"><defs><radialGradient id="hg" cx="35%" cy="35%" r="75%"><stop offset="0" stop-color="#ffffff" stop-opacity=".95"/><stop offset="1" style="stop-color:${n.col}"/></radialGradient></defs><g class="tail"><path d="M42 30 C 56 16, 66 44, 82 30 S 106 16, 118 30" fill="none" stroke="${n.col}" stroke-width="3" stroke-linecap="round"/></g><ellipse cx="26" cy="30" rx="19" ry="12.5" fill="url(#hg)" stroke="${n.col}" stroke-width="2"/><ellipse cx="21" cy="28.5" rx="7" ry="5" fill="${n.col}" opacity=".6"/></svg>
       <span class="ey"><i></i>${esc(n.ey)}</span><b>${esc(n.title)}</b><p>${esc(n.desc)}</p><div class="types">${s.types.map(t => `<span style="--tc:${tvar(t)}">${esc(tname(t))}</span>`).join('')}</div>`;
   }
-  if (n.kind === 'custom') return `<input class="cg" value="${esc(n.c.tag)}" placeholder="Tag" aria-label="Tag"><input class="ct" value="${esc(n.c.name)}" placeholder="Name it" aria-label="Name"><textarea class="cx" rows="2" placeholder="What it does: numbers, trigger, feel." aria-label="Text">${esc(n.c.text)}</textarea><div class="ty ${n.c.type ? '' : 'unset'}">${n.c.type ? esc(n.c.type) : 'type not set'}${n.c.sid ? (ideaSig(n) === n.c.savedSig ? ' · saved' : ' · changed since saved') : ''}</div>`;
+  if (n.kind === 'custom') return `<input class="cg" value="${esc(n.c.tag)}" placeholder="Tag" aria-label="Tag"><input class="ct" value="${esc(n.c.name)}" placeholder="Name it" aria-label="Name"><textarea class="cx" rows="2" placeholder="What it does: numbers, trigger, feel." aria-label="Text">${esc(n.c.text)}</textarea><div class="ty ${n.c.type ? '' : 'unset'}">${n.c.type ? esc(n.c.type) : 'type not set'}${n.c.sid ? (ideaSig(n) === n.c.savedSig ? ' · saved' : ' · changed since saved') : ''}${ideaBadge(n.c.sid)}</div>`;
   if (n.ov) {
     let h = `<span class="ey"><i></i>${esc(n.ey)} · edited</span><input class="ct" value="${esc(n.ov.name)}" placeholder="Name it" aria-label="Name"><textarea class="cx" rows="2" placeholder="What it does now" aria-label="Text">${esc(n.ov.text)}</textarea>`;
     if (n.kind === 'mod') h += `<div class="pips">${[1, 2, 3].map(r => `<span class="${n.rank >= r ? 'on' : ''}"></span>`).join('')}<em>${n.m.mast ? 'mastery' : 'Rank ' + n.rank}</em></div>`;
-    h += `<div class="ty">${esc(n.ov.type || KIND_TYPE[n.kind] || 'Other')}${n.ov.sid ? (ideaSig(n) === n.ov.savedSig ? ' · saved' : ' · changed since saved') : ''}</div>`;
+    h += `<div class="ty">${esc(n.ov.type || KIND_TYPE[n.kind] || 'Other')}${n.ov.sid ? (ideaSig(n) === n.ov.savedSig ? ' · saved' : ' · changed since saved') : ''}${ideaBadge(n.ov.sid)}</div>`;
     return h;
   }
   let h = `<span class="ey"><i></i>${esc(n.ey)}</span><b>${esc(n.title)}</b>`;
@@ -656,7 +661,9 @@ function renderDetail() {
   d.innerHTML = h;
 }
 let typeRow = (o, dflt) => `<div class="row"><span class="lab">Type</span><select id="ideatype" aria-label="Type">${(dflt ? '' : '<option value="">State what it is…</option>') + IDEA_TYPES.map(t => `<option value="${esc(t)}" ${(o.type || dflt) === t ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select><small style="color:var(--dim)">What ideas.md should file it as.</small></div>`;
-const saveRow = o => `<div class="row"><span class="lab">ideas.md</span><button class="btn" data-act="saveone">Save to ideas.md</button><small style="color:var(--dim)">${o.sid ? (o.savedAt ? 'Saved ' + new Date(o.savedAt).toLocaleString() : 'Saved') + '.' : 'Not saved yet.'}</small></div>`;
+const ideaStatus = id => { const r = id && IDEA_ST[id]; if (!r) return null; const s = String(r.status || 'queued'); return /^built/i.test(s) ? { k: 'built', t: 'Built ' + (r.builtIn ? String(r.builtIn).split(' ')[0] : s.replace(/^built\s*/i, '')).trim() } : s === 'filed' ? { k: 'filed', t: 'Filed' } : { k: 'queued', t: 'Queued' }; };
+const ideaBadge = id => { const b = ideaStatus(id); return b ? `<span class="ist ${b.k}" title="${esc(String((IDEA_ST[id] || {}).builtIn || ''))}">${esc(b.t)}</span>` : ''; };
+const saveRow = o => `<div class="row"><span class="lab">ideas.md</span><button class="btn" data-act="saveone">Save to ideas.md</button><small style="color:var(--dim)">${o.sid ? (o.savedAt ? 'Saved ' + new Date(o.savedAt).toLocaleString() : 'Saved') + '.' : 'Not saved yet.'}${ideaBadge(o.sid)}</small></div>`;
 $('#detail').addEventListener('change', e => {
   if (e.target.id !== 'ideatype') return;
   const n = NODES[S.sel]; const o = n && (n.c || n.ov); if (!o) return;
@@ -938,8 +945,12 @@ async function ideaPrune() {
 const unsavedNodes = () => ideaNodes().filter(n => { const o = n.c || n.ov || n.g; return !o.sid || o.savedSig !== ideaSig(n) || o.sidv !== verStamp(); });
 (async () => {
   try { if (window.claude && window.claude.use) { DB = await window.claude.use('db'); CM = await window.claude.use('comments'); } } catch (e) { }
-  CAPS = true; saveUi();
+  CAPS = true; saveUi(); await ideaStatusLoad();
 })();
+async function ideaStatusLoad() { // (one read of the collection: at boot and after each save)
+  if (!DB) return;
+  try { const q = await DB.collection('ideas').get(); IDEA_ST = {}; for (const d of q.docs) { const r = d.data(); if (r) IDEA_ST[d.id] = { status: r.status, builtIn: r.builtIn }; } render(); } catch (e) { }
+}
 function saveUi() { const b = $('#saveall'), u = unsavedNodes().length; b.innerHTML = 'Save to ideas.md' + (u ? `<span class="n">${u}</span>` : ''); b.disabled = CAPS && !DB; b.title = !CAPS ? '' : DB ? 'Writes your blocks to the planner\'s list and asks Claude to fold them into ideas.md' : 'Sign in to claude.ai to save. Copy ideas still works.'; }
 let SAVING = false;
 async function saveIdeas(nodes) {
@@ -954,13 +965,13 @@ async function saveIdeas(nodes) {
       const o = nd.c || nd.ov || nd.g, path = []; for (let p = nd.parent; p && p.kind !== 'root'; p = p.parent) path.unshift(p.title);
       const id = ideaDocId(nd);
       const row = nd.g ? { type: 'Gate', name: nd.title, text: `${nd.title} (${gateCard(nd.g).kindName}) is only available once ${path.join(' > ')} is taken.`, under: path.join(' > '), sample: smp.name, version: D.version, savedAt: now, status: 'queued', kind: 'gate', tag: 'Gate', variantOf: '', orig: null }
-        : { type: o.type || KIND_TYPE[nd.kind] || 'Other', name: o.name || 'Untitled', text: (o.text || '') + (fldText(o) ? '\n\nFields: ' + fldText(o) : ''), under: path.join(' > ') || '(on the sperm)', sample: smp.name, version: D.version, savedAt: now, status: 'queued',
+        : { type: o.type || KIND_TYPE[nd.kind] || 'Other', name: o.name || 'Untitled', text: (o.text || '') + (fldText(o) ? '\n\nFields: ' + fldText(o) : ''), under: path.join(' > ') || '(on the sperm)', sample: smp.name, version: D.version, savedAt: now, status: 'queued', f: o.f || null,
         kind: nd.c ? 'block' : 'edit', tag: nd.c ? nd.c.tag : nd.ey, variantOf: nd.c ? (nd.c.of || '') : '', orig: nd.ov ? nd.ov.orig : null };
       await DB.collection('ideas').doc(id).set(Object.assign(row, { planVersion: verLabel(), planVersionId: verKey(), planSample: smp.id }));
       o.sid = id; o.sidv = verStamp(); o.savedAt = now; o.savedSig = ideaSig(nd); n++;
     }
   } catch (e) { SAVING = false; save(); render(); toast('Saved ' + n + ' before the list refused: ' + (e && e.code || e && e.message || 'unknown error') + '.'); return; }
-  SAVING = false; save(); render();
+  SAVING = false; for (const nd of nodes) { const id = ideaDocId(nd); if (id && !IDEA_ST[id]) IDEA_ST[id] = { status: 'queued' }; } save(); render(); ideaStatusLoad();
   if (!n) { toast('Nothing new to save.'); return; }
   let sent = false;
   try {
@@ -2428,17 +2439,109 @@ sampleSelUi();
   if (!moved && !verCur() && !ptT().nodes.length) verOpen();
   S.sel = S.sel || 'root'; ptUi();
 })();
+// ---------------------------------------------------------------- sample personality (the user, 31 Oct: "Per-sample personality page. The sperm node's panel should show its identity in one place: own weapons, unique Feat, sample branches, its Do / Don't / Weight rules, and the typed blocks you have added for it. Right now these live in four views.")
+// Appended to the sperm's detail panel (own weapons and Best fit are already there, so they are not repeated). Read only: every edit still happens where it did.
+const SPR_MAX = 10; // chips shown per rule group before "+n more"
+const sprRules = id => S.cr.filter(r => r.sample === id || [r.parent, r.target].some(k => typeof k === 'string' && (k === 's:' + id || k.startsWith('sb:' + id) || k.startsWith('sbc:' + id))));
+function sprHtml() {
+  const sm = sampleOf(), id = sm.id, X = smbD();
+  const T = t => `<div class="sec spr"><h3>${t}</h3>`, dim = t => `<small style="color:var(--dim)">${t}</small>`;
+  let h = `<div class="spr-wrap"><div class="spr-top">Personality</div>`;
+  h += T('Identity') + `<small><b>${esc(sm.name)}</b> · strain ${esc(String(sm.strain))}${sm.types && sm.types.length ? ' · ' + sm.types.map(esc).join(', ') : ''}</small>` + (sm.passive ? `<small>${esc(sm.passive)}${sm.pdesc ? ': ' + esc(sm.pdesc) : ''}</small>` : '') + (sm.background ? `<small style="color:var(--dim)">${esc(sm.background)}</small>` : '') + '</div>';
+  const fs = D.feats.filter(f => f.sample === id);
+  h += T('Unique Feat') + (fs.length ? fs.map(f => `<small><b>${esc(f.name)}</b>${f.does ? ': ' + esc(f.does) : ''}</small>`).join('') : dim('None.')) + '</div>';
+  h += T('Sample branches' + (X ? ' · run Lv ' + X.at.join(' / ') : '')) + (X ? X.promises.map(P => `<small><b>${esc(P.k)} · ${esc(P.name)}</b>${P.tag ? ` <span style="color:var(--dim)">${esc(P.tag)}</span>` : ''}</small>`).join('') : dim('None: this sample has no branch set of its own.')) + '</div>';
+  const rs = sprRules(id), grp = (m, label) => {
+    const L = rs.filter(r => r.mode === m);
+    return `<div class="spr-g"><span class="lab">${label} ${L.length}</span>` + (L.length ? L.slice(0, SPR_MAX).map(r => `<button class="btn spr-chip" data-sprk='${esc(r.parent)}' title="Open ${esc(rpName(r.parent))} in the rules panel">${esc(rpName(r.parent))} -> ${esc(rpName(r.target))}${m === 'weight' ? ' x' + (r.k != null ? r.k : '?') : ''}</button>`).join('') + (L.length > SPR_MAX ? dim('+' + (L.length - SPR_MAX) + ' more') : '') : dim('none')) + '</div>';
+  };
+  h += T('Card rules') + grp('do', 'Do') + grp('dont', "Don't") + grp('weight', 'Weight') + '</div>';
+  const cu = S.custom, ov = Object.keys(S.over).map(k => S.over[k]), ver = typeof verLabel === 'function' ? verLabel() : 'data v' + D.version;
+  h += T('Your blocks') + `<small>${cu.length} block${cu.length === 1 ? '' : 's'}, ${ov.length} edit${ov.length === 1 ? '' : 's'} · ${esc(ver)}</small>`
+    + cu.concat(ov).map(o => `<small><b>${esc(o.name || 'Untitled')}</b> <span style="color:var(--dim)">${esc(o.type || (o.orig ? 'edit' : 'Other'))}</span></small>`).join('') + '</div></div>';
+  return h;
+}
+renderDetail = (orig => function () {
+  const r = orig.apply(this, arguments), n = NODES[S.sel];
+  if (n && n.kind === 'root') $('#detail').insertAdjacentHTML('beforeend', sprHtml());
+  return r;
+})(renderDetail);
+$('#detail').addEventListener('click', e => {
+  const b = e.target.closest('[data-sprk]'); if (!b) return;
+  e.stopPropagation(); rpOpen(b.dataset.sprk);
+}, true);
+document.head.insertAdjacentHTML('beforeend', '<style>.spr-wrap { display: flex; flex-direction: column; gap: 8px; border-top: 1px dashed var(--line); padding-top: 8px; } .spr-top { font: 700 13px var(--display); } .spr { display: flex; flex-direction: column; gap: 2px; } .spr small { font-size: 12px; } .spr-g { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; } .spr-chip { padding: 2px 7px; font: 500 11px var(--mono); }</style>');
+// ---------------------------------------------------------------- dealing readout (the user, 31 Oct: "Show the dealing result, not just the rules ... a per-sample 'what would the run offer' readout from the rules (counts by damage type and modifier group) so I can see a sample's personality in one glance and adjust weights until it matches")
+// A toolbar toggle and its own panel (the rules panel is busy with the open card; this one slides in beside it, so the two can be read together).
+const DL = { open: false };
+function rpWeight(k, w) { // the game's crWeight: the product of every live Weight rule whose parent is held and whose target covers the card
+  let x = 1; if (!S.cr.length || !k) return x;
+  const HW = w ? rpHeldFor('weapon', w) : null, HR = rpHeldFor('run', null);
+  for (const r of S.cr) {
+    if (r.mode !== 'weight' || !rpCovers(r.target, k) || !rpLive(r)) continue;
+    const held = (r.scope || 'weapon') === 'weapon' && w ? HW : HR;
+    if (!rpCond(r, held, w) || !held.some(h => rpCovers(r.parent, h))) continue;
+    x *= r.k == null || isNaN(+r.k) ? 1 : Math.max(0, +r.k);
+  }
+  return x;
+}
+const dlEff = (k, w) => { const why = rpWhy(k, w); return why ? { x: 0, why } : { x: rpWeight(k, w), why: null }; };
+const dlX = e => e.why ? 'blocked' : 'x' + +e.x.toFixed(2);
+function dlData() {
+  const held = S.weapons.map(w => w.id), sw = selW() || (S.weapons[0] ? S.weapons[0] : null), D0 = { wt: {}, mg: {}, w: [], m: [], f: [], p: [], sw };
+  for (const id of WIDS) { if (held.includes(id)) continue; const e = dlEff('w:' + id, null); D0.w.push(Object.assign({ id, name: W(id).name, t: W(id).type }, e)); if (!e.why) D0.wt[W(id).type] = (D0.wt[W(id).type] || 0) + e.x; }
+  if (sw) for (const id of W(sw.id).mods) { if (BUILTIN.includes(id) || sw.mods.some(m => m.id === id)) continue; const e = dlEff('m:' + id, sw); D0.m.push(Object.assign({ id, name: M(id).name, g: M(id).group }, e)); if (!e.why) D0.mg[M(id).group] = (D0.mg[M(id).group] || 0) + e.x; }
+  for (const f of D.feats) { if ((f.sample && f.sample !== S.sample) || S.feats.some(x => x.id === f.id)) continue; const e = dlEff('f:' + f.id, null); D0.f.push(Object.assign({ id: f.id, name: f.name, t: f.atk ? f.type : 'util' }, e)); if (!e.why && f.atk) D0.wt[f.type] = (D0.wt[f.type] || 0) + e.x; }
+  for (const q of D.passives) { if (S.pass.some(x => x.id === q.id)) continue; D0.p.push(Object.assign({ id: q.id, name: q.name }, dlEff('p:' + q.id, null))); }
+  return D0;
+}
+const dlTop = o => Object.entries(o).filter(e => e[1] > 0).sort((a, b) => b[1] - a[1]);
+function dlSummary(d) {
+  const t = dlTop(d.wt), g = dlTop(d.mg), pct = (a, tot) => Math.round(100 * a[1] / tot);
+  if (!t.length) return 'Nothing left to deal. The rules have been thorough.';
+  const tt = t.reduce((s, e) => s + e[1], 0), gt = g.reduce((s, e) => s + e[1], 0);
+  return `Leans ${tname(t[0][0])}${g.length ? ' and ' + (D.gnames[g[0][0]] || g[0][0]) : ''}. ${tname(t[0][0])} is ${pct(t[0], tt)}% of the weapon and Feat weight${g.length ? '; ' + (D.gnames[g[0][0]] || g[0][0]) + ' is ' + pct(g[0], gt) + '% of the modifier weight' : ''}.`;
+}
+function dlRows(list, key) { // grouped rows: dealable (heaviest first), then blocked, greyed, with the first reason
+  const by = {}; for (const e of list) (by[e[key]] = by[e[key]] || []).push(e);
+  return by;
+}
+function dlChips(es) { return es.sort((a, b) => b.x - a.x || a.name.localeCompare(b.name)).map(e => `<span class="chip dlchip${e.why ? ' blocked' : ''}" ${e.why ? `title="${esc(e.why)}"` : ''}><b>${esc(e.name)}</b><small>${dlX(e)}</small></span>`).join(''); }
+function dlRender() {
+  const el = $('#dealpanel'); if (!el) return;
+  el.classList.toggle('open', DL.open); el.style.right = RP.open ? 'min(400px, 94vw)' : '0'; $('#dealbtn').classList.toggle('on', DL.open);
+  if (!DL.open) { el.innerHTML = ''; return; }
+  const d = dlData(), sm = sampleOf(); let h = `<div class="rp-ey">Dealing · ${esc(sm.name)} · ${S.cr.length} rules</div><p class="dlsum">${esc(dlSummary(d))}</p><button class="btn" id="dlclose">Close</button>`;
+  const wb = dlRows(d.w, 't'), types = Object.keys(D.types).filter(t => wb[t]);
+  h += `<div class="sec"><h3>Weapons not on the dish (${d.w.filter(e => !e.why).length} of ${d.w.length} could come)</h3>`;
+  for (const t of types) h += `<div class="dlg"><span class="rp-lab" style="color:${tvar(t)}">${esc(tname(t))}</span><div class="chips">${dlChips(wb[t])}</div></div>`;
+  h += '</div>';
+  h += `<div class="sec"><h3>Modifiers${d.sw ? ' for ' + esc(W(d.sw.id).name) : ''}</h3>`;
+  if (!d.sw) h += '<p class="hint">No weapon on the dish. Modifiers are dealt per weapon.</p>';
+  else { const mb = dlRows(d.m, 'g'); for (const g of GORDER) if (mb[g]) h += `<div class="dlg"><span class="rp-lab" style="color:${gvar(g)}">${esc(D.gnames[g] || g)}</span><div class="chips">${dlChips(mb[g])}</div></div>`; }
+  h += '</div>';
+  const fOk = d.f.filter(e => !e.why), fBl = d.f.filter(e => e.why), cnt = {}; for (const e of fOk) cnt[e.t] = (cnt[e.t] || 0) + 1;
+  h += `<div class="sec"><h3>Feats (${fOk.length} of ${d.f.length} could come)</h3><div class="chips">${Object.keys(cnt).map(t => `<span class="chip dlchip"><b>${esc(t === 'util' ? 'Utility' : tname(t))}</b><small>${cnt[t]} · x${+fOk.filter(e => e.t === t).reduce((s, e) => s + e.x, 0).toFixed(2)} total</small></span>`).join('') || '<span class="hint">None.</span>'}</div>`;
+  h += `<h3 style="margin-top:8px">Passives (${d.p.filter(e => !e.why).length} of ${d.p.length} could come)</h3><div class="chips"><span class="chip dlchip"><b>Weighted</b><small>${d.p.filter(e => !e.why && e.x !== 1).map(e => e.name + ' ' + dlX(e)).join(', ') || 'none, all x1'}</small></span></div></div>`;
+  const bl = fBl.concat(d.p.filter(e => e.why));
+  h += `<div class="sec"><h3>Blocked Feats and passives (${bl.length})</h3>${bl.length ? bl.map(e => `<div class="dlbl"><b>${esc(e.name)}</b> <small>${esc(e.why)}</small></div>`).join('') : '<p class="hint">Nothing blocked.</p>'}</div>`;
+  el.innerHTML = h; $('#dlclose').onclick = () => { DL.open = false; dlRender(); };
+}
+{ const st = document.createElement('style'); st.textContent = '.dealpanel { position: fixed; top: 0; right: 0; bottom: 0; width: min(380px, 94vw); background: var(--panel); border-left: 1px solid var(--line); box-shadow: -8px 0 24px #0003; z-index: 39; padding: 12px; overflow-y: auto; transform: translateX(110%); transition: transform .15s; display: flex; flex-direction: column; gap: 8px } .dealpanel.open { transform: none } .dlsum { font: 700 14px/1.3 var(--display); margin: 0 } .dlg { display: flex; gap: 6px; align-items: flex-start; margin-bottom: 4px } .dlg .rp-lab { min-width: 70px; padding-top: 5px } .dlchip { cursor: default; padding: 3px 7px } .dlchip.blocked { opacity: .4; text-decoration: line-through } .dlbl { font-size: 12px } .dlbl small { color: var(--dim) }'; document.head.appendChild(st); const a = document.createElement('aside'); a.className = 'dealpanel'; a.id = 'dealpanel'; a.setAttribute('aria-label', 'Dealing readout'); document.body.appendChild(a); }
+$('#dealbtn').onclick = () => { DL.open = !DL.open; dlRender(); };
+for (const fn of ['render', 'rpRender', 'rpShow']) { const o = window[fn] || eval(fn); if (typeof o !== 'function') continue; const w = function () { const r = o.apply(this, arguments); try { dlRender(); } catch (e) { console.error(e); } return r; }; try { eval(fn + ' = w'); } catch (e) { } }
 
-// ---------------------------------------------------------------- collapse all / expand all (the user, 31 Oct)
-$('#clear').insertAdjacentHTML('beforebegin', '<button class="btn" id="colall" title="Hide or show everything after the first cards">Collapse all</button>');
-const colAnyClosed = () => Object.keys(S.collapsed || {}).length > 0;
-const colUi = () => { const b = $('#colall'); if (b) b.textContent = colAnyClosed() ? 'Expand all' : 'Collapse all'; };
-$('#colall').onclick = () => {
-  if (colAnyClosed()) S.collapsed = {};
-  else { S.collapsed = {}; const T = ptT(), has = new Set(T.nodes.map(x => x.parent)); for (const x of T.nodes) if (x.parent === 'root' && has.has(x.id)) S.collapsed['pt' + x.id] = true; }
-  save(); render(); colUi(); setTimeout(() => $('#zfit').click(), 30);
-};
-render = (orig => function () { const r = orig.apply(this, arguments); try { colUi(); } catch (e) { } return r; })(render);
+// ---------------------------------------------------------------- collapse all / expand all (the user, 31 Oct): two buttons, so each always does what it says
+$('#clear').insertAdjacentHTML('beforebegin', '<button class="btn" id="colall" title="Fold every card that has cards after it: open them again one at a time with their +N button">Collapse all</button><button class="btn" id="expall" title="Open every folded card">Expand all</button>');
+$('#colall').onclick = () => { const T = ptT(), has = new Set(T.nodes.map(x => x.parent)); S.collapsed = {}; for (const x of T.nodes) if (has.has(x.id)) S.collapsed['pt' + x.id] = true; save(); render(); setTimeout(() => $('#zfit').click(), 30); };
+$('#expall').onclick = () => { S.collapsed = {}; save(); render(); setTimeout(() => $('#zfit').click(), 30); };
+// ---------------------------------------------------------------- hover details on card buttons (the user, 31 Oct): what each card is and does
+function cardTip(k) { if (!k) return ''; const I = ptInfo(k); return [I.title, I.ey.replace(/^⊘ /, ''), I.desc].filter(Boolean).join('\n'); }
+renderDetail = (orig => function () {
+  const r = orig.apply(this, arguments);
+  for (const b of document.querySelectorAll('#detail [data-pt]')) { try { const [a, , k] = JSON.parse(b.dataset.pt); if (a === 'add' && k && !b.title) b.title = cardTip(k); } catch (e) { } }
+  return r;
+})(renderDetail);
 // ---------------------------------------------------------------- boot
 try { if (window.claude && window.claude.hot && window.claude.hot.snapshot) window.claude.hot.snapshot(() => S); } catch (e) { }
 // (a live update hands over the old page's state: put this version's default rules back in)
