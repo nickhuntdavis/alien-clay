@@ -2029,6 +2029,23 @@ ptDetailHtml = (orig => function (n) {
 })(ptDetailHtml);
 fldOwner = (orig => function () { const n = NODES[S.sel]; if (S.tree && n && n.kind === 'pt' && !n.pt.blank) { const x = treeNode(n), d = treeFld(x.key); if (d) { x.type = d.type; x.f = x.f || {}; return x; } } return orig.apply(this, arguments); })(fldOwner);
 
+// New weapons and Feats made from a blank block start from the game's typical values for the attack type chosen (the median of the existing cards of that type).
+const fldMed = a => { a = a.filter(x => x > 0).sort((x, y) => x - y); return a.length ? a[Math.floor((a.length - 1) / 2)] : ''; };
+function fldDefaults(type, at) {
+  const R = x => Math.round(x * 100) / 100;
+  if (type === 'Weapon') { const L = Object.values(D.weapons).filter(w => w.atk === at && w.stats), m = k => fldMed(L.map(w => w.stats[k] || 0));
+    return { dmg: m('dmg'), rof: m('rof'), mag: m('mag'), rel: m('rel'), rng: m('rng'), crit: m('crit'), critb: m('critb') }; }
+  if (type === 'Feat') { const L = D.feats.filter(f => f.atk === at && f.base), m = k => fldMed(L.map(f => f.base[k] || 0));
+    return { stam: fldMed(D.feats.filter(f => f.atk === at).map(f => f.stam || 0)), cd: m('cd'), dur: m('dur'), rng: m('rng'), dmg: m('dmg') }; }
+  return {};
+}
+$('#detail').addEventListener('change', e => {
+  const el = e.target; if (!el.dataset || el.dataset.fld !== 'at') return;
+  const o = fldOwner(); if (!o || !(o.blank || o.card !== undefined || o.parent !== undefined) || (o.type !== 'Weapon' && o.type !== 'Feat')) return;
+  const d = fldDefaults(o.type, o.f && o.f.at); let n = 0;
+  for (const k of Object.keys(d)) if (d[k] !== '' && (o.f[k] == null || o.f[k] === '')) { o.f[k] = d[k]; n++; }
+  if (n) { save(); const keep = S.sel; render(); S.sel = keep; renderDetail(); toast('Filled ' + n + ' values with the usual ' + o.f.at + ' ' + o.type.toLowerCase() + ' defaults.'); }
+});
 // ---------------------------------------------------------------- the detail drawer is a side panel overlay on the right (the user, 31 Oct)
 document.head.insertAdjacentHTML('beforeend', '<style>.dish > .detail{position:absolute;right:10px;width:360px;max-width:calc(100% - 20px);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.22);z-index:30}.dish > .detail[hidden]{display:none}.dclose{position:sticky;top:0;align-self:flex-end;margin:-4px -6px -22px 0;padding:0 8px;line-height:22px;z-index:2}.dtab{position:absolute;right:10px;z-index:30}.dtab[hidden]{display:none}</style>');
 document.querySelector('#map').insertAdjacentHTML('afterend', '<button class="btn dtab" id="dtab" hidden>Details</button>');
