@@ -1225,9 +1225,11 @@ function rpLinks() {
   if (!S.cr.length || !LAST) return;
   const nodes = LAST.all.filter(n => n.el && rpNodeKey(n)).map(n => ({ n, k: rpNodeKey(n) }));
   let h = '';
+  const sk = (() => { const n = NODES[S.sel]; try { return n ? rpNodeKey(n) : null; } catch (e) { return null; } })(); if (!sk) return; // (only the selected card's rules: the user, 31 Oct)
   for (const r of S.cr) {
     const a = nodes.find(o => o.k === r.parent); if (!a) continue;
-    for (const b of nodes.filter(o => o !== a && rpCovers(r.target, o.k))) {
+    const mine = r.parent === sk; if (!mine && !rpCovers(r.target, sk)) continue;
+    for (const b of nodes.filter(o => o !== a && rpCovers(r.target, o.k) && (mine || o.k === sk))) {
       const x1 = a.n.x + a.n.wd / 2, y1 = a.n.y + a.n.h / 2, x2 = b.n.x + b.n.wd / 2, y2 = b.n.y + b.n.h / 2, mx = (x1 + x2) / 2, my = Math.min(y1, y2) - 40;
       h += `<path d="M${x1} ${y1} Q${mx} ${my} ${x2} ${y2}" style="stroke:var(--${r.mode === 'dont' ? 'g-lifesteal' : r.mode === 'do' ? 'g-chemistry' : 'g-area'})"/>`;
     }
