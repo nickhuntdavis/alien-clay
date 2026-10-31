@@ -24,12 +24,13 @@ body { margin: 0; box-sizing: border-box; background: var(--bg); color: var(--in
 * { box-sizing: border-box; }
 button, input, select { font: inherit; color: inherit; }
 button { cursor: pointer; }
-button, .btn, .chip, .tabs button { font-weight: 400 !important; font-size: 13px !important; } /* (the user, 31 Oct: all buttons regular weight, 13px) */
+button, .btn, .chip, .tabs button { font-weight: 400 !important; font-size: 13px !important; }
+.tabs { overflow-x: auto; } .tabs button { font-size: 12px !important; padding-left: 6px; padding-right: 6px; flex: 0 0 auto; } /* (the user, 31 Oct: all buttons regular weight, 13px) */
 header { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
 header h1 { font: 800 22px/1 var(--display); margin: 0; letter-spacing: -0.01em; }
 header .sub { color: var(--dim); font-size: 13px; }
 header .ver { margin-left: auto; font: 500 11px var(--mono); color: var(--dim); }
-.bench { flex: 1; min-height: 0; display: grid; grid-template-columns: 330px minmax(0, 1fr); gap: 12px; }
+.bench { flex: 1; min-height: 0; display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 12px; }
 @media (max-width: 860px) { .bench { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) 44vh; } .rack { order: 2; } }
 
 /* rack */
@@ -38,16 +39,17 @@ header .ver { margin-left: auto; font: 500 11px var(--mono); color: var(--dim); 
 .tabs button { flex: 1; background: none; border: 0; padding: 10px 6px; font: 700 13px var(--display); color: var(--dim); border-bottom: 2px solid transparent; }
 .tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
 .tabs button:focus-visible, .chip:focus-visible, .node:focus-visible, .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.rackbody { overflow: auto; padding: 10px; flex: 1; min-height: 0; }
+.rackbody { overflow: auto; padding: 8px; flex: 1; min-height: 0; }
 .rackbody input[type="search"] { width: 100%; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel2); margin-bottom: 10px; }
 .sec { margin: 0 0 12px; }
 .sec h3 { font: 600 10.5px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--dim); margin: 0 0 6px; display: flex; align-items: center; gap: 6px; }
 .sec h3 i { width: 9px; height: 9px; border-radius: 50%; background: var(--c); display: inline-block; }
-.chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.chip { --c: var(--accent); display: inline-flex; flex-direction: column; gap: 1px; padding: 5px 9px 5px 10px; border: 1px solid var(--line); border-left: 4px solid var(--c); border-radius: 8px;
+.chips { display: flex; flex-direction: column; flex-wrap: nowrap; gap: 4px; }
+.chips .chip { width: 100%; }
+.chip { --c: var(--accent); display: inline-flex; flex-direction: column; gap: 1px; padding: 3px 7px 3px 8px; border: 1px solid var(--line); border-left: 4px solid var(--c); border-radius: 7px;
   background: var(--panel); cursor: grab; user-select: none; -webkit-user-select: none; touch-action: pan-y; max-width: 100%; text-align: left; }
 .chip b { font: 700 13px/1.15 var(--display); }
-.chip small { font-size: 11px; color: var(--dim); }
+.chip small { font-size: 10.5px; color: var(--dim); }
 .chip .fits { font: 500 10px var(--mono); color: var(--dim); letter-spacing: .02em; }
 .chip.dim { opacity: .38; }
 .chip.held { background: var(--hi); border-color: var(--accent); }
@@ -195,7 +197,7 @@ details.wb.onmap { border-color: var(--accent); }
       <button role="tab" aria-selected="true" data-tab="weapons" id="tab-weapons">Weapons</button>
       <button role="tab" aria-selected="false" data-tab="mods" id="tab-mods">Modifiers</button>
       <button role="tab" aria-selected="false" data-tab="branches" id="tab-branches">Branches</button>
-      <button role="tab" aria-selected="false" data-tab="feats" id="tab-feats">Feats &amp; more</button>
+      <button role="tab" aria-selected="false" data-tab="feats" id="tab-feats" title="Feats, sperm passives and gates">Feats</button>
     </div>
     <div class="rackbody" id="rack"></div>
   </section>
@@ -678,7 +680,12 @@ $('#detail').addEventListener('click', e => {
 layout = (orig => function () { orig.apply(this, arguments); try { rpLinks(); } catch (e) { } })(layout);
 let TAB = 'weapons', Q = '';
 const chip = (p, name, sub, col, cls, fits) => { const sk = S.sim ? rpPayloadKey(p) : null, why = sk ? rpWhy(sk, rpCtxFor(p)) : null; return chipHtml(p, name, sub, col, (cls || '') + (why ? ' blocked' : ''), fits, why); };
-const chipHtml = (p, name, sub, col, cls, fits, why) => `<button ${why ? `title="${esc(why)}" ` : ''}class="chip ${cls || ''}" style="--c:${col}" data-p='${esc(JSON.stringify(p))}'><b>${esc(name)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}${fits ? `<span class="fits">${esc(fits)}</span>` : ''}</button>`;
+const chipSub = sub => { // the damage type is the card's colour: leave its name out of the line
+  if (!sub) return sub; const names = Object.keys(D.types || {}).map(tname).filter(Boolean).sort((x, y) => y.length - x.length);
+  let s = String(sub); for (const n of names) s = s.split(n).join('');
+  return s.split('·').map(x => x.trim()).filter(Boolean).join(' · ');
+};
+const chipHtml = (p, name, sub, col, cls, fits, why) => (sub = chipSub(sub), `<button ${why ? `title="${esc(why)}" ` : ''}class="chip ${cls || ''}" style="--c:${col}" data-p='${esc(JSON.stringify(p))}'><b>${esc(name)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}${fits ? `<span class="fits">${esc(fits)}</span>` : ''}</button>`);
 const match = s => !Q || s.toLowerCase().includes(Q);
 function renderRack() {
   const r = $('#rack'), smp = sampleOf(), sw = selW(), onMap = S.weapons.map(w => w.id);
@@ -1845,18 +1852,18 @@ function verTrack() {
   if (VER.liveSig[S.sample] == null) { VER.loading = true; try { verLoadLive(); verRestore(st); } finally { VER.loading = false; } } // (what Live looks like, without showing it)
   if (sig !== VER.liveSig[S.sample]) { const n = verNew(null, st); save(); verUi(); toast('Saved as a new version: ' + n.name + '. Live in code is unchanged.'); }
 }
-render = (orig => function () { const r = orig.apply(this, arguments); try { verTrack(); if ($('#ver')) verUi(); } catch (e) { } return r; })(render);
+render = (orig => function () { const r = orig.apply(this, arguments); try { verTrack(); if ($('#verSel')) verUi(); } catch (e) { } return r; })(render);
 const verWhen = t => { const d = new Date(t); return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) + ' ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }); };
 function verUi() {
-  const s = $('#ver'), v = verCur(), L = verList();
+  const s = $('#verSel'), v = verCur(), L = verList();
   s.innerHTML = `<option value="">Live in code (v${esc(String(D.version || ''))})</option>` + (L.length ? `<optgroup label="Your versions">${L.map(x => `<option value="${esc(x.id)}">${esc(x.name)} · ${esc(verWhen(x.at))}</option>`).join('')}</optgroup>` : '')
     + `<optgroup label="Actions"><option value="__new">+ Save as a new version</option>${v ? '<option value="__del">Delete this version</option>' : ''}</optgroup>`;
   s.value = v ? v.id : '';
   const nm = $('#vername'); nm.hidden = !v; if (v && document.activeElement !== nm) nm.value = v.name;
 }
-$('#sample').closest('label').insertAdjacentHTML('afterend', '<label for="ver">Version <select id="ver"></select></label><input id="vername" class="vername" aria-label="Version name" placeholder="Name this version" hidden>');
+$('#sample').closest('label').insertAdjacentHTML('afterend', '<label for="verSel">Version <select id="verSel"></select></label><input id="vername" class="vername" aria-label="Version name" placeholder="Name this version" hidden>');
 document.head.insertAdjacentHTML('beforeend', '<style>.vername{padding:5px 8px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);font:inherit;width:150px}.vername[hidden]{display:none}</style>');
-$('#ver').onchange = e => {
+$('#verSel').onchange = e => {
   const val = e.target.value;
   if (val === '__new') { const n = verNew(sampleOf().name + ' ' + (verList().length + 1)); save(); verUi(); toast('Saved as a new version: ' + n.name + '.'); return; }
   if (val === '__del') {
@@ -1874,7 +1881,7 @@ $('#sample').onchange = () => { S.sample = $('#sample').value; S.sel = 'root'; v
   S.vers = S.vers || {}; S.verSel = S.verSel || {};
   if (!S.versSeeded) {
     S.versSeeded = 1;
-    if (!verCur() && (S.weapons.length || S.custom.length || S.feats.length || S.pass.length || (S.trees && S.trees[S.sample] && S.trees[S.sample].nodes && S.trees[S.sample].nodes.length))) verNew(sampleOf().name + ': my dish');
+    // (a dish from before versions that differs from Live becomes a version on the first render: verTrack)
     save();
   }
   verUi();
