@@ -72,6 +72,8 @@ details.wb.onmap { border-color: var(--accent); }
 /* dish */
 .dish { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; display: flex; flex-direction: column; min-height: 0; min-width: 0; overflow: hidden; }
 .dishbar { display: flex; gap: 8px; align-items: center; padding: 8px 10px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.actrow { flex: 1 0 100%; display: flex; flex-wrap: nowrap; gap: 8px; overflow-x: auto; }
+.actrow .btn { flex: 0 0 auto; white-space: nowrap; }
 .dishbar label { font: 600 10.5px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--dim); display: flex; align-items: center; gap: 6px; }
 .dishbar select { padding: 5px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel2); max-width: 60vw; }
 .btn { padding: 5px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel2); font: 700 12px var(--display); }
@@ -210,6 +212,7 @@ details.wb.onmap { border-color: var(--accent); }
       <span class="sync" id="sync" title="Where your dish is kept"></span>
       <span class="sp"></span>
       <div class="zoom"><button class="btn" id="zout" title="Zoom out">−</button><button class="btn" id="zfit" title="Fit">Fit</button><button class="btn" id="zin" title="Zoom in">+</button></div>
+      <div class="actrow">
       <button class="btn" id="copy">Copy build</button>
       <button class="btn" id="ideas">Copy ideas</button>
       <button class="btn" id="saveall" title="Writes your blocks to the planner's list and asks Claude to fold them into ideas.md">Save to ideas.md</button>
@@ -218,6 +221,7 @@ details.wb.onmap { border-color: var(--accent); }
       <button class="btn" id="rulesbtn" title="Open a card's Do, Don't and Weight rules">Rules</button>
       <button class="btn" id="simbtn" title="Grey out what the cards on the dish would stop from being dealt">Simulate</button>
       <button class="btn danger" id="clear">Clear</button>
+      </div>
     </div>
     <div class="bpop" id="bpop" hidden></div>
     <div class="map" id="map"><div class="sizer" id="sizer"><div class="stage" id="stage"></div></div></div>
