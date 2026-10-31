@@ -1039,7 +1039,7 @@ function rpWeaponKeys(w) {
   if (w.wmast != null && wd.masteries[w.wmast]) out.push('wb:' + w.id + ':' + wd.masteries[w.wmast].name);
   return out;
 }
-const rpRunKeys = () => S.feats.map(f => 'f:' + f.id).concat(S.pass.map(x => 'p:' + x.id), S.pass.filter(x => x.mast != null).map(x => 'pm:' + x.id + ':' + (x.mast ? 'B' : 'A')), ['s:' + S.sample], typeof rpSmbKeys === 'function' ? rpSmbKeys() : []);
+const rpRunKeys = () => S.feats.map(f => 'f:' + f.id).concat(S.custom.filter(c => c.type).map(c => 'cb:' + c.u), S.pass.map(x => 'p:' + x.id), S.pass.filter(x => x.mast != null).map(x => 'pm:' + x.id + ':' + (x.mast ? 'B' : 'A')), ['s:' + S.sample], typeof rpSmbKeys === 'function' ? rpSmbKeys() : []);
 let PT_HELD = null; // (a build tree path standing in for the dish: build trees, below)
 const rpHeldFor = (scope, w) => PT_HELD ? PT_HELD.slice() : (scope === 'weapon' && w ? rpWeaponKeys(w) : S.weapons.flatMap(rpWeaponKeys)).concat(rpRunKeys());
 const rpLive = r => !(r.sample && r.sample !== S.sample) && !(r.branch && !rpHeldFor('run', null).some(h => rpCovers(r.branch, h)));
@@ -1205,7 +1205,7 @@ function rpLinks() {
   svg.innerHTML = h; stage.appendChild(svg);
 }
 // Save to the game: the artifact's database (collection "rules", doc "current"), then a comment asks Claude to apply them.
-async function rpSave() {
+let rpSave = async function () {
   if (!DB) { toast(CAPS ? 'Saving needs a claude.ai sign-in. Use Copy rules and paste them to Claude instead.' : 'Still connecting. Try again in a moment.'); return; }
   const bad = rpHealth().filter(t => /both Do and Don't|can never come/.test(t));
   if (bad.length) { toast('Fix first: ' + bad[0]); return; }
@@ -2048,6 +2048,80 @@ $('#detail').addEventListener('change', e => {
   for (const k of Object.keys(d)) if (d[k] !== '' && (o.f[k] == null || o.f[k] === '')) { o.f[k] = d[k]; n++; }
   if (n) { save(); const keep = S.sel; render(); S.sel = keep; renderDetail(); toast('Filled ' + n + ' values with the usual ' + o.f.at + ' ' + o.type.toLowerCase() + ' defaults.'); }
 });
+// ---------------------------------------------------------------- rules panel: modifiers per weapon, custom blocks (the user, 31 Oct)
+// Custom blocks (a blank block with a Type) get rule keys of their own: cb:<id> on the dish, x:<id> in a build tree. They work in the rules panel,
+// Simulate and Health like any card, but a rule about one is planner-only: "Save rules to the game" leaves them out (the game has no such card).
+const rpCustom = k => /^(cb|x):/.test(k);
+const rpCbOf = k => /^cb:/.test(k) ? S.custom.find(c => 'cb:' + c.u === k) : (ptT().nodes.find(x => x.key === k) || null);
+rpName = (orig => function (k) { if (k && /^cb:/.test(k)) { const c = rpCbOf(k); return (c && c.name) || 'Untitled block'; } return orig.apply(this, arguments); })(rpName);
+rpKindLabel = (orig => function (k) { if (k && rpCustom(k)) { const c = rpCbOf(k); return 'Custom ' + ((c && c.type) || 'block'); } return orig.apply(this, arguments); })(rpKindLabel);
+rpNodeKey = (orig => function (n) {
+  if (n && n.kind === 'custom') return n.c.type ? 'cb:' + n.c.u : null;
+  if (n && n.kind === 'pt' && n.pt.blank) return n.pt.type ? n.key : null;
+  return orig.apply(this, arguments);
+})(rpNodeKey);
+rpTags = (orig => function (k) { return rpCustom(k) ? ['k:x'] : orig.apply(this, arguments); })(rpTags);
+const rpPlain = r => !(rpCustom(r.parent) || rpCustom(r.target));
+rpSave = (orig => async function () {
+  const all = S.cr, mine = all.filter(r => !rpPlain(r));
+  if (mine.length) { S.cr = all.filter(rpPlain); toast(mine.length + ' rule' + (mine.length === 1 ? '' : 's') + ' about custom blocks stay in the planner (the game has no such cards).'); }
+  try { return await orig.apply(this, arguments); } finally { S.cr = all; }
+})(rpSave);
+// A weapon's modifiers: allowed (default), not allowed (a Don't rule) or attached (comes with the weapon, built in).
+S.attach = S.attach || {};
+const wmDeny = (k, mk) => S.cr.filter(r => r.mode === 'dont' && rpPlain(r) && ((r.parent === k && r.target === mk) || (r.parent === mk && r.target === k)));
+const wmState = (k, mid) => ((S.attach[k] || []).includes(mid) ? 'attach' : wmDeny(k, 'm:' + mid).length ? 'deny' : 'allow');
+function wmSet(k, mid, st) {
+  const mk = 'm:' + mid; S.attach = S.attach || {};
+  for (const r of wmDeny(k, mk)) { if (rpIsDefault(r) && !S.crRemoved.includes(rpSig(r))) S.crRemoved.push(rpSig(r)); S.cr = S.cr.filter(x => x.id !== r.id); }
+  S.attach[k] = (S.attach[k] || []).filter(x => x !== mid);
+  if (st === 'deny') S.cr.push({ id: 'r' + (S.crSeq++), parent: k, mode: 'dont', target: mk, scope: 'weapon' });
+  if (st === 'attach') S.attach[k].push(mid);
+  save(); wmApply(); rpRender(); render();
+}
+function wmApply() { // attached modifiers are on the dish weapon already (built in, no remove button)
+  for (const w of S.weapons) for (const mid of S.attach['w:' + w.id] || []) if (M(mid) && !w.mods.some(m => m.id === mid)) w.mods.push({ id: mid, rank: 1, br: null, mast: null, builtin: true });
+}
+function wmHtml(k) {
+  if (!(/^w:/.test(k) || rpCustom(k))) return '';
+  if (rpCustom(k)) { const c = rpCbOf(k); if (!c || c.type !== 'Weapon') return ''; }
+  const q = (RP.mq || '').toLowerCase(), ids = Object.keys(D.mods).filter(id => !q || M(id).name.toLowerCase().includes(q));
+  const rank = id => ({ attach: 0, deny: 1, allow: 2 }[wmState(k, id)]);
+  ids.sort((a, b) => rank(a) - rank(b) || M(a).name.localeCompare(M(b).name));
+  const rows = ids.slice(0, 80).map(id => { const st = wmState(k, id), B = (v, l) => `<button class="${st === v ? 'on' : ''}" data-wm="${v}:${esc(id)}">${l}</button>`;
+    return `<div class="wmrow"><span title="${esc(M(id).gname)}">${esc(M(id).name)}</span><span class="wmb">${B('allow', 'Allow')}${B('deny', 'Not allowed')}${B('attach', 'Attach')}</span></div>`; }).join('');
+  const nA = (S.attach[k] || []).length, nD = Object.keys(D.mods).filter(id => wmState(k, id) === 'deny').length;
+  return `<div class="rp-row" style="flex-direction:column;align-items:stretch"><span class="rp-lab">Modifiers on this weapon (${nA} attached, ${nD} not allowed)</span>
+    <input class="ptin" id="wmq" placeholder="Find a modifier" value="${esc(RP.mq || '')}"><div class="wmlist" id="wmlist">${rows || '<small style="color:var(--dim)">No match.</small>'}</div>
+    <small style="color:var(--dim)">Allow: comes up as normal. Not allowed: a Don't rule between this weapon and the modifier. Attach: built into this weapon on the dish.${ids.length > 80 ? ' Showing the first 80: type to narrow.' : ''}</small></div>`;
+}
+rpRender = (orig => function () {
+  orig.apply(this, arguments);
+  if (!RP.open || !RP.key) return;
+  const h = wmHtml(RP.key), extra = rpCustomTags();
+  const at = [...$('#rpanel').children].find(c => /Groups \(tap/.test(c.textContent));
+  if (at) at.insertAdjacentHTML('beforebegin', h + extra);
+})(rpRender);
+function rpCustomTags() { // custom blocks as chips to tap into a box
+  const L = S.custom.filter(c => c.type).map(c => 'cb:' + c.u).concat(ptT().nodes.filter(x => x.blank && x.type).map(x => x.key)).filter(x => x !== RP.key);
+  if (!L.length) return '';
+  return `<div class="rp-row" style="flex-direction:column;align-items:stretch"><span class="rp-lab">Your custom blocks (tap to add to the selected box)</span><div class="rp-tags">${L.map(k => `<button data-cbk="${esc(k)}">${esc(rpName(k))}</button>`).join('')}</div></div>`;
+}
+$('#rpanel').addEventListener('click', e => {
+  const w = e.target.closest('[data-wm]'); if (w) { const [st, ...r] = w.dataset.wm.split(':'); wmSet(RP.key, r.join(':'), st); e.stopPropagation(); return; }
+  const c = e.target.closest('[data-cbk]'); if (c) { rpAdd(c.dataset.cbk, RP.zone); e.stopPropagation(); }
+}, true);
+$('#rpanel').addEventListener('input', e => { if (e.target.id !== 'wmq') return; RP.mq = e.target.value; const keep = e.target.selectionStart; rpRender(); const i = $('#wmq'); if (i) { i.focus(); try { i.setSelectionRange(keep, keep); } catch (x) { } } });
+// "Do, Don't and Weight" on custom blocks (dish and tree).
+renderDetail = (orig => function () {
+  const r = orig.apply(this, arguments), n = NODES[S.sel];
+  if (n && n.kind === 'custom' && !S.tree && !$('#detail [data-act="rules"]')) { const k = rpNodeKey(n); $('#detail').insertAdjacentHTML('beforeend', `<div class="row">${k ? '<button class="btn" data-act="rules">Do, Don\'t and Weight</button>' : '<small style="color:var(--dim)">Set a Type to give this block rules.</small>'}</div>`); }
+  if (n && n.kind === 'pt' && n.pt.blank && S.tree && !$('#detail [data-act="rules"]')) { const k = rpNodeKey(n); $('#detail').insertAdjacentHTML('beforeend', `<div class="row">${k ? '<button class="btn" data-act="rules">Do, Don\'t and Weight</button>' : '<small style="color:var(--dim)">Set a Type to give this block rules.</small>'}</div>`); }
+  return r;
+})(renderDetail);
+render = (orig => function () { try { wmApply(); } catch (e) { } return orig.apply(this, arguments); })(render);
+document.head.insertAdjacentHTML('beforeend', '<style>.rpanel > *{flex:none}.crlist{max-height:170px;overflow:auto}.crzone{min-height:0}.wmlist{max-height:240px;overflow:auto;border:1px solid var(--line);border-radius:8px;background:var(--panel2)}.wmrow{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:3px 6px;border-bottom:1px solid var(--line);font-size:12px}.wmrow:last-child{border:0}.wmb{display:flex;gap:2px;flex:none}.wmb button{padding:1px 6px;border:1px solid var(--line);border-radius:6px;background:var(--panel);font-size:11px!important}.wmb button.on{background:var(--hi);border-color:var(--accent)}.crchip{max-width:100%}.crchip em{white-space:normal}</style>');
+
 // ---------------------------------------------------------------- the detail drawer is a side panel overlay on the right (the user, 31 Oct)
 document.head.insertAdjacentHTML('beforeend', '<style>.dish > .detail{position:absolute;right:10px;width:360px;max-width:calc(100% - 20px);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.22);z-index:30}.dish > .detail[hidden]{display:none}.dclose{position:sticky;top:0;align-self:flex-end;margin:-4px -6px -22px 0;padding:0 8px;line-height:22px;z-index:2}.dtab{position:absolute;right:10px;z-index:30}.dtab[hidden]{display:none}</style>');
 document.querySelector('#map').insertAdjacentHTML('afterend', '<button class="btn dtab" id="dtab" hidden>Details</button>');
