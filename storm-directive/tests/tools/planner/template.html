@@ -240,7 +240,7 @@ const WIDS = Object.keys(D.weapons), MIDS = Object.keys(D.mods);
 const GORDER = ['delivery', 'flight', 'crowd', 'tempo', 'chemistry', 'area', 'lifesteal'];
 const AK = { Projectile: 'proj', Spread: 'spread', Contact: 'contact', Burst: 'burst', Beam: 'beam', Pool: 'pool' };
 const ATK_ORDER = ['Projectile', 'Spread', 'Contact', 'Burst', 'Beam', 'Pool'];
-const ATK_SHORT = { proj: 'Proj', spread: 'Spread', contact: 'Contact', burst: 'Burst', beam: 'Beam', pool: 'Pool' };
+const ATK_SHORT = { proj: 'Proj', spread: 'Spread', contact: 'Contact', burst: 'Burst', beam: 'Beam', pool: 'Pool', trail: 'Trail' };
 const BUILTIN = ['melee', 'mines', 'dfa', 'ranged'];
 const tname = t => (D.types[t] || {}).name || t;
 const tvar = t => `var(--t-${D.types[t] ? t : 'phys'})`;
@@ -955,7 +955,7 @@ $('#saveall').onclick = () => { const u = unsavedNodes(); if (!u.length) { toast
 // ---------------------------------------------------------------- card rules: Do, Don't and Weight (CARD_RULES.md)
 // A card opens in the side panel; cards dragged (or tapped) into its boxes become rules. Keys match the game's (cardrulesengine.js).
 const RP = { open: false, key: null, zone: 'dont', pick: 'add', scope: 'weapon', sample: '', branch: '', k: 2 };
-const RP_ATK = { Projectile: 'proj', Spread: 'spread', Contact: 'contact', Burst: 'burst', Beam: 'beam', Pool: 'pool' };
+const RP_ATK = { Projectile: 'proj', Spread: 'spread', Contact: 'contact', Burst: 'burst', Beam: 'beam', Pool: 'pool', Trail: 'trail' }; // (Trail: a planner attack type for new weapons that work like The Runs; the game has no Trail attack type yet)
 const RP_FORK_I = { A: 0, B: 1, A1: 2, A2: 3, B1: 4, B2: 5 };
 const rpSplit = k => { const i = k.indexOf(':'); return [k.slice(0, i), k.slice(i + 1)]; };
 function rpPayloadKey(p) {
@@ -2033,6 +2033,8 @@ fldOwner = (orig => function () { const n = NODES[S.sel]; if (S.tree && n && n.k
 const fldMed = a => { a = a.filter(x => x > 0).sort((x, y) => x - y); return a.length ? a[Math.floor((a.length - 1) / 2)] : ''; };
 function fldDefaults(type, at) {
   const R = x => Math.round(x * 100) / 100;
+  if (at === 'Trail') at = 'Pool'; // (Trail starts from The Runs, which the game files under Pool)
+  if (type === 'Weapon' && at === 'Pool' && arguments[1] === 'Trail' && D.weapons.s_wake && D.weapons.s_wake.stats) { const q = D.weapons.s_wake.stats; return { dmg: q.dmg, rof: q.rof, mag: q.mag, rel: q.rel, rng: q.rng, crit: q.crit, critb: q.critb }; }
   if (type === 'Weapon') { const L = Object.values(D.weapons).filter(w => w.atk === at && w.stats), m = k => fldMed(L.map(w => w.stats[k] || 0));
     return { dmg: m('dmg'), rof: m('rof'), mag: m('mag'), rel: m('rel'), rng: m('rng'), crit: m('crit'), critb: m('critb') }; }
   if (type === 'Feat') { const L = D.feats.filter(f => f.atk === at && f.base), m = k => fldMed(L.map(f => f.base[k] || 0));
@@ -2066,6 +2068,69 @@ $('#detail').addEventListener('click', e => { if (e.target.closest('[data-dclose
 $('#dtab').onclick = () => { S.detailOff = false; save(); renderDetail(); };
 window.addEventListener('resize', detailPlace);
 setTimeout(detailPlace, 50);
+
+// ---------------------------------------------------------------- sharing a version (the user, 31 Oct: "build the Share this version button")
+// Shared versions live in the artifact database, collection "plans" (one document per shared version: the sample, the dish, the sample
+// branch and the build tree). Anyone who can open the artifact sees them in the Version dropdown under "Shared"; picking one opens
+// your own copy (a new version of yours), so nobody changes anyone else's. Sharing again updates the shared copy; "Stop sharing"
+// removes it. The page itself is never changed.
+const SHR = { list: [], loaded: false, name: '' };
+const shrMe = () => RS.uid || null;
+async function shrName() {
+  if (SHR.name) return SHR.name;
+  try { const U = window.claude && window.claude.use ? await window.claude.use('user') : null; const n = U && (U.name ? await U.name() : U.displayName ? await U.displayName() : null); if (n) SHR.name = String(n); } catch (e) { }
+  return SHR.name || ('Collaborator ' + String(shrMe() || '').slice(-4));
+}
+async function shrLoad() {
+  if (!DB) return;
+  try { const q = await DB.collection('plans').get(); SHR.list = q.docs.map(d => Object.assign({ pid: d.id }, d.data())).filter(x => x && x.st && x.sample); SHR.loaded = true; } catch (e) { SHR.loaded = false; }
+  verUi();
+}
+const shrFor = () => SHR.list.filter(x => x.sample === S.sample).sort((a, b) => String(b.sharedAt).localeCompare(String(a.sharedAt)));
+async function shrShare() {
+  const v = verCur();
+  if (!v) { toast('Make a version first (change something on Live, or "+ Save as a new version"), then share it.'); return; }
+  if (!DB) { toast(CAPS ? 'Sharing needs a claude.ai sign-in.' : 'Still connecting. Try again in a moment.'); return; }
+  if (!shrMe()) { toast('Still finding out who you are. Try again in a moment.'); return; }
+  const id = v.shareId || ('p' + Date.now().toString(36) + '_' + String(shrMe()).slice(-4));
+  try {
+    await DB.collection('plans').doc(id).set({ name: v.name, sample: S.sample, sampleName: sampleOf().name, by: shrMe(), author: await shrName(), version: D.version, sharedAt: new Date().toISOString(), st: JSON.stringify(v.st) });
+    v.shareId = id; save(); await shrLoad(); toast('Shared: ' + v.name + '. Everyone who can open this page sees it under "Shared" in the Version list.');
+  } catch (e) { toast('Could not share: ' + (e && (e.code || e.message) || 'the list refused it') + '.'); }
+}
+async function shrStop() {
+  const v = verCur(); if (!v || !v.shareId || !DB) return;
+  try { await DB.collection('plans').doc(v.shareId).delete(); v.shareId = null; save(); await shrLoad(); toast('Stopped sharing ' + v.name + '. Your copy is kept.'); }
+  catch (e) { toast('Could not stop sharing: ' + (e && (e.code || e.message) || 'refused') + '.'); }
+}
+function shrOpen(pid) {
+  const p = SHR.list.find(x => x.pid === pid); if (!p) return;
+  let st = null; try { st = JSON.parse(p.st); } catch (e) { }
+  if (!st) { toast('That shared version could not be read.'); return; }
+  const mine = p.by === shrMe(), n = verNew(p.name + (mine ? ' (copy)' : ' (from ' + (p.author || 'a collaborator') + ')'), st);
+  VER.loading = true; try { verRestore(st); } finally { VER.loading = false; }
+  save(); render(); verUi(); setTimeout(() => $('#zfit') && $('#zfit').click(), 30);
+  toast('Opened as your own copy: ' + n.name + '. Changes stay in your copy.');
+}
+// The Version dropdown: a "Shared" group and the share actions.
+verUi = (orig => function () {
+  orig.apply(this, arguments);
+  const s = $('#verSel'), v = verCur(), L = shrFor(), me = shrMe();
+  let h = '';
+  if (L.length) h += `<optgroup label="Shared (opens as your copy)">${L.map(x => `<option value="sh:${esc(x.pid)}">${esc(x.name)} · ${x.by === me ? 'you' : esc(x.author || 'a collaborator')}</option>`).join('')}</optgroup>`;
+  h += `<optgroup label="Sharing">${v ? `<option value="__share">${v.shareId ? 'Update the shared copy of this version' : 'Share this version'}</option>` : ''}${v && v.shareId ? '<option value="__unshare">Stop sharing this version</option>' : ''}<option value="__refresh">Refresh shared list</option></optgroup>`;
+  s.insertAdjacentHTML('beforeend', h); s.value = v ? v.id : '';
+})(verUi);
+const verCh = $('#verSel').onchange;
+$('#verSel').onchange = e => {
+  const val = e.target.value;
+  if (val === '__share') { verUi(); shrShare(); return; }
+  if (val === '__unshare') { verUi(); shrStop(); return; }
+  if (val === '__refresh') { verUi(); shrLoad().then(() => toast(SHR.loaded ? SHR.list.length + ' shared version' + (SHR.list.length === 1 ? '' : 's') + '.' : 'Could not read the shared list.')); return; }
+  if (/^sh:/.test(val)) { shrOpen(val.slice(3)); return; }
+  return verCh.call(this, e);
+};
+(async () => { for (let i = 0; i < 60 && !(window.__rsChecked); i++) await new Promise(r => setTimeout(r, 200)); if (DB) shrLoad(); })();
 
 // ---------------------------------------------------------------- collapsible left panel (the user, 31 Oct: click the space between the panel and the canvas)
 function rackApply() {
