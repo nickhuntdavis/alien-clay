@@ -2429,6 +2429,16 @@ sampleSelUi();
   S.sel = S.sel || 'root'; ptUi();
 })();
 
+// ---------------------------------------------------------------- collapse all / expand all (the user, 31 Oct)
+$('#clear').insertAdjacentHTML('beforebegin', '<button class="btn" id="colall" title="Hide or show everything after the first cards">Collapse all</button>');
+const colAnyClosed = () => Object.keys(S.collapsed || {}).length > 0;
+const colUi = () => { const b = $('#colall'); if (b) b.textContent = colAnyClosed() ? 'Expand all' : 'Collapse all'; };
+$('#colall').onclick = () => {
+  if (colAnyClosed()) S.collapsed = {};
+  else { S.collapsed = {}; const T = ptT(), has = new Set(T.nodes.map(x => x.parent)); for (const x of T.nodes) if (x.parent === 'root' && has.has(x.id)) S.collapsed['pt' + x.id] = true; }
+  save(); render(); colUi(); setTimeout(() => $('#zfit').click(), 30);
+};
+render = (orig => function () { const r = orig.apply(this, arguments); try { colUi(); } catch (e) { } return r; })(render);
 // ---------------------------------------------------------------- boot
 try { if (window.claude && window.claude.hot && window.claude.hot.snapshot) window.claude.hot.snapshot(() => S); } catch (e) { }
 // (a live update hands over the old page's state: put this version's default rules back in)
