@@ -1791,7 +1791,7 @@ targetFor = (orig => function (p) {
 buildText = (orig => function () {
   if (!S.tree) return orig.apply(this, arguments);
   const smp = sampleOf(), L = [`${smp.name} (strain ${smp.strain}) · build tree, ${ptLeaves()} paths`];
-  (function walk(n, d) { for (const c of n.children) { if (c.kind !== 'pt') continue; L.push('  '.repeat(d) + '- ' + c.ey.replace(/^⊘ /, '').split(' · ')[0] + ': ' + c.title + (c.pt && c.pt.blank ? (c.pt.text ? ' (' + c.pt.text.replace(/\s*\n\s*/g, ' / ') + ')' : '') + (fldText(c.pt) ? ' {' + fldText(c.pt) + '}' : '') : '') + (c.why ? ' [' + c.why + ']' : '')); walk(c, d + 1); } })(NODES.root, 0);
+  (function walk(n, d) { for (const c of n.children) { if (c.kind !== 'pt') continue; L.push('  '.repeat(d) + '- ' + c.ey.replace(/^⊘ /, '').split(' · ')[0] + ': ' + c.title + (c.pt && !c.pt.blank && c.pt.f && fldText(c.pt) ? ' {' + fldText(c.pt) + '}' : '') + (c.pt && c.pt.blank ? (c.pt.text ? ' (' + c.pt.text.replace(/\s*\n\s*/g, ' / ') + ')' : '') + (fldText(c.pt) ? ' {' + fldText(c.pt) + '}' : '') : '') + (c.why ? ' [' + c.why + ']' : '')); walk(c, d + 1); } })(NODES.root, 0);
   if (L.length === 1) L.push('- (an empty tree)');
   return L.join('\n');
 })(buildText);
@@ -1996,6 +1996,59 @@ renderDetail = (orig => function () {
 })(renderDetail);
 // Existing nodes: edits go to the card's edited copy.
 fldOwner = (orig => function () { const n = NODES[S.sel]; if (fldIsExisting(n)) return fldEnsureOv(n); return orig.apply(this, arguments); })(fldOwner);
+
+// The same fields on the build tree's cards (the user, 31 Oct: "I don't see the fields I expect"): defaults come from the card's key.
+function treeFld(key) { // { type, f } the game's values for a tree card key, or null (key null = the sperm)
+  try {
+    const smp = sampleOf(), g = (o, k) => (o && o[k] != null && o[k] !== 0 ? String(o[k]) : '');
+    if (!key) return { type: 'Sample', f: { dt1: tname((smp.types || [])[0] || ''), dt2: tname((smp.types || [])[1] || ''), pas: smp.passive, feat: (FEAT(smp.ufeat) || {}).name || '', origin: smp.origin } };
+    const [t, r] = rpSplit(key);
+    if (t === 'w') { const Wd = W(r), st = Wd.stats || {}; return { type: 'Weapon', f: { dt: tname(Wd.type), at: Wd.atk, dmg: g(st, 'dmg'), rof: g(st, 'rof'), mag: g(st, 'mag'), rel: g(st, 'rel'), rng: g(st, 'rng'), crit: g(st, 'crit'), critb: g(st, 'critb') } }; }
+    if (t === 'b') { const [wid, L] = r.split(':'), Wd = W(wid), P = Wd.promises.find(q => q.k === L); return { type: 'Lv 3 branch', f: { w: Wd.name, costs: P.costs || '', shows: P.shows || '' } }; }
+    if (t === 'wb') { const i = r.indexOf(':'), Wd = W(r.slice(0, i)), nm = r.slice(i + 1);
+      for (const P of Wd.promises) if (P.branches.some(b => b.name === nm) || (P.wild && P.wild.name === nm)) return { type: 'Lv 6 branch', f: { w: Wd.name, par: P.name, wild: P.wild && P.wild.name === nm ? 'yes' : 'no' } };
+      const X = Wd.masteries.find(m => m.name === nm); return { type: 'Lv 9 mastery', f: { w: Wd.name, best: X ? X.best || '' : '' } }; }
+    if (t === 'm') { const Md = M(r); return { type: 'Modifier', f: { grp: Md.gname, at: '', r1: Md.ranks[0] || '', r2: Md.ranks[1] || '', r3: Md.ranks[2] || '' } }; }
+    if (t === 'mf') { const [id, c] = r.split(':'), Md = M(id); return c.length === 1 ? { type: 'Modifier fork', f: { mod: Md.name, fk: c, r2: Md.brText ? Md.brText[c === 'A' ? 0 : 1] : '' } } : { type: 'Modifier mastery', f: { mod: Md.name, fk: c[0], r3: Md.brText ? Md.brText[MAST_TXT[c]] : '' } }; }
+    if (t === 'f') { const F = FEAT(r), b = F.base || {}; return { type: 'Feat', f: { dt: F.type ? tname(F.type) : '', at: F.atk || '', stam: g(F, 'stam'), cd: g(b, 'cd'), dur: g(b, 'dur'), rng: g(b, 'rng'), dmg: g(b, 'dmg'), trig: F.trig ? 'yes' : 'no' } }; }
+    if (t === 'p') { const P = PASS(r); return { type: 'Sperm passive', f: { fam: FAM(P.family), max: String(P.maxRank || ''), rar: P.rarity == null ? '' : FLD_RAR[P.rarity] || '' } }; }
+    if (t === 'pm') { const [id, c] = r.split(':'); return { type: 'Passive mastery', f: { pass: PASS(id).name, fk: c } }; }
+    if (t === 'sb') { const X = smbD(), P = X && X.promises.find(q => q.k === r.split(':')[1]); return { type: 'Sample branch', f: { samp: smp.name, lv: String(X ? X.at[0] : 15), costs: P && P.costs || '' } }; }
+    if (t === 'sbc') { const X = smbD(), nm = r.slice(r.indexOf(':') + 1), lv = X && X.masteries.some(m => m.name === nm) ? X.at[2] : X ? X.at[1] : 20; return { type: 'Sample branch', f: { samp: smp.name, lv: String(lv), costs: '' } }; }
+  } catch (e) { }
+  return null;
+}
+const treeNode = n => (n && n.kind === 'pt' && !n.pt.blank) ? ptT().nodes.find(y => y.id === n.pt.id) : null;
+rpName = (orig => function (k) { if (/^x:/.test(k)) { const b = ptT().nodes.find(x => x.key === k); return b && b.name || 'Untitled'; } return orig.apply(this, arguments); })(rpName);
+ptDetailHtml = (orig => function (n) {
+  let h = orig.apply(this, arguments);
+  if (n.kind === 'root') { const d = treeFld(null); if (d) h += `<div class="row"><span class="lab">Card fields</span><small style="color:var(--dim)">${esc(d.type)}: the game's values.</small></div>` + fldRows({ type: d.type, f: d.f }); return h; }
+  const x = treeNode(n), d = x && treeFld(x.key);
+  if (d) h += `<div class="row"><span class="lab">Card fields</span><small style="color:var(--dim)">${esc(d.type)}: the game's values. Change one to note an edit.</small></div>` + fldRows({ type: d.type, f: Object.assign({}, d.f, x.f || {}) });
+  return h;
+})(ptDetailHtml);
+fldOwner = (orig => function () { const n = NODES[S.sel]; if (S.tree && n && n.kind === 'pt' && !n.pt.blank) { const x = treeNode(n), d = treeFld(x.key); if (d) { x.type = d.type; x.f = x.f || {}; return x; } } return orig.apply(this, arguments); })(fldOwner);
+
+// ---------------------------------------------------------------- the detail drawer is a side panel overlay on the right (the user, 31 Oct)
+document.head.insertAdjacentHTML('beforeend', '<style>.dish > .detail{position:absolute;right:10px;width:360px;max-width:calc(100% - 20px);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.22);z-index:30}.dish > .detail[hidden]{display:none}.dclose{position:sticky;top:0;align-self:flex-end;margin:-4px -6px -22px 0;padding:0 8px;line-height:22px;z-index:2}.dtab{position:absolute;right:10px;z-index:30}.dtab[hidden]{display:none}</style>');
+document.querySelector('#map').insertAdjacentHTML('afterend', '<button class="btn dtab" id="dtab" hidden>Details</button>');
+let dLast = null;
+function detailPlace() {
+  const d = $('#detail'), bar = document.querySelector('.dishbar'), top = (bar ? bar.offsetHeight : 0) + 10;
+  d.style.top = top + 'px'; $('#dtab').style.top = top + 'px'; d.style.maxHeight = Math.max(160, d.parentElement.clientHeight - top - 10) + 'px';
+  const off = !!S.detailOff; d.hidden = off; $('#dtab').hidden = !off;
+}
+renderDetail = (orig => function () {
+  if (S.detailOff && S.sel !== dLast && S.sel) S.detailOff = false; // (selecting another node opens it again)
+  dLast = S.sel;
+  const r = orig.apply(this, arguments);
+  const d = $('#detail'); if (!S.detailOff) d.insertAdjacentHTML('afterbegin', '<button class="btn dclose" data-dclose title="Close">×</button>');
+  detailPlace(); return r;
+})(renderDetail);
+$('#detail').addEventListener('click', e => { if (e.target.closest('[data-dclose]')) { S.detailOff = true; save(); detailPlace(); } }, true);
+$('#dtab').onclick = () => { S.detailOff = false; save(); renderDetail(); };
+window.addEventListener('resize', detailPlace);
+setTimeout(detailPlace, 50);
 
 // ---------------------------------------------------------------- collapsible left panel (the user, 31 Oct: click the space between the panel and the canvas)
 function rackApply() {
