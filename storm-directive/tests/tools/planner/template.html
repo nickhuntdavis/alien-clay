@@ -215,6 +215,7 @@ details.wb.onmap { border-color: var(--accent); }
       <div class="actrow">
       <button class="btn" id="copy">Copy build</button>
       <button class="btn" id="ideas">Copy ideas</button>
+      <button class="btn" id="exportmd" title="Save this version's ideas as a Markdown file on your device">Export .md</button>
       <button class="btn" id="saveall" title="Writes your blocks to the planner's list and asks Claude to fold them into ideas.md">Save to ideas.md</button>
       <button class="btn" id="fullbtn" title="Show every branch the sample's weapons can take">Full tree</button>
       <button class="btn" id="buildsbtn" title="Load a build: your saved ideas, a sample's start or a Baseline hero">Builds</button>
@@ -2143,6 +2144,26 @@ renderDetail = (orig => function () {
 render = (orig => function () { try { wmApply(); } catch (e) { } return orig.apply(this, arguments); })(render);
 document.head.insertAdjacentHTML('beforeend', '<style>.rpanel > *{flex:none}.crlist{max-height:170px;overflow:auto}.crzone{min-height:0}.wmlist{max-height:240px;overflow:auto;border:1px solid var(--line);border-radius:8px;background:var(--panel2)}.wmrow{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:3px 6px;border-bottom:1px solid var(--line);font-size:12px}.wmrow:last-child{border:0}.wmb{display:flex;gap:2px;flex:none}.wmb button{padding:1px 6px;border:1px solid var(--line);border-radius:6px;background:var(--panel);font-size:11px!important}.wmb button.on{background:var(--hi);border-color:var(--accent)}.crchip{max-width:100%}.crchip em{white-space:normal}</style>');
 
+// ---------------------------------------------------------------- export ideas to a .md file (the user, 31 Oct)
+const mdCell = s => String(s == null ? '' : s).replace(/\|/g, '\\|').replace(/\s*\n\s*/g, ' / ').trim();
+function ideasMarkdown() {
+  const smp = sampleOf(), ideas = ideaNodes(), d = new Date().toISOString().slice(0, 10);
+  const rows = ideas.map((n, i) => {
+    const o = n.c || n.ov || n.g, path = []; for (let p = n.parent; p && p.kind !== 'root'; p = p.parent) path.unshift(p.title);
+    if (n.g) return `| ${i + 1} | Gate | ${mdCell(n.title)} | ${mdCell(path.join(' > ') || '(on the sperm)')} | ${mdCell(n.title + ' (' + gateCard(n.g).kindName + ') is only available once ' + path.join(' > ') + ' is taken.')} |`;
+    const type = o.type || KIND_TYPE[n.kind] || 'Other', f = fldText(o);
+    return `| ${i + 1} | ${mdCell(type)} | ${mdCell(o.name || 'Untitled')} | ${mdCell(path.join(' > ') || '(on the sperm)')} | ${mdCell((o.text || '') + (n.ov ? ' (was: ' + n.ov.orig.text + ')' : '') + (f ? ' [Fields: ' + f + ']' : ''))} |`;
+  });
+  return `# Loadout ideas: ${smp.name} · ${verLabel()}\n\nExported from the Prawn Loadout Planner on ${d} (game data v${D.version}). ${ideas.length} idea${ideas.length === 1 ? '' : 's'}.\n\n| # | Type | Name | Under | Idea |\n|---|---|---|---|---|\n${rows.join('\n')}\n`;
+}
+$('#exportmd').onclick = async () => {
+  if (!ideaNodes().length) { toast('Nothing to export yet: drop a blank block, or edit a card.'); return; }
+  const md = ideasMarkdown(), safe = s => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const name = 'ideas-' + safe(sampleOf().name) + '-' + safe(verLabel()) + '-' + new Date().toISOString().slice(0, 10) + '.md';
+  let dl = null; try { dl = window.claude && window.claude.use ? await window.claude.use('downloads') : null; } catch (e) { }
+  if (dl) { try { const r = await dl.save({ filename: name, data: md }); toast(r && r.status === 'saved' ? 'Saved ' + name + '.' : 'Exported.'); return; } catch (e) { if (e && e.code === 'declined') { toast('Not saved.'); return; } } }
+  copyText(md, 'The Markdown'); toast('Saving a file is not available here: the Markdown is copied instead. Paste it into a .md file.');
+};
 // ---------------------------------------------------------------- the detail drawer is a side panel overlay on the right (the user, 31 Oct)
 document.head.insertAdjacentHTML('beforeend', '<style>.dish > .detail{position:absolute;right:10px;width:360px;max-width:calc(100% - 20px);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.22);z-index:30}.dish > .detail[hidden]{display:none}.dclose{position:sticky;top:0;align-self:flex-end;margin:-4px -6px -22px 0;padding:0 8px;line-height:22px;z-index:2}.dtab{position:absolute;right:10px;z-index:30}.dtab[hidden]{display:none}</style>');
 document.querySelector('#map').insertAdjacentHTML('afterend', '<button class="btn dtab" id="dtab" hidden>Details</button>');
