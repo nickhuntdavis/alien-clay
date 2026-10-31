@@ -965,7 +965,7 @@ async function saveIdeas(nodes) {
       const o = nd.c || nd.ov || nd.g, path = []; for (let p = nd.parent; p && p.kind !== 'root'; p = p.parent) path.unshift(p.title);
       const id = ideaDocId(nd);
       const row = nd.g ? { type: 'Gate', name: nd.title, text: `${nd.title} (${gateCard(nd.g).kindName}) is only available once ${path.join(' > ')} is taken.`, under: path.join(' > '), sample: smp.name, version: D.version, savedAt: now, status: 'queued', kind: 'gate', tag: 'Gate', variantOf: '', orig: null }
-        : { type: o.type || KIND_TYPE[nd.kind] || 'Other', name: o.name || 'Untitled', text: (o.text || '') + (fldText(o) ? '\n\nFields: ' + fldText(o) : ''), under: path.join(' > ') || '(on the sperm)', sample: smp.name, version: D.version, savedAt: now, status: 'queued',
+        : { type: o.type || KIND_TYPE[nd.kind] || 'Other', name: o.name || 'Untitled', text: (o.text || '') + (fldText(o) ? '\n\nFields: ' + fldText(o) : ''), under: path.join(' > ') || '(on the sperm)', sample: smp.name, version: D.version, savedAt: now, status: 'queued', f: o.f || null,
         kind: nd.c ? 'block' : 'edit', tag: nd.c ? nd.c.tag : nd.ey, variantOf: nd.c ? (nd.c.of || '') : '', orig: nd.ov ? nd.ov.orig : null };
       await DB.collection('ideas').doc(id).set(Object.assign(row, { planVersion: verLabel(), planVersionId: verKey(), planSample: smp.id }));
       o.sid = id; o.sidv = verStamp(); o.savedAt = now; o.savedSig = ideaSig(nd); n++;
