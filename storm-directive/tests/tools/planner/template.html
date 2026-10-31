@@ -24,6 +24,7 @@ body { margin: 0; box-sizing: border-box; background: var(--bg); color: var(--in
 * { box-sizing: border-box; }
 button, input, select { font: inherit; color: inherit; }
 button { cursor: pointer; }
+button, .btn, .chip, .tabs button { font-weight: 400 !important; font-size: 13px !important; } /* (the user, 31 Oct: all buttons regular weight, 13px) */
 header { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
 header h1 { font: 800 22px/1 var(--display); margin: 0; letter-spacing: -0.01em; }
 header .sub { color: var(--dim); font-size: 13px; }
@@ -200,6 +201,7 @@ details.wb.onmap { border-color: var(--accent); }
   </section>
   <section class="dish" aria-label="Dish">
     <div class="dishbar">
+      <button class="btn" id="rackbtn" title="Show or hide the left panel">Panel</button>
       <label for="sample">Sperm <select id="sample"></select></label>
       <label><input type="checkbox" id="rules" checked> Game rules</label>
       <span class="sync" id="sync" title="Where your dish is kept"></span>
@@ -807,7 +809,7 @@ let pan = null;
 let nodeDrag = null, swallowClick = false;
 map.addEventListener('pointerdown', e => {
   const el = e.target.closest('.node'); if (!el || e.button || e.target.matches('input, textarea, select, button')) return;
-  const n = NODES[el.dataset.n]; if (!n || !(n.kind === 'custom' || n.kind === 'gate' || (n.kind === 'mod' && !n.m.builtin))) return;
+  const n = NODES[el.dataset.n]; if (!n || !(n.kind === 'custom' || n.kind === 'gate' || n.kind === 'pt' || (n.kind === 'mod' && !n.m.builtin))) return;
   nodeDrag = { n, el, sx: e.clientX, sy: e.clientY, id: e.pointerId };
 });
 window.addEventListener('pointermove', e => {
@@ -992,14 +994,16 @@ function rpName(k) {
   if (t === 'p') return PASS(r) ? PASS(r).name : r;
   if (t === 'pm') { const [id, c] = r.split(':'), P = PASS(id); return P && P.mast ? P.mast[c === 'B' ? 1 : 0].name + ' (' + P.name + ')' : r; }
   if (t === 's') { const sm = D.samples.find(x => x.id === r); return sm ? sm.name : r; }
-  if (t === 'tag') { const [g, v] = r.split(':'); return 'All ' + ({ g: (D.gnames[v] || v) + ' modifiers', a: (ATK_SHORT[v] || v) + ' cards', t: tname(v) + ' cards', k: { w: 'weapons', m: 'modifiers', b: 'branch cards', f: 'Feats', p: 'passives' }[v] }[g] || v); }
+  if (t === 'sb') { const [sid, L] = r.split(':'), sm = D.samples.find(x => x.id === sid), P = sm && sm.smb && sm.smb.promises.find(q => q.k === L); return P ? P.name : r; }
+  if (t === 'sbc') return r.slice(r.indexOf(':') + 1);
+  if (t === 'tag') { const [g, v] = r.split(':'); return 'All ' + ({ g: (D.gnames[v] || v) + ' modifiers', a: (ATK_SHORT[v] || v) + ' cards', t: tname(v) + ' cards', k: { w: 'weapons', m: 'modifiers', b: 'branch cards', f: 'Feats', p: 'passives', sb: 'sample branch cards' }[v] }[g] || v); }
   return k;
 }
-function rpKindLabel(k) { return { w: 'Weapon', m: 'Modifier', mf: 'Modifier fork', b: 'Lv 3 branch', wb: 'Branch card', f: 'Feat', p: 'Sperm passive', pm: 'Passive mastery', s: 'Sample', tag: 'Group' }[rpSplit(k)[0]] || 'Card'; }
+function rpKindLabel(k) { return { w: 'Weapon', m: 'Modifier', mf: 'Modifier fork', b: 'Lv 3 branch', wb: 'Branch card', f: 'Feat', p: 'Sperm passive', pm: 'Passive mastery', s: 'Sample', sb: 'Sample branch', sbc: 'Sample branch card', tag: 'Group' }[rpSplit(k)[0]] || 'Card'; }
 // Tags and inheritance (the same rules as the game: cardrulesengine.js crTagsOf and crCovers).
 function rpTags(k) {
   const [t, r] = rpSplit(k), out = [];
-  const kind = { w: 'w', m: 'm', mf: 'm', b: 'b', wb: 'b', f: 'f', p: 'p', pm: 'p' }[t]; if (kind) out.push('k:' + kind);
+  const kind = { w: 'w', m: 'm', mf: 'm', b: 'b', wb: 'b', f: 'f', p: 'p', pm: 'p', sb: 'sb', sbc: 'sb' }[t]; if (kind) out.push('k:' + kind);
   if (t === 'm' || t === 'mf') { const m = M(r.split(':')[0]); if (m) { out.push('g:' + m.group); for (const a of m.atk || []) out.push('a:' + a); } }
   if (t === 'w' || t === 'b' || t === 'wb') { const w = W(r.split(':')[0]); if (w) { out.push('a:' + (RP_ATK[w.atk] || w.atk)); out.push('t:' + w.type); } }
   if (t === 'f') { const f = FEAT(r); if (f) { if (f.atk) out.push('a:' + (RP_ATK[f.atk] || f.atk)); if (f.type) out.push('t:' + f.type); } }
@@ -1011,6 +1015,7 @@ function rpCovers(pat, k) {
   if (pt === 'tag') return rpTags(k).includes(pr);
   if (pt === 'm' && kt === 'mf') return kr.split(':')[0] === pr;
   if (pt === 'p' && kt === 'pm') return kr.split(':')[0] === pr;
+  if (pt === 'sb' && kt === 'sbc') { const [sid, L] = pr.split(':'), i = kr.indexOf(':'), sm = D.samples.find(x => x.id === sid), P = sm && sm.smb && sm.smb.promises.find(q => q.k === L); return kr.slice(0, i) === sid && !!P && [...P.branches, P.wild].some(o => o && o.name === kr.slice(i + 1)); }
   if (pt === 'b' && kt === 'wb') { const [wid, L] = pr.split(':'), i = kr.indexOf(':'); if (kr.slice(0, i) !== wid) return false; const P = W(wid) && W(wid).promises.find(x => x.k === L), nm = kr.slice(i + 1); return !!(P && [...P.branches, P.wild].some(o => o && o.name === nm)); }
   return false;
 }
@@ -1022,8 +1027,9 @@ function rpWeaponKeys(w) {
   if (w.wmast != null && wd.masteries[w.wmast]) out.push('wb:' + w.id + ':' + wd.masteries[w.wmast].name);
   return out;
 }
-const rpRunKeys = () => S.feats.map(f => 'f:' + f.id).concat(S.pass.map(x => 'p:' + x.id), S.pass.filter(x => x.mast != null).map(x => 'pm:' + x.id + ':' + (x.mast ? 'B' : 'A')), ['s:' + S.sample]);
-const rpHeldFor = (scope, w) => (scope === 'weapon' && w ? rpWeaponKeys(w) : S.weapons.flatMap(rpWeaponKeys)).concat(rpRunKeys());
+const rpRunKeys = () => S.feats.map(f => 'f:' + f.id).concat(S.pass.map(x => 'p:' + x.id), S.pass.filter(x => x.mast != null).map(x => 'pm:' + x.id + ':' + (x.mast ? 'B' : 'A')), ['s:' + S.sample], typeof rpSmbKeys === 'function' ? rpSmbKeys() : []);
+let PT_HELD = null; // (a build tree path standing in for the dish: build trees, below)
+const rpHeldFor = (scope, w) => PT_HELD ? PT_HELD.slice() : (scope === 'weapon' && w ? rpWeaponKeys(w) : S.weapons.flatMap(rpWeaponKeys)).concat(rpRunKeys());
 const rpLive = r => !(r.sample && r.sample !== S.sample) && !(r.branch && !rpHeldFor('run', null).some(h => rpCovers(r.branch, h)));
 // The verdict for a card against the dish's build (null: it could be dealt). Same rules as the game (cardrulesengine.js crWhy).
 const rpFormOf = w => { const m = w && w.mods.find(x => M(x.id) && M(x.id).group === 'delivery'); return m ? m.id : ''; };
@@ -1120,9 +1126,9 @@ function rpRender() {
     if (z === 'weight') items += linked.filter(r => r.mode === 'weight').map(r => `<span class="crchip linked" style="--zc:var(--${zc(z)})">x${r.k} with ${esc(rpName(r.parent))} <em>from its card</em></span>`).join('');
     return `<div class="crzone ${RP.zone === z ? 'active' : ''}" data-zone="${z}"><h4>${title} <small>${hint}</small></h4><div class="crlist">${items || '<small style="color:var(--dim)">Drag cards here, or select this box and tap cards.</small>'}</div></div>`;
   };
-  const branches = [...new Set(S.weapons.flatMap(w => rpWeaponKeys(w).filter(x => /^b:/.test(x))).concat(S.pass.filter(x => x.mast != null).map(x => 'pm:' + x.id + ':' + (x.mast ? 'B' : 'A'))))];
+  const branches = [...new Set(S.weapons.flatMap(w => rpWeaponKeys(w).filter(x => /^b:/.test(x))).concat(S.pass.filter(x => x.mast != null).map(x => 'pm:' + x.id + ':' + (x.mast ? 'B' : 'A')), rpRunKeys().filter(x => /^sb:/.test(x))))];
   if (RP.branch && !branches.includes(RP.branch)) branches.push(RP.branch);
-  const tags = [['g', GORDER], ['a', Object.values(RP_ATK)], ['t', ['phys', 'fire', 'ice', 'shock', 'arcane', 'soul', 'flame']], ['k', ['w', 'm', 'b', 'f', 'p']]];
+  const tags = [['g', GORDER], ['a', Object.values(RP_ATK)], ['t', ['phys', 'fire', 'ice', 'shock', 'arcane', 'soul', 'flame']], ['k', ['w', 'm', 'b', 'f', 'p', 'sb']]];
   const warn = rpHealth();
   el.innerHTML = `<div class="rp-row" style="justify-content:space-between"><span class="rp-ey">${esc(rpKindLabel(k))} · rules</span><button class="btn" data-rp="close">Close</button></div>
     <h2>${esc(rpName(k))}</h2>
@@ -1483,7 +1489,7 @@ function smbAttach(root) {
     return root;
   }
   const P = h.p && X.promises.find(q => q.k === h.p);
-  if (!P) { root.children.unshift(mk('smbhint', { kind: 'smbhint', title: 'Sample branch: pick one on the sperm', ey: 'run Lv ' + at[0] + ' · ' + X.promises.map(q => q.name).join(' / '), desc: '', col: 'var(--line)' })); return root; }
+  if (!P) { root.children.unshift(mk('smbhint', { kind: 'smbhint', title: 'Sample branch: ' + X.promises.map(q => q.name).join(', ') + '. Tap to pick one.', ey: 'run Lv ' + at[0] + ' · sample branch', desc: '', col: 'var(--line)' })); return root; }
   const pn = mk('smbp', { kind: 'smbp', P, title: P.name, ey: 'Sample branch ' + P.k + ' · run Lv ' + at[0] + (P.tag ? ' · ' + P.tag : ''), desc: P.desc, col });
   root.children.unshift(pn);
   const o = h.br === 'wild' ? P.wild : h.br != null ? P.branches[h.br] : null;
@@ -1495,6 +1501,23 @@ function smbAttach(root) {
   return root;
 }
 buildTree = (orig => function () { return smbAttach(orig.apply(this, arguments)); })(buildTree);
+// Card rules (CARD_RULES.md): a sample branch is sb:<sample>:<A|B|C>, its Lv 20 cards and Lv 25 masteries sbc:<sample>:<name>.
+function rpSmbKeys() {
+  const X = smbD(), h = smbHeld(); if (!X || !h.p) return [];
+  const P = X.promises.find(q => q.k === h.p), out = ['sb:' + S.sample + ':' + h.p];
+  const o = P && h.br != null && (h.br === 'wild' ? P.wild : P.branches[h.br]); if (o) out.push('sbc:' + S.sample + ':' + o.name);
+  const x = h.mast != null && X.masteries[h.mast]; if (x) out.push('sbc:' + S.sample + ':' + x.name);
+  return out;
+}
+rpNodeKey = (orig => function (n) {
+  if (n && SMB_KINDS.has(n.kind)) {
+    if (n.kind === 'smbp') return 'sb:' + S.sample + ':' + n.P.k;
+    if (n.kind === 'xsp') return n.L ? 'sb:' + S.sample + ':' + n.L : null;
+    if (n.kind === 'smbb' || n.kind === 'smbx' || n.kind === 'xsb' || n.kind === 'xsm') return 'sbc:' + S.sample + ':' + n.title;
+    return null;
+  }
+  return orig.apply(this, arguments);
+})(rpNodeKey);
 function smbPick(kind, L, i) {
   const X = smbD(); if (!X) return;
   const m = smbMine();
@@ -1520,19 +1543,352 @@ function smbDetailRows(n) {
 }
 renderDetail = (orig => function () {
   const n = NODES[S.sel];
-  if (n && SMB_KINDS.has(n.kind)) { $('#detail').innerHTML = `<span class="ey">${esc(n.ey)}</span><h2>${esc(n.title)}</h2>${n.desc ? `<p>${esc(n.desc)}</p>` : ''}` + smbDetailRows(n) + `<div class="row"><small style="color:var(--dim)">Sample branches open by run level and act on every weapon you hold. Card rules do not reach them yet.</small></div>`; return; }
+  if (n && SMB_KINDS.has(n.kind)) { $('#detail').innerHTML = `<span class="ey">${esc(n.ey)}</span><h2>${esc(n.title)}</h2>${n.desc ? `<p>${esc(n.desc)}</p>` : ''}` + smbDetailRows(n) + (rpNodeKey(n) ? `<div class="row"><span class="lab">Rules</span><button class="btn" data-act="rules">Do, Don't and Weight</button><small style="color:var(--dim)">${rpSummary(rpNodeKey(n))}</small></div>` : '') + `<div class="row"><small style="color:var(--dim)">Sample branches open by run level and act on every weapon you hold.</small></div>`; return; }
   const r = orig.apply(this, arguments);
-  if (n && n.kind === 'root' && !S.full) $('#detail').insertAdjacentHTML('beforeend', smbDetailRows(n));
+  if (n && n.kind === 'root' && !S.full && !S.tree) { const d = $('#detail'), pEl = d.querySelector(':scope > p'); if (pEl) pEl.insertAdjacentHTML('afterend', smbDetailRows(n)); else d.insertAdjacentHTML('beforeend', smbDetailRows(n)); }
   return r;
 })(renderDetail);
 $('#detail').addEventListener('click', e => {
   const b = e.target.closest('[data-smb]'); if (!b) return;
   e.stopPropagation(); const [k, L, i] = JSON.parse(b.dataset.smb); smbPick(k, L, i);
 }, true);
-rpNodeKey = (orig => function (n) { return n && SMB_KINDS.has(n.kind) ? null : orig.apply(this, arguments); })(rpNodeKey);
 bpApply = (orig => function (p) { orig.apply(this, arguments); if (p && p.smb) { const m = smbMine(); m.p = p.smb.p || null; m.br = p.smb.br != null ? p.smb.br : null; m.mast = null; save(); render(); } })(bpApply);
-buildText = (orig => function () { return orig.apply(this, arguments).split('\n').filter(l => !/- Sample branch: pick one on the sperm$/.test(l)).join('\n'); })(buildText);
+buildText = (orig => function () { return orig.apply(this, arguments).split('\n').filter(l => !/- Sample branch: .*Tap to pick one\.$/.test(l)).join('\n'); })(buildText);
 document.head.insertAdjacentHTML('beforeend', '<style>.node.xsp.taken, .node.xsb.taken, .node.xsm.taken { box-shadow: 0 0 0 3px var(--accent); } .node.smbhint { border-style: dashed; background: transparent; color: var(--dim); } .node.smbhint b { font-weight: 500; color: var(--dim); }</style>');
+
+// ---------------------------------------------------------------- build trees (the user, 30 Oct: "create build paths, not just builds: a build
+// tree for a sample, all the potential and possibilities as branches, not only one specific one")
+// A view of its own: one tree per sample, rooted at the sperm. Every node is a card (the rule keys, CARD_RULES.md) and can hold any
+// number of children: the alternatives that can come next. Each line from the sperm out to a leaf is one possible run. Cards are added
+// by tapping a rack chip (under the selected node), dragging one onto a node, or the node's "Add next" buttons; nodes drag onto
+// another node to move with everything after them. With Game rules on, a card must make sense after the path above it (a Lv 6 card
+// after its Lv 3 branch, a modifier after a weapon it fits, and so on); card rules are checked against each path and break a node
+// that they would hold back. Kept in S.trees[sample] = { seq, nodes: [{ id, parent, key }] } (saved with the dish).
+const PT_SMB = ['sbranch', 'sbcard', 'sbmast'];
+const ptT = () => { S.trees = S.trees || {}; return S.trees[S.sample] || (S.trees[S.sample] = { seq: 1, nodes: [] }); };
+const ptKids = (T, pid) => T.nodes.filter(x => x.parent === pid);
+// What a card key is, for its node: title, eyebrow, text and colour.
+function ptInfo(k) {
+  const [t, r] = rpSplit(k), smp = sampleOf(), X = smbD(), sx = (smp.types || ['phys'])[0];
+  const out = { title: rpName(k), ey: rpKindLabel(k), desc: '', col: 'var(--accent)' };
+  try {
+    if (t === 'w') { const w = W(r); out.ey = 'Weapon · ' + w.atk + ' · ' + tname(w.type); out.desc = w.desc; out.col = tvar(w.type); }
+    if (t === 'b') { const [wid, L] = r.split(':'), w = W(wid), P = w.promises.find(q => q.k === L); out.ey = 'Lv 3 branch ' + L + ' · ' + w.name; out.desc = P.desc; out.col = tvar(w.type); }
+    if (t === 'wb') { const i = r.indexOf(':'), w = W(r.slice(0, i)), nm = r.slice(i + 1); out.col = tvar(w.type);
+      for (const P of w.promises) { const o = P.branches.find(b => b.name === nm) || (P.wild && P.wild.name === nm ? P.wild : null); if (o) { out.ey = 'Lv 6 ' + (o === P.wild ? 'wild card' : 'card') + ' · ' + P.name; out.desc = o.desc; } }
+      const x = w.masteries.find(m => m.name === nm); if (x) { out.ey = 'Lv 9 mastery · ' + w.name; out.desc = x.desc; } }
+    if (t === 'm') { const m = M(r); out.ey = 'Modifier · ' + m.gname; out.desc = m.ranks[0]; out.col = gvar(m.group); }
+    if (t === 'mf') { const [id, c] = r.split(':'), m = M(id); out.ey = (c.length === 1 ? 'Rank 2 fork ' : 'Mastery ') + c + ' · ' + m.name; out.desc = m.brText ? m.brText[c.length === 1 ? (c === 'A' ? 0 : 1) : MAST_TXT[c]] : ''; out.col = gvar(m.group); }
+    if (t === 'f') { const F = FEAT(r); out.ey = 'Feat · ' + (F.atk ? tname(F.type) + ' ' + F.atk : 'utility'); out.desc = F.does; out.col = F.type ? tvar(F.type) : 'var(--accent)'; }
+    if (t === 'p') { const P = PASS(r); out.ey = 'Sperm passive · ' + FAM(P.family); out.desc = P.desc; out.col = 'var(--pass)'; }
+    if (t === 'pm') { const [id, c] = r.split(':'), P = PASS(id), x = P.mast[c === 'B' ? 1 : 0]; out.ey = 'Passive mastery ' + c + ' · ' + P.name; out.desc = x.desc; out.col = 'var(--pass)'; }
+    if (t === 'sb' && X) { const P = X.promises.find(q => q.k === r.split(':')[1]); out.ey = 'Sample branch ' + P.k + ' · run Lv ' + X.at[0] + (P.tag ? ' · ' + P.tag : ''); out.desc = P.desc; out.col = tvar(sx); }
+    if (t === 'sbc' && X) { const nm = r.slice(r.indexOf(':') + 1); out.col = tvar(sx);
+      for (const P of X.promises) { const o = P.branches.find(b => b.name === nm) || (P.wild && P.wild.name === nm ? P.wild : null); if (o) { out.ey = 'Run Lv ' + X.at[1] + ' ' + (o === P.wild ? 'wild card' : 'card') + ' · ' + P.name; out.desc = o.desc; } }
+      const x = X.masteries.find(m => m.name === nm); if (x) { out.ey = 'Run Lv ' + X.at[2] + ' sample mastery'; out.desc = x.desc; } }
+  } catch (e) { }
+  return out;
+}
+// The key a rack chip adds (sample branch chips included).
+function ptPayloadKey(p) {
+  const X = smbD();
+  if (p && p.k === 'sbranch') return X ? 'sb:' + S.sample + ':' + p.L : null;
+  if (p && p.k === 'sbcard') { const P = X && X.promises.find(q => q.k === p.L), o = P && (p.i === 'wild' ? P.wild : P.branches[p.i]); return o ? 'sbc:' + S.sample + ':' + o.name : null; }
+  if (p && p.k === 'sbmast') { const x = X && X.masteries[p.i]; return x ? 'sbc:' + S.sample + ':' + x.name : null; }
+  return rpPayloadKey(p);
+}
+rpPayloadKey = (orig => function (p) { return p && PT_SMB.includes(p.k) ? ptPayloadKey(p) : orig.apply(this, arguments); })(rpPayloadKey);
+// The keys on the path down to a node (the sperm's sample first), and whether a card makes sense after them (null, or the reason).
+function ptPath(id) { const T = ptT(), out = []; for (let n = T.nodes.find(x => x.id === id); n; n = T.nodes.find(x => x.id === n.parent)) out.unshift(n.key); return ['s:' + S.sample].concat(out); }
+function ptWhyOrder(k, path) {
+  const [t, r] = rpSplit(k), has = x => path.includes(x), any = re => path.some(x => re.test(x)), X = smbD();
+  if (has(k)) return 'Already on this path.';
+  if (t === 'w') { if (path.filter(x => /^w:/.test(x)).length >= MAXW) return 'A run holds ' + MAXW + ' weapons at most.'; return null; }
+  if (t === 'b') { const [wid] = r.split(':'); if (!has('w:' + wid)) return 'Needs ' + W(wid).name + ' on this path first.'; if (any(new RegExp('^b:' + wid + ':'))) return W(wid).name + ' already took a Lv 3 branch on this path.'; return null; }
+  if (t === 'wb') { const i = r.indexOf(':'), wid = r.slice(0, i), nm = r.slice(i + 1), w = W(wid);
+    const P = w.promises.find(q => q.branches.some(b => b.name === nm) || (q.wild && q.wild.name === nm));
+    if (P) { if (!has('b:' + wid + ':' + P.k)) return 'Needs ' + P.name + ' (its Lv 3 branch) on this path first.'; if (path.some(x => x.startsWith('wb:' + wid + ':') && w.promises.some(q => q.branches.some(b => 'wb:' + wid + ':' + b.name === x) || (q.wild && 'wb:' + wid + ':' + q.wild.name === x)))) return w.name + ' already took a Lv 6 card on this path.'; return null; }
+    const lv6 = x => x.startsWith('wb:' + wid + ':') && !w.masteries.some(m => 'wb:' + wid + ':' + m.name === x);
+    if (!path.some(lv6)) return 'Lv 9 masteries come after a Lv 6 card of ' + w.name + '.'; if (path.some(x => x.startsWith('wb:' + wid + ':') && !lv6(x))) return w.name + ' already has its mastery on this path.'; return null; }
+  if (t === 'm') { const ws = path.filter(x => /^w:/.test(x)).map(x => x.slice(2)); if (!ws.length) return 'Needs a weapon on this path first.'; if (!ws.some(id => W(id).mods.includes(r))) return 'No weapon on this path takes ' + M(r).name + '.'; return null; }
+  if (t === 'mf') { const [id, c] = r.split(':'); if (!has('m:' + id)) return 'Needs ' + M(id).name + ' on this path first.'; if (c.length === 2 && !has('mf:' + id + ':' + c[0])) return 'Needs its Rank 2 fork ' + c[0] + ' first.'; return null; }
+  if (t === 'f') { const F = FEAT(r); if (F && F.sample && F.sample !== S.sample) return 'A Unique Feat of another sample.'; return null; }
+  if (t === 'pm') { const id = r.split(':')[0]; if (!has('p:' + id)) return 'Needs ' + PASS(id).name + ' on this path first.'; return null; }
+  if (t === 'sb') { if (r.split(':')[0] !== S.sample) return 'Another sample\'s branch.'; if (any(/^sb:/)) return 'One sample branch a run.'; return null; }
+  if (t === 'sbc') { const nm = r.slice(r.indexOf(':') + 1), P = X && X.promises.find(q => q.branches.some(b => b.name === nm) || (q.wild && q.wild.name === nm));
+    if (P) { if (!has('sb:' + S.sample + ':' + P.k)) return 'Needs ' + P.name + ' (the sample branch) on this path first.'; return null; }
+    const lv20 = x => x.startsWith('sbc:') && !(X && X.masteries.some(m => 'sbc:' + S.sample + ':' + m.name === x));
+    if (!path.some(lv20)) return 'Sample masteries come after a run Lv ' + (X ? X.at[1] : 20) + ' card.'; if (path.some(x => x.startsWith('sbc:') && !lv20(x))) return 'One sample mastery a run.'; return null; }
+  return null;
+}
+// Card rules on a path (rpWhy reads what is held: here, the path).
+function ptWhyRules(k, path) { PT_HELD = path; try { return rpWhy(k, null); } finally { PT_HELD = null; } }
+// The next cards worth offering under a node (its "Add next" buttons).
+function ptNext(k, suit) {
+  const X = smbD(), out = [];
+  const order = (ms, L) => { const a = ms.filter(x => x.best && x.best.includes(L)), b = ms.filter(x => !(x.best && x.best.includes(L))); return suit ? (a.length ? a : b) : a.concat(b); };
+  if (!k) { for (const id of ftWeapons()) out.push('w:' + id); if (X) for (const P of X.promises) out.push('sb:' + S.sample + ':' + P.k); return out; }
+  const [t, r] = rpSplit(k);
+  if (t === 'w') { for (const P of W(r).promises) out.push('b:' + r + ':' + P.k); }
+  if (t === 'b') { const [wid, L] = r.split(':'), P = W(wid).promises.find(q => q.k === L); for (const o of P.branches.concat(P.wild ? [P.wild] : [])) out.push('wb:' + wid + ':' + o.name); }
+  if (t === 'wb') { const i = r.indexOf(':'), wid = r.slice(0, i), nm = r.slice(i + 1), w = W(wid), P = w.promises.find(q => q.branches.some(b => b.name === nm) || (q.wild && q.wild.name === nm));
+    if (P) for (const x of order(w.masteries, P.k)) out.push('wb:' + wid + ':' + x.name); }
+  if (t === 'm') { const m = M(r); if (m.br) out.push('mf:' + r + ':A', 'mf:' + r + ':B'); }
+  if (t === 'mf') { const [id, c] = r.split(':'); if (c.length === 1) out.push('mf:' + id + ':' + c + '1', 'mf:' + id + ':' + c + '2'); }
+  if (t === 'p') { const P = PASS(r); if (P && P.mast) out.push('pm:' + r + ':A', 'pm:' + r + ':B'); }
+  if (t === 'sb' && X) { const P = X.promises.find(q => q.k === r.split(':')[1]); for (const o of P.branches.concat(P.wild ? [P.wild] : [])) out.push('sbc:' + S.sample + ':' + o.name); }
+  if (t === 'sbc' && X) { const nm = r.slice(r.indexOf(':') + 1), P = X.promises.find(q => q.branches.some(b => b.name === nm) || (q.wild && q.wild.name === nm)); if (P) for (const x of order(X.masteries, P.k)) out.push('sbc:' + S.sample + ':' + x.name); }
+  return out.filter(x => rpName(x) !== x);
+}
+// ---------------------------------------------------------------- the tree on the map
+const PT_KINDS = new Set(['pt', 'pthint']);
+function ptTree() {
+  NODES = {};
+  const mk = (id, o) => (NODES[id] = Object.assign({ id, children: [] }, o));
+  const smp = sampleOf(), T = ptT();
+  const root = mk('root', { kind: 'root', title: smp.name, ey: 'Strain ' + smp.strain + ' · ' + smp.origin + ' · build tree', desc: smp.passive + ': ' + smp.pdesc, col: tvar((smp.types || ['phys'])[0]), smp });
+  const grow = (par, pid, path) => {
+    for (const x of ptKids(T, pid)) {
+      const I = ptInfo(x.key), why = (S.rules ? ptWhyOrder(x.key, path) : null) || ptWhyRules(x.key, path);
+      const n = mk('pt' + x.id, Object.assign({ kind: 'pt', pt: x, key: x.key, why }, I, { ey: (why ? '⊘ ' : '') + I.ey }));
+      par.children.push(n); grow(n, x.id, path.concat(x.key));
+    }
+  };
+  grow(root, 'root', ['s:' + S.sample]);
+  if (!T.nodes.length) root.children.push(mk('pthint', { kind: 'pthint', title: 'An empty tree. Tap the sperm for every first pick, or tap a card in the rack.', ey: 'build tree', desc: '', col: 'var(--line)' }));
+  return root;
+}
+function ptAdd(pid, k, quiet) {
+  if (!k) { toast('That card cannot go in a build tree.'); return false; }
+  const T = ptT(), path = pid === 'root' ? ['s:' + S.sample] : ptPath(pid);
+  if (ptKids(T, pid).some(x => x.key === k)) { if (!quiet) toast(rpName(k) + ' is already here.'); return false; }
+  const why = S.rules ? ptWhyOrder(k, path) : null; if (why) { if (!quiet) toast(why + (S.rules ? ' (Game rules are on.)' : '')); return false; }
+  const id = T.seq++; T.nodes.push({ id, parent: pid, key: k }); return id;
+}
+function ptRemove(id) { const T = ptT(), gone = new Set([id]); let more = true; while (more) { more = false; for (const x of T.nodes) if (!gone.has(x.id) && gone.has(x.parent)) { gone.add(x.id); more = true; } } T.nodes = T.nodes.filter(x => !gone.has(x.id)); }
+function ptMove(id, pid) {
+  const T = ptT(), x = T.nodes.find(n => n.id === id); if (!x) return 'Gone.';
+  for (let p = pid; p !== 'root'; p = (T.nodes.find(n => n.id === p) || {}).parent) { if (p === id) return 'A card cannot go under itself.'; if (p == null) break; }
+  if (S.rules) { const why = ptWhyOrder(x.key, pid === 'root' ? ['s:' + S.sample] : ptPath(pid)); if (why) return why; }
+  x.parent = pid; return null;
+}
+// Everything a sample can do, as a tree to prune: its own weapons with every Lv 3 branch, that branch's Lv 6 cards and the masteries
+// that suit it; its sample branches the same way.
+function ptSeedAll() {
+  const add = (pid, k) => ptAdd(pid, k, true);
+  const deep = (pid, k, d) => { const id = add(pid, k); if (!id || d > 3) return; for (const n of ptNext(k, true)) deep(id, n, d + 1); };
+  for (const k of ptNext(null)) deep('root', k, 0);
+}
+// A path into the Build view: its weapons, branches, modifiers, Feats, passives and sample branch, in order.
+function ptToBuild(id) {
+  const path = ptPath(id).slice(1); S.weapons = []; S.custom = []; S.over = {}; S.feats = []; S.pass = []; S.gates = [];
+  const X = smbD(); if (X) { const m = smbMine(); m.p = null; m.br = null; m.mast = null; }
+  let cur = null;
+  for (const k of path) {
+    const [t, r] = rpSplit(k);
+    if (t === 'w' && S.weapons.length < MAXW) { cur = bpNewWeapon(r); S.weapons.push(cur); }
+    const wOf = wid => S.weapons.find(x => x.id === wid);
+    if (t === 'b') { const [wid, L] = r.split(':'), w = wOf(wid); if (w) { w.promise = L; cur = w; } }
+    if (t === 'wb') { const i = r.indexOf(':'), w = wOf(r.slice(0, i)), nm = r.slice(i + 1); if (w) { const P = W(w.id).promises.find(q => q.k === w.promise); const bi = P ? P.branches.findIndex(b => b.name === nm) : -1;
+      if (bi >= 0) w.wbr = bi; else if (P && P.wild && P.wild.name === nm) w.wbr = 'wild'; else { const xi = W(w.id).masteries.findIndex(x => x.name === nm); if (xi >= 0) w.wmast = xi; } cur = w; } }
+    if (t === 'm') { const w = (cur && W(cur.id).mods.includes(r)) ? cur : S.weapons.find(x => W(x.id).mods.includes(r)); if (w && !w.mods.some(m => m.id === r)) w.mods.push({ id: r, rank: 1, br: null, mast: null }); }
+    if (t === 'mf') { const [mid, c] = r.split(':'); for (const w of S.weapons) { const m = w.mods.find(x => x.id === mid); if (m) { if (c.length === 1) { m.br = c; m.rank = Math.max(m.rank, 2); } else { m.mast = c; m.rank = 3; } } } }
+    if (t === 'f' && FEAT(r)) S.feats.push({ u: S.seq++, id: r, f3: null, f5: null });
+    if (t === 'p' && PASS(r)) S.pass.push({ u: S.seq++, id: r, rank: 1, mast: null });
+    if (t === 'pm') { const [pid, c] = r.split(':'), x = S.pass.find(y => y.id === pid); if (x) x.mast = c === 'B' ? 1 : 0; }
+    if (X && t === 'sb') smbMine().p = r.split(':')[1];
+    if (X && t === 'sbc') { const nm = r.slice(r.indexOf(':') + 1), m = smbMine(), P = X.promises.find(q => q.k === m.p), bi = P ? P.branches.findIndex(b => b.name === nm) : -1;
+      if (bi >= 0) m.br = bi; else if (P && P.wild && P.wild.name === nm) m.br = 'wild'; else { const xi = X.masteries.findIndex(x => x.name === nm); if (xi >= 0) m.mast = xi; } }
+  }
+  S.tree = false; S.sel = 'root'; ptUi(); save(); render(); toast('This path is on the dish as a build.');
+}
+// ---------------------------------------------------------------- the detail drawer for the tree
+function ptDetailHtml(n) {
+  const T = ptT(), Bk = (k, act, id) => `<button class="btn opt" data-pt='${esc(JSON.stringify([act, id, k]))}'>${esc(rpName(k))}</button>`;
+  if (n.kind === 'pthint') return `<span class="ey">Build tree</span><h2>${esc(sampleOf().name)}</h2><p>Tap the sperm to add its first picks, or press "Start from everything" there to see every path and prune it.</p>`;
+  const id = n.kind === 'root' ? 'root' : n.pt.id, key = n.kind === 'root' ? null : n.key, path = n.kind === 'root' ? ['s:' + S.sample] : ptPath(id);
+  let h = `<span class="ey">${esc(n.ey)}</span><h2>${esc(n.title)}</h2>${n.desc ? `<p>${esc(n.desc)}</p>` : ''}`;
+  if (n.why) h += `<div class="row"><small style="color:var(--g-lifesteal)">${esc(n.why)}</small></div>`;
+  if (key) h += `<div class="row"><span class="lab">Path</span><small>${esc(path.slice(1).map(rpName).join(' > '))}</small></div>`;
+  const next = ptNext(key).filter(k => !ptKids(T, id).some(x => x.key === k)), ok = next.filter(k => !(S.rules && ptWhyOrder(k, path)));
+  if (ok.length) h += `<div class="row"><span class="lab">Add next</span>${ok.map(k => Bk(k, 'add', id)).join('')}${ok.length > 1 ? `<button class="btn" data-pt='${esc(JSON.stringify(['addall', id]))}'>All of these</button>` : ''}</div>`;
+  h += `<div class="row"><small style="color:var(--dim)">Or tap any card in the rack to add it here${key ? '' : ' (a weapon, a Feat, a passive, a sample branch)'}. Every card under one node is an alternative: each line out to a leaf is one run.</small></div>`;
+  if (key) h += `<div class="row"><button class="btn" data-pt='${esc(JSON.stringify(['build', id]))}'>Open this path as a build</button><button class="btn" data-act="rules">Do, Don't and Weight</button><button class="btn danger" data-pt='${esc(JSON.stringify(['rm', id]))}'>Remove this and what follows</button></div>`;
+  else h += `<div class="row"><button class="btn" data-pt='${esc(JSON.stringify(['seed']))}'>Start from everything</button><button class="btn danger" data-pt='${esc(JSON.stringify(['clear']))}'>Clear the tree</button><small style="color:var(--dim)">${T.nodes.length} cards, ${ptLeaves()} paths</small></div>`;
+  return h;
+}
+const ptLeaves = () => { const T = ptT(); return T.nodes.filter(x => !T.nodes.some(y => y.parent === x.id)).length; };
+renderDetail = (orig => function () {
+  const n = NODES[S.sel];
+  if (S.tree && n && (PT_KINDS.has(n.kind) || n.kind === 'root')) { $('#detail').innerHTML = ptDetailHtml(n); return; }
+  if (S.tree && !n) { $('#detail').innerHTML = `<span class="ey">Build tree</span><p>Tap a card on the map to see it, add what can come next, move it (drag it onto another card) or remove it.</p>`; return; }
+  return orig.apply(this, arguments);
+})(renderDetail);
+let ptClear = 0;
+$('#detail').addEventListener('click', e => {
+  const b = e.target.closest('[data-pt]'); if (!b || !S.tree) return;
+  e.stopPropagation(); const [a, id, k] = JSON.parse(b.dataset.pt);
+  if (a === 'add') { const nid = ptAdd(id, k); if (nid) { save(); render(); } }
+  if (a === 'addall') { const n = NODES[S.sel]; let c = 0; for (const x of ptNext(n.kind === 'root' ? null : n.key)) if (ptAdd(id, x, true)) c++; toast(c ? c + ' added.' : 'Nothing new to add.'); save(); render(); }
+  if (a === 'rm') { ptRemove(id); S.sel = 'root'; save(); render(); }
+  if (a === 'build') ptToBuild(id);
+  if (a === 'seed') { ptSeedAll(); save(); render(); setTimeout(() => $('#zfit').click(), 30); toast('Every path is on the map: remove what you do not want.'); }
+  if (a === 'clear') { if (Date.now() - ptClear > 2500) { ptClear = Date.now(); b.textContent = 'Clear? Tap again'; return; } ptT().nodes = []; S.sel = 'root'; save(); render(); }
+}, true);
+// Rack chips and dragged nodes land in the tree; a node's key opens its rules.
+rpNodeKey = (orig => function (n) { return n && n.kind === 'pt' ? n.key : n && n.kind === 'pthint' ? null : orig.apply(this, arguments); })(rpNodeKey);
+dropPlan = (orig => function (p, n) {
+  if (S.tree) {
+    if (RP.open) return orig.apply(this, arguments);
+    const pid = !n || n.kind === 'root' || n.kind === 'pthint' ? 'root' : n.kind === 'pt' ? n.pt.id : null; if (pid == null) return { ok: false, why: 'Drop it on a card in the tree.' };
+    if (p.k === 'move') { const m = NODES[p.id]; if (!m || m.kind !== 'pt') return { ok: false, why: 'Only tree cards move here.' }; const why = m.pt.id === pid ? 'Already there.' : null; return why ? { ok: false, why } : { ok: true, run: () => { const w = ptMove(m.pt.id, pid); if (w) toast(w); } }; }
+    const k = ptPayloadKey(p); if (!k) return { ok: false, why: 'That card cannot go in a build tree.' };
+    const path = pid === 'root' ? ['s:' + S.sample] : ptPath(pid);
+    if (ptKids(ptT(), pid).some(x => x.key === k)) return { ok: false, why: rpName(k) + ' is already here.' };
+    const why = S.rules ? ptWhyOrder(k, path) : null; if (why) return { ok: false, why };
+    return { ok: true, run: () => { const id = ptAdd(pid, k); if (id) S.sel = 'pt' + id; } };
+  }
+  if (p && PT_SMB.includes(p.k)) { // (Build view: a sample branch chip goes on the sperm)
+    if (!smbD()) return { ok: false, why: sampleOf().name + ' has no sample branches.' };
+    return { ok: true, run: () => { if (p.k === 'sbranch') smbPick('p', p.L); else if (p.k === 'sbcard') smbPick('b', p.L, p.i); else smbPick('x', null, p.i); } };
+  }
+  return orig.apply(this, arguments);
+})(dropPlan);
+targetFor = (orig => function (p) {
+  if (S.tree) { const n = NODES[S.sel]; return n && (n.kind === 'pt' || n.kind === 'root') ? n : NODES.root; }
+  if (p && PT_SMB.includes(p.k)) return NODES.root;
+  return orig.apply(this, arguments);
+})(targetFor);
+// Copy: the tree as indented text, one line per card.
+buildText = (orig => function () {
+  if (!S.tree) return orig.apply(this, arguments);
+  const smp = sampleOf(), L = [`${smp.name} (strain ${smp.strain}) · build tree, ${ptLeaves()} paths`];
+  (function walk(n, d) { for (const c of n.children) { if (c.kind !== 'pt') continue; L.push('  '.repeat(d) + '- ' + c.ey.replace(/^⊘ /, '').split(' · ')[0] + ': ' + c.title + (c.why ? ' [' + c.why + ']' : '')); walk(c, d + 1); } })(NODES.root, 0);
+  if (L.length === 1) L.push('- (an empty tree)');
+  return L.join('\n');
+})(buildText);
+// The rack: sample branches as chips (Branches tab, every view), above the weapon branches.
+renderRack = (orig => function () {
+  const n0 = S.tree && S.sim ? NODES[S.sel] : null; // (Simulate in a build tree: chips are judged against the selected path)
+  if (S.tree && S.sim) PT_HELD = n0 && n0.kind === 'pt' ? ptPath(n0.pt.id) : ['s:' + S.sample];
+  try { orig.apply(this, arguments); } finally { PT_HELD = null; }
+  if (TAB !== 'branches') return;
+  if (S.tree && S.sim) PT_HELD = n0 && n0.kind === 'pt' ? ptPath(n0.pt.id) : ['s:' + S.sample];
+  const X = smbD(), r = $('#rack'); if (!X) return;
+  const h0 = smbHeld(), col = smbCol(), smp = sampleOf();
+  let h = `<details class="wb onmap" open><summary>${esc(smp.name)}'s sample branches <small>run Lv ${X.at.join(', ')} · the whole sperm</small></summary>`;
+  for (const P of X.promises) {
+    h += `<div class="sec"><h3 style="--c:${col}"><i></i>Run Lv ${X.at[0]} · ${esc(P.k)}${P.tag ? ' · ' + esc(P.tag) : ''}</h3><div class="chips">`;
+    h += chip({ k: 'sbranch', L: P.k }, P.name, P.desc, col, !S.tree && h0.p === P.k ? 'held' : '', 'Lv ' + X.at[0]);
+    h += P.branches.map((o, i) => chip({ k: 'sbcard', L: P.k, i }, o.name, o.desc, col, !S.tree && h0.p === P.k && h0.br === i ? 'held' : '', 'Lv ' + X.at[1])).join('');
+    if (P.wild) h += chip({ k: 'sbcard', L: P.k, i: 'wild' }, P.wild.name, P.wild.desc, col, !S.tree && h0.p === P.k && h0.br === 'wild' ? 'held' : '', 'Lv ' + X.at[1] + ' wild');
+    h += '</div></div>';
+  }
+  h += `<div class="sec"><h3 style="--c:${col}"><i></i>Run Lv ${X.at[2]} masteries</h3><div class="chips">` + X.masteries.map((x, i) => chip({ k: 'sbmast', i }, x.name, x.desc, col, !S.tree && h0.mast === i ? 'held' : '', 'Lv ' + X.at[2])).join('') + '</div></div></details>';
+  const anchor = [...r.children].find(el => el.tagName === 'H3') || r.querySelector('details');
+  PT_HELD = null;
+  if (anchor) anchor.insertAdjacentHTML('beforebegin', h); else r.insertAdjacentHTML('beforeend', h);
+})(renderRack);
+// The view switch: Build, Full tree, Build tree.
+function ptUi() { const b = $('#treebtn'); if (b) { b.classList.toggle('on', !!S.tree); b.textContent = S.tree ? 'Build' : 'Build tree'; } $('#copy').textContent = S.tree ? 'Copy tree' : 'Copy build'; }
+$('#fullbtn').insertAdjacentHTML('afterend', '<button class="btn" id="treebtn" title="Map every path a sample\'s run can take, as branches">Build tree</button>');
+$('#treebtn').onclick = () => { S.tree = !S.tree; if (S.tree) S.full = false; S.sel = 'root'; save(); ptUi(); $('#fullbtn').classList.toggle('on', !!S.full); $('#fullbtn').textContent = S.full ? 'Build' : 'Full tree'; render(); setTimeout(() => $('#zfit').click(), 30); };
+$('#fullbtn').addEventListener('click', () => { if (S.tree) { S.tree = false; ptUi(); } }, true);
+$('#sample').addEventListener('change', () => ptUi());
+buildTree = (orig => function () { return S.tree ? ptTree() : orig.apply(this, arguments); })(buildTree);
+document.head.insertAdjacentHTML('beforeend', '<style>.node.pt.ptbad, .node.pt[data-bad] { border-style: dashed; border-color: var(--g-lifesteal); } .node.pthint { border-style: dashed; background: transparent; color: var(--dim); } .node.smbhint b { color: var(--ink); }</style>');
+render = (orig => function () { orig.apply(this, arguments); if (S.tree && LAST) for (const n of LAST.all) if (n.why && n.el) { n.el.classList.add('ptbad'); n.el.title = n.why; } })(render);
+ptUi();
+
+// ---------------------------------------------------------------- versions (the user, 31 Oct: "when I select a sample, next to it have another
+// dropdown for saved versions. The default is whatever is live in code. Then the others are versions I've created here locally.")
+// Each sample has "Live in code": its start as the game ships it (own weapons, Unique Feat, no blocks, no edits, no sample branch, no build
+// tree). Anything you change on Live becomes a new version of your own, named and kept here; while a version is selected, every change is
+// saved into it. Kept in S.vers[sample] = [{ id, name, at, st }] (st: the dish, the sample branch and the build tree) and S.verSel[sample].
+const VER = { loading: false, liveSig: {}, delArm: 0 };
+const verClone = o => JSON.parse(JSON.stringify(o == null ? null : o));
+const verList = () => { S.vers = S.vers || {}; return S.vers[S.sample] || (S.vers[S.sample] = []); };
+const verCur = () => { S.verSel = S.verSel || {}; const id = S.verSel[S.sample]; return id ? verList().find(v => v.id === id) || null : null; };
+function verSnap() {
+  return { weapons: verClone(S.weapons), custom: verClone(S.custom), over: verClone(S.over), feats: verClone(S.feats), pass: verClone(S.pass), gates: verClone(S.gates),
+    smb: verClone(S.smb && S.smb[S.sample]), tree: verClone(S.trees && S.trees[S.sample]) };
+}
+const verSig = st => JSON.stringify([st.weapons, st.custom, st.over, st.feats, st.pass, st.gates, st.smb && [st.smb.p, st.smb.br, st.smb.mast], st.tree && st.tree.nodes && st.tree.nodes.length ? st.tree.nodes : null]);
+function verRestore(st) {
+  S.weapons = verClone(st.weapons) || []; S.custom = verClone(st.custom) || []; S.over = verClone(st.over) || {}; S.feats = verClone(st.feats) || []; S.pass = verClone(st.pass) || []; S.gates = verClone(st.gates) || [];
+  S.smb = S.smb || {}; if (st.smb) S.smb[S.sample] = verClone(st.smb); else delete S.smb[S.sample];
+  S.trees = S.trees || {}; if (st.tree) S.trees[S.sample] = verClone(st.tree); else delete S.trees[S.sample];
+  const us = [].concat(S.weapons, S.custom, S.feats, S.pass, S.gates).map(x => (x && x.u) || 0);
+  S.seq = Math.max(S.seq || 1, ...us.map(u => u + 1)); S.sel = 'root';
+}
+function verLoadLive() { // the sample's start, as the game ships it
+  const p = (D.presets || []).find(x => x.group === 'Sample starts' && x.sample === S.sample);
+  const t0 = toast; toast = () => {};
+  try { if (p) bpApply(p); else { S.weapons = []; S.custom = []; S.over = {}; S.feats = []; S.pass = []; S.gates = []; }
+    if (S.smb) delete S.smb[S.sample]; if (S.trees) delete S.trees[S.sample]; S.sel = 'root'; }
+  finally { toast = t0; }
+  VER.liveSig[S.sample] = verSig(verSnap());
+}
+function verOpen() { // show the selected version of the current sample (or Live)
+  VER.loading = true;
+  try { const v = verCur(); if (v) verRestore(v.st); else verLoadLive(); } finally { VER.loading = false; }
+}
+function verNew(name, st) {
+  const L = verList(), v = { id: 'v' + Date.now().toString(36) + Math.floor(Math.random() * 1e4), name: name || (sampleOf().name + ' ' + (L.length + 1)), at: Date.now(), st: st || verSnap() };
+  L.push(v); S.verSel[S.sample] = v.id; return v;
+}
+// Every render: a change on Live becomes a new version; a change on a version is saved into it.
+function verTrack() {
+  if (VER.loading) return;
+  const st = verSnap(), sig = verSig(st), v = verCur();
+  if (v) { if (verSig(v.st) !== sig) { v.st = st; v.at = Date.now(); save(); verUi(); } return; }
+  if (VER.liveSig[S.sample] == null) { VER.loading = true; try { verLoadLive(); verRestore(st); } finally { VER.loading = false; } } // (what Live looks like, without showing it)
+  if (sig !== VER.liveSig[S.sample]) { const n = verNew(null, st); save(); verUi(); toast('Saved as a new version: ' + n.name + '. Live in code is unchanged.'); }
+}
+render = (orig => function () { const r = orig.apply(this, arguments); try { verTrack(); if ($('#ver')) verUi(); } catch (e) { } return r; })(render);
+const verWhen = t => { const d = new Date(t); return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) + ' ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }); };
+function verUi() {
+  const s = $('#ver'), v = verCur(), L = verList();
+  s.innerHTML = `<option value="">Live in code (v${esc(String(D.version || ''))})</option>` + (L.length ? `<optgroup label="Your versions">${L.map(x => `<option value="${esc(x.id)}">${esc(x.name)} · ${esc(verWhen(x.at))}</option>`).join('')}</optgroup>` : '')
+    + `<optgroup label="Actions"><option value="__new">+ Save as a new version</option>${v ? '<option value="__del">Delete this version</option>' : ''}</optgroup>`;
+  s.value = v ? v.id : '';
+  const nm = $('#vername'); nm.hidden = !v; if (v && document.activeElement !== nm) nm.value = v.name;
+}
+$('#sample').closest('label').insertAdjacentHTML('afterend', '<label for="ver">Version <select id="ver"></select></label><input id="vername" class="vername" aria-label="Version name" placeholder="Name this version" hidden>');
+document.head.insertAdjacentHTML('beforeend', '<style>.vername{padding:5px 8px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);font:inherit;width:150px}.vername[hidden]{display:none}</style>');
+$('#ver').onchange = e => {
+  const val = e.target.value;
+  if (val === '__new') { const n = verNew(sampleOf().name + ' ' + (verList().length + 1)); save(); verUi(); toast('Saved as a new version: ' + n.name + '.'); return; }
+  if (val === '__del') {
+    const v = verCur(); if (!v) { verUi(); return; }
+    if (Date.now() - VER.delArm > 4000) { VER.delArm = Date.now(); verUi(); toast('Choose "Delete this version" again to delete ' + v.name + '.'); return; }
+    VER.delArm = 0; S.vers[S.sample] = verList().filter(x => x.id !== v.id); S.verSel[S.sample] = null; verOpen(); save(); render(); verUi(); toast('Deleted ' + v.name + '. Showing Live in code.'); return;
+  }
+  S.verSel = S.verSel || {}; S.verSel[S.sample] = val || null; verOpen(); save(); render(); verUi();
+  setTimeout(() => $('#zfit') && $('#zfit').click(), 30);
+};
+$('#vername').onchange = e => { const v = verCur(); if (!v) return; v.name = e.target.value.trim() || v.name; save(); verUi(); };
+$('#sample').onchange = () => { S.sample = $('#sample').value; S.sel = 'root'; verOpen(); save(); render(); verUi(); setTimeout(() => $('#zfit') && $('#zfit').click(), 30); };
+// Start: a dish from before versions is kept as a version of its own, so nothing you made is lost.
+(() => {
+  S.vers = S.vers || {}; S.verSel = S.verSel || {};
+  if (!S.versSeeded) {
+    S.versSeeded = 1;
+    if (!verCur() && (S.weapons.length || S.custom.length || S.feats.length || S.pass.length || (S.trees && S.trees[S.sample] && S.trees[S.sample].nodes && S.trees[S.sample].nodes.length))) verNew(sampleOf().name + ': my dish');
+    save();
+  }
+  verUi();
+})();
+
+// ---------------------------------------------------------------- collapsible left panel (the user, 31 Oct)
+function rackApply() {
+  const b = document.querySelector('.bench'), off = !!S.rackOff;
+  b.classList.toggle('rackoff', off); $('#rackbtn').classList.toggle('on', !off);
+  if (typeof applyZoom === 'function') setTimeout(() => { try { $('#zfit').click(); } catch (e) { } }, 60);
+}
+document.head.insertAdjacentHTML('beforeend', '<style>.bench.rackoff{grid-template-columns:minmax(0,1fr);gap:0}.bench.rackoff .rack{display:none}@media (max-width:860px){.bench.rackoff{grid-template-rows:minmax(0,1fr)}}</style>');
+$('#rackbtn').onclick = () => { S.rackOff = !S.rackOff; save(); rackApply(); };
+rackApply();
 
 // ---------------------------------------------------------------- boot
 try { if (window.claude && window.claude.hot && window.claude.hot.snapshot) window.claude.hot.snapshot(() => S); } catch (e) { }
