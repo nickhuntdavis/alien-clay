@@ -246,7 +246,7 @@ const tname = t => (D.types[t] || {}).name || t;
 const tvar = t => `var(--t-${D.types[t] ? t : 'phys'})`;
 const gvar = g => `var(--g-${g})`;
 const MAST_IDX = { A1: 2, A2: 3, B1: 4, B2: 5 }, MAST_TXT = { A1: 4, A2: 5, B1: 6, B2: 7 };
-const IDEA_TYPES = ['Weapon', 'Lv 3 branch', 'Lv 6 branch', 'Lv 9 mastery', 'Modifier', 'Modifier fork', 'Modifier mastery', 'Switched at Birth', 'Feat', 'Feat fork', 'Sperm passive', 'Passive mastery', 'Gate', 'Sample', 'Enemy', 'Other'];
+const IDEA_TYPES = ['Weapon', 'Lv 3 branch', 'Lv 6 branch', 'Lv 9 mastery', 'Modifier', 'Modifier fork', 'Modifier mastery', 'Switched at Birth', 'Feat', 'Feat fork', 'Sperm passive', 'Passive mastery', 'Gate', 'Sample', 'Sample branch', 'Enemy', 'Other'];
 const FEAT_BY = {}; for (const f of D.feats) FEAT_BY[f.id] = f; const FEAT = id => FEAT_BY[id];
 const PASS_BY = {}; for (const p of D.passives) PASS_BY[p.id] = p; const PASS = id => PASS_BY[id];
 const FAM = f => ({ body: 'Body', trade: 'Trade-off', rare: 'Rare', rules: 'Rules', def: 'Defence', fire: 'Fire', 'type:any': 'Any damage type' }[f] || (f.startsWith('type:') ? tname({ force: 'phys', acid: 'fire', static: 'shock', mucus: 'ice', blood: 'arcane', soul: 'soul', fire: 'flame' }[f.slice(5)] || f.slice(5)) + ' type' : f));
@@ -1582,7 +1582,7 @@ const ptKids = (T, pid) => T.nodes.filter(x => x.parent === pid);
 // What a card key is, for its node: title, eyebrow, text and colour.
 function ptInfo(k) {
   const [t, r] = rpSplit(k), smp = sampleOf(), X = smbD(), sx = (smp.types || ['phys'])[0];
-  if (/^x:/.test(k)) { const bn = ptT().nodes.find(x => x.key === k) || {}; return { title: bn.name || 'Untitled', ey: 'Idea · ' + (bn.tag || 'Custom'), desc: bn.text || '', col: 'var(--idea)' }; }
+  if (/^x:/.test(k)) { const bn = ptT().nodes.find(x => x.key === k) || {}; return { title: bn.name || 'Untitled', ey: 'Idea · ' + (bn.type || bn.tag || 'Custom'), desc: bn.text || '', col: 'var(--idea)' }; }
   const out = { title: rpName(k), ey: rpKindLabel(k), desc: '', col: 'var(--accent)' };
   try {
     if (t === 'w') { const w = W(r); out.ey = 'Weapon · ' + w.atk + ' · ' + tname(w.type); out.desc = w.desc; out.col = tvar(w.type); }
@@ -1708,7 +1708,7 @@ function ptToBuild(id) {
       if (bi >= 0) w.wbr = bi; else if (P && P.wild && P.wild.name === nm) w.wbr = 'wild'; else { const xi = W(w.id).masteries.findIndex(x => x.name === nm); if (xi >= 0) w.wmast = xi; } cur = w; } }
     if (t === 'm') { const w = (cur && W(cur.id).mods.includes(r)) ? cur : S.weapons.find(x => W(x.id).mods.includes(r)); if (w && !w.mods.some(m => m.id === r)) w.mods.push({ id: r, rank: 1, br: null, mast: null }); }
     if (t === 'mf') { const [mid, c] = r.split(':'); for (const w of S.weapons) { const m = w.mods.find(x => x.id === mid); if (m) { if (c.length === 1) { m.br = c; m.rank = Math.max(m.rank, 2); } else { m.mast = c; m.rank = 3; } } } }
-    if (t === 'x') { const bn = ptT().nodes.find(x => x.key === k) || {}; S.custom.push({ u: S.seq++, parent: cur ? 'w' + cur.u : 'root', tag: bn.tag || 'Custom', name: bn.name || 'Untitled', text: bn.text || '' }); }
+    if (t === 'x') { const bn = ptT().nodes.find(x => x.key === k) || {}; S.custom.push({ u: S.seq++, parent: cur ? 'w' + cur.u : 'root', tag: bn.type || bn.tag || 'Custom', type: bn.type || '', name: bn.name || 'Untitled', text: bn.text || '' }); }
     if (t === 'f' && FEAT(r)) S.feats.push({ u: S.seq++, id: r, f3: null, f5: null });
     if (t === 'p' && PASS(r)) S.pass.push({ u: S.seq++, id: r, rank: 1, mast: null });
     if (t === 'pm') { const [pid, c] = r.split(':'), x = S.pass.find(y => y.id === pid); if (x) x.mast = c === 'B' ? 1 : 0; }
@@ -1726,7 +1726,7 @@ function ptDetailHtml(n) {
   let h = `<span class="ey">${esc(n.ey)}</span><h2>${esc(n.title)}</h2>${n.desc ? `<p>${esc(n.desc)}</p>` : ''}`;
   if (n.why) h += `<div class="row"><small style="color:var(--g-lifesteal)">${esc(n.why)}</small></div>`;
   if (key) h += `<div class="row"><span class="lab">Path</span><small>${esc(path.slice(1).map(rpName).join(' > '))}</small></div>`;
-  if (n.pt && n.pt.blank) h += `<div class="row"><span class="lab">Tag</span><input id="ptbtag" class="ptin" value="${esc(n.pt.tag || '')}" placeholder="Tag"></div><div class="row"><span class="lab">Name</span><input id="ptbn" class="ptin" value="${esc(n.pt.name || '')}" placeholder="Name it"></div><div class="row"><textarea id="ptbt" class="ptin" rows="4" placeholder="What it does: numbers, trigger, feel.">${esc(n.pt.text || '')}</textarea></div>`;
+  if (n.pt && n.pt.blank) h += `<div class="row"><span class="lab">Type</span><select id="ptbtype" class="ptin"><option value="">State what it is…</option>${IDEA_TYPES.map(t => `<option value="${esc(t)}" ${n.pt.type === t ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select></div><div class="row"><span class="lab">Name</span><input id="ptbn" class="ptin" value="${esc(n.pt.name || '')}" placeholder="Name it"></div><div class="row"><textarea id="ptbt" class="ptin" rows="4" placeholder="What it does: numbers, trigger, feel.">${esc(n.pt.text || '')}</textarea></div>`;
   const next = (n.pt && n.pt.blank ? [] : ptNext(key)).filter(k => !ptKids(T, id).some(x => x.key === k)), ok = next.filter(k => !(S.rules && ptWhyOrder(k, path)));
   if (ok.length) h += `<div class="row"><span class="lab">Add next</span>${ok.map(k => Bk(k, 'add', id)).join('')}${ok.length > 1 ? `<button class="btn" data-pt='${esc(JSON.stringify(['addall', id]))}'>All of these</button>` : ''}</div>`;
   h += `<div class="row"><button class="btn" data-pt='${esc(JSON.stringify(['blank', id]))}'>Add a blank block here</button></div>`;
@@ -1756,11 +1756,11 @@ $('#detail').addEventListener('click', e => {
 }, true);
 // Typing into a blank block of the tree (name, tag and text save as you type; the map redraws when you leave the box).
 $('#detail').addEventListener('input', e => {
-  const el = e.target; if (!S.tree || !/^ptb(n|t|tag)$/.test(el.id)) return;
+  const el = e.target; if (!S.tree || !/^ptb(n|t|type)$/.test(el.id)) return;
   const n = NODES[S.sel], x = n && n.pt && n.pt.blank ? ptT().nodes.find(y => y.id === n.pt.id) : null; if (!x) return;
-  if (el.id === 'ptbn') x.name = el.value; else if (el.id === 'ptbt') x.text = el.value; else x.tag = el.value; save();
+  if (el.id === 'ptbn') x.name = el.value; else if (el.id === 'ptbt') x.text = el.value; else { x.type = el.value; x.tag = el.value || 'Custom'; } save();
 });
-$('#detail').addEventListener('change', e => { if (S.tree && /^ptb(n|t|tag)$/.test(e.target.id)) { const keep = S.sel; render(); S.sel = keep; } });
+$('#detail').addEventListener('change', e => { if (S.tree && /^ptb(n|t|type)$/.test(e.target.id)) { const keep = S.sel; render(); S.sel = keep; } });
 document.head.insertAdjacentHTML('beforeend', '<style>.ptin{width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);font:inherit}</style>');
 // Rack chips and dragged nodes land in the tree; a node's key opens its rules.
 rpNodeKey = (orig => function (n) { return n && n.kind === 'pt' ? (n.pt.blank ? null : n.key) : n && n.kind === 'pthint' ? null : orig.apply(this, arguments); })(rpNodeKey);
