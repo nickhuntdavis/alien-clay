@@ -212,6 +212,7 @@ details.wb.onmap { border-color: var(--accent); }
       <button class="btn" id="buildsbtn" title="Load a build: your saved ideas, a sample's start or a Baseline hero">Builds</button>
       <button class="btn" id="rulesbtn" title="Open a card's Do, Don't and Weight rules">Rules</button>
       <button class="btn" id="simbtn" title="Grey out what the cards on the dish would stop from being dealt">Simulate</button>
+      <button class="btn" id="dealbtn" title="What this sample would deal now, with weights, by damage type and modifier group">Dealing</button>
       <button class="btn danger" id="clear">Clear</button>
     </div>
     <div class="bpop" id="bpop" hidden></div>
@@ -1534,6 +1535,65 @@ bpApply = (orig => function (p) { orig.apply(this, arguments); if (p && p.smb) {
 buildText = (orig => function () { return orig.apply(this, arguments).split('\n').filter(l => !/- Sample branch: pick one on the sperm$/.test(l)).join('\n'); })(buildText);
 document.head.insertAdjacentHTML('beforeend', '<style>.node.xsp.taken, .node.xsb.taken, .node.xsm.taken { box-shadow: 0 0 0 3px var(--accent); } .node.smbhint { border-style: dashed; background: transparent; color: var(--dim); } .node.smbhint b { font-weight: 500; color: var(--dim); }</style>');
 
+// ---------------------------------------------------------------- dealing readout (the user, 31 Oct: "Show the dealing result, not just the rules ... a per-sample 'what would the run offer' readout from the rules (counts by damage type and modifier group) so I can see a sample's personality in one glance and adjust weights until it matches")
+// A toolbar toggle and its own panel (the rules panel is busy with the open card; this one slides in beside it, so the two can be read together).
+const DL = { open: false };
+function rpWeight(k, w) { // the game's crWeight: the product of every live Weight rule whose parent is held and whose target covers the card
+  let x = 1; if (!S.cr.length || !k) return x;
+  const HW = w ? rpHeldFor('weapon', w) : null, HR = rpHeldFor('run', null);
+  for (const r of S.cr) {
+    if (r.mode !== 'weight' || !rpCovers(r.target, k) || !rpLive(r)) continue;
+    const held = (r.scope || 'weapon') === 'weapon' && w ? HW : HR;
+    if (!rpCond(r, held, w) || !held.some(h => rpCovers(r.parent, h))) continue;
+    x *= r.k == null || isNaN(+r.k) ? 1 : Math.max(0, +r.k);
+  }
+  return x;
+}
+const dlEff = (k, w) => { const why = rpWhy(k, w); return why ? { x: 0, why } : { x: rpWeight(k, w), why: null }; };
+const dlX = e => e.why ? 'blocked' : 'x' + +e.x.toFixed(2);
+function dlData() {
+  const held = S.weapons.map(w => w.id), sw = selW() || (S.weapons[0] ? S.weapons[0] : null), D0 = { wt: {}, mg: {}, w: [], m: [], f: [], p: [], sw };
+  for (const id of WIDS) { if (held.includes(id)) continue; const e = dlEff('w:' + id, null); D0.w.push(Object.assign({ id, name: W(id).name, t: W(id).type }, e)); if (!e.why) D0.wt[W(id).type] = (D0.wt[W(id).type] || 0) + e.x; }
+  if (sw) for (const id of W(sw.id).mods) { if (BUILTIN.includes(id) || sw.mods.some(m => m.id === id)) continue; const e = dlEff('m:' + id, sw); D0.m.push(Object.assign({ id, name: M(id).name, g: M(id).group }, e)); if (!e.why) D0.mg[M(id).group] = (D0.mg[M(id).group] || 0) + e.x; }
+  for (const f of D.feats) { if ((f.sample && f.sample !== S.sample) || S.feats.some(x => x.id === f.id)) continue; const e = dlEff('f:' + f.id, null); D0.f.push(Object.assign({ id: f.id, name: f.name, t: f.atk ? f.type : 'util' }, e)); if (!e.why && f.atk) D0.wt[f.type] = (D0.wt[f.type] || 0) + e.x; }
+  for (const q of D.passives) { if (S.pass.some(x => x.id === q.id)) continue; D0.p.push(Object.assign({ id: q.id, name: q.name }, dlEff('p:' + q.id, null))); }
+  return D0;
+}
+const dlTop = o => Object.entries(o).filter(e => e[1] > 0).sort((a, b) => b[1] - a[1]);
+function dlSummary(d) {
+  const t = dlTop(d.wt), g = dlTop(d.mg), pct = (a, tot) => Math.round(100 * a[1] / tot);
+  if (!t.length) return 'Nothing left to deal. The rules have been thorough.';
+  const tt = t.reduce((s, e) => s + e[1], 0), gt = g.reduce((s, e) => s + e[1], 0);
+  return `Leans ${tname(t[0][0])}${g.length ? ' and ' + (D.gnames[g[0][0]] || g[0][0]) : ''}. ${tname(t[0][0])} is ${pct(t[0], tt)}% of the weapon and Feat weight${g.length ? '; ' + (D.gnames[g[0][0]] || g[0][0]) + ' is ' + pct(g[0], gt) + '% of the modifier weight' : ''}.`;
+}
+function dlRows(list, key) { // grouped rows: dealable (heaviest first), then blocked, greyed, with the first reason
+  const by = {}; for (const e of list) (by[e[key]] = by[e[key]] || []).push(e);
+  return by;
+}
+function dlChips(es) { return es.sort((a, b) => b.x - a.x || a.name.localeCompare(b.name)).map(e => `<span class="chip dlchip${e.why ? ' blocked' : ''}" ${e.why ? `title="${esc(e.why)}"` : ''}><b>${esc(e.name)}</b><small>${dlX(e)}</small></span>`).join(''); }
+function dlRender() {
+  const el = $('#dealpanel'); if (!el) return;
+  el.classList.toggle('open', DL.open); el.style.right = RP.open ? 'min(400px, 94vw)' : '0'; $('#dealbtn').classList.toggle('on', DL.open);
+  if (!DL.open) { el.innerHTML = ''; return; }
+  const d = dlData(), sm = sampleOf(); let h = `<div class="rp-ey">Dealing · ${esc(sm.name)} · ${S.cr.length} rules</div><p class="dlsum">${esc(dlSummary(d))}</p><button class="btn" id="dlclose">Close</button>`;
+  const wb = dlRows(d.w, 't'), types = Object.keys(D.types).filter(t => wb[t]);
+  h += `<div class="sec"><h3>Weapons not on the dish (${d.w.filter(e => !e.why).length} of ${d.w.length} could come)</h3>`;
+  for (const t of types) h += `<div class="dlg"><span class="rp-lab" style="color:${tvar(t)}">${esc(tname(t))}</span><div class="chips">${dlChips(wb[t])}</div></div>`;
+  h += '</div>';
+  h += `<div class="sec"><h3>Modifiers${d.sw ? ' for ' + esc(W(d.sw.id).name) : ''}</h3>`;
+  if (!d.sw) h += '<p class="hint">No weapon on the dish. Modifiers are dealt per weapon.</p>';
+  else { const mb = dlRows(d.m, 'g'); for (const g of GORDER) if (mb[g]) h += `<div class="dlg"><span class="rp-lab" style="color:${gvar(g)}">${esc(D.gnames[g] || g)}</span><div class="chips">${dlChips(mb[g])}</div></div>`; }
+  h += '</div>';
+  const fOk = d.f.filter(e => !e.why), fBl = d.f.filter(e => e.why), cnt = {}; for (const e of fOk) cnt[e.t] = (cnt[e.t] || 0) + 1;
+  h += `<div class="sec"><h3>Feats (${fOk.length} of ${d.f.length} could come)</h3><div class="chips">${Object.keys(cnt).map(t => `<span class="chip dlchip"><b>${esc(t === 'util' ? 'Utility' : tname(t))}</b><small>${cnt[t]} · x${+fOk.filter(e => e.t === t).reduce((s, e) => s + e.x, 0).toFixed(2)} total</small></span>`).join('') || '<span class="hint">None.</span>'}</div>`;
+  h += `<h3 style="margin-top:8px">Passives (${d.p.filter(e => !e.why).length} of ${d.p.length} could come)</h3><div class="chips"><span class="chip dlchip"><b>Weighted</b><small>${d.p.filter(e => !e.why && e.x !== 1).map(e => e.name + ' ' + dlX(e)).join(', ') || 'none, all x1'}</small></span></div></div>`;
+  const bl = fBl.concat(d.p.filter(e => e.why));
+  h += `<div class="sec"><h3>Blocked Feats and passives (${bl.length})</h3>${bl.length ? bl.map(e => `<div class="dlbl"><b>${esc(e.name)}</b> <small>${esc(e.why)}</small></div>`).join('') : '<p class="hint">Nothing blocked.</p>'}</div>`;
+  el.innerHTML = h; $('#dlclose').onclick = () => { DL.open = false; dlRender(); };
+}
+{ const st = document.createElement('style'); st.textContent = '.dealpanel { position: fixed; top: 0; right: 0; bottom: 0; width: min(380px, 94vw); background: var(--panel); border-left: 1px solid var(--line); box-shadow: -8px 0 24px #0003; z-index: 39; padding: 12px; overflow-y: auto; transform: translateX(110%); transition: transform .15s; display: flex; flex-direction: column; gap: 8px } .dealpanel.open { transform: none } .dlsum { font: 700 14px/1.3 var(--display); margin: 0 } .dlg { display: flex; gap: 6px; align-items: flex-start; margin-bottom: 4px } .dlg .rp-lab { min-width: 70px; padding-top: 5px } .dlchip { cursor: default; padding: 3px 7px } .dlchip.blocked { opacity: .4; text-decoration: line-through } .dlbl { font-size: 12px } .dlbl small { color: var(--dim) }'; document.head.appendChild(st); const a = document.createElement('aside'); a.className = 'dealpanel'; a.id = 'dealpanel'; a.setAttribute('aria-label', 'Dealing readout'); document.body.appendChild(a); }
+$('#dealbtn').onclick = () => { DL.open = !DL.open; dlRender(); };
+for (const fn of ['render', 'rpRender', 'rpShow']) { const o = window[fn] || eval(fn); if (typeof o !== 'function') continue; const w = function () { const r = o.apply(this, arguments); try { dlRender(); } catch (e) { console.error(e); } return r; }; try { eval(fn + ' = w'); } catch (e) { } }
 // ---------------------------------------------------------------- boot
 try { if (window.claude && window.claude.hot && window.claude.hot.snapshot) window.claude.hot.snapshot(() => S); } catch (e) { }
 // (a live update hands over the old page's state: put this version's default rules back in)
